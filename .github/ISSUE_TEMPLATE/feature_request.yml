@@ -10,9 +10,8 @@ body:
         example `feat(cli): add a --dry-run flag`. Titles follow
         [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-        For anything that is neither a bug nor a feature, open a blank-titled
-        issue from a different type, such as `docs: ` or `chore: `, by editing
-        the title after you pick either template.
+        For anything that is neither a bug nor a feature, start here anyway and
+        change both the type in the title and the `enhancement` label to match.
 
   - type: textarea
     id: problem
