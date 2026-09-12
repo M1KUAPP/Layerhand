@@ -493,12 +493,18 @@ no account.
 
 The loop resends a growing screenshot history, so naive cost is
 quadratic in the step count. Forty steps at 1440x900 send roughly
-**1.28M image tokens cumulatively** — about **$12.84** at the $10/M
-input rate, for one photograph. That is the number the product dies on.
+**1.3M input tokens cumulatively** — about **$13** at the $10/M input
+rate, for one photograph. That is the number the product dies on.
 
-Prompt caching is the lever: cached input reads at $1/M and writes at
-$12.50/M, so the same run lands near **$2.60** when caching works.
-Everything below exists to make sure it works.
+Prompt caching is the lever: reads are $1/M and writes $12.50/M, so the
+same input lands near **$2**. Adding roughly 30K of output at $50/M:
+
+|                 | Input | Output | **Per run** |
+| --------------- | ----- | ------ | ----------- |
+| Caching working | ~$2   | $1.50  | **~$3.50**  |
+| Caching broken  | ~$13  | $1.50  | **~$14.50** |
+
+Everything below exists to keep us in the first row.
 
 - **The tool array must be byte-stable across the run.** Changing a
   tool's name, description, schema, or even its _ordering_ invalidates
@@ -522,7 +528,9 @@ of [spike A2](#decisions-deferred-to-spikes), not a guess.
 Worth noting what is _not_ a risk: requests over 272K input tokens are
 billed at 2x input and cache rates and 1.5x output **for the whole
 request**, but forty frames come to roughly 63K tokens. We stay far
-below that cliff, and the step cap keeps it that way.
+below that cliff, and the step cap keeps it that way. The threshold is
+per request; our exposure is cumulative, and the two are easy to
+confuse in the wrong direction.
 
 ### The four limits
 
