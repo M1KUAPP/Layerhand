@@ -115,8 +115,14 @@ still theirs to edit.
 
 ## Competition
 
-The market splits into three groups, and none of them returns a layered
-document.
+**This section is reasoning, not a survey.** Nobody has sat down with
+the competing products and checked what they actually emit. It is the
+least evidenced part of this document, and since the entire wedge is a
+claim about what competitors _cannot_ produce, it is also the part most
+worth being wrong about. Treat it as a hypothesis with an owner.
+
+The market appears to split into three groups, and none of them returns
+a layered document.
 
 1.  **One-shot AI image tools** — background removal, generative fill,
     upscaling. Fast, cheap, flat output. They win on price per image and
@@ -239,8 +245,14 @@ Each is assigned and answered before it can block work.
     automation, and permit selling the resulting work. What remains is
     commercial rather than legal: free embedding shows advertisements,
     and removing them needs a Distributor account from €60 a month.
+1.  Does _any_ existing product return a layered file? The wedge is a
+    claim about what competitors cannot do, and it has not been
+    checked product by product.
 1.  Is there a first-party server-side editing API that does this work
-    without a GUI, and what does it cost?
+    without a GUI, and what does it cost? Adobe is the obvious place
+    to look, and the answer would not remove the differentiator — the
+    output would still be layered — but it would remove the model
+    leverage, which is what this idea was selected for.
 1.  What are the official contest rules? They sit behind a login wall
     and we have not read them. Specifically: is a public repository or
     an open-source licence required, and is a demo video required?
