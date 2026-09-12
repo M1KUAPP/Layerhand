@@ -51,14 +51,14 @@ titles that say where the link goes.
 
 ## Layout
 
-| Path              | Holds                                                     |
-| ----------------- | --------------------------------------------------------- |
-| `AGENTS.md`       | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md` |
-| `docs/agents/`    | Instructions addressed to agents                          |
-| `docs/reference/` | Style guides and workflows, for humans and agents         |
-| `.claude/skills/` | Skills written for this repository                        |
-| `.github/`        | Workflows, templates, and the branch ruleset              |
-| `scripts/`        | One-off administrative scripts                            |
+| Path              | Holds                                                         |
+| ----------------- | ------------------------------------------------------------- |
+| `AGENTS.md`       | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md`     |
+| `docs/agents/`    | Instructions addressed to agents                              |
+| `docs/reference/` | Style guides and workflows, for humans and agents             |
+| `.agents/skills/` | Skills, installed and local; `.claude/skills/` symlinks to it |
+| `.github/`        | Workflows, templates, and the branch ruleset                  |
+| `scripts/`        | One-off administrative scripts                                |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.
