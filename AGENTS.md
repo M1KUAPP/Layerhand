@@ -44,5 +44,12 @@ Everything else is situational.
 
 ## Project documents
 
-- [Product Hunt ideas](docs/producthunt-ideas.md) — the ten-round ideation
-  behind what this repository is for.
+What this repository is for: **Layerhand**, an agent that retouches
+photographs inside a real image editor and returns a layered file.
+
+| Document                                        | Covers                                        |
+| ----------------------------------------------- | --------------------------------------------- |
+| [Product brief](docs/PRODUCT.md)                | Why this, who for, and when we stop           |
+| [Product requirements](docs/PRD.md)             | What to build, in what order, and `FR`/`NFR`  |
+| [Technical requirements](docs/TRD.md)           | Architecture, contracts, and the spike list   |
+| [Product Hunt ideas](docs/producthunt-ideas.md) | The ten-round ideation this was selected from |
