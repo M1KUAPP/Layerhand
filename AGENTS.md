@@ -5,8 +5,15 @@ purpose: the rules live in `docs/agents/`, and the long-form references they
 rest on live in `docs/reference/`. This file is symlinked as `CLAUDE.md` and
 `GEMINI.md`, so edit `AGENTS.md` and never the symlinks.
 
-Read [project conventions](docs/agents/rules.md) first. Everything else is
-situational.
+Harnesses that support file imports pull the rules in here, so they are
+loaded rather than merely linked:
+
+@docs/agents/rules.md
+@docs/agents/andrej-karpathy-skills.md
+@docs/agents/rtk.md
+
+If yours does not, read [project conventions](docs/agents/rules.md) first.
+Everything else is situational.
 
 ## Non-negotiables
 
