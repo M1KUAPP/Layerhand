@@ -205,8 +205,9 @@ The contest is judged on a launch, so the launch is the deliverable.
 
 1.  A stranger can upload an image, watch the run, interrupt it once,
     and download a layered file that opens correctly in Photoshop.
-1.  That works unattended, three times out of four, on our own test set
-    of ten images.
+1.  That works unattended on **eight of ten** runs against our own test
+    set, which is [NFR-1](PRD.md#non-functional-requirements) and the
+    number the go/no-go turns on.
 1.  The thirty-second silent demo exists and shows the mid-run
     correction and the hand-dragged mask.
 
