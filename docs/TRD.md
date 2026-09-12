@@ -394,9 +394,11 @@ not facts.
 1.  **Text layers need about two seconds after boot** before a default
     font exists. Creating one earlier produces nothing.
 1.  Boot is reported at roughly two seconds and a first round trip at
-    about five — which, if it holds, is most of the NFR-3 budget spent
-    before we have done anything. The session is warmed before the user
-    presses the button, so this should not bind, but measure it.
+    about five. If that holds, starting a session on demand costs
+    around seven seconds against an NFR-3 budget of five — it does not
+    fit, it overruns. Warming the session before the user presses the
+    button is therefore load-bearing, not an optimisation, and it is
+    the first thing to measure rather than the first thing to cut.
 
 ### Advertising
 
