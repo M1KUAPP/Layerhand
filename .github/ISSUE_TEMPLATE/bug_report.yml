@@ -1,0 +1,37 @@
+name: Bug report
+description: Something behaves differently than it should.
+title: 'fix: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep the `fix: ` prefix in the title and finish the sentence, for
+        example `fix(auth): reject expired refresh tokens`. Titles follow
+        [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including the exact error text.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce it
+      description: The smallest sequence of steps or commands that shows it.
+      placeholder: |
+        1. Run `...`
+        2. Observe `...`
+    validations:
+      required: true
