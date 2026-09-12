@@ -268,9 +268,32 @@ days of work can move.
 
 Ranked by how likely they are to end the project.
 
+1.  **The commercial case does not survive the survey.** This moved to
+    the top after the research and it is the one to answer first. Humans
+    retouch a product image for $0.39–$0.69; BRIA emits a layered PSD
+    for $0.018; Adobe's API does the whole job server-side for whoever
+    signs a contract; and no outsourcer anywhere sells layered delivery
+    as a priced deliverable. We cost $3.50 an image. Every one of those
+    is sourced in [competition](#competition).
+
+    **This is a decision, not a risk to monitor**, and it comes before
+    the day-2 technical gate because no amount of engineering answers
+    it. Three honest readings:
+
+    - _Build it as a contest entry._ The contest is judged on model
+      leverage, execution, creativity and impact — not on beating the
+      market price. The Swap Test still passes: no other model drives
+      the GUI. Say plainly that it is a demonstration, and stop
+      claiming a market the evidence contradicts.
+    - _Repoint it at the gap that is actually empty._ Nothing ships
+      named **and** masked **and** adjustment-layered output in one
+      pass. That is narrow, real, and defensible — but it is a
+      different product brief from this one.
+    - _Take the runner-up._ The kill switch below already names it.
+
 1.  **Reliability of long GUI control.** Forty-plus steps in a dense
     professional interface, unattended, on an image the agent has never
-    seen. This is the whole bet.
+    seen. This is the whole technical bet.
 1.  **Cost per run under real traffic.** Bounded by the step cap and
     metering, but the cap has to be set from measured runs.
 1.  **The scripting escape hatch.** Photopea exposes a
@@ -285,12 +308,24 @@ Ranked by how likely they are to end the project.
     no waitlist. Treated as a build task with an owner, not an
     afterthought.
 
-**The kill switch.** By end of day Monday, September 14, the agent must
+**Two gates, in order.**
+
+_The commercial gate, now._ Risk 1 is answered before anyone writes
+code, because it decides which product the code is for. It is the one
+decision on this page that evidence alone does not settle.
+
+_The technical gate, end of day Monday, September 14._ The agent must
 complete a scripted three-edit sequence unattended, end to end, and
-produce a layered file. If it cannot, we stop and ship the
-whole-corpus contradiction finder instead — the runner-up needs no
-browser infrastructure, no agent loop, and one weekend. That decision
-is made once, on the evidence, and not revisited on optimism.
+produce a layered file. If it cannot, we stop and ship the whole-corpus
+contradiction finder instead — the runner-up needs no browser
+infrastructure, no agent loop, and one weekend. That decision is made
+once, on the evidence, and not revisited on optimism.
+
+Note what the survey did **not** damage. The Swap Test still passes:
+swap Astra out and the agent cannot drive the editor, so there is no
+product. Adobe's API does not weaken that — it removes the need for an
+agent at all, which is an argument about whether to build this, not
+about whether Astra is load-bearing in it.
 
 ## Open questions
 
@@ -302,14 +337,11 @@ Each is assigned and answered before it can block work.
     automation, and permit selling the resulting work. What remains is
     commercial rather than legal: free embedding shows advertisements,
     and removing them needs a Distributor account from €60 a month.
-1.  Does _any_ existing product return a layered file? The wedge is a
-    claim about what competitors cannot do, and it has not been
-    checked product by product.
-1.  Is there a first-party server-side editing API that does this work
-    without a GUI, and what does it cost? Adobe is the obvious place
-    to look, and the answer would not remove the differentiator — the
-    output would still be layered — but it would remove the model
-    leverage, which is what this idea was selected for.
+1.  ~~Does any existing product return a layered file?~~ **Answered:
+    yes, three do.** ~~Is there a first-party server-side editing
+    API?~~ **Answered: Adobe's, and it is GA.** Both are written up in
+    [competition](#competition), and together they are why risk 1
+    exists.
 1.  What are the official contest rules? They sit behind a login wall
     and we have not read them. Specifically: is a public repository or
     an open-source licence required, and is a demo video required?
