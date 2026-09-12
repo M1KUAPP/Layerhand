@@ -452,10 +452,42 @@ and the user's image opened.
   which may bind first.
 - **A live view**, if the provider has one. If not, we make our own.
 
-Provider selection is [spike B2](#decisions-deferred-to-spikes),
-time-boxed to half a day, with self-hosted Playwright as the fallback
-that always works. The spike cannot fail — it can only be
-inconclusive, and inconclusive means self-host.
+### The shortlist
+
+All four of these expose a live-view iframe and a CDP endpoint from a
+single session-create call, and each is an afternoon's integration.
+
+| Provider     | Entry tier  | Concurrency | Per browser-hour | Max session |
+| ------------ | ----------- | ----------- | ---------------- | ----------- |
+| Browserbase  | $20/mo      | 25          | $0.12            | 6 h         |
+| Anchor       | $50/mo      | 25          | $0.05            | 180 min     |
+| Hyperbrowser | $30/mo      | unpublished | $0.10            | 12 h        |
+| Steel        | usage-based | 10 (Launch) | $0.10            | **15 min**  |
+
+**Browserbase is the default choice**: the cheapest entry tier that
+covers NFR-4's twenty concurrent runs, with a session length nowhere
+near binding. Anchor is half the hourly rate and the only one with a
+documented flow for handing control to a human — interesting for a
+later version, not for this one.
+
+**Steel's Launch tier is disqualified at that tier, not as a product.**
+Its fifteen-minute session cap is exactly our run ceiling, leaving no
+margin for export and teardown — the thing
+[the ceiling section](#one-ceiling-fifteen-minutes) exists to prevent.
+Its Scale tier does not have that problem.
+
+So [spike B2](#decisions-deferred-to-spikes) is no longer a comparison.
+It is: sign up, create one real session, confirm the live view and CDP
+behave, and measure cold start — which nobody publishes, and where both
+available benchmarks were written by a competitor.
+
+**Correction to an earlier draft of this document:** self-hosted
+Playwright is _not_ a fallback that always works. A watchable,
+interruptible remote Chrome is weeks of work, and the hard parts are
+not Chrome — they are arbitrating control when a human takes over
+mid-run, and keeping raw CDP away from the user's browser, since CDP
+grants `Runtime.evaluate` and cookie access to whoever holds it. If no
+provider works out, the product changes; we do not build one.
 
 ### Frames
 
@@ -707,16 +739,16 @@ Each is time-boxed, has an owner, and ends in a written answer
 committed to this document. A spike that overruns its box is escalated
 the same day, not extended.
 
-| Spike | Question                                            | Box    | Day |
-| ----- | --------------------------------------------------- | ------ | --- |
-| B0    | Buy the Distributor account, and re-read the terms  | 1 hour | 0   |
-| A0    | Code execution or the `computer` tool?              | ½ day  | 0   |
-| A4    | What is our OpenAI tier, and does it allow NFR-4?   | 1 hour | 0   |
-| B1    | Verify the image-in, PSD-out round trip end to end  | ½ day  | 0   |
-| B2    | Which browser provider?                             | ½ day  | 0   |
-| A1    | Can the agent complete one edit unattended?         | 1 day  | 1   |
-| A2    | What step cap and frame window does the cost allow? | ½ day  | 2   |
-| A3    | Does native mid-turn steering work for us?          | ½ day  | 3   |
+| Spike | Question                                            | Box     | Day |
+| ----- | --------------------------------------------------- | ------- | --- |
+| B0    | Buy the Distributor account, and re-read the terms  | 1 hour  | 0   |
+| A0    | Code execution or the `computer` tool?              | ½ day   | 0   |
+| A4    | What is our OpenAI tier, and does it allow NFR-4?   | 1 hour  | 0   |
+| B1    | Verify the image-in, PSD-out round trip end to end  | ½ day   | 0   |
+| B2    | Sign up for Browserbase and measure cold start      | 2 hours | 0   |
+| A1    | Can the agent complete one edit unattended?         | 1 day   | 1   |
+| A2    | What step cap and frame window does the cost allow? | ½ day   | 2   |
+| A3    | Does native mid-turn steering work for us?          | ½ day   | 3   |
 
 B0 no longer gates anything. It was written when the licence question
 was open; it is
