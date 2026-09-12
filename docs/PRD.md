@@ -35,9 +35,10 @@ Everything must be frozen the evening of Thursday the 17th.
 | 5 — Thursday  | Sep 17 | Frozen. Demo recorded, launch assets done           |
 | 6 — Friday    | Sep 18 | Launch at 12:01am PT                                |
 
-Friday is a quieter day on Product Hunt than Tuesday or Wednesday: a
-lower ceiling, but less competition, and two more days of building. We
-take the two days. The contest, not the daily rank, is what is being
+The 2026 launch playbooks put the optimal slot on a Tuesday or
+Wednesday, and Friday is outside that window — how far outside, we have
+not established. Launching on the 15th or 16th instead would cost two of
+six build days. We take the build days. The contest, not the daily rank, is what is being
 won — but a launch nobody sees gives the judges nothing to look at, so
 [FR-30](#launch-surface) is not optional.
 
