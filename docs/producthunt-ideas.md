@@ -340,7 +340,7 @@ product is not ready to launch.
 ## See also
 
 - [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge)
-- [The astra-challenge skill](../.claude/skills/astra-challenge/SKILL.md) that
+- [The astra-challenge skill](../.agents/skills/astra-challenge/SKILL.md) that
   ran this process, and its references on
-  [Astra leverage](../.claude/skills/astra-challenge/references/astra-leverage.md)
-  and [prior art](../.claude/skills/astra-challenge/references/prior-art.md)
+  [Astra leverage](../.agents/skills/astra-challenge/references/astra-leverage.md)
+  and [prior art](../.agents/skills/astra-challenge/references/prior-art.md)
