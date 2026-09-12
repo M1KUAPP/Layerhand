@@ -3,7 +3,8 @@
 This repository installs two skill collections from
 [skills.sh](https://www.skills.sh/). Between them they cover the two things
 a coding agent is worst at unaided: following a disciplined process, and
-producing an interface that does not look generated. Every installed skill,
+producing an interface that does not look generated. Skills install into
+`.agents/skills/`, which `.claude/skills/` symlinks to; every one of them,
 its source, and a content hash is recorded in `skills-lock.json`.
 
 Contents:
