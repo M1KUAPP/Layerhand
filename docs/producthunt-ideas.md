@@ -18,6 +18,23 @@ Each round picks capability primitives, generates without filtering, runs
 the Swap Test, then the kill gates. Rounds are progressive: each one is
 shaped by what the previous round killed.
 
+Contents:
+
+1. [Round 1 — Computer use, desktop-native](#round-1--computer-use-desktop-native)
+1. [Round 2 — Computer use, hosted browser only](#round-2--computer-use-hosted-browser-only)
+1. [Round 3 — Million-token single-pass context](#round-3--million-token-single-pass-context)
+1. [Round 4 — Async tool calling](#round-4--async-tool-calling)
+1. [Round 5 — Mid-turn steering](#round-5--mid-turn-steering)
+1. [Round 6 — Persisted reasoning and notes](#round-6--persisted-reasoning-and-notes)
+1. [Round 7 — Programmatic tool calling and orchestration](#round-7--programmatic-tool-calling-and-orchestration)
+1. [Round 8 — WebMCP](#round-8--webmcp)
+1. [Round 9 — Computer use × mid-turn steering](#round-9--computer-use--mid-turn-steering)
+1. [Round 10 — The five-day filter, and the text-only inversion](#round-10--the-five-day-filter-and-the-text-only-inversion)
+1. [Shortlist](#shortlist)
+1. [The pick: Layerhand](#the-pick-layerhand)
+1. [Launch artifact](#launch-artifact)
+1. [Before committing](#before-committing)
+
 ## Round 1 — Computer use, desktop-native
 
 _Primitive: computer use on real desktop software._
@@ -233,13 +250,13 @@ competing product category can emit.
 Scored 0–5 on the six criteria. A zero on model leverage or execution
 would be disqualifying; none of the five scored one.
 
-| Idea                                                            | Leverage | Exec | Impact | Creativity | Launch | Showcase | Total  |
-| --------------------------------------------------------------- | -------- | ---- | ------ | ---------- | ------ | -------- | ------ |
-| Layerhand — agent retouches in Photopea, returns a layered file | 5        | 3    | 4      | 5          | 5      | 5        | **27** |
-| Steerable book-length localization                              | 4        | 4    | 4      | 4          | 3      | 3        | 22     |
-| Whole-corpus contradiction finder                               | 3        | 5    | 5      | 3          | 3      | 3        | 22     |
-| Steerable financial model built in Sheets                       | 4        | 3    | 4      | 3          | 4      | 3        | 21     |
-| Keyboard-only accessibility agent                               | 4        | 4    | 4      | 2          | 3      | 2        | 19     |
+| Idea                                      | Leverage | Exec | Impact | Creativity | Launch | Showcase | Total  |
+| ----------------------------------------- | -------- | ---- | ------ | ---------- | ------ | -------- | ------ |
+| [Layerhand](#the-pick-layerhand)          | 5        | 3    | 4      | 5          | 5      | 5        | **27** |
+| Steerable book-length localization        | 4        | 4    | 4      | 4          | 3      | 3        | 22     |
+| Whole-corpus contradiction finder         | 3        | 5    | 5      | 3          | 3      | 3        | 22     |
+| Steerable financial model built in Sheets | 4        | 3    | 4      | 3          | 4      | 3        | 21     |
+| Keyboard-only accessibility agent         | 4        | 4    | 4      | 2          | 3      | 2        | 19     |
 
 The pick has the highest ceiling and the shakiest floor — a 3 on execution
 is the five-day risk, not a knock on the concept.
@@ -319,3 +336,11 @@ product is not ready to launch.
   traffic from one, and the first six hours decide ranking. That audience
   has to come from somewhere by the 18th — treat it as a build task, not
   an afterthought.
+
+## See also
+
+- [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge)
+- [The astra-challenge skill](../.claude/skills/astra-challenge/SKILL.md) that
+  ran this process, and its references on
+  [Astra leverage](../.claude/skills/astra-challenge/references/astra-leverage.md)
+  and [prior art](../.claude/skills/astra-challenge/references/prior-art.md)
