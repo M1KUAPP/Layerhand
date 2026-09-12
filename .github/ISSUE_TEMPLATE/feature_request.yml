@@ -1,0 +1,36 @@
+name: Feature request
+description: Something the project should be able to do and cannot.
+title: 'feat: '
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep the `feat: ` prefix in the title and finish the sentence, for
+        example `feat(cli): add a --dry-run flag`. Titles follow
+        [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+        For anything that is neither a bug nor a feature, open a blank-titled
+        issue from a different type, such as `docs: ` or `chore: `, by editing
+        the title after you pick either template.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you unable to do today, and who is affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you considered and rejected
+      description: Optional, but it saves the reviewer from re-deriving it.
