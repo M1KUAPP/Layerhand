@@ -4,8 +4,9 @@ This repository installs two skill collections from
 [skills.sh](https://www.skills.sh/). Between them they cover the two things
 a coding agent is worst at unaided: following a disciplined process, and
 producing an interface that does not look generated. Skills install into
-`.agents/skills/`, which `.claude/skills/` symlinks to; every one of them,
-its source, and a content hash is recorded in `skills-lock.json`.
+`.agents/skills/`, which `.claude/skills/` symlinks to. `skills-lock.json`
+records the source and a content hash for each of the 27 installed from
+skills.sh; `astra-challenge`, written here, has no entry.
 
 Contents:
 

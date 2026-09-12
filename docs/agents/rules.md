@@ -43,9 +43,11 @@ titles that say where the link goes.
 ## Tooling
 
 - **bun**, not npm or yarn. `bun install`, `bun run lint`.
-- **Prettier** formats everything it understands. `bun run lint` checks the
-  whole tree; `lint-staged` fixes staged files on commit. Do not hand-format
-  around it — if Prettier disagrees with you, Prettier wins.
+- **Prettier** owns syntax, not prose. `bun run lint` checks the whole
+  tree and `lint-staged` fixes staged files on commit, so do not
+  hand-format around it. But `printWidth` applies to code, and `proseWrap`
+  is left at `preserve`, so Prettier never rewraps a Markdown paragraph:
+  the 80-character limit is yours to keep and nothing checks it.
 - **Shell commands are prefixed with `rtk`**, including inside `&&` chains.
   See [RTK](rtk.md).
 
