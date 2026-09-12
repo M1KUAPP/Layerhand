@@ -1,10 +1,23 @@
-# Work reaches main through a pull request, never a direct push.
-# Workflow: branch -> push -> PR -> review -> resolve -> merge -> delete.
-# See docs/reference/git-workflow.md.
+# Work reaches the upstream default branch through a pull request, never a
+# direct push. Workflow: branch -> push -> PR -> review -> resolve -> merge
+# -> delete. See docs/reference/git-workflow.md.
+
+remote_name=$1
+
+# Guard the upstream repository only. Pushing to your own fork, or mirroring
+# to a backup remote, is nobody else's business.
+[ "$remote_name" = "origin" ] || exit 0
+
+# Follow the remote's default branch instead of assuming it is called main,
+# so renaming it cannot silently switch this check off while the server-side
+# rules keep enforcing.
+default_branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)
+default_branch=${default_branch#origin/}
+[ -n "$default_branch" ] || default_branch=main
 
 while read -r _local_ref _local_sha remote_ref _remote_sha; do
-  if [ "$remote_ref" = "refs/heads/main" ]; then
-    echo "pre-push: refusing to push directly to main." >&2
+  if [ "$remote_ref" = "refs/heads/$default_branch" ]; then
+    echo "pre-push: refusing to push directly to $default_branch." >&2
     echo >&2
     echo "  Move the work onto a branch and open a pull request:" >&2
     echo "    git switch -c <type>/<short-description>" >&2
