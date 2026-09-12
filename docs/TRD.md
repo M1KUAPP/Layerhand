@@ -60,7 +60,7 @@ Owned by the editor and browser streams; consumed by the agent loop.
 ```ts
 interface EditorSession {
   readonly id: string
-  readonly viewport: { width: number; height: number }
+  readonly viewport: Viewport
 
   open(image: Uint8Array, filename: string): Promise<void>
   screenshot(): Promise<Uint8Array> // PNG of the viewport
@@ -87,6 +87,11 @@ type ComputerAction =
   | { type: 'screenshot' }
 
 type Button = 'left' | 'right' | 'wheel' | 'back' | 'forward'
+
+interface Viewport {
+  width: number
+  height: number
+}
 
 interface LayerInfo {
   name: string
