@@ -1,0 +1,73 @@
+# Enforces Conventional Commits on issue titles. GitHub cannot reject an issue
+# at creation time, so an invalid title is labelled and answered with a comment
+# explaining the format, and the check itself fails.
+name: Issue title lint
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  ISSUE: ${{ github.event.issue.number }}
+  REPO: ${{ github.repository }}
+
+jobs:
+  title:
+    name: Issue title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+
+      # The title is untrusted input, so it is passed through the environment
+      # rather than interpolated into the shell command.
+      - name: Lint title
+        id: lint
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          if printf '%s\n' "$ISSUE_TITLE" | bunx commitlint --verbose; then
+            echo 'valid=true' >>"$GITHUB_OUTPUT"
+          else
+            echo 'valid=false' >>"$GITHUB_OUTPUT"
+          fi
+
+      - name: Label an invalid title
+        if: steps.lint.outputs.valid == 'false'
+        run: |
+          gh label create invalid-title --repo "$REPO" --force \
+            --color d93f0b \
+            --description 'Title does not follow Conventional Commits'
+          gh issue edit "$ISSUE" --repo "$REPO" --add-label invalid-title
+
+      - name: Explain the format
+        if: steps.lint.outputs.valid == 'false' && github.event.action == 'opened'
+        run: |
+          gh issue comment "$ISSUE" --repo "$REPO" --body-file - <<'BODY'
+          Thanks for the report. This title does not follow [Conventional
+          Commits](https://www.conventionalcommits.org/en/v1.0.0/), which this
+          repository uses for commits, issues, and pull requests alike.
+
+          Please edit the title to `<type>[optional scope]: <description>` — for
+          example, `fix(auth): reject expired refresh tokens`. Allowed types are
+          `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+          `revert`, `style`, and `test`.
+
+          The label clears itself once the title is edited.
+          BODY
+
+      - name: Clear the label once the title is fixed
+        if: steps.lint.outputs.valid == 'true'
+        run: |
+          gh issue edit "$ISSUE" --repo "$REPO" \
+            --remove-label invalid-title || true
+
+      - name: Fail on an invalid title
+        if: steps.lint.outputs.valid == 'false'
+        run: exit 1
