@@ -1,0 +1,3 @@
+# Blank issues are disabled so that every issue starts from a template, and
+# every template pre-fills a Conventional Commits type in the title.
+blank_issues_enabled: false
