@@ -1,0 +1,21 @@
+# Runs the formatter over the whole tree. The pre-commit hook rewrites staged
+# files rather than failing, and --no-verify, web edits, and fork contributors
+# skip it entirely, so this is the check that actually holds.
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
