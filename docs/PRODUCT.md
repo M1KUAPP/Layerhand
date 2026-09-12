@@ -147,22 +147,38 @@ selected for. Quantifying that threat is an open question below.
 Metered credits, with a small free allowance. Not a subscription, and
 never unmetered.
 
-A session is forty to sixty screenshot-driven steps, accumulating
-roughly 400K input tokens — mostly cached — and around 30K output. At
-$10/M input, $1/M cached, and $50/M output, one image lands near **$3–6
-of model spend**, and we plan against the top of that range. Overage
-past 272K input tokens costs 2x, which a long session will cross.
+A session is forty to sixty screenshot-driven steps. Each step sends
+the history again, so cost is quadratic in the step count: at 1,570
+tokens per 1440x900 screenshot, forty steps send roughly **1.3M input
+tokens cumulatively**, plus around 30K of output.
+
+That gives two very different answers, and which one we get is an
+engineering outcome rather than a pricing decision:
+
+|                 | Input  | Output | **Per image** |
+| --------------- | ------ | ------ | ------------- |
+| Caching working | ~$2.00 | $1.50  | **~$3.50**    |
+| Caching broken  | ~$13   | $1.50  | **~$14.50**   |
+
+We plan at **$6** — headroom over the good case, nowhere near the bad
+one — and treat anything above $8 as a bug rather than a bill.
+
+Note what is _not_ a problem: the 2x tier above 272K input tokens is
+charged per request, and a single request tops out near 63K. We never
+approach it. The danger is cumulative, not per-request.
 
 Three consequences, all of them product decisions rather than
 engineering details:
 
 1.  **Hard-cap the step count.** The cap is a product parameter, not a
     safety valve. A run that hits it returns whatever it has, layered.
-1.  **Cache aggressively.** Cached input is a tenth the price of fresh
-    input, and the screenshot loop is the entire cost.
+1.  **Cache aggressively.** This is a 4x swing in unit cost, not a
+    tuning exercise, and it is the difference between a viable product
+    and one that loses money on every image.
 1.  **Never offer it unmetered.** Three free images, then credits, or
     bring-your-own-key. A single enthusiastic user on launch day must
-    not be able to cost us fifty dollars.
+    not be able to cost us fifty dollars — and at $3.50 an image that
+    is fourteen images, which is not a lot of enthusiasm.
 
 Bring-your-own-key is also the release valve for launch-day traffic: it
 decouples our cost from our popularity on the one day popularity spikes.
