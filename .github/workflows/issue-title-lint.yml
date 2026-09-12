@@ -11,6 +11,10 @@ permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: issue-title-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ github.token }}
   ISSUE: ${{ github.event.issue.number }}
@@ -54,12 +58,18 @@ jobs:
           Commits](https://www.conventionalcommits.org/en/v1.0.0/), which this
           repository uses for commits, issues, and pull requests alike.
 
-          Please edit the title to `<type>[optional scope]: <description>` — for
-          example, `fix(auth): reject expired refresh tokens`. Allowed types are
-          `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
-          `revert`, `style`, and `test`.
+          The format is \`<type>[optional scope]: <description>\` — for example,
+          \`fix(auth): reject expired refresh tokens\`. Four rules catch most
+          titles:
 
-          The label clears itself once the title is edited.
+          - The type is one of \`build\`, \`chore\`, \`ci\`, \`docs\`, \`feat\`,
+            \`fix\`, \`perf\`, \`refactor\`, \`revert\`, \`style\`, or \`test\`.
+          - The description starts in lower case. \`docs: Update README\` fails;
+            \`docs: update README\` passes.
+          - It does not end with a full stop.
+          - The whole title is at most 100 characters.
+
+          Edit the title and the label clears itself once it passes.
           BODY
 
       - name: Clear the label once the title is fixed
