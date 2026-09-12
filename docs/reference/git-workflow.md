@@ -76,12 +76,19 @@ notification, and the reviewer see first.
 | Where                                     | What it blocks                             |
 | ----------------------------------------- | ------------------------------------------ |
 | `.husky/commit-msg`                       | A commit whose message is not conventional |
-| `.husky/pre-push`                         | A push straight to `main`                  |
+| `.husky/pre-push`                         | A push straight to the default branch      |
 | `.github/workflows/conventional-lint.yml` | A bad pull request title, or a bad commit  |
+| `.github/workflows/lint.yml`              | An unformatted tree                        |
 | `.github/workflows/issue-title-lint.yml`  | A bad issue title — labels and explains it |
-| `.github/rulesets/main.json`              | Merging without review, resolution, or CI  |
 | `.github/pull_request_template.md`        | Nothing; it reminds you                    |
 | `.github/ISSUE_TEMPLATE/`                 | Blank issues, and titles with no type      |
+
+`.github/rulesets/main.json` is not in that table because GitHub never reads
+that path. It is a payload, inert until someone runs
+`scripts/setup-repo-rules.sh`, and merging a change to it applies nothing.
+Once applied it is the only thing that blocks a merge without review,
+resolution, or green checks — and nothing detects drift between the committed
+file and the live ruleset.
 
 The local hooks and the workflows share one rule set, `commitlint.config.mjs`,
 so they cannot drift apart. The hooks are the fast feedback; the workflows are
@@ -102,30 +109,14 @@ repository:
 scripts/setup-repo-rules.sh
 ```
 
-That script turns on branch deletion after merge, makes rebase the only merge
-method, and uploads `.github/rulesets/main.json`. It prints the two cases it
-cannot handle: private repositories below GitHub Team, and solo maintainers,
-who cannot approve their own pull requests and should set
-`required_approving_review_count` to `0`.
+That script checks it can read rulesets before it changes anything, then
+turns on branch deletion after merge, makes rebase the only merge method,
+and uploads `.github/rulesets/main.json`.
 
-## Why rebase and not squash
-
-Squash merging takes the atomic commits step 2 asks for and throws them away
-at the last moment. If the history is worth writing, it is worth keeping, so
-`main` takes the commits as written. Rebase merging also keeps history linear,
-which is what makes `git bisect` and `git log --oneline` worth running.
-
-The cost is real: every commit on the branch has to build, not just the tip.
-That is the discipline the workflow is buying.
-
-## Escape hatches
-
-`git commit --no-verify` and `git push --no-verify` skip the local hooks. They
-exist for emergencies and for fixing the hooks themselves. They do not skip
-the workflows or the ruleset, which is the point — the local hooks save you a
-round trip, and the server-side rules are what actually hold the line.
-
-## See also
-
-- [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
-- [Markdown style guide](markdown-style.md)
+Two things it cannot do. Rulesets on a private repository need GitHub Pro,
+Team, or Enterprise; below that the API returns 403 and the script stops
+without touching the repository, leaving the hooks and workflows as the whole
+of the enforcement — none of which can stop a merge. And a solo maintainer
+cannot approve their own pull request, so they should set
+`required_approving_review_count` to `0` in the committed file rather than on
+the server, which the next run would overwrite.
