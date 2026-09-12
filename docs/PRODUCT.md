@@ -58,7 +58,8 @@ unit economics do not survive a free consumer tier.
 ## What Layerhand is
 
 Layerhand takes a photograph and an instruction in plain language, and
-drives a real, full-featured web image editor to do the work. You watch
+drives [Photopea](https://www.photopea.com/) — a full-featured web
+image editor with no public API — to do the work. You watch
 it happen in your browser. You can type a correction while it is still
 working, and it bends rather than restarting. When it finishes, you
 download a layered file — named layers, editable masks, adjustment
@@ -207,11 +208,16 @@ Ranked by how likely they are to end the project.
 1.  **Reliability of long GUI control.** Forty-plus steps in a dense
     professional interface, unattended, on an image the agent has never
     seen. This is the whole bet.
-1.  **Terms of use of the editor we drive.** We do not control it, and
-    automated use may not be permitted. This is a legal gate, not a
-    technical one, and it is checked before anything is built on top.
 1.  **Cost per run under real traffic.** Bounded by the step cap and
     metering, but the cap has to be set from measured runs.
+1.  **The scripting escape hatch.** Photopea exposes a
+    Photoshop-compatible scripting interface, which is exactly the
+    shortcut a deadline pushes you towards. Taking it for the
+    _retouching decisions_ — rather than for loading and exporting —
+    would mean any model could do the job, and the one thing this idea
+    was selected for would be gone. The
+    [TRD draws that line](TRD.md#the-line-that-protects-the-premise);
+    holding it is a discipline problem, not a technical one.
 1.  **No audience.** The launch mechanics are unforgiving and we have
     no waitlist. Treated as a build task with an owner, not an
     afterthought.
@@ -227,8 +233,12 @@ is made once, on the evidence, and not revisited on optimism.
 
 Each is assigned and answered before it can block work.
 
-1.  Does the editor's licence permit automated and commercial use, and
-    at what tier?
+1.  ~~Does the editor's licence permit automated and commercial use?~~
+    **Answered: yes.** Photopea's terms say it "can be used by anyone
+    for any purpose, for free," carry no clause about bots or
+    automation, and permit selling the resulting work. What remains is
+    commercial rather than legal: free embedding shows advertisements,
+    and removing them needs a Distributor account from €60 a month.
 1.  Is there a first-party server-side editing API that does this work
     without a GUI, and what does it cost?
 1.  What are the official contest rules? They sit behind a login wall
