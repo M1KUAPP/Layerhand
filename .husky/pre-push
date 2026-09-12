@@ -1,0 +1,17 @@
+# Work reaches main through a pull request, never a direct push.
+# Workflow: branch -> push -> PR -> review -> resolve -> merge -> delete.
+# See docs/reference/git-workflow.md.
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "pre-push: refusing to push directly to main." >&2
+    echo >&2
+    echo "  Move the work onto a branch and open a pull request:" >&2
+    echo "    git switch -c <type>/<short-description>" >&2
+    echo "    git push -u origin HEAD" >&2
+    echo "    gh pr create --fill" >&2
+    echo >&2
+    echo "  See docs/reference/git-workflow.md. Emergencies: git push --no-verify" >&2
+    exit 1
+  fi
+done
