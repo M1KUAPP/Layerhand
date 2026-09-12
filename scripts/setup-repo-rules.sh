@@ -3,7 +3,7 @@
 # Applies the server-side half of docs/reference/git-workflow.md:
 #
 #   - the branch ruleset in .github/rulesets/main.json, which makes a reviewed
-#     pull request the only route into main
+#     pull request the only route into the default branch
 #   - the repository settings that delete the branch on merge and leave rebase
 #     as the only merge method, so atomic commits survive the merge
 #
@@ -14,11 +14,39 @@
 
 set -euo pipefail
 
-repo=${1:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}
-ruleset_file="$(cd "$(dirname "$0")/.." && pwd)/.github/rulesets/main.json"
+# Resolve everything from the checkout this script lives in, never from the
+# caller's working directory: otherwise running it from inside an unrelated
+# clone would apply this repository's ruleset to that one.
+root=$(cd "$(dirname "$0")/.." && pwd)
+cd "$root"
+
+ruleset_file="$root/.github/rulesets/main.json"
 ruleset_name=$(jq -r .name "$ruleset_file")
+repo=${1:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}
 
 echo "Repository: $repo"
+echo "Ruleset:    $ruleset_file"
+echo
+
+# Check access before changing anything. Rulesets need GitHub Pro, Team, or
+# Enterprise on a private repository, and finding that out after the settings
+# PATCH would leave the repository half-configured: merge methods restricted,
+# branch protection absent.
+echo "==> Checking ruleset access"
+if ! rulesets=$(gh api "repos/$repo/rulesets" 2>&1); then
+  cat >&2 <<NOTE
+    Cannot read rulesets on $repo, so nothing has been changed:
+
+$(printf '%s\n' "$rulesets" | sed 's/^/      /')
+
+    Rulesets on a private repository need GitHub Pro, Team, or Enterprise.
+    Until the plan allows them, the local hooks in .husky and the workflows
+    in .github/workflows are the whole of the enforcement, and neither can
+    stop a merge.
+NOTE
+  exit 1
+fi
+echo "    available"
 
 echo "==> Repository settings"
 gh api -X PATCH "repos/$repo" --silent \
@@ -30,7 +58,7 @@ gh api -X PATCH "repos/$repo" --silent \
 echo "    branches delete on merge; rebase is the only merge method"
 
 echo "==> Ruleset '$ruleset_name'"
-id=$(gh api "repos/$repo/rulesets" --jq ".[] | select(.name == \"$ruleset_name\") | .id")
+id=$(printf '%s' "$rulesets" | jq -r ".[] | select(.name == \"$ruleset_name\") | .id")
 if [ -n "$id" ]; then
   gh api -X PUT "repos/$repo/rulesets/$id" --input "$ruleset_file" --silent
   echo "    updated (id $id)"
@@ -41,15 +69,10 @@ fi
 
 cat <<'NOTE'
 
-Done. Two things this script cannot do for you:
-
-  - Rulesets on a private repository need GitHub Team or Enterprise. On a
-    free or Pro private repo the ruleset call above fails, and the local
-    hooks in .husky plus the workflows in .github/workflows remain the
-    whole of the enforcement.
-
-  - The ruleset requires one approving review, and GitHub does not let you
-    approve your own pull request. If you are the only maintainer, set
-    required_approving_review_count to 0 in .github/rulesets/main.json and
-    re-run. Everything else in the workflow still holds.
+Done. One thing this script cannot decide for you: the ruleset requires one
+approving review, and GitHub does not let you approve your own pull request.
+If you are the only maintainer, set required_approving_review_count to 0 in
+.github/rulesets/main.json, commit that, and re-run. Editing it only on the
+server will be silently reverted the next time this script runs, because it
+replaces the whole ruleset.
 NOTE
