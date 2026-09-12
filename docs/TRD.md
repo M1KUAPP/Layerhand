@@ -335,12 +335,12 @@ So the split is fixed, and it is the adapter's one design rule:
 | Zoom, scroll, reset state          | Judging when the edit is right  |
 
 Two things make this more than a principle. Photopea's Action Manager
-is a **stub** — `stringIDToTypeID` is a thirty-five entry lookup table
-that returns its input unchanged for anything else — so the usual
-Photoshop escape hatch of dropping to action descriptors for whatever
-the DOM does not cover is closed. And several selection and colour
-operations silently do nothing from script. The judgement work is not
-scriptable even if we wanted it to be.
+is a **stub** — `stringIDToTypeID` is a short lookup table that returns
+its input unchanged for anything not in it — so the usual Photoshop
+escape hatch of dropping to action descriptors for whatever the DOM does
+not cover is closed. And several selection and colour operations
+silently do nothing from script. The judgement work is not scriptable
+even if we wanted it to be.
 
 ### The protocol
 
@@ -368,8 +368,12 @@ Startup configuration goes in the URL as
 
 ### Known traps
 
-These are the ones worth writing down before someone loses an afternoon
-to each:
+Worth writing down before someone loses an afternoon to each. **Trap 1
+and the Action Manager stub above were confirmed by reading Photopea's
+shipped bundle. Traps 2 to 6 come from a third party's recon and we have
+not reproduced them** — [spike B1](#decisions-deferred-to-spikes)
+confirms each or strikes it out, and until it does they are warnings,
+not facts.
 
 1.  **`"done"` is not a reliable terminator.** Some operations emit
     their own mid-script, so a naive "wait for done" desynchronises.
@@ -387,9 +391,10 @@ to each:
     call is verified by reading state back, never assumed.
 1.  **Text layers need about two seconds after boot** before a default
     font exists. Creating one earlier produces nothing.
-1.  Boot is roughly two seconds and a first round trip about five,
-    which is most of the NFR-3 budget before we have done anything.
-    The session is warmed before the user presses the button.
+1.  Boot is reported at roughly two seconds and a first round trip at
+    about five — which, if it holds, is most of the NFR-3 budget spent
+    before we have done anything. The session is warmed before the user
+    presses the button, so this should not bind, but measure it.
 
 ### Advertising
 
