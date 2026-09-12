@@ -552,6 +552,37 @@ no account.
 - The correction box is always present during a run, never behind a
   disclosure. It is the most important control on the page.
 
+### Input validation
+
+FR-1 and FR-3 are enforced at `POST /api/runs`, **before a browser
+session is created**. A session opened for an upload we were always
+going to reject is a bill we chose to pay for nothing.
+
+Three checks, each with its own message naming the reason:
+
+1.  **Format**, by magic bytes — not by file extension and not by the
+    `Content-Type` header, both of which the client controls.
+1.  **Size**, at most 20 MB, checked against the actual body length
+    rather than a declared one.
+1.  **Dimensions**, at most 6000 px on the long edge, read from the
+    header without decoding the whole image.
+
+### Resolution: two different things
+
+FR-1 allows a 6000 px image while the model sees a 1440x900 viewport,
+which reads like a contradiction and is not one.
+
+The **image** opens in Photopea at its full resolution and stays there;
+the exported PSD is at that resolution. The **screenshot** is of the
+browser viewport, which is 1440x900 regardless of how large the image
+is — Photopea fits the document to its canvas and the agent works
+against what it can see, exactly as a person would.
+
+So the "we do not downscale" rule in
+[Screenshots](#screenshots) is about never resizing the _screenshot_
+after capture, which would oblige us to remap the model's coordinates.
+Nothing downsamples the user's photograph, and nothing needs to.
+
 ## Cost control
 
 ### Where the money goes
