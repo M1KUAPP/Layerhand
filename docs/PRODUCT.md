@@ -115,32 +115,72 @@ still theirs to edit.
 
 ## Competition
 
-**This section is reasoning, not a survey.** Nobody has sat down with
-the competing products and checked what they actually emit. It is the
-least evidenced part of this document, and since the entire wedge is a
-claim about what competitors _cannot_ produce, it is also the part most
-worth being wrong about. Treat it as a hypothesis with an owner.
+A survey of twenty-six products, checked against their own format enums
+and documentation rather than against comparison articles.
 
-The market appears to split into three groups, and none of them returns
-a layered document.
+### The claim, corrected
 
-1.  **One-shot AI image tools** — background removal, generative fill,
-    upscaling. Fast, cheap, flat output. They win on price per image and
-    lose the moment a revision is needed.
-1.  **Batch retouching services** for photographers. Profile-driven,
-    high volume, flat output, priced per image.
-1.  **Human retouching outsourcers.** They do return layered files, and
-    that is precisely the evidence that the layered file is what the
-    market wants. They are slow and cost meaningfully more per image.
+"Every AI photo tool hands you pixels" is **not true**, and the version
+of this document that said so was wrong.
 
-Layerhand sits in the empty cell: machine speed with a human-shaped
-deliverable.
+| Product                                                   | Returns a layered file?                                                                                |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Adobe Photoshop API v2                                    | **Yes.** Named, adjustment, smart-object, group layers, and pixel masks                                |
+| BRIA AI                                                   | **Yes.** A documented `image_to_psd` endpoint, self-serve from $0.018                                  |
+| Retouch4me                                                | **Partly.** Real Photoshop layers and masks, user's choice of separate or merged. No adjustment layers |
+| Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg | No. PNG, JPEG, WebP                                                                                    |
+| Evoto, Imagen AI, Aftershoot                              | No. Flat, or Lightroom XMP sidecars                                                                    |
+| BoxBrownie and the real-estate tools                      | No. Flat                                                                                               |
 
-The serious threat is not another agent. It is a first-party server-side
-editing API that makes driving a GUI unnecessary — the differentiator
-would survive, since the output would still be layered, but the model
-leverage story would not, and the model leverage story is what this was
-selected for. Quantifying that threat is an open question below.
+What is left of the gap is narrower and more specific than the pitch:
+**no shipping product delivers an automated, single-pass PSD that is
+named _and_ masked _and_ carries adjustment layers.** That gap is real.
+It is not the gap we said it was.
+
+### Adobe is the serious threat, and it is already shipped
+
+`/v2/execute-actions` runs Photoshop Actions server-side — arbitrary
+`.atn` files, Generative Fill included — and `/v2/create-composite`
+returns a layered PSD. No browser, no GUI, no screenshots. Adobe solved
+with an HTTP endpoint the problem this product's entire architecture
+exists to work around.
+
+The only thing standing between that API and anyone who wants it is an
+**enterprise contract**: Firefly Services access is arranged through an
+Adobe representative and the rate card is private. That is a commercial
+moat, not a technical one, and Adobe can remove it whenever it decides
+to open a self-serve tier.
+
+### The price ceiling is the real problem
+
+Human retouching, from published price lists:
+
+| Work                    | Price     | Turnaround |
+| ----------------------- | --------- | ---------- |
+| Clipping path           | **$0.39** | 6–96 h     |
+| Product retouching      | **$0.69** | 24 h       |
+| Ghost mannequin         | $0.89     | 24 h       |
+| Real-estate enhancement | $2.00     | 24 h       |
+
+At **$3.50 of model spend per image**, we are five to nine times the
+price of a human doing the same job, and roughly two hundred times
+BRIA's. The premise that "retouching is a real line item" is true and
+cuts against us: the line item is already small, and AI has compressed
+it further.
+
+### And the demand signal is missing
+
+Across thirteen retouching outsourcers with published pricing, **not
+one markets layered-PSD delivery as a named or priced deliverable.**
+The single vendor where layered files provably exist mentions them only
+in a refund clause. What photographers complain about is consistency
+and rework, not layers — which argues for a deterministic pipeline with
+quality control, roughly the opposite of an agent working by eye.
+
+This does not make the idea worthless. It makes the "who pays" story in
+the next section a hypothesis that the evidence currently contradicts,
+and it belongs in
+[risks](#risks-and-the-kill-switch) rather than in a slide.
 
 ## Business model
 
