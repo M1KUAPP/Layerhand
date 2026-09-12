@@ -487,6 +487,18 @@ fifteen-minute ceiling, whichever comes first. A leaked browser session
 is a leaked bill, and the test for this asserts that no session
 survives its run — including when the run throws.
 
+**Export first, on every path.** The session holds the only copy of the
+work: `exportPsd()` is a method on `EditorSession`, so once the session
+is gone there is nothing left to export from. FR-12 requires a run
+stopped by the step cap to return a layered file, and FR-13 requires
+the same of a cancelled one — both are unsatisfiable if teardown wins
+the race.
+
+So disposal is always two steps in order: export, then destroy. It
+applies to the cancel, ceiling, and error paths as much as to normal
+completion, and on the error path it is best-effort — an export that
+itself fails must not prevent the teardown that stops the bill.
+
 ## The web application
 
 A single page. Upload, prompt, run, result — no routing, no navigation,
