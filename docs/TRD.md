@@ -282,8 +282,10 @@ Four constraints that shape the product:
     rollback. The prompt says so.
 1.  Queued steers are connection-local and do not survive a
     disconnect, so the run owns the socket for its lifetime.
-1.  A connection lives at most **sixty minutes**, which becomes a hard
-    ceiling on a run and a second reason for the step cap.
+1.  A connection lives at most **sixty minutes**. That is an outer
+    bound, not our ceiling — [the run ceiling is fifteen
+    minutes](#one-ceiling-fifteen-minutes) — so it should never bind.
+    If it ever does, something else has already gone wrong.
 1.  If the model is waiting on a tool result, the steer comes back
     `response.steer.pending`; we return the tool result normally and
     the server prepends the queued steer itself.
@@ -441,8 +443,8 @@ and the user's image opened.
 
 - **CDP access**, so we drive it ourselves rather than through a
   provider's own agent abstraction.
-- **Sessions of at least fifteen minutes**, which is also our hard
-  ceiling.
+- **Sessions of at least twenty minutes**, giving margin over our
+  fifteen-minute run ceiling for export and teardown.
 - **Concurrency** to cover NFR-4 on the entry paid tier — though see
   [the rate-limit ceiling](#the-concurrency-ceiling-is-a-rate-limit-not-a-server),
   which may bind first.
@@ -466,9 +468,21 @@ These are _not_ the frames sent to the model. The model gets 1440x900
 captures on its own cadence; the user gets whatever bandwidth allows.
 Conflating the two couples the demo's smoothness to the token bill.
 
+### One ceiling: fifteen minutes
+
+A run lasts at most **fifteen minutes**, and that single number is the
+ceiling everywhere. Two other durations appear in this document and
+neither is a ceiling: the sixty-minute WebSocket lifetime is an outer
+bound we should never reach, and the twenty minutes we ask of a browser
+provider is margin above fifteen, not permission to use it.
+
+Spike A2 sizes the step cap so that a run finishes inside fifteen
+minutes. Sizing it against sixty would produce a cap four times too
+large and every long run would be torn down mid-edit.
+
 ### Disposal
 
-Sessions are destroyed on completion, cancellation, error, or a
+Sessions are destroyed on completion, cancellation, error, or the
 fifteen-minute ceiling, whichever comes first. A leaked browser session
 is a leaked bill, and the test for this asserts that no session
 survives its run — including when the run throws.
