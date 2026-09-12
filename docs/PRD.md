@@ -37,9 +37,14 @@ Everything must be frozen the evening of Thursday the 17th.
 
 The 2026 launch playbooks put the optimal slot on a Tuesday or
 Wednesday, and Friday is outside that window — how far outside, we have
-not established. Launching on the 15th or 16th instead would cost two of
-six build days. We take the build days. The contest, not the daily rank, is what is being
-won — but a launch nobody sees gives the judges nothing to look at, so
+not established. Wednesday the 16th would cost two of six build days;
+Tuesday the 15th would cost three, and since the schedule freezes the
+evening before launch, it would mean freezing on the evening of the
+go/no-go itself — no gap at all between proving the thing works and
+shipping it. We take the build days.
+
+The contest, not the daily rank, is what is being won. But a launch
+nobody sees gives the judges nothing to look at, so
 [FR-30](#launch-surface) is not optional.
 
 The go/no-go on day 2 is described in
