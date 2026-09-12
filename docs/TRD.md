@@ -716,10 +716,14 @@ the same day, not extended.
 | A2    | What step cap and frame window does the cost allow? | ½ day  | 2   |
 | A3    | Does native mid-turn steering work for us?          | ½ day  | 3   |
 
-B0 gates everything: if automated use is not permitted, no amount of
-engineering makes the product shippable, and we take the fallback from
-[the kill switch](PRODUCT.md#risks-and-the-kill-switch) immediately
-rather than on day 2.
+B0 no longer gates anything. It was written when the licence question
+was open; it is
+[answered](PRODUCT.md#open-questions), and what is left of B0 is a
+purchase with a signup lead time. Nobody should re-litigate the terms
+on day 0, and nobody should reach for the kill switch over them.
+
+A0 and A4 are the two that can still change the plan, which is why both
+are day-0 despite being short.
 
 ## See also
 
