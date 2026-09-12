@@ -9,7 +9,7 @@ while read -r _local_ref _local_sha remote_ref _remote_sha; do
     echo "  Move the work onto a branch and open a pull request:" >&2
     echo "    git switch -c <type>/<short-description>" >&2
     echo "    git push -u origin HEAD" >&2
-    echo "    gh pr create --fill" >&2
+    echo "    gh pr create --fill-first" >&2
     echo >&2
     echo "  See docs/reference/git-workflow.md. Emergencies: git push --no-verify" >&2
     exit 1

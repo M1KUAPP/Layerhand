@@ -18,9 +18,11 @@ it is.
    commits.
 3. **Push the branch.** `git push -u origin HEAD`. Pushing to `main` is
    refused locally and server-side.
-4. **Open a pull request.** `gh pr create --fill`. The title follows
-   Conventional Commits; the template asks for what changed and how you
-   verified it.
+4. **Open a pull request.** `gh pr create --fill-first`, then check the
+   title. Not `--fill`: on a branch with more than one commit that takes
+   the title from the branch name, which the title check rejects.
+   `--fill-first` takes it from the first commit, which may not describe
+   the whole branch, so pass `--title` when it does not.
 5. **Review.** One approval required. Review looks at the diff and at the
    commit history, because the history is what lands.
 6. **Resolve.** Every review conversation must be marked resolved before the
@@ -64,8 +66,10 @@ machine-checked; it is a courtesy to whoever reads the branch list.
 
 Both use the commit format. An issue describes the change you want as though
 you were committing it: `fix(auth): expired refresh tokens are accepted`.
-A pull request title becomes the merge subject, so write it as the commit it
-will become.
+Neither becomes a commit subject: this repository rebase-merges, so the
+commits land exactly as written and the pull request title is discarded.
+The title is linted anyway, because it is what the pull request list, the
+notification, and the reviewer see first.
 
 ## What enforces what
 
