@@ -1,10 +1,15 @@
 {
   "scripts": {
+    "browserbase:probe": "bun src/server/browserbase-probe.ts",
+    "build": "bun build --target=bun src/server/index.ts --outdir dist",
+    "dev": "bun --hot src/server/index.ts",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky",
+    "start": "cd dist && bun index.js",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "waitlist:export": "bun src/server/waitlist-export.ts"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
