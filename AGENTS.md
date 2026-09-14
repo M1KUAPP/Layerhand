@@ -28,3 +28,14 @@ are symlinks to it.
 - @docs/references/markdown-style.md — the style every Markdown document
   here follows: 80-character lines, sentence-case ATX headings, and
   informative links.
+
+## Project documents
+
+- @docs/PRODUCT.md — the product brief: the problem, the users, the
+  competition, the unit costs, and the two gates that can stop the project.
+- @docs/PRD.md — the requirements: the schedule to the September 18 launch,
+  the core flow, and the numbered `FR` and `NFR` items.
+- @docs/TRD.md — the technical design: architecture, the three contracts,
+  cost control, testing, and the spikes that settle open questions.
+- @docs/producthunt-ideas.md — the ten rounds of ideation Layerhand was
+  chosen from, including the ideas it beat.
