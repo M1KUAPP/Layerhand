@@ -34,12 +34,19 @@ describeBrowser('launch application in Chromium', () => {
   test('runs, steers, reloads without replay duplicates, and downloads a PSD', async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     try {
-      await openInput(page, application.origin)
+      await page.goto(application.origin)
+      await page.getByRole('button', { name: 'Retouch a photo' }).click()
       await page.getByRole('button', { name: EXAMPLE }).click()
       await expect(page.getByRole('textbox', { name: 'Retouching instruction' }).inputValue()).resolves.toBe(EXAMPLE)
 
       const sentinel = 'sk-browser-test-sentinel'
       await page.getByRole('textbox', { name: 'OpenAI API key (optional)' }).fill(sentinel)
+      await page.getByRole('button', { name: 'Use the sample photograph' }).click()
+      await page.getByAltText('Selected source: layerhand-sample.png').waitFor()
+      await expect(page.getByRole('textbox', { name: 'Retouching instruction' }).inputValue()).resolves.toBe(EXAMPLE)
+      await expect(page.getByRole('textbox', { name: 'OpenAI API key (optional)' }).inputValue()).resolves.toBe(
+        sentinel
+      )
       await page.getByRole('button', { name: 'Start retouching' }).click()
       await page.locator('[data-view="running"]').waitFor()
 

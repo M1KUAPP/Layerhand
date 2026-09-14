@@ -17,6 +17,7 @@ describe('createApplication', () => {
     expect(response.headers.get('content-type')).toContain('application/json')
     expect(response.headers.get('x-content-type-options')).toBe('nosniff')
     expect(response.headers.get('referrer-policy')).toBe('no-referrer')
+    expect(response.headers.get('content-security-policy')).toContain("img-src 'self' data: blob: https:")
   })
 
   test('returns service unavailable when the database readiness check fails', async () => {

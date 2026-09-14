@@ -22,7 +22,7 @@ const APPLICATION_CSP = [
   "font-src 'self'",
   "form-action 'self'",
   'frame-src https://www.photopea.com https://*.browserbase.com',
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https:",
   "object-src 'none'",
   "script-src 'self'",
   "style-src 'self'"

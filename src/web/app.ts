@@ -20,6 +20,8 @@ let selectedFile: File | undefined
 let selectedPreviewUrl: string | undefined
 let fileError: string | undefined
 let formError: string | undefined
+let draftInstruction = ''
+let draftApiKey = ''
 let stream: { close(): void } | undefined
 let reconnecting = false
 
@@ -262,11 +264,16 @@ function renderInput(): DocumentFragment {
   instruction.rows = 4
   instruction.required = true
   instruction.placeholder = 'Describe the finished photograph and what must stay unchanged.'
+  instruction.value = draftInstruction
+  instruction.addEventListener('input', () => {
+    draftInstruction = instruction.value
+  })
   const examples = node('div', 'examples')
   for (const example of EXAMPLES) {
     const exampleButton = button(example, 'example-button')
     exampleButton.addEventListener('click', () => {
       instruction.value = example
+      draftInstruction = example
       instruction.focus()
     })
     examples.append(exampleButton)
@@ -281,6 +288,10 @@ function renderInput(): DocumentFragment {
   keyInput.autocomplete = 'off'
   keyInput.spellcheck = false
   keyInput.placeholder = 'Use your own key after the free allowance'
+  keyInput.value = draftApiKey
+  keyInput.addEventListener('input', () => {
+    draftApiKey = keyInput.value
+  })
 
   const error = node('p', 'form-error', formError)
   error.setAttribute('role', 'alert')
@@ -320,6 +331,8 @@ function renderInput(): DocumentFragment {
       if (keyInput.value) body.set('apiKey', keyInput.value)
       const started = await api.start(body)
       keyInput.value = ''
+      draftInstruction = ''
+      draftApiKey = ''
       selectedFile = undefined
       releaseSelectedPreview()
       sessionStorage.setItem(RUN_STORAGE_KEY, started.runId)
