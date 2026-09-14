@@ -1,9 +1,11 @@
 import { expect, test } from 'bun:test'
-import type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from '../../src/editor/session'
+import type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from '../../src/editor'
 
 type IsExact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
 
 type Assert<T extends true> = T
+
+type KeysOfUnion<T> = T extends unknown ? keyof T : never
 
 type ExpectedAction =
   | ({ type: 'click'; button: Button; keys?: string[] } & Pt)
@@ -48,10 +50,21 @@ type Assertions = [
     >
   >,
   Assert<IsExact<ComputerAction, ExpectedAction>>,
-  Assert<IsExact<EditorSession, ExpectedSession>>
+  Assert<IsExact<KeysOfUnion<ComputerAction>, KeysOfUnion<ExpectedAction>>>,
+  Assert<IsExact<EditorSession, ExpectedSession>>,
+  Assert<IsExact<keyof EditorSession, keyof ExpectedSession>>
 ]
 
+function assertReadonlySessionMembers(session: EditorSession): void {
+  // @ts-expect-error EditorSession.id is readonly.
+  session.id = 'replacement'
+  // @ts-expect-error EditorSession.viewport is readonly.
+  session.viewport = { width: 1, height: 1 }
+}
+
+void assertReadonlySessionMembers
+
 test('exports the exact editor session contract', () => {
-  const assertions: Assertions = [true, true, true, true, true, true]
+  const assertions: Assertions = [true, true, true, true, true, true, true, true]
   expect(assertions.every(Boolean)).toBe(true)
 })

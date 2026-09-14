@@ -27,16 +27,23 @@ function createSession(source = recording()) {
   })
 }
 
+const documentOperations: ReadonlyArray<readonly [string, (session: FakeEditorSession) => Promise<unknown>]> = [
+  ['screenshot', (session) => session.screenshot()],
+  ['act', (session) => session.act([])],
+  ['layers', (session) => session.layers()],
+  ['exportPsd', (session) => session.exportPsd()],
+  ['exportPreview', (session) => session.exportPreview()]
+]
+
 describe('FakeEditorSession', () => {
   test('rejects a recording with no frames', () => {
     expect(() => createSession(recording({ frames: [] }))).toThrow('Editor recording requires at least one frame')
   })
 
-  test('enforces its lifecycle and records the opened image', async () => {
+  test('records the opened image and makes close idempotent', async () => {
     const session = createSession()
     const image = Uint8Array.of(1, 2, 3)
 
-    await expect(session.screenshot()).rejects.toThrow('Editor session is not open')
     await session.open(image, 'portrait.jpg')
     image[0] = 9
 
@@ -50,7 +57,59 @@ describe('FakeEditorSession', () => {
     await session.close()
     await session.close()
     await expect(session.open(Uint8Array.of(4), 'again.jpg')).rejects.toThrow('Editor session is closed')
-    await expect(session.exportPsd()).rejects.toThrow('Editor session is closed')
+  })
+
+  for (const [operationName, operation] of documentOperations) {
+    test(`${operationName} rejects before a document opens`, async () => {
+      await expect(operation(createSession())).rejects.toThrow('Editor session is not open')
+    })
+
+    test(`${operationName} rejects after the session closes`, async () => {
+      const session = createSession()
+      await session.open(Uint8Array.of(1), 'portrait.jpg')
+      await session.close()
+
+      await expect(operation(session)).rejects.toThrow('Editor session is closed')
+    })
+  }
+
+  test('copies Buffer-backed inputs and outputs without sharing memory', async () => {
+    const sourceFrame = Buffer.from([0x89, 0x50, 0x4e, 0x47, 1])
+    const sourcePsd = Buffer.from([0x38, 0x42, 0x50, 0x53, 1])
+    const sourcePreview = Buffer.from([0x89, 0x50, 0x4e, 0x47, 2])
+    const openedImage = Buffer.from([1, 2, 3])
+    const session = createSession(
+      recording({
+        frames: [sourceFrame],
+        psd: sourcePsd,
+        preview: sourcePreview
+      })
+    )
+
+    await session.open(openedImage, 'portrait.jpg')
+    sourceFrame.fill(0)
+    sourcePsd.fill(0)
+    sourcePreview.fill(0)
+    openedImage.fill(0)
+
+    expect(Array.from(session.openedImage!)).toEqual([1, 2, 3])
+    expect(Array.from(await session.screenshot())).toEqual([0x89, 0x50, 0x4e, 0x47, 1])
+    expect(Array.from(await session.exportPsd())).toEqual([0x38, 0x42, 0x50, 0x53, 1])
+    expect(Array.from(await session.exportPreview())).toEqual([0x89, 0x50, 0x4e, 0x47, 2])
+
+    const observedImage = session.openedImage!
+    const observedFrame = await session.screenshot()
+    const observedPsd = await session.exportPsd()
+    const observedPreview = await session.exportPreview()
+    observedImage.fill(0)
+    observedFrame.fill(0)
+    observedPsd.fill(0)
+    observedPreview.fill(0)
+
+    expect(Array.from(session.openedImage!)).toEqual([1, 2, 3])
+    expect((await session.screenshot())[0]).toBe(0x89)
+    expect((await session.exportPsd())[0]).toBe(0x38)
+    expect((await session.exportPreview())[0]).toBe(0x89)
   })
 
   test('advances through frames and holds on the final frame', async () => {

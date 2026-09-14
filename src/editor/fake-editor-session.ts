@@ -10,6 +10,10 @@ export interface EditorRecording {
 
 type SessionState = 'idle' | 'open' | 'closed'
 
+function copyBytes(bytes: Uint8Array): Uint8Array {
+  return Uint8Array.from(bytes)
+}
+
 function cloneAction(action: ComputerAction): ComputerAction {
   switch (action.type) {
     case 'drag':
@@ -51,15 +55,15 @@ export class FakeEditorSession implements EditorSession {
     this.id = options.id
     this.viewport = { ...options.viewport }
     this.#recording = {
-      frames: options.recording.frames.map((frame) => frame.slice()),
-      psd: options.recording.psd.slice(),
-      preview: options.recording.preview.slice(),
+      frames: options.recording.frames.map(copyBytes),
+      psd: copyBytes(options.recording.psd),
+      preview: copyBytes(options.recording.preview),
       layers: options.recording.layers.map((layer) => ({ ...layer }))
     }
   }
 
   get openedImage(): Uint8Array | undefined {
-    return this.#openedImage?.slice()
+    return this.#openedImage && copyBytes(this.#openedImage)
   }
 
   get openedFilename(): string | undefined {
@@ -72,7 +76,7 @@ export class FakeEditorSession implements EditorSession {
 
   async open(image: Uint8Array, filename: string): Promise<void> {
     this.#ensureNotClosed()
-    this.#openedImage = image.slice()
+    this.#openedImage = copyBytes(image)
     this.#openedFilename = filename
     this.#frameIndex = 0
     this.#state = 'open'
@@ -83,7 +87,7 @@ export class FakeEditorSession implements EditorSession {
     const index = Math.min(this.#frameIndex, this.#recording.frames.length - 1)
     const frame = this.#recording.frames[index]!
     this.#frameIndex += 1
-    return frame.slice()
+    return copyBytes(frame)
   }
 
   async act(actions: ComputerAction[]): Promise<void> {
@@ -98,12 +102,12 @@ export class FakeEditorSession implements EditorSession {
 
   async exportPsd(): Promise<Uint8Array> {
     this.#ensureOpen()
-    return this.#recording.psd.slice()
+    return copyBytes(this.#recording.psd)
   }
 
   async exportPreview(): Promise<Uint8Array> {
     this.#ensureOpen()
-    return this.#recording.preview.slice()
+    return copyBytes(this.#recording.preview)
   }
 
   async close(): Promise<void> {
