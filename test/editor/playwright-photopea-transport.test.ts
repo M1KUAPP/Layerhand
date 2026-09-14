@@ -62,6 +62,9 @@ describe('Playwright Photopea transport', () => {
     expect(() => decodePhotopeaWireMessage({ type: 'bytes', value: ['x'] })).toThrow(
       'Photopea host returned an invalid message.'
     )
+    expect(() => decodePhotopeaWireMessage({ type: 'bytes', value: new Array(2) })).toThrow(
+      'Photopea host returned an invalid message.'
+    )
   })
 
   test('boots the configured non-opaque host URL', async () => {
