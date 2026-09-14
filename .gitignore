@@ -47,7 +47,6 @@ Temporary Items
 # Development
 .worktrees/
 .superpowers/
-docs/superpowers/
 node_modules/
 /dist/
 /web/
@@ -63,6 +62,3 @@ graphify-out/????-??-??/
 graphify-out/cost.json
 graphify-out/.graphify_*
 !graphify-out/.graphify_labels.json
-graphify-out/.vocab.txt
-graphify-out/memory/query_*.md
-graphify-out/reflections/
