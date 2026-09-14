@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, spyOn, test } from 'bun:test'
 import {
   PhotopeaBridge,
   type PhotopeaConfiguration,
@@ -117,6 +117,89 @@ describe('PhotopeaBridge', () => {
     await transport.waitForMessageRequest()
     transport.resolveNext({ type: 'text', value: 'sentinel-2' })
     await second
+  })
+
+  test('serializes mixed file and script operations through the same queue', async () => {
+    const transport = new ControlledTransport()
+    const sentinels = ['sentinel-1', 'sentinel-2', 'sentinel-3']
+    const bridge = new PhotopeaBridge(transport, {
+      createSentinel: () => sentinels.shift()!
+    })
+
+    const first = bridge.openFile(Uint8Array.of(1, 2, 3))
+    const second = bridge.runScript('second();')
+    const third = bridge.openFile(Uint8Array.of(4, 5, 6))
+
+    await transport.waitForMessageRequest()
+    expect(transport.sent).toEqual([Uint8Array.of(1, 2, 3), 'app.echoToOE("sentinel-1");'])
+    transport.resolveNext({ type: 'text', value: 'sentinel-1' })
+    await first
+
+    await transport.waitForMessageRequest()
+    expect(transport.sent).toEqual([
+      Uint8Array.of(1, 2, 3),
+      'app.echoToOE("sentinel-1");',
+      'second();\napp.echoToOE("sentinel-2");'
+    ])
+    transport.resolveNext({ type: 'text', value: 'script output' })
+    await transport.waitForMessageRequest()
+    expect(transport.sent).toHaveLength(3)
+    transport.resolveNext({ type: 'text', value: 'sentinel-2' })
+    expect(await second).toEqual([{ type: 'text', value: 'script output' }])
+
+    await transport.waitForMessageRequest()
+    expect(transport.sent).toEqual([
+      Uint8Array.of(1, 2, 3),
+      'app.echoToOE("sentinel-1");',
+      'second();\napp.echoToOE("sentinel-2");',
+      Uint8Array.of(4, 5, 6),
+      'app.echoToOE("sentinel-3");'
+    ])
+    transport.resolveNext({ type: 'text', value: 'sentinel-3' })
+    await third
+  })
+
+  test('translates a readiness timeout to the stable error and reloads once', async () => {
+    const transport = new MemoryTransport()
+    const bridge = new PhotopeaBridge(transport)
+
+    await expect(bridge.boot()).rejects.toMatchObject({
+      name: 'PhotopeaProtocolError',
+      code: 'photopea_timeout',
+      message: 'Photopea did not complete the command before the timeout.'
+    })
+    expect(transport.reloads).toBe(1)
+    expect(transport.sent).toEqual([])
+  })
+
+  test('decreases timeout budgets across spurious messages without renewing the deadline', async () => {
+    let clock = 1000
+    const now = spyOn(Date, 'now').mockImplementation(() => clock)
+    const transport = new MemoryTransport()
+    const budgets: number[] = []
+    const responses = [
+      { elapsed: 20, message: { type: 'text', value: 'done' } },
+      { elapsed: 35, message: { type: 'bytes', value: Uint8Array.of(1) } },
+      { elapsed: 46, message: { type: 'text', value: 'sentinel-1' } }
+    ] satisfies Array<{ elapsed: number; message: PhotopeaMessage }>
+    transport.nextMessage = async (timeoutMs) => {
+      budgets.push(timeoutMs)
+      const response = responses.shift()!
+      clock += response.elapsed
+      return response.message
+    }
+    const bridge = new PhotopeaBridge(transport, {
+      commandTimeoutMs: 100,
+      createSentinel: () => 'sentinel-1'
+    })
+
+    try {
+      await expect(bridge.runScript('slow();')).rejects.toMatchObject({ code: 'photopea_timeout' })
+      expect(budgets).toEqual([100, 80, 45])
+      expect(transport.reloads).toBe(1)
+    } finally {
+      now.mockRestore()
+    }
   })
 
   test('reloads after timeout without resending the file', async () => {
