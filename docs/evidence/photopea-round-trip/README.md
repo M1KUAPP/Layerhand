@@ -9,8 +9,8 @@ This is a throwaway probe, not the production editor adapter.
 - [`probe.ts`](probe.ts) contains the outer-page message listener, JPEG upload,
   Photopea layer script, sentinel wait, PSD export, and `ag-psd` assertions.
 - [`protocol.ts`](protocol.ts) selects the last binary message before the exact
-  sentinel. [`protocol.test.ts`](protocol.test.ts) proves that a synthetic
-  spurious `"done"` does not resolve that selection.
+  sentinel. [`protocol.test.ts`](protocol.test.ts) covers the valid ordering and
+  rejects an absent or wrong sentinel and bytes arriving only after it.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
   values are in [`output/trap-results.json`](output/trap-results.json).
 - [`output/result.json`](output/result.json) is the retained round-trip output.
@@ -40,7 +40,7 @@ cache differences can change the image bytes and timings.
 Absolute paths in `result.json` are the original temporary execution paths.
 The corresponding retained files are under this directory's `output/` folder.
 
-The retained protocol test produced two passes and no failures. The retained
+The retained protocol test produced five passes and no failures. The retained
 round-trip run reported a 13,442-byte JPEG, a 1,412,711-byte PSD, the `8BPS`
 signature, dimensions of 640 by 480, and these top-level layers:
 

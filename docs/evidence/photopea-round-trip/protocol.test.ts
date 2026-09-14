@@ -12,6 +12,33 @@ describe('selectPsdBeforeSentinel', () => {
 
     expect(selectPsdBeforeSentinel(messages, 'layerhand:sentinel')).toBe(psd)
   })
+
+  test('rejects a stream without the expected sentinel', async () => {
+    const { selectPsdBeforeSentinel } = await import('./protocol.ts')
+    const psd = new Uint8Array([0x38, 0x42, 0x50, 0x53]).buffer
+
+    expect(() => selectPsdBeforeSentinel(['done', psd, 'done'], 'layerhand:sentinel')).toThrow(
+      'Photopea sentinel was not received: layerhand:sentinel'
+    )
+  })
+
+  test('rejects a different sentinel token', async () => {
+    const { selectPsdBeforeSentinel } = await import('./protocol.ts')
+    const psd = new Uint8Array([0x38, 0x42, 0x50, 0x53]).buffer
+
+    expect(() => selectPsdBeforeSentinel(['done', psd, 'layerhand:other'], 'layerhand:sentinel')).toThrow(
+      'Photopea sentinel was not received: layerhand:sentinel'
+    )
+  })
+
+  test('rejects PSD bytes received only after the sentinel', async () => {
+    const { selectPsdBeforeSentinel } = await import('./protocol.ts')
+    const psd = new Uint8Array([0x38, 0x42, 0x50, 0x53]).buffer
+
+    expect(() => selectPsdBeforeSentinel(['done', 'layerhand:sentinel', psd], 'layerhand:sentinel')).toThrow(
+      'Photopea did not send PSD bytes before the sentinel'
+    )
+  })
 })
 
 describe('photopeaEditorUrl', () => {
