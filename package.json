@@ -18,5 +18,8 @@
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "playwright-core": "^1.63.0"
   }
 }

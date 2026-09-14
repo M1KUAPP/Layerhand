@@ -22,4 +22,9 @@ export {
   type PhotopeaMessage,
   type PhotopeaTransport
 } from './photopea-transport'
+export {
+  PlaywrightPhotopeaTransport,
+  decodePhotopeaWireMessage,
+  type PlaywrightPhotopeaTransportOptions
+} from './playwright-photopea-transport'
 export type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from './session'
