@@ -418,5 +418,15 @@
     "mtime": 1789413515.6135309,
     "ast_hash": "8e34bd758ca783fabd6d19f167780341",
     "semantic_hash": ""
+  },
+  "src/server/visitor-identity.ts": {
+    "mtime": 1789413624.469401,
+    "ast_hash": "b43f0d9ca1e09249b6036de8cde7b521",
+    "semantic_hash": ""
+  },
+  "test/server/visitor-identity.test.ts": {
+    "mtime": 1789413624.5228486,
+    "ast_hash": "f4377bb0b157993ce12c139b23b5374c",
+    "semantic_hash": ""
   }
 }

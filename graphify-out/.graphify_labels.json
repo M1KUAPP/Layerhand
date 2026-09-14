@@ -29,5 +29,7 @@
   "27": "PhotopeaBridge",
   "28": "EditorSession",
   "29": "ExpectedSession",
-  "30": "photopea-document-loader.integration.test.ts"
+  "30": "photopea-document-loader.integration.test.ts",
+  "31": "PhotopeaTransport",
+  "32": "PlaywrightPhotopeaTransport"
 }

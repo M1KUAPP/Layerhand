@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prettierrc",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": ".prettierrc.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "prettierrc_schema",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "$schema"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "prettierrc_singlequote",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "singlequote"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "prettierrc_semi",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "semi"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "prettierrc_trailingcomma",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "trailingcomma"
     },
     {
@@ -802,8 +802,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_cloneaction",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "cloneaction()"
     },
     {
@@ -857,8 +857,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_actionbatches",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".actionbatches()"
     },
     {
@@ -890,8 +890,8 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_act",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".act()"
     },
     {
@@ -967,8 +967,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1286,7 +1286,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".constructor()"
     },
@@ -1627,7 +1627,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": "photopeatransport"
     },
@@ -1638,7 +1638,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".boot()"
     },
@@ -1649,7 +1649,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".send()"
     },
@@ -1660,7 +1660,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".nextmessage()"
     },
@@ -1671,7 +1671,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".press()"
     },
@@ -1682,7 +1682,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 19,
+      "community": 31,
       "community_name": "PhotopeaTransport",
       "norm_label": ".reload()"
     },
@@ -1748,8 +1748,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransportoptions",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "playwrightphotopeatransportoptions"
     },
     {
@@ -1770,8 +1770,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": "playwrightphotopeatransport"
     },
     {
@@ -1781,8 +1781,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_constructor",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": ".constructor()"
     },
     {
@@ -1803,8 +1803,8 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_send",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": ".send()"
     },
     {
@@ -1825,8 +1825,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_press",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": ".press()"
     },
     {
@@ -1836,8 +1836,8 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_reload",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": ".reload()"
     },
     {
@@ -1847,8 +1847,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "session.ts"
     },
     {
@@ -1946,8 +1946,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "pt"
     },
     {
@@ -1957,8 +1957,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_editor_session_computeraction",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "computeraction"
     },
     {
@@ -1968,8 +1968,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "button"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_editor_session_viewport",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "viewport"
     },
     {
@@ -2589,6 +2589,127 @@
       "norm_label": "applymigrations()"
     },
     {
+      "label": "visitor-identity.ts",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "visitor-identity.ts"
+    },
+    {
+      "label": "VisitorIdentityOptions",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_visitoridentityoptions",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "visitoridentityoptions"
+    },
+    {
+      "label": "VisitorIdentity",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_visitoridentity",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "visitoridentity"
+    },
+    {
+      "label": "VisitorIdentityError",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_visitoridentityerror",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "visitoridentityerror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_visitoridentityerror_constructor",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "hmac()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_hmac",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "hmac()"
+    },
+    {
+      "label": "signVisitorId()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_signvisitorid",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "signvisitorid()"
+    },
+    {
+      "label": "validSignedId()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_validsignedid",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "validsignedid()"
+    },
+    {
+      "label": "readCookie()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_readcookie",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "readcookie()"
+    },
+    {
+      "label": "clientAddress()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_clientaddress",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "clientaddress()"
+    },
+    {
+      "label": "establishVisitorIdentity()",
+      "file_type": "code",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "src_server_visitor_identity_establishvisitoridentity",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "establishvisitoridentity()"
+    },
+    {
       "label": "app.ts",
       "file_type": "code",
       "source_file": "src/web/app.ts",
@@ -3167,8 +3288,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_integration_test",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 32,
+      "community_name": "PlaywrightPhotopeaTransport",
       "norm_label": "playwright-photopea-transport.integration.test.ts"
     },
     {
@@ -3222,8 +3343,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -3699,6 +3820,17 @@
       "community": 1,
       "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "scaffold.test.ts"
+    },
+    {
+      "label": "visitor-identity.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/visitor-identity.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_visitor_identity_test",
+      "community": 9,
+      "community_name": "Agent Behavioral Guidelines",
+      "norm_label": "visitor-identity.test.ts"
     },
     {
       "label": "tsconfig.json",
@@ -12225,6 +12357,236 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_clientaddress",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_establishvisitoridentity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_hmac",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_readcookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_signvisitorid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_validsignedid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_visitoridentity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_visitoridentityerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity",
+      "target": "src_server_visitor_identity_visitoridentityoptions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/visitor-identity.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_visitor_identity_test",
+      "target": "src_server_visitor_identity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_visitoridentityerror",
+      "target": "src_server_visitor_identity_visitoridentityerror_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/visitor-identity.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_visitor_identity_test",
+      "target": "src_server_visitor_identity_visitoridentityerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L91",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_establishvisitoridentity",
+      "target": "src_server_visitor_identity_hmac",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_signvisitorid",
+      "target": "src_server_visitor_identity_hmac",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_establishvisitoridentity",
+      "target": "src_server_visitor_identity_signvisitorid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_validsignedid",
+      "target": "src_server_visitor_identity_signvisitorid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_establishvisitoridentity",
+      "target": "src_server_visitor_identity_validsignedid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_establishvisitoridentity",
+      "target": "src_server_visitor_identity_readcookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/visitor-identity.ts",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_visitor_identity_establishvisitoridentity",
+      "target": "src_server_visitor_identity_clientaddress",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/visitor-identity.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_visitor_identity_test",
+      "target": "src_server_visitor_identity_establishvisitoridentity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "test/editor/editor-session.contract.ts",
       "source_location": "L9",
       "weight": 1.0,
@@ -16141,5 +16503,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8a020aea50e7371e3fc93d216fbb120cfeb60075"
+  "built_at_commit": "b583a2d7d2e1d5214bec7202a3ecd70dad63e2b8"
 }
