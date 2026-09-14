@@ -614,7 +614,10 @@ Everything below exists to keep us in the first row.
   group, which is exactly the shape of a screenshot output, so an
   append-only loop caches well without explicit breakpoints.
 - Caches are machine-local, and sustained traffic above 15 requests per
-  minute can overflow to another machine and miss.
+  minute can overflow to another machine and miss. Twenty concurrent runs
+  (NFR-4) send more than that in total. Whether the threshold counts per
+  cached prefix or across the organisation is not yet known, and it
+  decides which row of the table above launch-day traffic lands in.
 
 A **bounded frame window** — the first screenshot plus the last few —
 is the backstop if caching underperforms, at some cost in the model's
