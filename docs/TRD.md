@@ -858,6 +858,15 @@ coverage rejects a truncated second PNG without renaming the original,
 then opens a valid second image on the same loader. Complete open
 workflows require caller serialization during document-count bookkeeping.
 
+The September 15 EXIF regression used a valid JPEG with raw SOF dimensions
+of 32x16 and orientation 6. Photopea correctly displayed it at 16x32, while
+the validator previously expected 32x16. Bounded APP1/TIFF IFD0 orientation
+parsing now supplies the expected displayed dimensions; public-Photopea
+Chrome coverage passes for all eight orientations. Orientations 5–8 swap
+axes. Original bytes and the long-edge limit are unchanged. Malformed
+inspected EXIF fields are rejected before boot; unrelated metadata, PNG
+CRCs, and full pixel decoding remain outside the validation boundary.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a

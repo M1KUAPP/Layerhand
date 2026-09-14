@@ -24,10 +24,14 @@ generation.
 
 ## Implementation outcome
 
-The September 14 Chrome proof and review refined the original steps below:
+The September 14–15 Chrome proof and review refined the original steps below:
 
 - Header validation checks legal PNG IHDR and JPEG SOF fields while keeping
   full decoding and PNG CRC verification outside the boundary.
+- Bounded JPEG APP1/TIFF IFD0 parsing accounts for EXIF orientation in the
+  expected displayed dimensions. Orientations 5–8 swap axes without changing
+  the source bytes or long-edge limit. Malformed inspected EXIF fields and
+  duplicate orientation metadata are rejected; unrelated tags are not decoded.
 - The transport applies the viewport before navigation and reloads after
   same-document navigation. Bridge boot shares concurrent readiness work,
   reuses successful readiness, and permits fresh attempts after failure.
