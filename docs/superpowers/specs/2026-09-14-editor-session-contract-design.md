@@ -138,9 +138,10 @@ Every production behavior is introduced through a failing Bun test first.
 
 ## Tooling and files
 
-The change adds `typescript` and `@types/bun` as development dependencies,
-plus `test` and `typecheck` package scripts. A strict, no-emit `tsconfig.json`
-covers `src/**/*.ts` and `test/**/*.ts`.
+The change adds `typescript`, `@types/bun`, and an explicit `@types/node`
+compatibility pin as development dependencies, plus `test` and `typecheck`
+package scripts. A strict, no-emit `tsconfig.json` covers `src/**/*.ts` and
+`test/**/*.ts`.
 
 The complete file set is:
 

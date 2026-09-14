@@ -65,10 +65,11 @@ Update the scripts in `package.json` to:
 Run:
 
 ```bash
-bun add --dev typescript @types/bun
+bun add --dev typescript @types/bun @types/node@latest
 ```
 
-Expected: `package.json` and `bun.lock` include `typescript` and `@types/bun`.
+Expected: `package.json` and `bun.lock` include `typescript`, `@types/bun`,
+and an explicit `@types/node` compatibility pin.
 
 - [ ] **Step 3: Create the strict TypeScript configuration**
 
