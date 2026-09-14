@@ -1,5 +1,26 @@
-@docs/agents/andrej-karpathy-skills.md
-@docs/agents/graphify.md
-@docs/agents/rtk.md
-@docs/agents/skills.md
-@docs/references/markdown-style.md
+# Agent instructions
+
+This repository builds **Layerhand**, an agent that retouches photographs
+inside a real image editor and returns a layered file, for the OpenAI ×
+Product Hunt GPT-6 Astra Challenge. Each `@` path below imports a document,
+with a note on what it covers; harnesses without import support should open
+the files directly. Edit this file, never `CLAUDE.md` or `GEMINI.md`, which
+are symlinks to it.
+
+## Instructions
+
+- @docs/agents/andrej-karpathy-skills.md — how to approach a task: think
+  before coding, keep it simple, change only what the request needs, and
+  loop until the result is verified.
+- @docs/agents/graphify.md — query the knowledge graph in `graphify-out/`
+  before reading or searching raw files.
+- @docs/agents/rtk.md — shell output comes back condensed; re-run a command
+  with `rtk proxy` only when its result is unusable.
+- @docs/agents/skills.md — the installed skill collections, and when to
+  reach for each.
+
+## References
+
+- @docs/references/markdown-style.md — the style every Markdown document
+  here follows: 80-character lines, sentence-case ATX headings, and
+  informative links.
