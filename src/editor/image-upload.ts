@@ -58,8 +58,9 @@ function detectFormat(bytes: Uint8Array): ImageFormat {
 }
 
 function readPngDimensions(bytes: Uint8Array): { width: number; height: number } {
+  // Require the signature, chunk length/type, all IHDR data, and its CRC field.
   if (
-    bytes.byteLength < 24 ||
+    bytes.byteLength < 33 ||
     !matchesBytes(bytes, 0, PNG_SIGNATURE) ||
     new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(8) !== PNG_IHDR_LENGTH ||
     !matchesBytes(bytes, 12, PNG_IHDR_TYPE)
