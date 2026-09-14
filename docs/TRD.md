@@ -814,6 +814,33 @@ the same day, not extended.
 | A2    | What step cap and frame window does the cost allow? | ½ day   | 2   |
 | A3    | Does native mid-turn steering work for us?          | ½ day   | 3   |
 
+Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
+opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
+resolution, including an exact 20 MiB JPEG padded with valid APP15
+segments. The measured values were `pngMs: 86.93262499999992`,
+`jpegMs: 78.7602079999997`, and `maxJpegMs: 1034.7378339999996`.
+The 20 MiB case is below NFR-3's five-second start budget for an already
+booted editor. These timings cover binary transfer through document
+verification, fitting, and Move-tool selection; they exclude editor boot
+and do not establish the whole cold-start budget.
+
+Visible Google Chrome verification confirmed Layers, Adjustments, and
+Properties (collapsed in its dock), with the Move tool selected. The
+boundary image retained its 6000x1 source dimensions, verified in
+Photopea's Image Size dialog, and its tab displayed `boundary.png`.
+Because a fitted single-pixel row is too thin to inspect visually, a
+separate temporary 6000x4000 PNG was opened through the same loader: all
+four canvas edges fitted within the 1440x900 viewport. No image binaries
+were committed.
+
+The live proof exposed two adapter defects. Photopea's `Document.name`
+read-back drops text from the first period onward, so the loader sets a
+display stem and verifies the complete filename through the documented
+[`Document.source` identifier](https://www.photopea.com/learn/scripts).
+Serializing 20 MiB as individual numbers initially took
+`maxJpegMs: 28022.7145`; a compact base64 transfer reduced it to the
+measurement above while preserving every byte and defensive copies.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a
