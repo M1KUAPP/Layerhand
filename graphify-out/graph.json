@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prettierrc",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": ".prettierrc.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "prettierrc_schema",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "$schema"
     },
     {
@@ -32,8 +32,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "prettierrc_printwidth",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "printwidth"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "prettierrc_singlequote",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "singlequote"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "prettierrc_semi",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "semi"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "prettierrc_trailingcomma",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "trailingcomma"
     },
     {
@@ -76,8 +76,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "commitlint_config",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "norm_label": "commitlint.config.mjs"
     },
     {
@@ -142,8 +142,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "lint"
     },
     {
@@ -164,8 +164,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_prepare",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "prepare"
     },
     {
@@ -769,8 +769,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "fake-editor-session.ts"
     },
     {
@@ -780,8 +780,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_editorrecording",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "editorrecording"
     },
     {
@@ -791,8 +791,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_sessionstate",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "sessionstate"
     },
     {
@@ -978,8 +978,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 31,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1286,8 +1286,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeabridge"
     },
     {
@@ -1297,8 +1297,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -1308,8 +1308,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_boot",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1319,8 +1319,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_openfile",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1330,8 +1330,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_runscript",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1341,8 +1341,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_press",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1352,8 +1352,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_waitfortext",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#waitfortext()"
     },
     {
@@ -1363,8 +1363,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_throwtimeout",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#throwtimeout()"
     },
     {
@@ -1374,8 +1374,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_enqueue",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#enqueue()"
     },
     {
@@ -1396,8 +1396,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeadocumentbridge"
     },
     {
@@ -1407,8 +1407,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_boot",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1418,8 +1418,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_openfile",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1429,8 +1429,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_runscript",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1440,8 +1440,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_press",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1583,8 +1583,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_transport",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopea-transport.ts"
     },
     {
@@ -1594,8 +1594,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironmentparameters",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaenvironmentparameters"
     },
     {
@@ -1605,8 +1605,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironment",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaenvironment"
     },
     {
@@ -1616,8 +1616,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1638,8 +1638,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeatransport"
     },
     {
@@ -1649,8 +1649,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1660,8 +1660,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -1671,8 +1671,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -1682,8 +1682,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1693,8 +1693,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "session.ts"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": "editorsession"
     },
     {
@@ -1880,8 +1880,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".open()"
     },
     {
@@ -1891,8 +1891,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".screenshot()"
     },
     {
@@ -1902,8 +1902,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".act()"
     },
     {
@@ -1913,8 +1913,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".layers()"
     },
     {
@@ -1924,8 +1924,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1935,8 +1935,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1946,8 +1946,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": ".close()"
     },
     {
@@ -1957,8 +1957,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "pt"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "button"
     },
     {
@@ -2001,8 +2001,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_session_layerinfo",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "layerinfo"
     },
     {
@@ -2661,8 +2661,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_server_config_requiredenvironment",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "requiredenvironment()"
     },
     {
@@ -3178,8 +3178,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_server_run_registry_storedrun",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "storedrun"
     },
     {
@@ -3211,8 +3211,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "src_server_run_registry_initialsnapshot",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "initialsnapshot()"
     },
     {
@@ -3222,8 +3222,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_server_run_registry_copyresult",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "copyresult()"
     },
     {
@@ -3233,8 +3233,8 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_server_run_registry_copysnapshot",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "copysnapshot()"
     },
     {
@@ -3244,8 +3244,8 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "runregistry"
     },
     {
@@ -3255,8 +3255,8 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_constructor",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".constructor()"
     },
     {
@@ -3266,8 +3266,8 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_register",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".register()"
     },
     {
@@ -3277,8 +3277,8 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_getsnapshot",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".getsnapshot()"
     },
     {
@@ -3288,8 +3288,8 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_waitforterminal",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".waitforterminal()"
     },
     {
@@ -3299,8 +3299,8 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_events",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".events()"
     },
     {
@@ -3310,8 +3310,8 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_steer",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".steer()"
     },
     {
@@ -3321,8 +3321,8 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_cancel",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".cancel()"
     },
     {
@@ -3332,8 +3332,8 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_pump",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#pump()"
     },
     {
@@ -3343,8 +3343,8 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_append",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#append()"
     },
     {
@@ -3354,8 +3354,8 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_reduce",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#reduce()"
     },
     {
@@ -3365,8 +3365,8 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_finalize",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#finalize()"
     },
     {
@@ -3376,8 +3376,8 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_required",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#required()"
     },
     {
@@ -3387,8 +3387,8 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_requiredrunning",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#requiredrunning()"
     },
     {
@@ -3398,8 +3398,8 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "src_server_run_registry_runregistry_purgeexpired",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".#purgeexpired()"
     },
     {
@@ -3420,8 +3420,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_server_run_routes_runroutedependencies",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "runroutedependencies"
     },
     {
@@ -3431,8 +3431,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_server_run_routes_runroutedependencies_clientaddress",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".clientaddress()"
     },
     {
@@ -3442,8 +3442,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_server_run_routes_runroutedependencies_now",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".now()"
     },
     {
@@ -3453,8 +3453,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_server_run_routes_runroutedependencies_idgenerator",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".idgenerator()"
     },
     {
@@ -3464,8 +3464,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_server_run_routes_runroutedependencies_runfactory",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".runfactory()"
     },
     {
@@ -4085,6 +4085,358 @@
       "norm_label": ".list()"
     },
     {
+      "label": "api.ts",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_web_api",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "api.ts"
+    },
+    {
+      "label": "Fetch",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_web_api_fetch",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "fetch"
+    },
+    {
+      "label": "EventSourceLike",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_web_api_eventsourcelike",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "eventsourcelike"
+    },
+    {
+      "label": ".addEventListener()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_web_api_eventsourcelike_addeventlistener",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".addeventlistener()"
+    },
+    {
+      "label": ".close()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_web_api_eventsourcelike_close",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".close()"
+    },
+    {
+      "label": "EventSourceFactory",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_web_api_eventsourcefactory",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "eventsourcefactory"
+    },
+    {
+      "label": "RunApiError",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_web_api_runapierror",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runapierror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "src_web_api_runapierror_constructor",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "record()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "src_web_api_record",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "record()"
+    },
+    {
+      "label": "string()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "src_web_api_string",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "string()"
+    },
+    {
+      "label": "nullableString()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "src_web_api_nullablestring",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "nullablestring()"
+    },
+    {
+      "label": "number()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "src_web_api_number",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "number()"
+    },
+    {
+      "label": "integer()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "src_web_api_integer",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "integer()"
+    },
+    {
+      "label": "boolean()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "src_web_api_boolean",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "boolean()"
+    },
+    {
+      "label": "stringArray()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "src_web_api_stringarray",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "stringarray()"
+    },
+    {
+      "label": "layer()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "src_web_api_layer",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "layer()"
+    },
+    {
+      "label": "runResult()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L81",
+      "_origin": "ast",
+      "id": "src_web_api_runresult",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runresult()"
+    },
+    {
+      "label": "status()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L94",
+      "_origin": "ast",
+      "id": "src_web_api_status",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "status()"
+    },
+    {
+      "label": "decodeRunSnapshot()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L102",
+      "_origin": "ast",
+      "id": "src_web_api_decoderunsnapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "decoderunsnapshot()"
+    },
+    {
+      "label": "decodeRunEvent()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L125",
+      "_origin": "ast",
+      "id": "src_web_api_decoderunevent",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "decoderunevent()"
+    },
+    {
+      "label": "responseJson()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L163",
+      "_origin": "ast",
+      "id": "src_web_api_responsejson",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "responsejson()"
+    },
+    {
+      "label": "accepted()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L171",
+      "_origin": "ast",
+      "id": "src_web_api_accepted",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "accepted()"
+    },
+    {
+      "label": "RunApi",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L181",
+      "_origin": "ast",
+      "id": "src_web_api_runapi",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runapi"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L185",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_constructor",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L193",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_start",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".start()"
+    },
+    {
+      "label": ".snapshot()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L198",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_snapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".snapshot()"
+    },
+    {
+      "label": ".steer()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L204",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_steer",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".steer()"
+    },
+    {
+      "label": ".cancel()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L208",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_cancel",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".cancel()"
+    },
+    {
+      "label": ".joinWaitlist()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L212",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_joinwaitlist",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".joinwaitlist()"
+    },
+    {
+      "label": ".subscribe()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L223",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_subscribe",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".subscribe()"
+    },
+    {
+      "label": ".#acknowledgement()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L239",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_acknowledgement",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#acknowledgement()"
+    },
+    {
+      "label": ".#receiveEvent()",
+      "file_type": "code",
+      "source_file": "src/web/api.ts",
+      "source_location": "L252",
+      "_origin": "ast",
+      "id": "src_web_api_runapi_receiveevent",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#receiveevent()"
+    },
+    {
       "label": "app.ts",
       "file_type": "code",
       "source_file": "src/web/app.ts",
@@ -4094,6 +4446,127 @@
       "community": 16,
       "community_name": "playwright-photopea-transport.ts",
       "norm_label": "app.ts"
+    },
+    {
+      "label": "state.ts",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_web_state",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "state.ts"
+    },
+    {
+      "label": "RunProgress",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_web_state_runprogress",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "runprogress"
+    },
+    {
+      "label": "ClientState",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_web_state_clientstate",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "clientstate"
+    },
+    {
+      "label": "ClientAction",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "src_web_state_clientaction",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "clientaction"
+    },
+    {
+      "label": "emptyProgress()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "src_web_state_emptyprogress",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "emptyprogress()"
+    },
+    {
+      "label": "progressFromSnapshot()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_web_state_progressfromsnapshot",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "progressfromsnapshot()"
+    },
+    {
+      "label": "fromSnapshot()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "src_web_state_fromsnapshot",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "fromsnapshot()"
+    },
+    {
+      "label": "reduceEvent()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "src_web_state_reduceevent",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "reduceevent()"
+    },
+    {
+      "label": "initialClientState()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L140",
+      "_origin": "ast",
+      "id": "src_web_state_initialclientstate",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "initialclientstate()"
+    },
+    {
+      "label": "reduceClientState()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L144",
+      "_origin": "ast",
+      "id": "src_web_state_reduceclientstate",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "reduceclientstate()"
+    },
+    {
+      "label": "formatCredits()",
+      "file_type": "code",
+      "source_file": "src/web/state.ts",
+      "source_location": "L169",
+      "_origin": "ast",
+      "id": "src_web_state_formatcredits",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "formatcredits()"
     },
     {
       "label": "editor-session.contract.ts",
@@ -4146,8 +4619,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "fake-editor-session.test.ts"
     },
     {
@@ -4157,8 +4630,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_framea",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "framea"
     },
     {
@@ -4168,8 +4641,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_frameb",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "frameb"
     },
     {
@@ -4179,8 +4652,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_psd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "psd"
     },
     {
@@ -4190,8 +4663,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_recording",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "recording()"
     },
     {
@@ -4201,8 +4674,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_createsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "createsession()"
     },
     {
@@ -4212,8 +4685,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_documentoperations",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "documentoperations"
     },
     {
@@ -4443,8 +4916,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopea-document-loader-concurrency.test.ts"
     },
     {
@@ -4454,8 +4927,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "imagetransport"
     },
     {
@@ -4465,8 +4938,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_fitthearea",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "fitthearea()"
     },
     {
@@ -4476,8 +4949,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_boot",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -4487,8 +4960,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_send",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -4498,8 +4971,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_nextmessage",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -4509,8 +4982,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_press",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -4520,8 +4993,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_reload",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -4542,8 +5015,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -4553,8 +5026,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "openimage()"
     },
     {
@@ -4575,8 +5048,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "recordingbridge"
     },
     {
@@ -4586,8 +5059,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_constructor",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -4597,8 +5070,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_boot",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -4608,8 +5081,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_openfile",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -4619,8 +5092,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_runscript",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -4630,8 +5103,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_press",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -4641,8 +5114,8 @@
       "source_location": "L230",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_name",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "name()"
     },
     {
@@ -4663,8 +5136,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_integration_test",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "playwright-photopea-transport.integration.test.ts"
     },
     {
@@ -4718,8 +5191,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 31,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -4729,8 +5202,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -4740,8 +5213,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "isexact"
     },
     {
@@ -4751,8 +5224,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "assert"
     },
     {
@@ -4762,8 +5235,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "keysofunion"
     },
     {
@@ -4773,8 +5246,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "methodisexact"
     },
     {
@@ -4784,8 +5257,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "expectedaction"
     },
     {
@@ -4795,8 +5268,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -4806,8 +5279,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": "expectedsession"
     },
     {
@@ -4817,8 +5290,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_open",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".open()"
     },
     {
@@ -4828,8 +5301,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_screenshot",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".screenshot()"
     },
     {
@@ -4839,8 +5312,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_act",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".act()"
     },
     {
@@ -4850,8 +5323,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_layers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".layers()"
     },
     {
@@ -4861,8 +5334,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpsd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".exportpsd()"
     },
     {
@@ -4872,8 +5345,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpreview",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".exportpreview()"
     },
     {
@@ -4883,8 +5356,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_close",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 40,
+      "community_name": "ExpectedSession",
       "norm_label": ".close()"
     },
     {
@@ -4894,8 +5367,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "assertions"
     },
     {
@@ -4905,8 +5378,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 37,
+      "community_name": "session.types.test.ts",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -4960,8 +5433,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -4971,8 +5444,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -4982,8 +5455,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createliveboundaryimages()"
     },
     {
@@ -5538,6 +6011,17 @@
       "norm_label": "store()"
     },
     {
+      "label": "api.test.ts",
+      "file_type": "code",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_web_api_test",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "api.test.ts"
+    },
+    {
       "label": "sample-photo.test.ts",
       "file_type": "code",
       "source_file": "test/web/sample-photo.test.ts",
@@ -5558,6 +6042,39 @@
       "community": 4,
       "community_name": "Run Cost, Limits & Metering",
       "norm_label": "sample_path"
+    },
+    {
+      "label": "state.test.ts",
+      "file_type": "code",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_web_state_test",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "state.test.ts"
+    },
+    {
+      "label": "result",
+      "file_type": "code",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "test_web_state_test_result",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "result"
+    },
+    {
+      "label": "runningSnapshot()",
+      "file_type": "code",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "test_web_state_test_runningsnapshot",
+      "community": 34,
+      "community_name": "state.ts",
+      "norm_label": "runningsnapshot()"
     },
     {
       "label": "tsconfig.json",
@@ -5775,8 +6292,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "github_pull_request_template",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "norm_label": "pull_request_template.md"
     },
     {
@@ -5786,8 +6303,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "github_pull_request_template_what_changed",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "norm_label": "what changed"
     },
     {
@@ -5797,8 +6314,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "github_pull_request_template_how_it_was_verified",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "norm_label": "how it was verified"
     },
     {
@@ -5808,8 +6325,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "github_pull_request_template_checklist",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "norm_label": "checklist"
     },
     {
@@ -7359,8 +7876,8 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "docs_references_markdown_style_character_line_limit",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "character line limit"
     },
     {
@@ -7370,8 +7887,8 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "docs_references_markdown_style_exceptions",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "norm_label": "exceptions"
     },
     {
@@ -7392,8 +7909,8 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "docs_references_markdown_style_headings",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "headings"
     },
     {
@@ -7403,8 +7920,8 @@
       "source_location": "L262",
       "_origin": "ast",
       "id": "docs_references_markdown_style_atx_style_headings",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "atx-style headings"
     },
     {
@@ -7414,8 +7931,8 @@
       "source_location": "L279",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_unique_complete_names_for_headings",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "use unique, complete names for headings"
     },
     {
@@ -7425,8 +7942,8 @@
       "source_location": "L317",
       "_origin": "ast",
       "id": "docs_references_markdown_style_add_spacing_to_headings",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "add spacing to headings"
     },
     {
@@ -7436,8 +7953,8 @@
       "source_location": "L338",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_a_single_h1_heading",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "use a single h1 heading"
     },
     {
@@ -7447,8 +7964,8 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "docs_references_markdown_style_capitalization_of_titles_and_headers",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 41,
+      "community_name": "Headings",
       "norm_label": "capitalization of titles and headers"
     },
     {
@@ -7491,8 +8008,8 @@
       "source_location": "L424",
       "_origin": "ast",
       "id": "docs_references_markdown_style_code",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "code"
     },
     {
@@ -7502,8 +8019,8 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "docs_references_markdown_style_inline",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "inline"
     },
     {
@@ -7513,8 +8030,8 @@
       "source_location": "L444",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_code_span_for_escaping",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "use code span for escaping"
     },
     {
@@ -7524,8 +8041,8 @@
       "source_location": "L455",
       "_origin": "ast",
       "id": "docs_references_markdown_style_codeblocks",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "codeblocks"
     },
     {
@@ -7535,8 +8052,8 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "docs_references_markdown_style_declare_the_language",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "declare the language"
     },
     {
@@ -7546,8 +8063,8 @@
       "source_location": "L471",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_fenced_code_blocks_instead_of_indented_code_blocks",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "use fenced code blocks instead of indented code blocks"
     },
     {
@@ -7557,8 +8074,8 @@
       "source_location": "L498",
       "_origin": "ast",
       "id": "docs_references_markdown_style_escape_newlines",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "escape newlines"
     },
     {
@@ -7568,8 +8085,8 @@
       "source_location": "L511",
       "_origin": "ast",
       "id": "docs_references_markdown_style_nest_codeblocks_within_lists",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 39,
+      "community_name": "Codeblocks",
       "norm_label": "nest codeblocks within lists"
     },
     {
@@ -7579,8 +8096,8 @@
       "source_location": "L537",
       "_origin": "ast",
       "id": "docs_references_markdown_style_links",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "links"
     },
     {
@@ -7590,8 +8107,8 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_explicit_paths_for_links_within_markdown",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "use explicit paths for links within markdown"
     },
     {
@@ -7601,8 +8118,8 @@
       "source_location": "L556",
       "_origin": "ast",
       "id": "docs_references_markdown_style_avoid_relative_paths_unless_within_the_same_directory",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "avoid relative paths unless within the same directory"
     },
     {
@@ -7612,8 +8129,8 @@
       "source_location": "L571",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_informative_markdown_link_titles",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "use informative markdown link titles"
     },
     {
@@ -7623,8 +8140,8 @@
       "source_location": "L601",
       "_origin": "ast",
       "id": "docs_references_markdown_style_reference_links",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "reference links"
     },
     {
@@ -7634,8 +8151,8 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_reference_links_for_long_links",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "use reference links for long links"
     },
     {
@@ -7645,8 +8162,8 @@
       "source_location": "L677",
       "_origin": "ast",
       "id": "docs_references_markdown_style_use_reference_links_to_reduce_duplication",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "use reference links to reduce duplication"
     },
     {
@@ -7656,8 +8173,8 @@
       "source_location": "L682",
       "_origin": "ast",
       "id": "docs_references_markdown_style_define_reference_links_after_their_first_use",
-      "community": 5,
-      "community_name": "Project Rules & Markdown Style",
+      "community": 38,
+      "community_name": "Links",
       "norm_label": "define reference links after their first use"
     },
     {
@@ -7760,8 +8277,8 @@
       "label": ".agents/skills/ skills directory",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 42,
+      "community_name": "Skills (installed skill collections)",
       "contributor": null,
       "file_type": "concept",
       "norm_label": ".agents/skills/ skills directory",
@@ -7805,8 +8322,8 @@
       "label": "Skills (installed skill collections)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 42,
+      "community_name": "Skills (installed skill collections)",
       "contributor": null,
       "file_type": "document",
       "norm_label": "skills (installed skill collections)",
@@ -7865,8 +8382,8 @@
       "label": "Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
@@ -7880,8 +8397,8 @@
       "label": ".husky/pre-push hook",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "contributor": null,
       "file_type": "code",
       "norm_label": ".husky/pre-push hook",
@@ -7895,8 +8412,8 @@
       "label": "bun (package manager and script runner)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "bun (package manager and script runner)",
@@ -7910,8 +8427,8 @@
       "label": "graphify-labs/graphify skill collection",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 42,
+      "community_name": "Skills (installed skill collections)",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "graphify-labs/graphify skill collection",
@@ -7925,8 +8442,8 @@
       "label": "Prettier owns syntax, not prose",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 36,
+      "community_name": "Prettier owns syntax, not prose",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "prettier owns syntax, not prose",
@@ -7940,8 +8457,8 @@
       "label": "Local hook setup (bun install, then uv tool install graphifyy)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "local hook setup (bun install, then uv tool install graphifyy)",
@@ -7955,8 +8472,8 @@
       "label": "Saved query: are rules.md's inferred relationships correct",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: are rules.md's inferred relationships correct",
@@ -7970,8 +8487,8 @@
       "label": "Project conventions (rules.md)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "document",
       "norm_label": "project conventions (rules.md)",
@@ -7985,8 +8502,8 @@
       "label": "Saved query: why Git workflow reference bridges conventions and ideation",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: why git workflow reference bridges conventions and ideation",
@@ -8000,8 +8517,8 @@
       "label": "Saved query: why Stream-per-directory repository layout bridges code and conventions",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: why stream-per-directory repository layout bridges code and conventions",
@@ -8015,8 +8532,8 @@
       "label": ".husky/commit-msg hook",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "contributor": null,
       "file_type": "code",
       "norm_label": ".husky/commit-msg hook",
@@ -8030,8 +8547,8 @@
       "label": "Conventional commit types (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "conventional commit types (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test)",
@@ -8045,8 +8562,8 @@
       "label": "Conventional Commits",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "conventional commits",
@@ -8060,8 +8577,8 @@
       "label": "Git workflow reference",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "document",
       "norm_label": "git workflow reference",
@@ -8075,8 +8592,8 @@
       "label": "Atomic commits",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "atomic commits",
@@ -8090,8 +8607,8 @@
       "label": "Branch naming (<type>/<short-description>)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "branch naming (<type>/<short-description>)",
@@ -8105,8 +8622,8 @@
       "label": "Breaking change marker (! and BREAKING CHANGE footer)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "breaking change marker (! and breaking change footer)",
@@ -8120,8 +8637,8 @@
       "label": "gh pr create --fill-first",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "gh pr create --fill-first",
@@ -8135,8 +8652,8 @@
       "label": "Conventional issue and pull request titles",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "conventional issue and pull request titles",
@@ -8150,8 +8667,8 @@
       "label": "Merge rules kept by convention (branch rulesets and protection unavailable)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "merge rules kept by convention (branch rulesets and protection unavailable)",
@@ -8165,8 +8682,8 @@
       "label": "Rebase merge, never squash",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "rebase merge, never squash",
@@ -8180,8 +8697,8 @@
       "label": "Server-side repository setup (gh api merge settings)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "server-side repository setup (gh api merge settings)",
@@ -8195,8 +8712,8 @@
       "label": "Branch-to-merge loop",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "branch-to-merge loop",
@@ -8210,8 +8727,8 @@
       "label": "Enforcement layers (What enforces what)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 35,
+      "community_name": "Enforcement layers (What enforces what)",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "enforcement layers (what enforces what)",
@@ -8225,8 +8742,8 @@
       "label": "leonxlnx/taste-skill skill collection",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 42,
+      "community_name": "Skills (installed skill collections)",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "leonxlnx/taste-skill skill collection",
@@ -8240,8 +8757,8 @@
       "label": "obra/superpowers skill collection",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 42,
+      "community_name": "Skills (installed skill collections)",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "obra/superpowers skill collection",
@@ -9286,6 +9803,30 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_agent_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_agent_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "test/server/run-registry.test.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -9442,6 +9983,54 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L252",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_receiveevent",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L223",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_subscribe",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "test/server/run-registry.test.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -9495,6 +10084,30 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_server_run_registry_runsnapshot",
+      "target": "src_agent_contract_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_agent_contract_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
       "target": "src_agent_contract_runresult",
       "confidence_score": 1.0
     },
@@ -9774,6 +10387,30 @@
       "_origin": "ast",
       "source": "src_editor_contract",
       "target": "src_editor_contract_viewport",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_editor_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_editor_contract_layerinfo",
       "confidence_score": 1.0
     },
     {
@@ -16127,6 +16764,30 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "test/server/run-registry.test.ts",
       "source_location": "L6",
       "weight": 1.0,
@@ -16145,6 +16806,102 @@
       "_origin": "ast",
       "source": "test_server_run_routes_test",
       "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_server_run_registry_runstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_server_run_registry_runsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L198",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_snapshot",
+      "target": "src_server_run_registry_runsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_server_run_registry_runsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_server_run_registry_runsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_server_run_registry_runsnapshot",
       "confidence_score": 1.0
     },
     {
@@ -17998,6 +18755,1129 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L171",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L125",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_decoderunevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L102",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_decoderunsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_eventsourcefactory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_eventsourcelike",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_fetch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_integer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_layer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_nullablestring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_number",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L163",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_responsejson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L181",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_runapi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_runapierror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api",
+      "target": "src_web_api_stringarray",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_web_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_eventsourcelike",
+      "target": "src_web_api_eventsourcelike_addeventlistener",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_eventsourcelike",
+      "target": "src_web_api_eventsourcelike_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L230",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_subscribe",
+      "target": "src_web_api_eventsourcelike_addeventlistener",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L236",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_subscribe",
+      "target": "src_web_api_eventsourcelike_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapierror",
+      "target": "src_web_api_runapierror_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_web_api_runapierror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L172",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_accepted",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_layer",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runresult",
+      "target": "src_web_api_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L105",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L70",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_layer",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_nullablestring",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L220",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_joinwaitlist",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L195",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_start",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L87",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runresult",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_status",
+      "target": "src_web_api_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_stringarray",
+      "target": "src_web_api_string",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_nullablestring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L150",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_number",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L111",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_number",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_integer",
+      "target": "src_web_api_number",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L133",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_integer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_integer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L157",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_layer",
+      "target": "src_web_api_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L220",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_joinwaitlist",
+      "target": "src_web_api_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L90",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runresult",
+      "target": "src_web_api_boolean",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L114",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_stringarray",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runresult",
+      "target": "src_web_api_layer",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L155",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunevent",
+      "target": "src_web_api_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L117",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_decoderunsnapshot",
+      "target": "src_web_api_status",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L201",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_snapshot",
+      "target": "src_web_api_decoderunsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_web_api_decoderunsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L261",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_receiveevent",
+      "target": "src_web_api_decoderunevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_web_api_decoderunevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L172",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_accepted",
+      "target": "src_web_api_responsejson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L201",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_snapshot",
+      "target": "src_web_api_responsejson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L245",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_acknowledgement",
+      "target": "src_web_api_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L213",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_joinwaitlist",
+      "target": "src_web_api_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L200",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_snapshot",
+      "target": "src_web_api_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L194",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_start",
+      "target": "src_web_api_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L239",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_acknowledgement",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L208",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_cancel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L185",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L212",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_joinwaitlist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L252",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_receiveevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L198",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_snapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L193",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_start",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L204",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_steer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L223",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi",
+      "target": "src_web_api_runapi_subscribe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/api.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_api_test",
+      "target": "src_web_api_runapi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L205",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_steer",
+      "target": "src_web_api_runapi_acknowledgement",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L209",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_cancel",
+      "target": "src_web_api_runapi_acknowledgement",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/api.ts",
+      "source_location": "L230",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_api_runapi_subscribe",
+      "target": "src_web_api_runapi_receiveevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_clientaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_clientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_emptyprogress",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L169",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_formatcredits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_fromsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L140",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_initialclientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_progressfromsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L144",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_reduceclientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_reduceevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state",
+      "target": "src_web_state_runprogress",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_web_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L149",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state_reduceclientstate",
+      "target": "src_web_state_emptyprogress",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state_fromsnapshot",
+      "target": "src_web_state_progressfromsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L151",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state_reduceclientstate",
+      "target": "src_web_state_fromsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L153",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state_reduceclientstate",
+      "target": "src_web_state_reduceevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/state.ts",
+      "source_location": "L165",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_state_reduceclientstate",
+      "target": "src_web_state_initialclientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_web_state_initialclientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_web_state_reduceclientstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "src_web_state_formatcredits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "test/editor/editor-session.contract.ts",
       "source_location": "L9",
       "weight": 1.0,
@@ -19368,6 +21248,28 @@
       "_origin": "ast",
       "source": "test_web_sample_photo_test",
       "target": "test_web_sample_photo_test_sample_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "test_web_state_test_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/state.test.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_state_test",
+      "target": "test_web_state_test_runningsnapshot",
       "confidence_score": 1.0
     },
     {
@@ -22246,5 +24148,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "776a6daa61fff8e6f5de648e5a8b6d69d965c535"
+  "built_at_commit": "47aba9ccc7c94b30c1165d90b900285880693190"
 }

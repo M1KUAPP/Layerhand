@@ -32,5 +32,14 @@
   "30": "Functional requirements",
   "31": "editor-session.contract.ts",
   "32": "Competition",
-  "33": "PRD.md"
+  "33": "PRD.md",
+  "34": "state.ts",
+  "35": "Enforcement layers (What enforces what)",
+  "36": "Prettier owns syntax, not prose",
+  "37": "session.types.test.ts",
+  "38": "Links",
+  "39": "Codeblocks",
+  "40": "ExpectedSession",
+  "41": "Headings",
+  "42": "Skills (installed skill collections)"
 }

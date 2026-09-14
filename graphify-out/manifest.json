@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "test/web/sample-photo.test.ts": {
-    "mtime": 1789414819.885597,
-    "ast_hash": "8e394ae441bc58f8d0c121d889593c89",
+    "mtime": 1789414946.9452283,
+    "ast_hash": "3167026e19bc4422c41ea53c871ffd37",
     "semantic_hash": ""
   },
   "src/web/assets/sample-photo.md": {
@@ -507,6 +507,26 @@
   "src/web/assets/sample-photo.png": {
     "mtime": 1789414928.008483,
     "ast_hash": "9c1909a0b92c4fd58ac17e532cf3ebc0",
+    "semantic_hash": ""
+  },
+  "src/web/api.ts": {
+    "mtime": 1789415169.5843105,
+    "ast_hash": "e1269d545167932e67cfed3b6f1e7345",
+    "semantic_hash": ""
+  },
+  "src/web/state.ts": {
+    "mtime": 1789415186.0500546,
+    "ast_hash": "48cb96647158b5108d4cdf104df27bb0",
+    "semantic_hash": ""
+  },
+  "test/web/api.test.ts": {
+    "mtime": 1789415194.7411554,
+    "ast_hash": "8dd5f947d422e83a907cef30f85a47c4",
+    "semantic_hash": ""
+  },
+  "test/web/state.test.ts": {
+    "mtime": 1789415186.0500546,
+    "ast_hash": "1bb0fb6cf80d641af36da15ed2e2e142",
     "semantic_hash": ""
   }
 }
