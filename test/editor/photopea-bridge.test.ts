@@ -22,7 +22,7 @@ class MemoryTransport implements PhotopeaTransport {
     this.sent.push(typeof message === 'string' ? message : Uint8Array.from(message))
   }
 
-  async nextMessage(): Promise<PhotopeaMessage> {
+  async nextMessage(_timeoutMs: number): Promise<PhotopeaMessage> {
     const message = this.messages.shift()
     if (!message) throw new Error('timeout')
     return message
@@ -40,7 +40,7 @@ class MemoryTransport implements PhotopeaTransport {
 class ControlledTransport extends MemoryTransport {
   readonly #resolvers: Array<(message: PhotopeaMessage) => void> = []
 
-  override async nextMessage(): Promise<PhotopeaMessage> {
+  override async nextMessage(_timeoutMs: number): Promise<PhotopeaMessage> {
     return new Promise((resolve) => this.#resolvers.push(resolve))
   }
 
@@ -64,6 +64,13 @@ class ControlledTransport extends MemoryTransport {
       await Bun.sleep(0)
     }
     throw new Error('Timed out waiting for a Photopea message request.')
+  }
+}
+
+class LateSentinelTransport extends MemoryTransport {
+  override async nextMessage(timeoutMs: number): Promise<PhotopeaMessage> {
+    await Bun.sleep(timeoutMs + 1)
+    return { type: 'text', value: 'sentinel-1' }
   }
 }
 
@@ -122,5 +129,16 @@ describe('PhotopeaBridge', () => {
     await expect(bridge.openFile(Uint8Array.of(1, 2, 3))).rejects.toMatchObject({ code: 'photopea_timeout' })
     expect(transport.reloads).toBe(1)
     expect(transport.sent).toHaveLength(2)
+  })
+
+  test('rejects a sentinel received after the command deadline', async () => {
+    const transport = new LateSentinelTransport()
+    const bridge = new PhotopeaBridge(transport, {
+      commandTimeoutMs: 10,
+      createSentinel: () => 'sentinel-1'
+    })
+
+    await expect(bridge.runScript('late();')).rejects.toMatchObject({ code: 'photopea_timeout' })
+    expect(transport.reloads).toBe(1)
   })
 })
