@@ -11,7 +11,15 @@ source_nodes: ["Spike B1: verify the image-in, PSD-out round trip", "Photopea kn
 
 ## Answer
 
-Expanded from original query via graph vocab: [photopea, photoshop, psd, round, trip, layer, validation, editor]. The graph identified docs/TRD.md as the source for Photopea known traps, PSD validation, and Spike B1. Adobe Photoshop 2026 opened the exact 1,412,711-byte project PSD without a warning; its live document title showed both Original photograph and Retouched copy when cycling adjacent layers.
+Expanded from original query via graph vocab: [photopea, photoshop, psd,
+round, trip, layer, validation, editor]. The graph identified `docs/TRD.md`
+as the source for Photopea known traps, PSD validation, and spike B1. The
+session reported that Adobe Photoshop 2026 opened the 1,412,711-byte project
+PSD without a warning and showed both named layers when cycling them. This is
+a historical observation without a retained opening record or application
+build, not durable compatibility evidence. See the
+[provisional B1 result](/docs/TRD.md#decisions-deferred-to-spikes) and its
+[evidence limits](/docs/evidence/photopea-round-trip/README.md#evidence-limits).
 
 ## Outcome
 
