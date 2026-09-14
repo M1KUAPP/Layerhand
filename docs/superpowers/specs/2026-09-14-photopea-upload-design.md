@@ -5,7 +5,7 @@
 Approved in chat on September 14, 2026. This design implements issue #15,
 `feat(editor): open an uploaded image in the editor`.
 
-The current-behavior sections include the Chrome proof and September 14
+The current-behavior sections include the Chrome proof and September 14–15
 review corrections. The approval date records the original design decision.
 
 ## Context
@@ -95,16 +95,31 @@ Validation uses bytes, never the filename or a supplied content type:
 
 1. Detect PNG or JPEG magic bytes.
 2. Check the actual byte length against `MAX_IMAGE_BYTES`.
-3. Read dimensions from the header without decoding the full image.
+3. Read displayed dimensions from the header, including JPEG EXIF
+   orientation, without decoding the full image.
 4. Reject a zero dimension or malformed segment structure.
 5. Check the long edge against `MAX_IMAGE_EDGE`.
 
 PNG validation requires the eight-byte signature, a complete first `IHDR`
 chunk, legal bit-depth/color-type combinations, compression and filter method
 zero, and interlace method zero or one. JPEG validation scans bounded marker
-segments to a supported start-of-frame marker, then checks precision for that
-frame type, component count, distinct component IDs, sampling factors, and
-quantization-table selectors. The returned bytes are a defensive copy.
+segments before the first scan or end marker. It requires a supported
+start-of-frame marker and checks precision for that frame type, component
+count, distinct component IDs, sampling factors, and quantization-table
+selectors.
+
+For EXIF APP1 segments, the validator bounds the TIFF header and IFD0 table
+to that segment and reads only the orientation tag: one inline `SHORT` with
+a value from 1 through 8. Both TIFF byte orders are supported. Orientations
+5–8 swap the SOF width and height; absent orientation retains the SOF
+dimensions. Non-EXIF APP1 segments are ignored. Malformed inspected TIFF or
+orientation fields and duplicate orientation tags or segments are rejected
+with `malformed_image`; the validator does not guess which one Photopea uses.
+It does not follow thumbnail or unrelated EXIF offsets.
+
+The returned bytes are an unchanged defensive copy. Orientation changes
+only the expected displayed dimensions, not the pixel data or long-edge
+limit.
 
 This is a header-only boundary. It does not verify PNG CRCs, decode pixels,
 or validate data after the inspected header. A complete header followed by
@@ -306,8 +321,9 @@ return LoadedPhotopeaDocument and timing
 ```
 
 No input-validation failure reaches Chrome. No image is downsampled. The
-validated dimensions describe the source document, while `viewport` remains the
-1440x900 browser coordinate space from Contract 1.
+validated dimensions describe the source document as displayed after JPEG
+EXIF orientation, while `viewport` remains the 1440x900 browser coordinate
+space from Contract 1.
 
 ## Error handling
 
@@ -334,6 +350,11 @@ validated dimensions describe the source document, while `viewport` remains the
 - Legal PNG field combinations and JPEG frame precision/component fields.
 - Stable error codes and messages.
 - Defensive byte copying.
+
+`test/editor/image-upload-exif.test.ts` covers all eight orientations in both
+TIFF byte orders, offset views and IFD locations, absent metadata, unrelated
+APP1 segments, malformed fields and bounds, duplicate orientation metadata,
+and the unchanged long-edge limit and source bytes.
 
 `test/editor/photopea-bridge.test.ts` uses an in-memory transport and covers:
 
@@ -364,6 +385,8 @@ and PNG bytes in the public Photopea editor.
 
 Same-page coverage also rejects a truncated second PNG without renaming the
 first document, then successfully opens another valid image on that loader.
+All eight EXIF orientations are checked against Photopea's displayed
+dimensions using real JPEGs with raw SOF dimensions of 32x16.
 
 The integration harness creates boundary fixtures at runtime rather than
 committing tens of megabytes. Unit tests prove the exact byte and dimension
@@ -414,5 +437,6 @@ the known panel layout, fitted canvas, and Move tool selection.
 - [Photopea scripts](https://www.photopea.com/learn/scripts)
 - [PNG IHDR field specification](https://www.w3.org/TR/png-3/#11IHDR)
 - [JPEG frame header specification, section B.2.2](https://www.w3.org/Graphics/JPEG/itu-t81.pdf)
+- [Exif TIFF structure and orientation specification](https://www.cipa.jp/std/documents/e/DC-X008-Translation-2019-E.pdf)
 - [Technical design](../../TRD.md#the-editor-adapter)
 - [Input requirements](../../PRD.md#input)
