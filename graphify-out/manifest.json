@@ -10,8 +10,8 @@
     "semantic_hash": "52ab4ac1646fcab89c9e7e059b1ef9db"
   },
   "package.json": {
-    "mtime": 1789407624.8552191,
-    "ast_hash": "be415f1a8aca5239eff4c78017b2fb5a",
+    "mtime": 1789412790.3735197,
+    "ast_hash": "20105e8dc379baae11af97e38d1dcd96",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -342,6 +342,16 @@
   "test/server/browserbase-client.test.ts": {
     "mtime": 1789412635.2756746,
     "ast_hash": "9186b64bf5367058988ab74c795ec430",
+    "semantic_hash": ""
+  },
+  "src/server/browserbase-probe.ts": {
+    "mtime": 1789412783.8439777,
+    "ast_hash": "de3710d4de46eeaa8fc76c62bb320f06",
+    "semantic_hash": ""
+  },
+  "test/server/browserbase-probe.test.ts": {
+    "mtime": 1789412783.9055386,
+    "ast_hash": "6812ad002eb52be521c01360a7535d21",
     "semantic_hash": ""
   }
 }
