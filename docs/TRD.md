@@ -833,15 +833,17 @@ on day 0, and nobody should reach for the kill switch over them.
 A0 and A4 are the two that can still change the plan, which is why both
 are day-0 despite being short.
 
-**B1 result, September 14:** provisionally passed. A 13,442-byte JPEG
+**B1 result, September 14:** passed. A 13,442-byte JPEG
 sent through `postMessage` produced a 1,412,711-byte PSD with two named
 layers, `Original photograph` and `Retouched copy`. The `8BPS` signature,
 640x480 dimensions, and both layer names were verified with `ag-psd`.
 The exact message sequence was a deliberately misleading `"done"`, the
 PSD bytes, the unique sentinel, and the real completion `"done"`, which
-proved the sentinel handshake. The remaining acceptance check is to open
-the candidate file in Photoshop without a warning; Photoshop is not yet
-installed on the test machine.
+proved the sentinel handshake. The same candidate opened in Adobe
+Photoshop 2026 without a warning. Photoshop reported a 640x480 RGB/8
+document, and selecting adjacent layers changed its live document title
+from `Original photograph` to `Retouched copy`, confirming that both
+named layers survived the round trip.
 
 ## See also
 
