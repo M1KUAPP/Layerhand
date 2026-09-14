@@ -76,8 +76,24 @@ describe('validateImageUpload PNG', () => {
     )
   })
 
-  test('rejects a truncated or invalid IHDR', () => {
+  test('rejects zero dimensions', () => {
     expectUploadError(() => validateImageUpload(png(0, 1), 'broken.png'), 'malformed_image', 'Image data is malformed.')
+  })
+
+  test.each([24, 25, 26, 27, 28])('rejects truncated IHDR data at %i bytes', (length) => {
+    expectUploadError(
+      () => validateImageUpload(png(1, 1, 33).subarray(0, length), 'truncated.png'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test.each([29, 30, 31, 32])('rejects missing or truncated IHDR CRC at %i bytes', (length) => {
+    expectUploadError(
+      () => validateImageUpload(png(1, 1, 33).subarray(0, length), 'truncated.png'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
   })
 })
 

@@ -50,6 +50,18 @@ test('rejects invalid bytes before bridge boot', async () => {
   expect(bridge.calls).toEqual([])
 })
 
+test.each([24, 28, 29, 32])('rejects an incomplete PNG at %i bytes before bridge boot', async (length) => {
+  const bridge = new RecordingBridge()
+  const loader = new PhotopeaDocumentLoader(bridge)
+
+  await expect(loader.open(png(1, 1, 33).subarray(0, length), 'truncated.png')).rejects.toMatchObject({
+    name: 'ImageUploadError',
+    code: 'malformed_image',
+    message: 'Image data is malformed.'
+  })
+  expect(bridge.calls).toEqual([])
+})
+
 test.each([
   ['mismatched dimensions', ['layerhand:document:2:1:image.png']],
   ['mismatched height', ['layerhand:document:1:2:image.png']],
