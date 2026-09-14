@@ -11,7 +11,9 @@ type PhotopeaWireMessage =
 
 interface LayerhandWindow extends Window {
   readonly __layerhandPhotopeaMessages: PhotopeaWireMessage[]
-  readonly __layerhandSendToPhotopea: (message: PhotopeaWireMessage) => void
+  readonly __layerhandSendToPhotopea: (
+    message: { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: Uint8Array }
+  ) => void
 }
 
 function isByteArray(value: unknown): value is number[] {
@@ -74,12 +76,25 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
   }
 
   async send(message: string | Uint8Array): Promise<void> {
-    const wireMessage: PhotopeaWireMessage =
-      typeof message === 'string' ? { type: 'text', value: message } : { type: 'bytes', value: Array.from(message) }
+    // Base64 avoids Playwright serializing one protocol object per byte.
+    const wireMessage =
+      typeof message === 'string'
+        ? { type: 'text' as const, value: message }
+        : { type: 'bytes' as const, value: Buffer.from(message).toString('base64') }
 
     await this.#page.evaluate((value) => {
       const layerhandWindow = window as unknown as LayerhandWindow
-      layerhandWindow.__layerhandSendToPhotopea(value)
+      if (value.type === 'text') {
+        layerhandWindow.__layerhandSendToPhotopea(value)
+        return
+      }
+
+      const decoded = atob(value.value)
+      const bytes = new Uint8Array(decoded.length)
+      for (let index = 0; index < decoded.length; index += 1) {
+        bytes[index] = decoded.charCodeAt(index)
+      }
+      layerhandWindow.__layerhandSendToPhotopea({ type: 'bytes', value: bytes })
     }, wireMessage)
   }
 
