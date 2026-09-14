@@ -121,6 +121,18 @@ describe('FakeEditorSession', () => {
     expect(await session.screenshot()).toEqual(frameB)
   })
 
+  test('restarts the frame recording when another image opens', async () => {
+    const session = createSession()
+    await session.open(Uint8Array.of(1), 'portrait.jpg')
+    await session.screenshot()
+    expect(await session.screenshot()).toEqual(frameB)
+
+    await session.open(Uint8Array.of(2), 'another-portrait.jpg')
+
+    expect(await session.screenshot()).toEqual(frameA)
+    expect(await session.screenshot()).toEqual(frameB)
+  })
+
   test('preserves action batches and action order', async () => {
     const session = createSession()
     await session.open(Uint8Array.of(1), 'portrait.jpg')
@@ -141,6 +153,11 @@ describe('FakeEditorSession', () => {
     }
 
     await session.act([drag, click])
+    await session.act([])
+    await session.act([
+      { type: 'type', text: 'Retouched copy' },
+      { type: 'keypress', keys: ['ENTER'] }
+    ])
     drag.path[0]!.x = 999
     drag.keys!.push('ALT')
 
@@ -155,6 +172,11 @@ describe('FakeEditorSession', () => {
           keys: ['SHIFT']
         },
         click
+      ],
+      [],
+      [
+        { type: 'type', text: 'Retouched copy' },
+        { type: 'keypress', keys: ['ENTER'] }
       ]
     ])
 
