@@ -75,6 +75,103 @@ class LateSentinelTransport extends MemoryTransport {
 }
 
 describe('PhotopeaBridge', () => {
+  test('reuses successful boot without consuming leftover command completion messages', async () => {
+    const transport = new MemoryTransport()
+    transport.messages.push({ type: 'text', value: 'done' })
+    const bridge = new PhotopeaBridge(transport)
+    await bridge.boot()
+    transport.messages.push({ type: 'text', value: 'done' })
+
+    await bridge.boot()
+
+    expect(transport.bootConfigurations).toHaveLength(1)
+    expect(transport.messages).toEqual([{ type: 'text', value: 'done' }])
+  })
+
+  test('shares one in-flight readiness wait across concurrent boot calls', async () => {
+    const transport = new ControlledTransport()
+    const bridge = new PhotopeaBridge(transport)
+    let completed = 0
+    const calls = [bridge.boot(), bridge.boot()].map((call) =>
+      call.then(() => {
+        completed += 1
+      })
+    )
+    await transport.waitForMessageRequest()
+    const attempts = transport.bootConfigurations.length
+    const completedBeforeReadiness = completed
+
+    for (let index = 0; index < attempts; index += 1) {
+      await transport.waitForMessageRequest()
+      transport.resolveNext({ type: 'text', value: 'done' })
+    }
+    await Promise.all(calls)
+
+    expect(attempts).toBe(1)
+    expect(completedBeforeReadiness).toBe(0)
+    expect(completed).toBe(2)
+  })
+
+  test('serializes readiness with commands already using the message queue', async () => {
+    const transport = new ControlledTransport()
+    const bridge = new PhotopeaBridge(transport, { createSentinel: () => 'sentinel-1' })
+    const command = bridge.runScript('first();')
+    await transport.waitForMessageRequest()
+
+    const boot = bridge.boot()
+    await Bun.sleep(0)
+    const bootsWhileCommandPending = transport.bootConfigurations.length
+    transport.resolveNext({ type: 'text', value: 'sentinel-1' })
+    await command
+    await transport.waitForMessageRequest()
+    transport.resolveNext({ type: 'text', value: 'done' })
+    await boot
+
+    expect(bootsWhileCommandPending).toBe(0)
+    expect(transport.bootConfigurations).toHaveLength(1)
+  })
+
+  test('retries boot after navigation fails', async () => {
+    const transport = new MemoryTransport()
+    let attempts = 0
+    transport.boot = async () => {
+      attempts += 1
+      if (attempts === 1) throw new Error('navigation failed')
+      transport.messages.push({ type: 'text', value: 'done' })
+    }
+    const bridge = new PhotopeaBridge(transport)
+
+    await expect(bridge.boot()).rejects.toThrow('navigation failed')
+    await bridge.boot()
+    expect(attempts).toBe(2)
+  })
+
+  test('retries boot after readiness times out', async () => {
+    const transport = new MemoryTransport()
+    const bridge = new PhotopeaBridge(transport)
+
+    await expect(bridge.boot()).rejects.toMatchObject({ code: 'photopea_timeout' })
+    transport.messages.push({ type: 'text', value: 'done' })
+    await bridge.boot()
+
+    expect(transport.bootConfigurations).toHaveLength(2)
+    expect(transport.reloads).toBe(1)
+  })
+
+  test('requires fresh readiness after a command timeout reloads a booted editor', async () => {
+    const transport = new MemoryTransport()
+    transport.messages.push({ type: 'text', value: 'done' })
+    const bridge = new PhotopeaBridge(transport)
+    await bridge.boot()
+
+    await expect(bridge.runScript('slow();')).rejects.toMatchObject({ code: 'photopea_timeout' })
+    transport.messages.push({ type: 'text', value: 'done' })
+    await bridge.boot()
+
+    expect(transport.bootConfigurations).toHaveLength(2)
+    expect(transport.messages).toEqual([])
+  })
+
   test('waits for the exact sentinel and ignores misleading done messages', async () => {
     const transport = new MemoryTransport()
     transport.messages.push(

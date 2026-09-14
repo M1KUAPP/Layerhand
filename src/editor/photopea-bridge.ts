@@ -24,6 +24,7 @@ export class PhotopeaBridge {
   readonly #commandTimeoutMs: number
   readonly #createSentinel: () => string
   #tail: Promise<void> = Promise.resolve()
+  #bootState: Promise<void> | 'ready' | undefined
 
   constructor(transport: PhotopeaTransport, options: PhotopeaBridgeOptions = {}) {
     this.#transport = transport
@@ -31,9 +32,25 @@ export class PhotopeaBridge {
     this.#createSentinel = options.createSentinel ?? (() => `layerhand-${crypto.randomUUID()}`)
   }
 
-  async boot(): Promise<void> {
-    await this.#transport.boot(PHOTOPEA_CONFIGURATION)
-    await this.#waitForText('done')
+  boot(): Promise<void> {
+    if (this.#bootState) {
+      return this.#bootState === 'ready' ? Promise.resolve() : this.#bootState
+    }
+
+    const boot = this.#enqueue(async () => {
+      await this.#transport.boot(PHOTOPEA_CONFIGURATION)
+      await this.#waitForText('done')
+    })
+    this.#bootState = boot
+    void boot.then(
+      () => {
+        this.#bootState = 'ready'
+      },
+      () => {
+        this.#bootState = undefined
+      }
+    )
+    return boot
   }
 
   async openFile(bytes: Uint8Array): Promise<void> {
@@ -79,6 +96,7 @@ export class PhotopeaBridge {
   }
 
   async #throwTimeout(): Promise<never> {
+    if (this.#bootState === 'ready') this.#bootState = undefined
     try {
       await this.#transport.reload()
     } catch {

@@ -73,7 +73,9 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
     const hostUrl = new URL(this.#hostUrl)
     hostUrl.hash = encodeURIComponent(JSON.stringify(configuration))
     await this.#page.setViewportSize(this.viewport)
-    await this.#page.goto(hostUrl.toString())
+    const response = await this.#page.goto(hostUrl.toString())
+    // Hash-only navigation preserves the old host and its message queue.
+    if (response === null) await this.#page.reload()
   }
 
   async send(message: string | Uint8Array): Promise<void> {
