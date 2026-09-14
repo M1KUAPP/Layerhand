@@ -831,6 +831,65 @@ the same day, not extended.
 | A2    | What step cap and frame window does the cost allow? | ½ day   | 2   |
 | A3    | Does native mid-turn steering work for us?          | ½ day   | 3   |
 
+Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
+opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
+resolution, including an exact 20 MiB JPEG padded with valid APP15
+segments. The measured values were `pngMs: 86.93262499999992`,
+`jpegMs: 78.7602079999997`, and `maxJpegMs: 1034.7378339999996`.
+The 20 MiB case is below NFR-3's five-second start budget for an already
+booted editor. These timings cover binary transfer through document
+verification, fitting, and Move-tool selection; they exclude editor boot
+and do not establish the whole cold-start budget.
+
+Visible Google Chrome verification confirmed Layers, Adjustments, and
+Properties (collapsed in its dock), with the Move tool selected. The
+boundary image retained its 6000x1 source dimensions, verified in
+Photopea's Image Size dialog, and its tab displayed `boundary.png`.
+Because a fitted single-pixel row is too thin to inspect visually, a
+separate temporary 6000x4000 PNG was opened through the same loader: all
+four canvas edges fitted within the 1440x900 viewport. No image binaries
+were committed.
+
+The live proof exposed two adapter defects. Photopea's `Document.name`
+read-back drops text from the first period onward, so the loader sets a
+display stem and verifies the complete filename through the documented
+[`Document.source` identifier](https://www.photopea.com/learn/scripts).
+Serializing 20 MiB as individual numbers initially took
+`maxJpegMs: 28022.7145`; a compact base64 transfer reduced it to the
+measurement above while preserving every byte and defensive copies.
+
+The September 14 review added header-field validation before browser
+navigation, applied the transport viewport to injected pages, and made
+bridge boot reusable. Concurrent boot calls share one readiness wait;
+successful boot is cached, while a failed attempt permits a fresh host.
+Installed-Chrome tests with a local host confirm fresh initialization on
+repeated transport boots and that cleanup messages cannot satisfy a retry.
+The bridge's `commandTimeoutMs` bounds each message wait, excluding
+navigation, message delivery, and awaited reload cleanup.
+
+A subsequent same-page decode regression established that Photopea can
+finish processing a truncated file without creating a document. The loader
+now snapshots the document count before delivery and requires one newly
+appended document before selecting or renaming it. Public-Photopea Chrome
+coverage rejects a truncated second PNG without renaming the original,
+then opens a valid second image on the same loader. A follow-up concurrency
+regression showed that the bridge's per-command queue did not protect the
+complete count-to-verification workflow. Complete opens now share an internal
+FIFO by bridge identity, including multiple loader instances. It holds through
+Move-tool selection; failed calls do not block later work. Validation and byte
+copying happen before queueing, and load timing excludes queue wait. Chrome
+coverage verifies overlapping failed/valid and valid/valid uploads without
+mistaking another call's document for the uploaded image.
+
+The September 15 EXIF regression used a valid JPEG with raw SOF dimensions
+of 32x16 and orientation 6. Photopea correctly displayed it at 16x32, while
+the validator previously expected 32x16. Bounded APP1/TIFF IFD0 orientation
+parsing now supplies the expected displayed dimensions; public-Photopea
+Chrome coverage passes for all eight orientations. Orientations 5–8 swap
+axes. Original bytes and the long-edge limit are unchanged. Malformed
+inspected EXIF fields are rejected before boot; unrelated metadata, PNG
+CRCs, and full pixel decoding remain outside the validation boundary.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a
