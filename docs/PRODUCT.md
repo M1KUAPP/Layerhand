@@ -227,7 +227,7 @@ decouples our cost from our popularity on the one day popularity spikes.
 
 ## Non-goals
 
-Stated so that nobody builds them in the five days available.
+Stated so that nobody builds them in the six build days available.
 
 - **No image generation.** We retouch what you upload.
 - **No batch pipeline, no API, no integrations.** One image at a time,
@@ -263,7 +263,7 @@ The contest is judged on a launch, so the launch is the deliverable.
 
 **Contest outcome**, against the four inferred criteria: model leverage
 is the reason to build this at all, and creativity follows from the
-inversion. Execution is the weak score, and it is the one thing five
+inversion. Execution is the weak score, and it is the one thing six
 days of work can move.
 
 ## Risks and the kill switch
