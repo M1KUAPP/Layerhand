@@ -738,8 +738,9 @@ expensive.
 
 1.  **The ten-image set** (NFR-1). Ten real photographs with a written
     instruction and a written expectation each. Run nightly from day 2.
-    This is the number the go/no-go is decided on, and it is the only
-    test that can stop the launch.
+    This is the number the launch decision is made on, and it is the
+    only test that can stop the launch. The day-2 go/no-go is a
+    separate, lower bar: one scripted three-edit sequence, end to end.
 1.  **PSD validation** (FR-25 to FR-27), automated: parse the exported
     file, assert layer count, assert every name is human, assert at
     least one editable mask or adjustment exists. Then, manually and
