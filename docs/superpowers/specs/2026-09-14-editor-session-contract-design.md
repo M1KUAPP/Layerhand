@@ -137,9 +137,13 @@ sequence a future real-session test will run:
 1. Export PSD and PNG bytes.
 1. Close the session.
 
-The contract test checks PNG and PSD magic bytes but does not inspect fake-only
-state. A later real implementation registers the same suite with a different
-factory.
+The contract test checks PNG and PSD magic bytes and at least one named layer,
+without inspecting fake-only state. Opening a PNG does not require a duplicate
+layer. A single-layer metadata recording also runs the suite to protect that
+invariant. A later real implementation registers it with a different factory.
+
+The recorded-fake fixture tests check its exact two named raster layers and
+distinguish the 640x480 document preview from the 1440x900 viewport screenshot.
 
 `test/editor/fake-editor-session.test.ts` covers behavior specific to the fake:
 
