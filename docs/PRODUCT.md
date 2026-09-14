@@ -29,7 +29,7 @@ real-estate pipelines buy it by the image, and the work is repetitive:
 cut the product out, even the exposure, kill the reflections, warm the
 highlights, keep the shadow.
 
-Every AI tool aimed at this work returns a flattened image. That is
+Almost every AI tool aimed at this work returns a flattened image. That is
 fine until the client asks for one more change — and the client always
 asks for one more change. A flat JPEG cannot absorb that request. The
 retoucher starts again, or opens the original and redoes the work by
@@ -100,7 +100,7 @@ exactly why the output is a document rather than a picture.
 
 ## The wedge: the artifact, not the pixels
 
-Every competing product in this space emits pixels. A diffusion model
+Nearly every competing product in this space emits pixels. A diffusion model
 cannot emit a layer stack at any quality, because a layer stack is not
 an image — it is an edit history. No amount of model improvement closes
 that gap, because it is a difference in kind.
@@ -133,9 +133,11 @@ of this document that said so was wrong.
 | BoxBrownie and the real-estate tools                      | No. Flat                                                                                                      |
 
 What is left of the gap is narrower and more specific than the pitch:
-**no shipping product delivers an automated, single-pass PSD that is
-named _and_ masked _and_ carries adjustment layers.** That gap is real.
-It is not the gap we said it was.
+**no self-serve product is known to deliver an automated, single-pass
+PSD that is named _and_ masked _and_ carries adjustment layers.** Adobe's
+API can, for whoever signs an enterprise contract. BRIA is self-serve,
+but which layers its PSD carries is unverified; if it carries all three,
+the gap is closed. It is not the gap we said it was.
 
 ### Adobe is the serious threat, and it is already shipped
 
@@ -285,10 +287,10 @@ Ranked by how likely they are to end the project.
       market price. The Swap Test still passes: no other model drives
       the GUI. Say plainly that it is a demonstration, and stop
       claiming a market the evidence contradicts.
-    - _Repoint it at the gap that is actually empty._ Nothing ships
-      named **and** masked **and** adjustment-layered output in one
-      pass. That is narrow, real, and defensible — but it is a
-      different product brief from this one.
+    - _Repoint it at the gap that is actually empty._ No self-serve product
+      is known to ship named **and** masked **and** adjustment-layered
+      output in one pass. That is narrow and defensible, once BRIA's output
+      is checked — but it is a different product brief from this one.
     - _Take the runner-up._ The kill switch below already names it.
 
 1.  **Reliability of long GUI control.** Forty-plus steps in a dense
