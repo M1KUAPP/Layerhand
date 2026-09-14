@@ -48,8 +48,9 @@ titles that say where the link goes.
   hand-format around it. But `printWidth` applies to code, and `proseWrap`
   is left at `preserve`, so Prettier never rewraps a Markdown paragraph:
   the 80-character limit is yours to keep and nothing checks it.
-- **Shell commands are prefixed with `rtk`**, including inside `&&` chains.
-  See [RTK](rtk.md).
+- **Shell commands run as normal**, and their output comes back condensed.
+  Re-run one as `rtk proxy <cmd>` only when its result is unusable. See
+  [RTK](rtk.md).
 
 ## Layout
 
