@@ -39,6 +39,7 @@ export interface RegisterRun {
   runId: string
   instruction: string
   managedRun: ManagedRun
+  onTerminal?: (run: TerminalRun) => void | Promise<void>
 }
 
 export interface RunRegistryOptions {
@@ -57,6 +58,7 @@ interface StoredRun {
   runId: string
   instruction: string
   managedRun: ManagedRun
+  onTerminal?: (run: TerminalRun) => void | Promise<void>
   startedAt: number
   terminalAt?: number
   history: RunEventEnvelope[]
@@ -123,7 +125,7 @@ export class RunRegistry {
     this.#onTerminal = onTerminal
   }
 
-  register({ runId, instruction, managedRun }: RegisterRun): RunSnapshot {
+  register({ runId, instruction, managedRun, onTerminal }: RegisterRun): RunSnapshot {
     this.#purgeExpired()
     if (this.#runs.has(runId)) {
       throw new RunRegistryError('run_exists', 'A run with this id already exists.')
@@ -137,6 +139,7 @@ export class RunRegistry {
       runId,
       instruction,
       managedRun,
+      onTerminal,
       startedAt: this.#now(),
       history: [],
       snapshot: initialSnapshot(runId),
@@ -293,17 +296,25 @@ export class RunRegistry {
       metrics = { cacheHitRate: null, stopReason: 'failed' }
     }
 
+    const terminalRun = {
+      runId: run.runId,
+      instruction: run.instruction,
+      startedAt: run.startedAt,
+      completedAt: run.terminalAt,
+      snapshot: copySnapshot(run.snapshot),
+      metrics
+    }
     try {
-      await this.#onTerminal({
-        runId: run.runId,
-        instruction: run.instruction,
-        startedAt: run.startedAt,
-        completedAt: run.terminalAt,
-        snapshot: copySnapshot(run.snapshot),
-        metrics
-      })
-    } catch {
-      // Metering and logging failures do not erase a completed run.
+      try {
+        await run.onTerminal?.(terminalRun)
+      } catch {
+        // Reconciliation failures do not erase a completed run.
+      }
+      try {
+        await this.#onTerminal(terminalRun)
+      } catch {
+        // Logging failures do not erase a completed run.
+      }
     } finally {
       try {
         run.managedRun.releaseSecrets()

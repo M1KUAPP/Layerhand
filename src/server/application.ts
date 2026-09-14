@@ -2,6 +2,7 @@ import { createPhotopeaHostHtml } from '../editor/photopea-host'
 
 export interface ApplicationDependencies {
   databaseReady: () => Promise<boolean>
+  routes?: { handle(request: Request): Promise<Response | undefined> }
 }
 
 export interface Application {
@@ -67,6 +68,9 @@ export function createApplication(dependencies: ApplicationDependencies): Applic
           PHOTOPEA_HOST_CSP
         )
       }
+
+      const routed = await dependencies.routes?.handle(request)
+      if (routed) return secured(routed)
 
       return json({ code: 'not_found', message: 'The requested endpoint does not exist.' }, 404)
     }
