@@ -658,8 +658,9 @@ though nothing is out of capacity.
 
 The two limits protect against different things:
 
-- **A single user** is bounded by the free allowance — three runs,
-  about $10.50 — not by the daily ceiling.
+- **An honest visitor** is bounded by the free allowance — three runs,
+  about $10.50. The allowance is defeatable by design, so **a
+  determined one** is bounded by the daily ceiling instead.
 - **The daily ceiling** bounds total exposure. It is a budget the team
   sets deliberately, knowing roughly how many waves it buys, with that
   arithmetic written down next to the number.
