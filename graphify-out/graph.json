@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prettierrc",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": ".prettierrc.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "prettierrc_schema",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "$schema"
     },
     {
@@ -32,8 +32,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "prettierrc_printwidth",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "printwidth"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "prettierrc_singlequote",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "singlequote"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "prettierrc_semi",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "semi"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "prettierrc_trailingcomma",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "trailingcomma"
     },
     {
@@ -758,8 +758,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "fake-editor-session.ts"
     },
     {
@@ -769,8 +769,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_editorrecording",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "editorrecording"
     },
     {
@@ -780,8 +780,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_sessionstate",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "sessionstate"
     },
     {
@@ -967,8 +967,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1209,8 +1209,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_index",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "editor/index.ts"
     },
     {
@@ -1275,8 +1275,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeabridge"
     },
     {
@@ -1286,8 +1286,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -1297,8 +1297,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_boot",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1308,8 +1308,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_openfile",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1319,8 +1319,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_runscript",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1330,8 +1330,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_press",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1341,8 +1341,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_waitfortext",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#waitfortext()"
     },
     {
@@ -1352,8 +1352,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_throwtimeout",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#throwtimeout()"
     },
     {
@@ -1363,8 +1363,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_enqueue",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#enqueue()"
     },
     {
@@ -1385,8 +1385,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeadocumentbridge"
     },
     {
@@ -1396,8 +1396,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_boot",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1407,8 +1407,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_openfile",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1418,8 +1418,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_runscript",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1429,8 +1429,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_press",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1550,8 +1550,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_host",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-host.ts"
     },
     {
@@ -1561,8 +1561,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_host_createphotopeahosthtml",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createphotopeahosthtml()"
     },
     {
@@ -1572,8 +1572,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_transport",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopea-transport.ts"
     },
     {
@@ -1583,8 +1583,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironmentparameters",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaenvironmentparameters"
     },
     {
@@ -1594,8 +1594,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironment",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaenvironment"
     },
     {
@@ -1605,8 +1605,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1627,8 +1627,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeatransport"
     },
     {
@@ -1638,8 +1638,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1649,8 +1649,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -1660,8 +1660,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -1671,8 +1671,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1682,8 +1682,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -1748,8 +1748,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransportoptions",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "playwrightphotopeatransportoptions"
     },
     {
@@ -1847,8 +1847,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "session.ts"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "editorsession"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".open()"
     },
     {
@@ -1880,8 +1880,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".screenshot()"
     },
     {
@@ -1891,8 +1891,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".act()"
     },
     {
@@ -1902,8 +1902,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".layers()"
     },
     {
@@ -1913,8 +1913,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1924,8 +1924,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1935,8 +1935,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".close()"
     },
     {
@@ -1946,8 +1946,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "pt"
     },
     {
@@ -1968,8 +1968,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "button"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_editor_session_viewport",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "viewport"
     },
     {
@@ -1990,8 +1990,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_session_layerinfo",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "layerinfo"
     },
     {
@@ -2103,6 +2103,182 @@
       "community": 15,
       "community_name": "PhotopeaMessage",
       "norm_label": "createapplication()"
+    },
+    {
+      "label": "artifact-store.ts",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_artifact_store",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "artifact-store.ts"
+    },
+    {
+      "label": "ArtifactKind",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactkind",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "artifactkind"
+    },
+    {
+      "label": "ArtifactPutRequest",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactputrequest",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "artifactputrequest"
+    },
+    {
+      "label": "StoredArtifact",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_storedartifact",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "storedartifact"
+    },
+    {
+      "label": "ArtifactStore",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactstore",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "artifactstore"
+    },
+    {
+      "label": ".put()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactstore_put",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".put()"
+    },
+    {
+      "label": ".presign()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactstore_presign",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".presign()"
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_artifactstore_delete",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".delete()"
+    },
+    {
+      "label": "EXTENSIONS",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_extensions",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "extensions"
+    },
+    {
+      "label": "createArtifactKey()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_createartifactkey",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "createartifactkey()"
+    },
+    {
+      "label": "MemoryArtifactStore",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "memoryartifactstore"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore_constructor",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".put()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore_put",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".put()"
+    },
+    {
+      "label": ".presign()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore_presign",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".presign()"
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore_delete",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".delete()"
+    },
+    {
+      "label": ".bytesForTesting()",
+      "file_type": "code",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_server_artifact_store_memoryartifactstore_bytesfortesting",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".bytesfortesting()"
     },
     {
       "label": "browserbase-client.ts",
@@ -2820,6 +2996,138 @@
       "norm_label": "applymigrations()"
     },
     {
+      "label": "s3-artifact-store.ts",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "s3-artifact-store.ts"
+    },
+    {
+      "label": "S3Bucket",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3bucket",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "s3bucket"
+    },
+    {
+      "label": ".write()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3bucket_write",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".write()"
+    },
+    {
+      "label": ".presign()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3bucket_presign",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".presign()"
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3bucket_delete",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".delete()"
+    },
+    {
+      "label": "S3ArtifactStoreConfig",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstoreconfig",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "s3artifactstoreconfig"
+    },
+    {
+      "label": "createS3Bucket()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_creates3bucket",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "creates3bucket()"
+    },
+    {
+      "label": "S3ArtifactStore",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstore",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "s3artifactstore"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstore_constructor",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".put()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstore_put",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".put()"
+    },
+    {
+      "label": ".presign()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstore_presign",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".presign()"
+    },
+    {
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "src_server_s3_artifact_store_s3artifactstore_delete",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": ".delete()"
+    },
+    {
       "label": "visitor-identity.ts",
       "file_type": "code",
       "source_file": "src/server/visitor-identity.ts",
@@ -2958,8 +3266,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "editor-session.contract.ts"
     },
     {
@@ -2969,8 +3277,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_editorsessionfactory",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "editorsessionfactory"
     },
     {
@@ -2980,8 +3288,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_pngsignature",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "pngsignature"
     },
     {
@@ -2991,8 +3299,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_defineeditorsessioncontract",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "defineeditorsessioncontract()"
     },
     {
@@ -3002,8 +3310,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "fake-editor-session.test.ts"
     },
     {
@@ -3013,8 +3321,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_framea",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "framea"
     },
     {
@@ -3024,8 +3332,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_frameb",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "frameb"
     },
     {
@@ -3035,8 +3343,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_psd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "psd"
     },
     {
@@ -3046,8 +3354,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_recording",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "recording()"
     },
     {
@@ -3057,8 +3365,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_createsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "createsession()"
     },
     {
@@ -3068,8 +3376,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_documentoperations",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "documentoperations"
     },
     {
@@ -3299,8 +3607,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopea-document-loader-concurrency.test.ts"
     },
     {
@@ -3310,8 +3618,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "imagetransport"
     },
     {
@@ -3321,8 +3629,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_fitthearea",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "fitthearea()"
     },
     {
@@ -3332,8 +3640,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_boot",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -3343,8 +3651,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_send",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -3354,8 +3662,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_nextmessage",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -3365,8 +3673,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_press",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -3376,8 +3684,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_reload",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -3387,8 +3695,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_image",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "image()"
     },
     {
@@ -3398,8 +3706,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -3409,8 +3717,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "openimage()"
     },
     {
@@ -3431,8 +3739,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "recordingbridge"
     },
     {
@@ -3442,8 +3750,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_constructor",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -3453,8 +3761,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_boot",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -3464,8 +3772,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_openfile",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -3475,8 +3783,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_runscript",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -3486,8 +3794,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_press",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -3508,8 +3816,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_host_test",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-host.test.ts"
     },
     {
@@ -3563,8 +3871,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_contract_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "recorded-fake-editor-session.contract.test.ts"
     },
     {
@@ -3574,8 +3882,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -3585,8 +3893,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -3596,8 +3904,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "isexact"
     },
     {
@@ -3607,8 +3915,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "assert"
     },
     {
@@ -3618,8 +3926,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "keysofunion"
     },
     {
@@ -3629,8 +3937,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "methodisexact"
     },
     {
@@ -3640,8 +3948,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "expectedaction"
     },
     {
@@ -3651,8 +3959,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -3662,8 +3970,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": "expectedsession"
     },
     {
@@ -3673,8 +3981,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_open",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".open()"
     },
     {
@@ -3684,8 +3992,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_screenshot",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".screenshot()"
     },
     {
@@ -3695,8 +4003,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_act",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".act()"
     },
     {
@@ -3706,8 +4014,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_layers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".layers()"
     },
     {
@@ -3717,8 +4025,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpsd",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".exportpsd()"
     },
     {
@@ -3728,8 +4036,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpreview",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".exportpreview()"
     },
     {
@@ -3739,8 +4047,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_close",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
       "norm_label": ".close()"
     },
     {
@@ -3750,8 +4058,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "assertions"
     },
     {
@@ -3761,8 +4069,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -3772,8 +4080,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_single_layer_editor_session_contract_test",
-      "community": 23,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "single-layer-editor-session.contract.test.ts"
     },
     {
@@ -3816,8 +4124,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -3827,8 +4135,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -3838,8 +4146,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createliveboundaryimages()"
     },
     {
@@ -3863,6 +4171,61 @@
       "community": 15,
       "community_name": "PhotopeaMessage",
       "norm_label": "request()"
+    },
+    {
+      "label": "artifact-store.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_artifact_store_test",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "artifact-store.test.ts"
+    },
+    {
+      "label": "UPLOAD",
+      "file_type": "code",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "test_server_artifact_store_test_upload",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "upload"
+    },
+    {
+      "label": "write()",
+      "file_type": "code",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "test_server_artifact_store_test_write",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "write()"
+    },
+    {
+      "label": "presign()",
+      "file_type": "code",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "test_server_artifact_store_test_presign",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "presign()"
+    },
+    {
+      "label": "delete()",
+      "file_type": "code",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L67",
+      "_origin": "ast",
+      "id": "test_server_artifact_store_test_delete",
+      "community": 12,
+      "community_name": "Product: Layerhand",
+      "norm_label": "delete()"
     },
     {
       "label": "browserbase-client.test.ts",
@@ -4477,8 +4840,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_prd_prd_layerhand",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "prd: layerhand"
     },
     {
@@ -4488,8 +4851,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "docs_prd_schedule",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "schedule"
     },
     {
@@ -4499,8 +4862,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "docs_prd_the_core_flow",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the core flow"
     },
     {
@@ -4510,8 +4873,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "docs_prd_functional_requirements",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "functional requirements"
     },
     {
@@ -4521,8 +4884,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "docs_prd_input",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "input"
     },
     {
@@ -4532,8 +4895,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "docs_prd_the_run",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the run"
     },
     {
@@ -4543,8 +4906,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "docs_prd_steering",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "steering"
     },
     {
@@ -4554,8 +4917,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_prd_output",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "output"
     },
     {
@@ -4565,8 +4928,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "docs_prd_launch_surface",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "launch surface"
     },
     {
@@ -4576,8 +4939,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "docs_prd_metering",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "metering"
     },
     {
@@ -4587,8 +4950,8 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "docs_prd_non_functional_requirements",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "non-functional requirements"
     },
     {
@@ -4598,8 +4961,8 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "docs_prd_launch_acceptance",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "launch acceptance"
     },
     {
@@ -4609,8 +4972,8 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "docs_prd_deliberately_excluded",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "deliberately excluded"
     },
     {
@@ -4620,8 +4983,8 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "docs_prd_see_also",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "see also"
     },
     {
@@ -4642,8 +5005,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_product_product_layerhand",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "product: layerhand"
     },
     {
@@ -4653,8 +5016,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "docs_product_the_problem",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "the problem"
     },
     {
@@ -4664,8 +5027,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "docs_product_who_it_is_for",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "who it is for"
     },
     {
@@ -4675,8 +5038,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "docs_product_what_layerhand_is",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "what layerhand is"
     },
     {
@@ -4686,8 +5049,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "docs_product_why_this_is_only_possible_now",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "why this is only possible now"
     },
     {
@@ -4697,8 +5060,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "docs_product_the_wedge_the_artifact_not_the_pixels",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "the wedge: the artifact, not the pixels"
     },
     {
@@ -4708,8 +5071,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_product_competition",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "competition"
     },
     {
@@ -4719,8 +5082,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "docs_product_the_claim_corrected",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "the claim, corrected"
     },
     {
@@ -4730,8 +5093,8 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "docs_product_adobe_is_the_serious_threat_and_it_is_already_shipped",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "adobe is the serious threat, and it is already shipped"
     },
     {
@@ -4741,8 +5104,8 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "docs_product_the_price_ceiling_is_the_real_problem",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "the price ceiling is the real problem"
     },
     {
@@ -4752,8 +5115,8 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "docs_product_and_the_demand_signal_is_missing",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "and the demand signal is missing"
     },
     {
@@ -4763,8 +5126,8 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "docs_product_business_model",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "business model"
     },
     {
@@ -4774,8 +5137,8 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "docs_product_non_goals",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "non-goals"
     },
     {
@@ -4785,8 +5148,8 @@
       "source_location": "L258",
       "_origin": "ast",
       "id": "docs_product_success_criteria",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "success criteria"
     },
     {
@@ -4796,8 +5159,8 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "docs_product_risks_and_the_kill_switch",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "risks and the kill switch"
     },
     {
@@ -4807,8 +5170,8 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "docs_product_open_questions",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "open questions"
     },
     {
@@ -4818,8 +5181,8 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "docs_product_see_also",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 19,
+      "community_name": "PhotopeaTransport",
       "norm_label": "see also"
     },
     {
@@ -6391,8 +6754,8 @@
       "label": "Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
@@ -11781,6 +12144,339 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_artifactkind",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_artifactputrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_artifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_createartifactkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_extensions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_memoryartifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store",
+      "target": "src_server_artifact_store_storedartifact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_artifact_store",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_artifact_store",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_artifact_store_artifactputrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore_put",
+      "target": "src_server_artifact_store_artifactputrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_artifact_store_artifactputrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_artifact_store_storedartifact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore_put",
+      "target": "src_server_artifact_store_storedartifact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_artifactstore",
+      "target": "src_server_artifact_store_artifactstore_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_artifactstore",
+      "target": "src_server_artifact_store_artifactstore_presign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_artifactstore",
+      "target": "src_server_artifact_store_artifactstore_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "implements",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_artifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_artifact_store_artifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "implements",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore",
+      "target": "src_server_artifact_store_artifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore_put",
+      "target": "src_server_artifact_store_createartifactkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_artifact_store_createartifactkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore_put",
+      "target": "src_server_artifact_store_createartifactkey"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_memoryartifactstore_bytesfortesting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_memoryartifactstore_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_memoryartifactstore_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_memoryartifactstore_presign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/artifact-store.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_artifact_store_memoryartifactstore",
+      "target": "src_server_artifact_store_memoryartifactstore_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_artifact_store_memoryartifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/server/browserbase-client.ts",
       "source_location": "L27",
       "weight": 1.0,
@@ -13089,6 +13785,175 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "ref_bun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_s3_artifact_store_creates3bucket",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_s3_artifact_store_s3artifactstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_s3_artifact_store_s3artifactstoreconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store",
+      "target": "src_server_s3_artifact_store_s3bucket",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_s3_artifact_store",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3bucket",
+      "target": "src_server_s3_artifact_store_s3bucket_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3bucket",
+      "target": "src_server_s3_artifact_store_s3bucket_presign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3bucket",
+      "target": "src_server_s3_artifact_store_s3bucket_write",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_s3_artifact_store_s3bucket",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore",
+      "target": "src_server_s3_artifact_store_s3artifactstore_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore",
+      "target": "src_server_s3_artifact_store_s3artifactstore_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore",
+      "target": "src_server_s3_artifact_store_s3artifactstore_presign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/s3-artifact-store.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_s3_artifact_store_s3artifactstore",
+      "target": "src_server_s3_artifact_store_s3artifactstore_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "src_server_s3_artifact_store_s3artifactstore",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/server/visitor-identity.ts",
@@ -14259,6 +15124,50 @@
       "_origin": "ast",
       "source": "test_server_application_test",
       "target": "test_server_application_test_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "test_server_artifact_store_test_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "test_server_artifact_store_test_presign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "test_server_artifact_store_test_upload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/artifact-store.test.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_artifact_store_test",
+      "target": "test_server_artifact_store_test_write",
       "confidence_score": 1.0
     },
     {
@@ -17293,5 +18202,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8c360c24f898a1ec60f2980d7225c01bf295c1cc"
+  "built_at_commit": "faaad6f817261442c5890a190d9bb07daf6f9a0c"
 }

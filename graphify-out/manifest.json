@@ -438,5 +438,20 @@
     "mtime": 1789413799.9430983,
     "ast_hash": "36d242abf2fcdf362475f7f23dda5905",
     "semantic_hash": ""
+  },
+  "src/server/artifact-store.ts": {
+    "mtime": 1789413875.8715482,
+    "ast_hash": "fef51ec6533e262cb26695228e33c226",
+    "semantic_hash": ""
+  },
+  "src/server/s3-artifact-store.ts": {
+    "mtime": 1789413886.6122248,
+    "ast_hash": "ac0fcb306c5d18b8fcd6417091bb6bc4",
+    "semantic_hash": ""
+  },
+  "test/server/artifact-store.test.ts": {
+    "mtime": 1789413886.661553,
+    "ast_hash": "371a4415189cf047cdd5b43f95f6dca2",
+    "semantic_hash": ""
   }
 }
