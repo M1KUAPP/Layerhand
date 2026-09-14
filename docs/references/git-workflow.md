@@ -17,7 +17,7 @@ it is.
    on its own. A commit that needs the word "and" in its subject is two
    commits.
 3. **Push the branch.** `git push -u origin HEAD`. Pushing to `main` is
-   refused locally and server-side.
+   refused by the pre-push hook.
 4. **Open a pull request.** `gh pr create --fill-first`, then check the
    title. Not `--fill`: on a branch with more than one commit that takes
    the title from the branch name, which the title check rejects.
@@ -25,8 +25,8 @@ it is.
    the whole branch, so pass `--title` when it does not.
 5. **Review.** One approval required. Review looks at the diff and at the
    commit history, because the history is what lands.
-6. **Resolve.** Every review conversation must be marked resolved before the
-   merge button unlocks.
+6. **Resolve.** Every review conversation must be marked resolved before
+   merging.
 7. **Merge and delete.** Rebase merge, then the branch deletes itself.
 
 ## Naming
@@ -83,12 +83,10 @@ notification, and the reviewer see first.
 | `.github/pull_request_template.md`        | Nothing; it reminds you                    |
 | `.github/ISSUE_TEMPLATE/`                 | Blank issues, and titles with no type      |
 
-`.github/rulesets/main.json` is not in that table because GitHub never reads
-that path. It is a payload, inert until an admin uploads it, and merging a
-change to it applies nothing.
-Once applied it is the only thing that blocks a merge without review,
-resolution, or green checks — and nothing detects drift between the committed
-file and the live ruleset.
+Nothing in that table can stop a merge. On a private repository, branch
+rulesets and branch protection need GitHub Pro, Team, or Enterprise, and
+the API returns 403 for this one, so review, resolved conversations, and
+green checks before merging are kept by convention rather than enforced.
 
 The local hooks and the workflows share one rule set, `commitlint.config.mjs`,
 so they cannot drift apart. The hooks are the fast feedback; the workflows are
@@ -111,18 +109,9 @@ or every commit fails:
 uv tool install graphifyy
 ```
 
-The server-side rules are applied once, by someone with admin on the
-repository. Check that rulesets are available before changing anything:
-
-```sh
-gh api 'repos/{owner}/{repo}/rulesets'
-```
-
-Rulesets on a private repository need GitHub Pro, Team, or Enterprise; below
-that it returns 403, and the hooks and workflows are the whole of the
-enforcement — none of which can stop a merge. Stop there, rather than leave
-the repository half-configured. Otherwise, make rebase the only merge
-method, delete branches after merge, and upload the ruleset:
+The merge settings are applied once, by someone with admin on the
+repository. They make rebase the only merge method and delete branches
+after merge:
 
 ```sh
 gh api -X PATCH 'repos/{owner}/{repo}' --silent \
@@ -131,11 +120,4 @@ gh api -X PATCH 'repos/{owner}/{repo}' --silent \
   -F allow_rebase_merge=true \
   -F allow_squash_merge=false \
   -F allow_merge_commit=false
-gh api -X POST 'repos/{owner}/{repo}/rulesets' --input .github/rulesets/main.json
 ```
-
-A solo maintainer cannot approve their own pull request, so they should set
-`required_approving_review_count` to `0` in the committed file before
-uploading it, rather than on the server. To change a ruleset already
-uploaded, `PUT` the file to `repos/{owner}/{repo}/rulesets/<id>`; a second
-`POST` creates a duplicate.
