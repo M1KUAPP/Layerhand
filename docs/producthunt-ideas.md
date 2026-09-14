@@ -271,8 +271,8 @@ than a flat export. You watch it work and correct it mid-run.
 output; it removes the product. Driving Photopea's toolbar through 40-plus
 steps is exactly the long-horizon GUI competence the OSWorld jump measures,
 and it is what the Astra Hackathon judges rewarded in first and second
-place. The Round 10 inversion supplies the creativity score: everyone
-else's AI image product returns pixels, this one returns an editable
+place. The Round 10 inversion supplies the creativity score: nearly every
+other AI image product returns pixels, this one returns an editable
 document.
 
 **Who pays.** E-commerce and real-estate photo pipelines, where retouching
@@ -302,7 +302,7 @@ Written before any code, because the contest judges a launch.
 
 **First comment, opening line:**
 
-> Every AI photo tool hands you pixels you can't change — so I stopped
+> Most AI photo tools hand you pixels you can't change — so I stopped
 > generating images and taught Astra to use Photoshop instead.
 
 **Thirty-second demo storyboard**, silent, no narrator:
