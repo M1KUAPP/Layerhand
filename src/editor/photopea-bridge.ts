@@ -15,6 +15,7 @@ export class PhotopeaProtocolError extends Error {
 }
 
 export interface PhotopeaBridgeOptions {
+  /** Message-wait budget; excludes navigation, sends, and awaited reload cleanup. */
   readonly commandTimeoutMs?: number
   readonly createSentinel?: () => string
 }

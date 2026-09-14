@@ -22,6 +22,23 @@ generation.
 **Spec:**
 [`docs/superpowers/specs/2026-09-14-photopea-upload-design.md`](../specs/2026-09-14-photopea-upload-design.md)
 
+## Implementation outcome
+
+The September 14 Chrome proof and review refined the original steps below:
+
+- Header validation checks legal PNG IHDR and JPEG SOF fields while keeping
+  full decoding and PNG CRC verification outside the boundary.
+- The transport applies the viewport before navigation and reloads after
+  same-document navigation. Bridge boot shares concurrent readiness work,
+  reuses successful readiness, and permits fresh attempts after failure.
+- The loader verifies the complete filename through `Document.source`, then
+  selects the Move tool. Load timing includes that final tool selection.
+- `commandTimeoutMs` bounds each message wait, excluding navigation,
+  delivery, and awaited reload cleanup.
+
+The design specification records these current behaviors; the steps retain
+the original implementation sequence.
+
 ## Global constraints
 
 - Use Bun for dependency installation and every repository script.
@@ -1010,16 +1027,20 @@ before `bridge.openFile()`. Build an ES3 script that:
 
 ```js
 var d = app.activeDocument
-d.name = 'escaped filename'
+d.name = 'escaped display stem'
+d.source = 'escaped full filename'
 app.UI.fitTheArea()
 app.echoToOE(
-  'layerhand:document:' + Math.round(d.width) + ':' + Math.round(d.height) + ':' + encodeURIComponent(d.name)
+  'layerhand:document:' + Math.round(d.width) + ':' + Math.round(d.height) + ':' + encodeURIComponent(d.source)
 )
 ```
 
 Escape backslash, quote, carriage return, newline, U+2028, and U+2029 in the
-filename before insertion. Parse exactly one `layerhand:document:` message,
-then press lowercase `v` and return the typed result.
+filename before insertion. Parse exactly one `layerhand:document:` message
+and compare its dimensions and decoded source identifier with the upload.
+Only after a match, press lowercase `v` and return the typed result, including
+the elapsed time through tool selection. The display stem removes only the
+final JPEG or PNG extension; Photopea may truncate its visible label further.
 
 - [ ] **Step 4: Run the success-path test and observe it pass**
 
