@@ -1,1 +1,24 @@
-{"0": "Astra Ideation & Selection", "1": "Formatting, Hooks & Package Tooling", "2": "Run Contracts, Live View & Steering", "3": "Editor, Browser & Scope Limits", "4": "Run Cost, Limits & Metering", "5": "Project Rules & Markdown Style", "6": "Git Workflow & Conventions", "7": "Launch Criteria & Go/No-Go", "8": "Competition & Commercial Gate", "9": "Agent Behavioral Guidelines"}
+{
+  "0": "Astra Ideation & Selection",
+  "1": "Formatting, Hooks & Package Tooling",
+  "2": "Run Contracts, Live View & Steering",
+  "3": "Editor, Browser & Scope Limits",
+  "4": "Run Cost, Limits & Metering",
+  "5": "Project Rules & Markdown Style",
+  "6": "Git Workflow & Conventions",
+  "7": "Launch Criteria & Go/No-Go",
+  "8": "Competition & Commercial Gate",
+  "9": "Agent Behavioral Guidelines",
+  "10": "compilerOptions",
+  "11": "fake-editor-session.ts",
+  "12": "Product: Layerhand",
+  "13": "FakeEditorSession",
+  "14": "PhotopeaDocumentBridge",
+  "15": "editor-session.contract.ts",
+  "16": "session.types.test.ts",
+  "17": "EditorSession",
+  "18": "ExpectedSession",
+  "19": ".prettierrc.json",
+  "20": "Saved query: are Layerhand's inferred relationships correct",
+  "21": "Saved query: are Swap Test's inferred relationships correct"
+}
