@@ -1,10 +1,4 @@
 {
-  ".github/rulesets/main.json": {
-    "mtime": 1789224992.95561,
-    "seen": 1789366576.026266,
-    "ast_hash": "b2bd35a4582ee6991e68f8067002a858",
-    "semantic_hash": "b2bd35a4582ee6991e68f8067002a858"
-  },
   ".prettierrc.json": {
     "mtime": 1789192717.3333895,
     "seen": 1789366576.026268,
@@ -12,8 +6,8 @@
     "semantic_hash": "67d899d1076bccb0cf0624835fe23f24"
   },
   "commitlint.config.mjs": {
-    "mtime": 1789364085.9434917,
-    "seen": 1789366576.026269,
+    "mtime": 1789375420.2228084,
+    "seen": 1789379017.9252968,
     "ast_hash": "52ab4ac1646fcab89c9e7e059b1ef9db",
     "semantic_hash": "52ab4ac1646fcab89c9e7e059b1ef9db"
   },
@@ -72,38 +66,38 @@
     "semantic_hash": "fc27969f45d8cbfd95c87af7e36c3160"
   },
   "AGENTS.md": {
-    "mtime": 1789364069.8055477,
-    "seen": 1789366576.026273,
-    "ast_hash": "1a445c238dcb89817f123166677b991b",
-    "semantic_hash": "1a445c238dcb89817f123166677b991b"
+    "mtime": 1789376475.9905972,
+    "seen": 1789379017.9253,
+    "ast_hash": "99f9f6e8568ed035765f5a9c6b036331",
+    "semantic_hash": "99f9f6e8568ed035765f5a9c6b036331"
   },
   "CLAUDE.md": {
-    "mtime": 1789364069.8055477,
-    "seen": 1789366576.026273,
-    "ast_hash": "1a445c238dcb89817f123166677b991b",
-    "semantic_hash": "1a445c238dcb89817f123166677b991b"
+    "mtime": 1789376475.9905972,
+    "seen": 1789379017.925301,
+    "ast_hash": "99f9f6e8568ed035765f5a9c6b036331",
+    "semantic_hash": "99f9f6e8568ed035765f5a9c6b036331"
   },
   "GEMINI.md": {
-    "mtime": 1789364069.8055477,
-    "seen": 1789366576.026274,
-    "ast_hash": "1a445c238dcb89817f123166677b991b",
-    "semantic_hash": "1a445c238dcb89817f123166677b991b"
+    "mtime": 1789376475.9905972,
+    "seen": 1789379017.925301,
+    "ast_hash": "99f9f6e8568ed035765f5a9c6b036331",
+    "semantic_hash": "99f9f6e8568ed035765f5a9c6b036331"
   },
   "docs/PRD.md": {
-    "mtime": 1789370563.9594052,
-    "seen": 1789372280.6253052,
+    "mtime": 1789375420.2229648,
+    "seen": 1789379134.352428,
     "ast_hash": "e6bd40e41fa25e23687240445021756b",
     "semantic_hash": "e6bd40e41fa25e23687240445021756b"
   },
   "docs/PRODUCT.md": {
-    "mtime": 1789370660.5367663,
-    "seen": 1789372280.6253052,
+    "mtime": 1789375420.2231188,
+    "seen": 1789379134.3524292,
     "ast_hash": "e953f7fbc9e060f5d1a0a0a728d46310",
     "semantic_hash": "e953f7fbc9e060f5d1a0a0a728d46310"
   },
   "docs/TRD.md": {
-    "mtime": 1789370641.2426176,
-    "seen": 1789372280.6253061,
+    "mtime": 1789375420.2233286,
+    "seen": 1789379134.3524292,
     "ast_hash": "4e01d060f671d48a164e4ab641d2be7b",
     "semantic_hash": "4e01d060f671d48a164e4ab641d2be7b"
   },
@@ -114,45 +108,87 @@
     "semantic_hash": "d3001f77daeb39b7f02ec3ead720d93d"
   },
   "docs/agents/graphify.md": {
-    "mtime": 1789364031.2257116,
-    "seen": 1789366576.0262752,
+    "mtime": 1789375420.2234201,
+    "seen": 1789379134.35243,
     "ast_hash": "fff7865e9138cfb8fbdffe61066738d5",
     "semantic_hash": "fff7865e9138cfb8fbdffe61066738d5"
   },
   "docs/agents/rtk.md": {
-    "mtime": 1789364031.228303,
-    "seen": 1789366576.026276,
+    "mtime": 1789375420.2235289,
+    "seen": 1789379134.35243,
     "ast_hash": "90a7be590d84ba3423b2c40347f69c32",
     "semantic_hash": "90a7be590d84ba3423b2c40347f69c32"
   },
   "docs/agents/rules.md": {
-    "mtime": 1789367591.0059357,
-    "seen": 1789370278.2367702,
-    "ast_hash": "b519387673aa513f82546a5cf56cdf85",
-    "semantic_hash": "b519387673aa513f82546a5cf56cdf85"
+    "mtime": 1789377265.771588,
+    "seen": 1789379017.925302,
+    "ast_hash": "87d9ac5d5f2d6126e49dcffb09c1d168",
+    "semantic_hash": "87d9ac5d5f2d6126e49dcffb09c1d168"
   },
   "docs/agents/skills.md": {
-    "mtime": 1789364311.2312849,
-    "seen": 1789366576.026277,
-    "ast_hash": "e223ba236fc3eb9b0083f1a15b5461f1",
-    "semantic_hash": "e223ba236fc3eb9b0083f1a15b5461f1"
+    "mtime": 1789376475.990847,
+    "seen": 1789379017.925302,
+    "ast_hash": "644278afd1b1d4671a94c8338773c78f",
+    "semantic_hash": "644278afd1b1d4671a94c8338773c78f"
   },
   "docs/producthunt-ideas.md": {
-    "mtime": 1789370654.702364,
-    "seen": 1789372280.6253061,
+    "mtime": 1789375420.2238996,
+    "seen": 1789379134.352432,
     "ast_hash": "69c551761ef04665b0b5f0ab964bcb20",
     "semantic_hash": "69c551761ef04665b0b5f0ab964bcb20"
   },
   "docs/references/git-workflow.md": {
-    "mtime": 1789367586.5944538,
-    "seen": 1789370278.236771,
-    "ast_hash": "a62c696f5c0f86fd58ca3856df382839",
-    "semantic_hash": "a62c696f5c0f86fd58ca3856df382839"
+    "mtime": 1789377265.7717695,
+    "seen": 1789379017.925302,
+    "ast_hash": "3b47f763706d99d1b666a3ddb370d176",
+    "semantic_hash": "3b47f763706d99d1b666a3ddb370d176"
   },
   "docs/references/markdown-style.md": {
-    "mtime": 1789224992.9585562,
-    "seen": 1789370278.236772,
+    "mtime": 1789375420.2241297,
+    "seen": 1789379134.352432,
     "ast_hash": "f5517b8204c541496b6df3cdcb89b994",
     "semantic_hash": "f5517b8204c541496b6df3cdcb89b994"
+  },
+  "graphify-out/memory/bridge-git-workflow-reference.md": {
+    "mtime": 1789376835.5124967,
+    "seen": 1789379017.925303,
+    "ast_hash": "f69dea58cda7c8148b71b270fcdb7b39",
+    "semantic_hash": "f69dea58cda7c8148b71b270fcdb7b39"
+  },
+  "graphify-out/memory/bridge-project-conventions.md": {
+    "mtime": 1789376835.512619,
+    "seen": 1789379017.925303,
+    "ast_hash": "09563024ae35602d38f3f2958c0eb13d",
+    "semantic_hash": "09563024ae35602d38f3f2958c0eb13d"
+  },
+  "graphify-out/memory/bridge-stream-per-directory-layout.md": {
+    "mtime": 1789376835.5127203,
+    "seen": 1789379017.9253042,
+    "ast_hash": "a1d5a677be722bfd9764f71df6f3e429",
+    "semantic_hash": "a1d5a677be722bfd9764f71df6f3e429"
+  },
+  "graphify-out/memory/inferred-edges-layerhand.md": {
+    "mtime": 1789376835.5128224,
+    "seen": 1789379017.9253042,
+    "ast_hash": "d97187c1b14f8f2e220d86daad75084b",
+    "semantic_hash": "d97187c1b14f8f2e220d86daad75084b"
+  },
+  "graphify-out/memory/inferred-edges-project-conventions.md": {
+    "mtime": 1789376835.5129292,
+    "seen": 1789379017.9253051,
+    "ast_hash": "5cd5717ba71d900a264dac75be83bd44",
+    "semantic_hash": "5cd5717ba71d900a264dac75be83bd44"
+  },
+  "graphify-out/memory/inferred-edges-swap-test.md": {
+    "mtime": 1789376835.5130558,
+    "seen": 1789379017.9253051,
+    "ast_hash": "d50ea1d49d0d3de60ce8592f31df3014",
+    "semantic_hash": "d50ea1d49d0d3de60ce8592f31df3014"
+  },
+  "graphify-out/memory/weakly-connected-commitlint-and-husky.md": {
+    "mtime": 1789376835.5131686,
+    "seen": 1789379017.9253051,
+    "ast_hash": "c5db1a84c30dcf0ca51bb13762291b62",
+    "semantic_hash": "c5db1a84c30dcf0ca51bb13762291b62"
   }
 }
