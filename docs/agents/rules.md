@@ -60,7 +60,6 @@ titles that say where the link goes.
 | `docs/reference/` | Style guides and workflows, for humans and agents             |
 | `.agents/skills/` | Skills, installed and local; `.claude/skills/` symlinks to it |
 | `.github/`        | Workflows, templates, and the branch ruleset                  |
-| `scripts/`        | One-off administrative scripts                                |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.
