@@ -112,6 +112,91 @@ describeLive('Photopea document loader in Google Chrome', () => {
     }
   }, 60_000)
 
+  test.each([1, 2])(
+    'serializes overlapping failed and valid uploads across %i loader(s)',
+    async (count) => {
+      const page = await browser.newPage()
+      const bytes = await sharp({
+        create: { width: 32, height: 16, channels: 3, background: '#558899' }
+      })
+        .png()
+        .toBuffer()
+      try {
+        const bridge = new PhotopeaBridge(
+          new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
+        )
+        const loader = new PhotopeaDocumentLoader(bridge)
+        const secondLoader = count === 1 ? loader : new PhotopeaDocumentLoader(bridge)
+        await loader.open(bytes, 'original.png')
+
+        const results = await Promise.allSettled([
+          loader.open(bytes.subarray(0, 33), 'concurrent-truncated.png'),
+          secondLoader.open(bytes, 'concurrent-valid.png')
+        ])
+        const documents = await bridge.runScript(
+          'app.echoToOE("concurrent:" + app.documents.length + ":" + app.documents[0].source + ":" + app.documents[1].source + ":" + app.activeDocument.source);'
+        )
+
+        expect(results).toMatchObject([
+          { status: 'rejected', reason: { code: 'photopea_document_mismatch' } },
+          { status: 'fulfilled', value: { filename: 'concurrent-valid.png', width: 32, height: 16 } }
+        ])
+        expect(documents).toContainEqual({
+          type: 'text',
+          value: 'concurrent:2:original.png:concurrent-valid.png:concurrent-valid.png'
+        })
+      } finally {
+        await page.close()
+      }
+    },
+    60_000
+  )
+
+  test.each([1, 2])(
+    'serializes overlapping valid uploads across %i loader(s) in invocation order',
+    async (count) => {
+      const page = await browser.newPage()
+      const first = await sharp({
+        create: { width: 32, height: 16, channels: 3, background: '#558899' }
+      })
+        .png()
+        .toBuffer()
+      const second = await sharp({
+        create: { width: 16, height: 32, channels: 3, background: '#995588' }
+      })
+        .png()
+        .toBuffer()
+      try {
+        const bridge = new PhotopeaBridge(
+          new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
+        )
+        const loader = new PhotopeaDocumentLoader(bridge)
+        const secondLoader = count === 1 ? loader : new PhotopeaDocumentLoader(bridge)
+        await loader.open(first, 'original.png')
+
+        const results = await Promise.allSettled([
+          loader.open(first, 'concurrent-first.png'),
+          secondLoader.open(second, 'concurrent-second.png')
+        ])
+        const documents = await bridge.runScript(
+          'app.echoToOE("concurrent:" + app.documents.length + ":" + app.documents[0].source + ":" + app.documents[1].source + ":" + app.documents[2].source + ":" + app.activeDocument.source);'
+        )
+
+        expect(results).toMatchObject([
+          { status: 'fulfilled', value: { filename: 'concurrent-first.png', width: 32, height: 16 } },
+          { status: 'fulfilled', value: { filename: 'concurrent-second.png', width: 16, height: 32 } }
+        ])
+        expect(documents).toContainEqual({
+          type: 'text',
+          value: 'concurrent:3:original.png:concurrent-first.png:concurrent-second.png:concurrent-second.png'
+        })
+      } finally {
+        await page.close()
+      }
+    },
+    60_000
+  )
+
   test.each([
     [1, 32, 16],
     [2, 32, 16],

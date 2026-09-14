@@ -74,6 +74,7 @@ function verifyDocument(messages: readonly PhotopeaMessage[], upload: ValidatedI
 }
 
 export class PhotopeaDocumentLoader {
+  static readonly #tails = new WeakMap<PhotopeaDocumentBridge, Promise<void>>()
   readonly #bridge: PhotopeaDocumentBridge
   readonly #now: () => number
 
@@ -84,6 +85,19 @@ export class PhotopeaDocumentLoader {
 
   async open(bytes: Uint8Array, filename: string): Promise<LoadedPhotopeaDocument> {
     const upload = validateImageUpload(bytes, filename)
+    const tail = PhotopeaDocumentLoader.#tails.get(this.#bridge) ?? Promise.resolve()
+    const result = tail.then(() => this.#openValidated(upload))
+    PhotopeaDocumentLoader.#tails.set(
+      this.#bridge,
+      result.then(
+        () => undefined,
+        () => undefined
+      )
+    )
+    return result
+  }
+
+  async #openValidated(upload: ValidatedImageUpload): Promise<LoadedPhotopeaDocument> {
     await this.#bridge.boot()
     const documentCount = readDocumentCount(
       await this.#bridge.runScript('app.echoToOE("layerhand:documents:" + app.documents.length);')
