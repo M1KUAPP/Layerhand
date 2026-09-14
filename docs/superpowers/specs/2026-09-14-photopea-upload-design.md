@@ -232,7 +232,11 @@ export class PhotopeaDocumentLoader {
 }
 ```
 
-`open()` validates before calling `bridge.boot()`. It then:
+`open()` validates and copies the bytes before queueing any browser work.
+Complete open workflows share a FIFO queue keyed by bridge identity, including
+calls from different loaders that use the same bridge. A failed workflow
+rejects only its own call and does not block later queued opens. Each queued
+workflow then:
 
 1. Ensures the configured Photopea frame is ready, reusing a successful boot.
 2. Reads and validates the current document count through an ES3 script.
@@ -244,15 +248,17 @@ export class PhotopeaDocumentLoader {
 5. Compares the echoed dimensions and source with the validated input.
 6. Presses `v` through Chrome to select the Move tool after metadata matches.
 7. Returns the measured time from byte send through Move-tool selection,
-   excluding boot and the document-count snapshot.
+   excluding queue wait, boot, and the document-count snapshot.
 
 If decoding produces no new document, or more than one, the loader rejects
 before changing a document's name or source. The successful file sentinel
 alone does not prove a decode succeeded. Chrome verification established
 that new documents append to `app.documents` and can be selected through
 that collection; Photopea document wrappers do not support object-identity
-comparison. The caller must serialize complete open workflows and avoid
-concurrent document creation or removal while a load is in progress.
+comparison. The loader holds its queue from boot through the final Move-tool
+selection, so another open cannot reuse its count snapshot or document.
+Independent bridges have independent queues. Direct bridge or GUI document
+mutations outside these open workflows are not coordinated by this queue.
 
 Photopea truncates `Document.name` at the first period; `Document.source`
 preserves the complete filename for verification. Reused opens retain the
@@ -376,6 +382,12 @@ and the unchanged long-edge limit and source bytes.
 - Metadata mismatch and malformed response failures.
 - A failed decode cannot rename an existing document or return it as success.
 
+`test/editor/photopea-document-loader-concurrency.test.ts` exercises the real
+loader and bridge together. It covers overlapping failed/valid and
+valid/valid uploads on one loader and across loaders sharing a bridge,
+serialization through tool selection, queue recovery after failure, and
+validation and byte copying before queued browser work.
+
 ### Google Chrome integration test
 
 `test/editor/photopea-document-loader.integration.test.ts` is opt-in through
@@ -385,6 +397,8 @@ and PNG bytes in the public Photopea editor.
 
 Same-page coverage also rejects a truncated second PNG without renaming the
 first document, then successfully opens another valid image on that loader.
+Overlapping failed/valid and valid/valid uploads are also checked with one
+loader and two loaders sharing the same bridge.
 All eight EXIF orientations are checked against Photopea's displayed
 dimensions using real JPEGs with raw SOF dimensions of 32x16.
 

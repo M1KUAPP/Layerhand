@@ -40,6 +40,10 @@ The September 14–15 Chrome proof and review refined the original steps below:
 - Before delivery, the loader snapshots the document count. It requires one
   newly appended document and selects it before changing its name or source;
   a failed second decode cannot be mistaken for the previously active photo.
+- Complete opens share a FIFO queue keyed by bridge identity, including
+  different loader instances. Validation and byte copying precede the queue;
+  a workflow holds it through Move-tool selection. Failures reject only that
+  call and leave later opens runnable. Load timing excludes queue wait.
 - `commandTimeoutMs` bounds each message wait, excluding navigation,
   delivery, and awaited reload cleanup.
 
