@@ -25,11 +25,5 @@
   "23": "FakeEditorSession",
   "24": "PhotopeaDocumentBridge",
   "25": "session.types.test.ts",
-  "26": "editor-session.contract.ts",
-  "27": "PhotopeaBridge",
-  "28": "EditorSession",
-  "29": "ExpectedSession",
-  "30": "photopea-document-loader.integration.test.ts",
-  "31": "PhotopeaTransport",
-  "32": "PlaywrightPhotopeaTransport"
+  "27": "PhotopeaBridge"
 }

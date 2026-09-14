@@ -428,5 +428,15 @@
     "mtime": 1789413624.5228486,
     "ast_hash": "f4377bb0b157993ce12c139b23b5374c",
     "semantic_hash": ""
+  },
+  "src/server/meter-store.ts": {
+    "mtime": 1789413788.9355054,
+    "ast_hash": "d34cc873d0d47d5336e30d9b8a0d039a",
+    "semantic_hash": ""
+  },
+  "test/server/meter-store.test.ts": {
+    "mtime": 1789413799.9430983,
+    "ast_hash": "36d242abf2fcdf362475f7f23dda5905",
+    "semantic_hash": ""
   }
 }

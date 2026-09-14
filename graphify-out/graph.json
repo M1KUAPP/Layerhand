@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prettierrc",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".prettierrc.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "prettierrc_schema",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "$schema"
     },
     {
@@ -32,8 +32,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "prettierrc_printwidth",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "printwidth"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "prettierrc_singlequote",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "singlequote"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "prettierrc_semi",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "semi"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "prettierrc_trailingcomma",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "trailingcomma"
     },
     {
@@ -142,8 +142,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "lint"
     },
     {
@@ -164,8 +164,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_prepare",
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "prepare"
     },
     {
@@ -758,8 +758,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "fake-editor-session.ts"
     },
     {
@@ -769,8 +769,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_editorrecording",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editorrecording"
     },
     {
@@ -780,8 +780,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_sessionstate",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "sessionstate"
     },
     {
@@ -967,8 +967,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1209,8 +1209,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_index",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editor/index.ts"
     },
     {
@@ -1286,7 +1286,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".constructor()"
     },
@@ -1550,8 +1550,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_host",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
       "norm_label": "photopea-host.ts"
     },
     {
@@ -1561,8 +1561,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_host_createphotopeahosthtml",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
       "norm_label": "createphotopeahosthtml()"
     },
     {
@@ -1627,7 +1627,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": "photopeatransport"
     },
@@ -1638,7 +1638,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".boot()"
     },
@@ -1649,7 +1649,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".send()"
     },
@@ -1660,7 +1660,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".nextmessage()"
     },
@@ -1671,7 +1671,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".press()"
     },
@@ -1682,7 +1682,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 31,
+      "community": 19,
       "community_name": "PhotopeaTransport",
       "norm_label": ".reload()"
     },
@@ -1748,8 +1748,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransportoptions",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "playwrightphotopeatransportoptions"
     },
     {
@@ -1770,8 +1770,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "playwrightphotopeatransport"
     },
     {
@@ -1781,8 +1781,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_constructor",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -1792,8 +1792,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": ".boot()"
     },
     {
@@ -1803,8 +1803,8 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_send",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": ".send()"
     },
     {
@@ -1825,8 +1825,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_press",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": ".press()"
     },
     {
@@ -1836,8 +1836,8 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_reload",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": ".reload()"
     },
     {
@@ -1847,8 +1847,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "session.ts"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editorsession"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".open()"
     },
     {
@@ -1880,8 +1880,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".screenshot()"
     },
     {
@@ -1891,8 +1891,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".act()"
     },
     {
@@ -1902,8 +1902,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".layers()"
     },
     {
@@ -1913,8 +1913,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1924,8 +1924,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1935,8 +1935,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 28,
-      "community_name": "EditorSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".close()"
     },
     {
@@ -1946,8 +1946,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "pt"
     },
     {
@@ -1968,8 +1968,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "button"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_editor_session_viewport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "viewport"
     },
     {
@@ -1990,8 +1990,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_session_layerinfo",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "layerinfo"
     },
     {
@@ -2518,8 +2518,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_database",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "database.ts"
     },
     {
@@ -2529,8 +2529,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_server_database_createdatabase",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "createdatabase()"
     },
     {
@@ -2540,8 +2540,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_server_database_databaseready",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "databaseready()"
     },
     {
@@ -2567,14 +2567,245 @@
       "norm_label": "application"
     },
     {
+      "label": "meter-store.ts",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_meter_store",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "meter-store.ts"
+    },
+    {
+      "label": "AdmissionRequest",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_server_meter_store_admissionrequest",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "admissionrequest"
+    },
+    {
+      "label": "MeterReservation",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_server_meter_store_meterreservation",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "meterreservation"
+    },
+    {
+      "label": "AdmissionResult",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "src_server_meter_store_admissionresult",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "admissionresult"
+    },
+    {
+      "label": "MeterStore",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "src_server_meter_store_meterstore",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "meterstore"
+    },
+    {
+      "label": ".admit()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_server_meter_store_meterstore_admit",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".admit()"
+    },
+    {
+      "label": ".reconcile()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "src_server_meter_store_meterstore_reconcile",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".reconcile()"
+    },
+    {
+      "label": ".release()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "src_server_meter_store_meterstore_release",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".release()"
+    },
+    {
+      "label": "AdmissionDenied",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "src_server_meter_store_admissiondenied",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "admissiondenied"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "src_server_meter_store_admissiondenied_constructor",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "FREE_LIMIT",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "src_server_meter_store_free_limit",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "free_limit"
+    },
+    {
+      "label": "DAILY_LIMIT",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "src_server_meter_store_daily_limit",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "daily_limit"
+    },
+    {
+      "label": "assertMicroUsd()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "src_server_meter_store_assertmicrousd",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "assertmicrousd()"
+    },
+    {
+      "label": "usdToMicroUsd()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_server_meter_store_usdtomicrousd",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "usdtomicrousd()"
+    },
+    {
+      "label": "SqlMeterStore",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "sqlmeterstore"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_constructor",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".admit()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_admit",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".admit()"
+    },
+    {
+      "label": ".reconcile()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L126",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_reconcile",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".reconcile()"
+    },
+    {
+      "label": ".release()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L143",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_release",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".release()"
+    },
+    {
+      "label": ".#claim()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L163",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_claim",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".#claim()"
+    },
+    {
+      "label": ".#inTransaction()",
+      "file_type": "code",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L169",
+      "_origin": "ast",
+      "id": "src_server_meter_store_sqlmeterstore_intransaction",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": ".#intransaction()"
+    },
+    {
       "label": "migrations.ts",
       "file_type": "code",
       "source_file": "src/server/migrations.ts",
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_migrations",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "migrations.ts"
     },
     {
@@ -2584,8 +2815,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_server_migrations_applymigrations",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "applymigrations()"
     },
     {
@@ -2727,8 +2958,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editor-session.contract.ts"
     },
     {
@@ -2738,8 +2969,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_editorsessionfactory",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editorsessionfactory"
     },
     {
@@ -2749,8 +2980,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_pngsignature",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "pngsignature"
     },
     {
@@ -2760,8 +2991,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_defineeditorsessioncontract",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "defineeditorsessioncontract()"
     },
     {
@@ -2771,8 +3002,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "fake-editor-session.test.ts"
     },
     {
@@ -2782,8 +3013,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_framea",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "framea"
     },
     {
@@ -2793,8 +3024,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_frameb",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "frameb"
     },
     {
@@ -2804,8 +3035,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_psd",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "psd"
     },
     {
@@ -2815,8 +3046,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_recording",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "recording()"
     },
     {
@@ -2826,8 +3057,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_createsession",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "createsession()"
     },
     {
@@ -2837,8 +3068,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_documentoperations",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "documentoperations"
     },
     {
@@ -3156,8 +3387,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_image",
-      "community": 19,
-      "community_name": "PhotopeaTransport",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "image()"
     },
     {
@@ -3167,8 +3398,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 30,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -3178,8 +3409,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 30,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "openimage()"
     },
     {
@@ -3277,8 +3508,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_host_test",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
       "norm_label": "photopea-host.test.ts"
     },
     {
@@ -3288,8 +3519,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_integration_test",
-      "community": 32,
-      "community_name": "PlaywrightPhotopeaTransport",
+      "community": 22,
+      "community_name": "playwright-photopea-transport.ts",
       "norm_label": "playwright-photopea-transport.integration.test.ts"
     },
     {
@@ -3332,8 +3563,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_contract_test",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "recorded-fake-editor-session.contract.test.ts"
     },
     {
@@ -3343,8 +3574,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -3354,8 +3585,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -3365,8 +3596,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "isexact"
     },
     {
@@ -3376,8 +3607,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assert"
     },
     {
@@ -3387,8 +3618,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "keysofunion"
     },
     {
@@ -3398,8 +3629,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "methodisexact"
     },
     {
@@ -3409,8 +3640,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "expectedaction"
     },
     {
@@ -3420,8 +3651,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -3431,8 +3662,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "expectedsession"
     },
     {
@@ -3442,8 +3673,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_open",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".open()"
     },
     {
@@ -3453,8 +3684,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_screenshot",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".screenshot()"
     },
     {
@@ -3464,8 +3695,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_act",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".act()"
     },
     {
@@ -3475,8 +3706,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_layers",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".layers()"
     },
     {
@@ -3486,8 +3717,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpsd",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpsd()"
     },
     {
@@ -3497,8 +3728,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpreview",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpreview()"
     },
     {
@@ -3508,8 +3739,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_close",
-      "community": 29,
-      "community_name": "ExpectedSession",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".close()"
     },
     {
@@ -3519,8 +3750,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assertions"
     },
     {
@@ -3530,8 +3761,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -3541,8 +3772,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_single_layer_editor_session_contract_test",
-      "community": 26,
-      "community_name": "editor-session.contract.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "single-layer-editor-session.contract.test.ts"
     },
     {
@@ -3585,8 +3816,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 30,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -3596,8 +3827,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 30,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -3607,8 +3838,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 30,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "createliveboundaryimages()"
     },
     {
@@ -3767,14 +3998,69 @@
       "norm_label": "cleanup()"
     },
     {
+      "label": "meter-store.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_meter_store_test",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "meter-store.test.ts"
+    },
+    {
+      "label": "databases",
+      "file_type": "code",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "test_server_meter_store_test_databases",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "databases"
+    },
+    {
+      "label": "NOW",
+      "file_type": "code",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "test_server_meter_store_test_now",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "now"
+    },
+    {
+      "label": "store()",
+      "file_type": "code",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "test_server_meter_store_test_store",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "store()"
+    },
+    {
+      "label": "accepted()",
+      "file_type": "code",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "test_server_meter_store_test_accepted",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
+      "norm_label": "accepted()"
+    },
+    {
       "label": "migrations.test.ts",
       "file_type": "code",
       "source_file": "test/server/migrations.test.ts",
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_server_migrations_test",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "migrations.test.ts"
     },
     {
@@ -3784,8 +4070,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_server_migrations_test_databases",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "databases"
     },
     {
@@ -3795,8 +4081,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "test_server_migrations_test_memorydatabase",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "memorydatabase()"
     },
     {
@@ -3806,8 +4092,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_server_migrations_test_expectconstraint",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "expectconstraint()"
     },
     {
@@ -3993,8 +4279,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_types",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "types"
     },
     {
@@ -4004,8 +4290,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "ref_bun",
-      "community": 10,
-      "community_name": "compilerOptions",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "bun"
     },
     {
@@ -4191,8 +4477,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_prd_prd_layerhand",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "prd: layerhand"
     },
     {
@@ -4202,8 +4488,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "docs_prd_schedule",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "schedule"
     },
     {
@@ -4213,8 +4499,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "docs_prd_the_core_flow",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "the core flow"
     },
     {
@@ -4224,8 +4510,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "docs_prd_functional_requirements",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "functional requirements"
     },
     {
@@ -4235,8 +4521,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "docs_prd_input",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "input"
     },
     {
@@ -4246,8 +4532,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "docs_prd_the_run",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "the run"
     },
     {
@@ -4257,8 +4543,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "docs_prd_steering",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "steering"
     },
     {
@@ -4268,8 +4554,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_prd_output",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "output"
     },
     {
@@ -4279,8 +4565,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "docs_prd_launch_surface",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "launch surface"
     },
     {
@@ -4290,8 +4576,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "docs_prd_metering",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "metering"
     },
     {
@@ -4301,8 +4587,8 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "docs_prd_non_functional_requirements",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "non-functional requirements"
     },
     {
@@ -4312,8 +4598,8 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "docs_prd_launch_acceptance",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "launch acceptance"
     },
     {
@@ -4323,8 +4609,8 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "docs_prd_deliberately_excluded",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "deliberately excluded"
     },
     {
@@ -4334,8 +4620,8 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "docs_prd_see_also",
-      "community": 0,
-      "community_name": "Astra Ideation & Selection",
+      "community": 12,
+      "community_name": "Product: Layerhand",
       "norm_label": "see also"
     },
     {
@@ -4356,8 +4642,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_product_product_layerhand",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "product: layerhand"
     },
     {
@@ -4367,8 +4653,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "docs_product_the_problem",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the problem"
     },
     {
@@ -4378,8 +4664,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "docs_product_who_it_is_for",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "who it is for"
     },
     {
@@ -4389,8 +4675,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "docs_product_what_layerhand_is",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "what layerhand is"
     },
     {
@@ -4400,8 +4686,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "docs_product_why_this_is_only_possible_now",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "why this is only possible now"
     },
     {
@@ -4411,8 +4697,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "docs_product_the_wedge_the_artifact_not_the_pixels",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the wedge: the artifact, not the pixels"
     },
     {
@@ -4422,8 +4708,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "docs_product_competition",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "competition"
     },
     {
@@ -4433,8 +4719,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "docs_product_the_claim_corrected",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the claim, corrected"
     },
     {
@@ -4444,8 +4730,8 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "docs_product_adobe_is_the_serious_threat_and_it_is_already_shipped",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "adobe is the serious threat, and it is already shipped"
     },
     {
@@ -4455,8 +4741,8 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "docs_product_the_price_ceiling_is_the_real_problem",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "the price ceiling is the real problem"
     },
     {
@@ -4466,8 +4752,8 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "docs_product_and_the_demand_signal_is_missing",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "and the demand signal is missing"
     },
     {
@@ -4477,8 +4763,8 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "docs_product_business_model",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "business model"
     },
     {
@@ -4488,8 +4774,8 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "docs_product_non_goals",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "non-goals"
     },
     {
@@ -4499,8 +4785,8 @@
       "source_location": "L258",
       "_origin": "ast",
       "id": "docs_product_success_criteria",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "success criteria"
     },
     {
@@ -4510,8 +4796,8 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "docs_product_risks_and_the_kill_switch",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "risks and the kill switch"
     },
     {
@@ -4521,8 +4807,8 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "docs_product_open_questions",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "open questions"
     },
     {
@@ -4532,8 +4818,8 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "docs_product_see_also",
-      "community": 12,
-      "community_name": "Product: Layerhand",
+      "community": 0,
+      "community_name": "Astra Ideation & Selection",
       "norm_label": "see also"
     },
     {
@@ -6135,8 +6421,8 @@
       "label": "bun (package manager and script runner)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "bun (package manager and script runner)",
@@ -6180,8 +6466,8 @@
       "label": "Local hook setup (bun install, then uv tool install graphifyy)",
       "author": null,
       "captured_at": null,
-      "community": 6,
-      "community_name": "Git Workflow & Conventions",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "local hook setup (bun install, then uv tool install graphifyy)",
@@ -12311,6 +12597,418 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "ref_bun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_admissiondenied",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_admissionrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_admissionresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_assertmicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_daily_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_free_limit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_meterreservation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_meterstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L64",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_sqlmeterstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store",
+      "target": "src_server_meter_store_usdtomicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_meter_store",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_meter_store_meterreservation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_meter_store_admissionresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_meterstore",
+      "target": "src_server_meter_store_meterstore_admit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_meterstore",
+      "target": "src_server_meter_store_meterstore_reconcile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_meterstore",
+      "target": "src_server_meter_store_meterstore_release",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "implements",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L64",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_meterstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_admissiondenied",
+      "target": "src_server_meter_store_admissiondenied_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L80",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_admit",
+      "target": "src_server_meter_store_assertmicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_constructor",
+      "target": "src_server_meter_store_assertmicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_reconcile",
+      "target": "src_server_meter_store_assertmicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_usdtomicrousd",
+      "target": "src_server_meter_store_assertmicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_meter_store_usdtomicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test_store",
+      "target": "src_server_meter_store_usdtomicrousd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L79",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_admit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L163",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_claim",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L169",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_intransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_reconcile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L143",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore",
+      "target": "src_server_meter_store_sqlmeterstore_release",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_meter_store_sqlmeterstore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_admit",
+      "target": "src_server_meter_store_sqlmeterstore_intransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_reconcile",
+      "target": "src_server_meter_store_sqlmeterstore_claim",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L144",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_release",
+      "target": "src_server_meter_store_sqlmeterstore_claim",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/meter-store.ts",
+      "source_location": "L146",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_meter_store_sqlmeterstore_release",
+      "target": "src_server_meter_store_sqlmeterstore_intransaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/server/migrations.ts",
       "source_location": "L1",
       "weight": 1.0,
@@ -12334,12 +13032,48 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_migrations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "test/server/migrations.test.ts",
       "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "test_server_migrations_test",
       "target": "src_server_migrations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "src_server_migrations_applymigrations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test_store",
+      "target": "src_server_migrations_applymigrations",
       "confidence_score": 1.0
     },
     {
@@ -13602,6 +14336,62 @@
       "_origin": "ast",
       "source": "test_server_container_smoke",
       "target": "test_server_container_smoke_sh__entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "ref_bun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "test_server_meter_store_test_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "test_server_meter_store_test_databases",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "test_server_meter_store_test_now",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/meter-store.test.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_meter_store_test",
+      "target": "test_server_meter_store_test_store",
       "confidence_score": 1.0
     },
     {
@@ -16503,5 +17293,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b583a2d7d2e1d5214bec7202a3ecd70dad63e2b8"
+  "built_at_commit": "8c360c24f898a1ec60f2980d7225c01bf295c1cc"
 }
