@@ -98,7 +98,9 @@ restart, the demo has no centre and the launch has no hook.
   progress resumes the live view rather than starting over or
   orphaning the session.
 - **FR-15 (P1).** Show the running cost of the session in credits.
-- **FR-16 (P2).** Keep a per-user history of past runs.
+- **FR-16 (P2).** Keep a per-user history of past runs. The
+  [non-goals](PRODUCT.md#non-goals) rule out both history and accounts,
+  so it waits until those are revisited after launch.
 
 ### Steering
 
