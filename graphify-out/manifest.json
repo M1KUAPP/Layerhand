@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "src/server/application.ts": {
-    "mtime": 1789414365.854126,
-    "ast_hash": "2b78ddf4d5d8ec95492462ad616eb6fb",
+    "mtime": 1789417358.8238308,
+    "ast_hash": "b19a310b60fef8b113f9bff6acac3608",
     "semantic_hash": ""
   },
   "src/server/index.ts": {
@@ -365,13 +365,13 @@
     "semantic_hash": ""
   },
   "src/web/app.ts": {
-    "mtime": 1789416428.0674438,
-    "ast_hash": "8975232ba24dda0e2666a6b31025146e",
+    "mtime": 1789417358.8197055,
+    "ast_hash": "70699b0eda347a7151ad04769b3d6cac",
     "semantic_hash": ""
   },
   "test/server/application.test.ts": {
-    "mtime": 1789412859.2829506,
-    "ast_hash": "4ea36df84bb790cbcff6142afee0f17d",
+    "mtime": 1789417358.8279562,
+    "ast_hash": "f04621f7e2b9c724d51fbbad27ebfd73",
     "semantic_hash": ""
   },
   "test/server/scaffold.test.ts": {
@@ -535,8 +535,8 @@
     "semantic_hash": ""
   },
   "test/web/dom.test.ts": {
-    "mtime": 1789416385.100899,
-    "ast_hash": "9216e4148480511b2b55c061ce57a5a3",
+    "mtime": 1789417358.8238308,
+    "ast_hash": "7d7df535501f14d447da5e2acbfe566c",
     "semantic_hash": ""
   },
   "src/server/runtime.ts": {
@@ -550,8 +550,8 @@
     "semantic_hash": ""
   },
   "test/web/application.browser.test.ts": {
-    "mtime": 1789417023.7142112,
-    "ast_hash": "e6884983c64d1649351d04a88c52a13a",
+    "mtime": 1789417382.0097022,
+    "ast_hash": "50126f8370b88c97f77ef29693ef723a",
     "semantic_hash": ""
   },
   "test/web/support/test-server.ts": {
