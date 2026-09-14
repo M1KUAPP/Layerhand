@@ -142,9 +142,42 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
       const height = view.getUint16(position + 3)
       const width = view.getUint16(position + 5)
       const componentCount = bytes[position + 7]!
+      const precision = bytes[position + 2]!
+      const lossless = (marker & 3) === 3
+      const progressive = (marker & 3) === 2
+      const validPrecision = lossless
+        ? precision >= 2 && precision <= 16
+        : precision === 8 || (marker !== 0xc0 && precision === 12)
 
-      if (componentCount === 0 || length !== 8 + componentCount * 3 || width === 0 || height === 0) {
+      if (
+        componentCount === 0 ||
+        (progressive && componentCount > 4) ||
+        length !== 8 + componentCount * 3 ||
+        width === 0 ||
+        height === 0 ||
+        !validPrecision
+      ) {
         throw uploadError('malformed_image')
+      }
+
+      const componentIds = new Set<number>()
+      for (let index = 0; index < componentCount; index += 1) {
+        const offset = position + 8 + index * 3
+        const id = bytes[offset]!
+        const horizontalSampling = bytes[offset + 1]! >>> 4
+        const verticalSampling = bytes[offset + 1]! & 0x0f
+        const quantizationTable = bytes[offset + 2]!
+        if (
+          componentIds.has(id) ||
+          horizontalSampling < 1 ||
+          horizontalSampling > 4 ||
+          verticalSampling < 1 ||
+          verticalSampling > 4 ||
+          quantizationTable > (lossless ? 0 : 3)
+        ) {
+          throw uploadError('malformed_image')
+        }
+        componentIds.add(id)
       }
 
       return { width, height }

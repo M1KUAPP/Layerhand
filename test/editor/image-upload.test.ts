@@ -1,34 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { ImageUploadError, MAX_IMAGE_BYTES, validateImageUpload } from '../../src/editor/image-upload'
-import { png } from './support/image-headers'
-
-function jpeg(width: number, height: number): Uint8Array {
-  return Uint8Array.of(
-    0xff,
-    0xd8,
-    0xff,
-    0xe0,
-    0x00,
-    0x04,
-    0x00,
-    0x00,
-    0xff,
-    0xc0,
-    0x00,
-    0x0b,
-    0x08,
-    (height >>> 8) & 0xff,
-    height & 0xff,
-    (width >>> 8) & 0xff,
-    width & 0xff,
-    0x01,
-    0x01,
-    0x11,
-    0x00,
-    0xff,
-    0xd9
-  )
-}
+import { jpeg, png } from './support/image-headers'
 
 function expectUploadError(operation: () => unknown, code: ImageUploadError['code'], message: string): void {
   try {
@@ -150,6 +122,131 @@ describe('validateImageUpload JPEG', () => {
       width: 6000,
       height: 1
     })
+  })
+
+  test.each([
+    [0xc0, 8],
+    [0xc1, 12],
+    [0xc2, 12],
+    [0xc5, 12],
+    [0xc6, 12],
+    [0xc9, 12],
+    [0xca, 12],
+    [0xcd, 12],
+    [0xce, 12],
+    [0xc3, 2],
+    [0xc3, 16],
+    [0xc7, 2],
+    [0xc7, 16],
+    [0xcb, 2],
+    [0xcb, 16],
+    [0xcf, 2],
+    [0xcf, 16]
+  ])('accepts JPEG SOF %i with precision %i', (marker, precision) => {
+    expect(validateImageUpload(jpeg(1, 1, { marker, precision }), 'image.jpg')).toMatchObject({
+      format: 'jpeg',
+      width: 1,
+      height: 1
+    })
+  })
+
+  test.each([
+    [0xc0, 0],
+    [0xc0, 12],
+    [0xc1, 16],
+    [0xc2, 16],
+    [0xc5, 16],
+    [0xc6, 16],
+    [0xc9, 16],
+    [0xca, 16],
+    [0xcd, 16],
+    [0xce, 16],
+    [0xc3, 1],
+    [0xc3, 17],
+    [0xc7, 1],
+    [0xc7, 17],
+    [0xcb, 1],
+    [0xcb, 17],
+    [0xcf, 1],
+    [0xcf, 17]
+  ])('rejects JPEG SOF %i with precision %i', (marker, precision) => {
+    expectUploadError(
+      () => validateImageUpload(jpeg(1, 1, { marker, precision }), 'bad.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test.each([0x01, 0x10, 0x51, 0x15, 0xff])('rejects JPEG sampling byte %i', (sampling) => {
+    expectUploadError(
+      () => validateImageUpload(jpeg(1, 1, { components: [[1, sampling, 0]] }), 'bad.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test('accepts distinct component identifiers and sampling factors from one through four', () => {
+    const components = [
+      [0, 0x11, 0],
+      [255, 0x24, 1],
+      [7, 0x42, 2],
+      [3, 0x33, 3]
+    ]
+    expect(validateImageUpload(jpeg(1, 1, { components }), 'image.jpg').format).toBe('jpeg')
+  })
+
+  test('rejects duplicate JPEG component identifiers', () => {
+    expectUploadError(
+      () =>
+        validateImageUpload(
+          jpeg(1, 1, {
+            components: [
+              [1, 0x11, 0],
+              [1, 0x11, 0]
+            ]
+          }),
+          'bad.jpg'
+        ),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test.each([
+    [0xc0, 4],
+    [0xc3, 1]
+  ])('rejects JPEG SOF %i with quantization table %i', (marker, table) => {
+    expectUploadError(
+      () => validateImageUpload(jpeg(1, 1, { marker, components: [[1, 0x11, table]] }), 'bad.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test.each([0xc2, 0xc6, 0xca, 0xce])('rejects five components in progressive JPEG SOF %i', (marker) => {
+    const components = [
+      [1, 0x11, 0],
+      [2, 0x11, 0],
+      [3, 0x11, 0],
+      [4, 0x11, 0],
+      [5, 0x11, 0]
+    ]
+    expectUploadError(
+      () => validateImageUpload(jpeg(1, 1, { marker, components }), 'bad.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test('accepts five frame components in a sequential JPEG', () => {
+    const components = [
+      [1, 0x11, 0],
+      [2, 0x11, 0],
+      [3, 0x11, 0],
+      [4, 0x11, 0],
+      [5, 0x11, 0]
+    ]
+    expect(validateImageUpload(jpeg(1, 1, { components }), 'image.jpg').format).toBe('jpeg')
   })
 
   test('rejects a recognized JPEG without a complete SOF marker', () => {

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import { PhotopeaDocumentLoader, type PhotopeaDocumentBridge } from '../../src/editor/photopea-document-loader'
 import type { PhotopeaMessage } from '../../src/editor/photopea-transport'
-import { png } from './support/image-headers'
+import { jpeg, png } from './support/image-headers'
 
 class RecordingBridge implements PhotopeaDocumentBridge {
   readonly calls: string[] = []
@@ -75,6 +75,27 @@ test.each([
   new DataView(bytes.buffer).setUint32(29, Bun.hash.crc32(bytes.subarray(12, 29)))
 
   await expect(new PhotopeaDocumentLoader(bridge).open(bytes, 'bad.png')).rejects.toMatchObject({
+    code: 'malformed_image'
+  })
+  expect(bridge.calls).toEqual([])
+})
+
+test.each([
+  ['precision', { precision: 0 }],
+  ['sampling', { components: [[1, 0x01, 0]] }],
+  [
+    'component identifiers',
+    {
+      components: [
+        [1, 0x11, 0],
+        [1, 0x11, 0]
+      ]
+    }
+  ]
+])('rejects invalid JPEG %s before bridge boot', async (_label, options) => {
+  const bridge = new RecordingBridge()
+
+  await expect(new PhotopeaDocumentLoader(bridge).open(jpeg(1, 1, options), 'bad.jpg')).rejects.toMatchObject({
     code: 'malformed_image'
   })
   expect(bridge.calls).toEqual([])
