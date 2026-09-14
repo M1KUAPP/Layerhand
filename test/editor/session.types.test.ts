@@ -7,6 +7,14 @@ type Assert<T extends true> = T
 
 type KeysOfUnion<T> = T extends unknown ? keyof T : never
 
+type MethodIsExact<Name extends keyof EditorSession, Args extends unknown[], Result> = EditorSession[Name] extends (
+  ...args: infer ActualArgs
+) => infer ActualResult
+  ? IsExact<ActualArgs, Args> extends true
+    ? IsExact<ActualResult, Result>
+    : false
+  : false
+
 type ExpectedAction =
   | ({ type: 'click'; button: Button; keys?: string[] } & Pt)
   | ({ type: 'double_click'; keys?: string[] } & Pt)
@@ -23,6 +31,13 @@ type ExpectedAction =
   | { type: 'wait' }
   | { type: 'screenshot' }
 
+type ActionVariantKeyChecks = {
+  [Type in ComputerAction['type']]: IsExact<
+    keyof Extract<ComputerAction, { type: Type }>,
+    keyof Extract<ExpectedAction, { type: Type }>
+  >
+}[ComputerAction['type']]
+
 interface ExpectedSession {
   readonly id: string
   readonly viewport: Viewport
@@ -38,7 +53,9 @@ interface ExpectedSession {
 type Assertions = [
   Assert<IsExact<Button, 'left' | 'right' | 'wheel' | 'back' | 'forward'>>,
   Assert<IsExact<Pt, { x: number; y: number }>>,
+  Assert<IsExact<keyof Pt, 'x' | 'y'>>,
   Assert<IsExact<Viewport, { width: number; height: number }>>,
+  Assert<IsExact<keyof Viewport, 'width' | 'height'>>,
   Assert<
     IsExact<
       LayerInfo,
@@ -49,10 +66,19 @@ type Assertions = [
       }
     >
   >,
+  Assert<IsExact<keyof LayerInfo, 'name' | 'kind' | 'visible'>>,
   Assert<IsExact<ComputerAction, ExpectedAction>>,
   Assert<IsExact<KeysOfUnion<ComputerAction>, KeysOfUnion<ExpectedAction>>>,
+  Assert<IsExact<ActionVariantKeyChecks, true>>,
   Assert<IsExact<EditorSession, ExpectedSession>>,
-  Assert<IsExact<keyof EditorSession, keyof ExpectedSession>>
+  Assert<IsExact<keyof EditorSession, keyof ExpectedSession>>,
+  Assert<MethodIsExact<'open', [image: Uint8Array, filename: string], Promise<void>>>,
+  Assert<MethodIsExact<'screenshot', [], Promise<Uint8Array>>>,
+  Assert<MethodIsExact<'act', [actions: ComputerAction[]], Promise<void>>>,
+  Assert<MethodIsExact<'layers', [], Promise<LayerInfo[]>>>,
+  Assert<MethodIsExact<'exportPsd', [], Promise<Uint8Array>>>,
+  Assert<MethodIsExact<'exportPreview', [], Promise<Uint8Array>>>,
+  Assert<MethodIsExact<'close', [], Promise<void>>>
 ]
 
 function assertReadonlySessionMembers(session: EditorSession): void {
@@ -65,6 +91,6 @@ function assertReadonlySessionMembers(session: EditorSession): void {
 void assertReadonlySessionMembers
 
 test('exports the exact editor session contract', () => {
-  const assertions: Assertions = [true, true, true, true, true, true, true, true]
-  expect(assertions.every(Boolean)).toBe(true)
+  const contractIsExact: Assertions[number] = true
+  expect(contractIsExact).toBe(true)
 })
