@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "src/server/application.ts": {
-    "mtime": 1789412958.4065151,
-    "ast_hash": "bf2eeab60abc89ce4b0e226bcd57b1d7",
+    "mtime": 1789414365.854126,
+    "ast_hash": "2b78ddf4d5d8ec95492462ad616eb6fb",
     "semantic_hash": ""
   },
   "src/server/index.ts": {
@@ -475,13 +475,23 @@
     "semantic_hash": ""
   },
   "src/server/run-registry.ts": {
-    "mtime": 1789414154.010789,
-    "ast_hash": "8d7478a33529d76c73ca0908001a00c4",
+    "mtime": 1789414282.053413,
+    "ast_hash": "71380b294d124698dd8b5759dc3002a1",
     "semantic_hash": ""
   },
   "test/server/run-registry.test.ts": {
     "mtime": 1789414061.419855,
     "ast_hash": "82fb5c0947f08325fe6e84436adda3dc",
+    "semantic_hash": ""
+  },
+  "src/server/run-routes.ts": {
+    "mtime": 1789414527.0017054,
+    "ast_hash": "33aae33ca1c818a2e58a62ccf7e3c38d",
+    "semantic_hash": ""
+  },
+  "test/server/run-routes.test.ts": {
+    "mtime": 1789414527.0716305,
+    "ast_hash": "6daab8326aff6df7c9b7002719f79ea8",
     "semantic_hash": ""
   }
 }
