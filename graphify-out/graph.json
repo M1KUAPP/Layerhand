@@ -725,8 +725,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_agent_fake_run_fakerun",
-      "community": 7,
-      "community_name": "Launch Criteria & Go/No-Go",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "fakerun()"
     },
     {
@@ -769,8 +769,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "fake-editor-session.ts"
     },
     {
@@ -780,8 +780,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_editorrecording",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editorrecording"
     },
     {
@@ -791,8 +791,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_sessionstate",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "sessionstate"
     },
     {
@@ -978,8 +978,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1286,8 +1286,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "photopeabridge"
     },
     {
@@ -1297,8 +1297,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -1308,8 +1308,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".boot()"
     },
     {
@@ -1319,8 +1319,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_openfile",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".openfile()"
     },
     {
@@ -1330,8 +1330,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_runscript",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".runscript()"
     },
     {
@@ -1341,8 +1341,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_press",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".press()"
     },
     {
@@ -1352,8 +1352,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_waitfortext",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".#waitfortext()"
     },
     {
@@ -1363,8 +1363,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_throwtimeout",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".#throwtimeout()"
     },
     {
@@ -1374,8 +1374,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_enqueue",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": ".#enqueue()"
     },
     {
@@ -1396,8 +1396,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "photopeadocumentbridge"
     },
     {
@@ -1407,8 +1407,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".boot()"
     },
     {
@@ -1418,8 +1418,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_openfile",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".openfile()"
     },
     {
@@ -1429,8 +1429,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_runscript",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".runscript()"
     },
     {
@@ -1440,8 +1440,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_press",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".press()"
     },
     {
@@ -1583,8 +1583,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_transport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-transport.ts"
     },
     {
@@ -1594,8 +1594,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironmentparameters",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopeaenvironmentparameters"
     },
     {
@@ -1605,8 +1605,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironment",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopeaenvironment"
     },
     {
@@ -1616,8 +1616,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1638,8 +1638,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "photopeatransport"
     },
     {
@@ -1649,8 +1649,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".boot()"
     },
     {
@@ -1660,8 +1660,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".send()"
     },
     {
@@ -1671,8 +1671,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".nextmessage()"
     },
     {
@@ -1682,8 +1682,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".press()"
     },
     {
@@ -1693,8 +1693,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".reload()"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "session.ts"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "editorsession"
     },
     {
@@ -1880,8 +1880,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".open()"
     },
     {
@@ -1891,8 +1891,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".screenshot()"
     },
     {
@@ -1902,8 +1902,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".act()"
     },
     {
@@ -1913,8 +1913,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".layers()"
     },
     {
@@ -1924,8 +1924,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1935,8 +1935,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1946,8 +1946,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 24,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".close()"
     },
     {
@@ -1957,8 +1957,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "pt"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "button"
     },
     {
@@ -2001,8 +2001,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_session_layerinfo",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "layerinfo"
     },
     {
@@ -2012,8 +2012,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_application",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "application.ts"
     },
     {
@@ -2023,8 +2023,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_server_application_applicationdependencies",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "applicationdependencies"
     },
     {
@@ -2034,8 +2034,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_server_application_handle",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "handle()"
     },
     {
@@ -2045,8 +2045,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_server_application_application",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "application"
     },
     {
@@ -2056,8 +2056,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_server_application_application_fetch",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".fetch()"
     },
     {
@@ -2067,8 +2067,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_server_application_base_security_headers",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "base_security_headers"
     },
     {
@@ -2078,8 +2078,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_server_application_application_csp",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "application_csp"
     },
     {
@@ -2089,8 +2089,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_server_application_photopea_host_csp",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "photopea_host_csp"
     },
     {
@@ -2100,8 +2100,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_server_application_secured",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "secured()"
     },
     {
@@ -2111,8 +2111,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "src_server_application_json",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "json()"
     },
     {
@@ -2122,8 +2122,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_server_application_createapplication",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "createapplication()"
     },
     {
@@ -2749,8 +2749,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_index",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "server/index.ts"
     },
     {
@@ -2760,8 +2760,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_server_index_application",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "application"
     },
     {
@@ -4146,8 +4146,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "fake-editor-session.test.ts"
     },
     {
@@ -4157,8 +4157,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_framea",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "framea"
     },
     {
@@ -4168,8 +4168,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_frameb",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "frameb"
     },
     {
@@ -4179,8 +4179,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_psd",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "psd"
     },
     {
@@ -4190,8 +4190,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_recording",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "recording()"
     },
     {
@@ -4201,8 +4201,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_createsession",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "createsession()"
     },
     {
@@ -4212,8 +4212,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "test_editor_fake_editor_session_test_documentoperations",
-      "community": 25,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "documentoperations"
     },
     {
@@ -4443,8 +4443,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "photopea-document-loader-concurrency.test.ts"
     },
     {
@@ -4454,8 +4454,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "imagetransport"
     },
     {
@@ -4465,8 +4465,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_fitthearea",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "fitthearea()"
     },
     {
@@ -4476,8 +4476,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".boot()"
     },
     {
@@ -4487,8 +4487,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_send",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".send()"
     },
     {
@@ -4498,8 +4498,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_nextmessage",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".nextmessage()"
     },
     {
@@ -4509,8 +4509,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_press",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".press()"
     },
     {
@@ -4520,8 +4520,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_imagetransport_reload",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 24,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": ".reload()"
     },
     {
@@ -4542,8 +4542,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -4553,8 +4553,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "openimage()"
     },
     {
@@ -4575,8 +4575,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": "recordingbridge"
     },
     {
@@ -4586,8 +4586,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_constructor",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".constructor()"
     },
     {
@@ -4597,8 +4597,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_boot",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".boot()"
     },
     {
@@ -4608,8 +4608,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_openfile",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".openfile()"
     },
     {
@@ -4619,8 +4619,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_runscript",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".runscript()"
     },
     {
@@ -4630,8 +4630,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_press",
-      "community": 13,
-      "community_name": "FakeEditorSession",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
       "norm_label": ".press()"
     },
     {
@@ -4663,8 +4663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_integration_test",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "playwright-photopea-transport.integration.test.ts"
     },
     {
@@ -4718,8 +4718,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 31,
+      "community_name": "editor-session.contract.ts",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -4729,8 +4729,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -4740,8 +4740,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "isexact"
     },
     {
@@ -4751,8 +4751,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assert"
     },
     {
@@ -4762,8 +4762,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "keysofunion"
     },
     {
@@ -4773,8 +4773,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "methodisexact"
     },
     {
@@ -4784,8 +4784,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "expectedaction"
     },
     {
@@ -4795,8 +4795,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -4806,8 +4806,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "expectedsession"
     },
     {
@@ -4817,8 +4817,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_open",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".open()"
     },
     {
@@ -4828,8 +4828,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_screenshot",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".screenshot()"
     },
     {
@@ -4839,8 +4839,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_act",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".act()"
     },
     {
@@ -4850,8 +4850,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_layers",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".layers()"
     },
     {
@@ -4861,8 +4861,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpsd",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpsd()"
     },
     {
@@ -4872,8 +4872,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpreview",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".exportpreview()"
     },
     {
@@ -4883,8 +4883,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_close",
-      "community": 27,
-      "community_name": "PhotopeaBridge",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": ".close()"
     },
     {
@@ -4894,8 +4894,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assertions"
     },
     {
@@ -4905,8 +4905,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 26,
-      "community_name": "session.types.test.ts",
+      "community": 23,
+      "community_name": "FakeEditorSession",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -4960,8 +4960,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -4971,8 +4971,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -4982,8 +4982,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "createliveboundaryimages()"
     },
     {
@@ -4993,8 +4993,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_server_application_test",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "application.test.ts"
     },
     {
@@ -5004,8 +5004,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_server_application_test_request",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "request()"
     },
     {
@@ -5478,8 +5478,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "test_server_run_routes_test_fixture",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "fixture()"
     },
     {
@@ -5536,6 +5536,28 @@
       "community": 28,
       "community_name": "waitlist-export.ts",
       "norm_label": "store()"
+    },
+    {
+      "label": "sample-photo.test.ts",
+      "file_type": "code",
+      "source_file": "test/web/sample-photo.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_web_sample_photo_test",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
+      "norm_label": "sample-photo.test.ts"
+    },
+    {
+      "label": "SAMPLE_PATH",
+      "file_type": "code",
+      "source_file": "test/web/sample-photo.test.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "test_web_sample_photo_test_sample_path",
+      "community": 4,
+      "community_name": "Run Cost, Limits & Metering",
+      "norm_label": "sample_path"
     },
     {
       "label": "tsconfig.json",
@@ -7670,6 +7692,39 @@
       "community": 5,
       "community_name": "Project Rules & Markdown Style",
       "norm_label": "strongly prefer markdown to html"
+    },
+    {
+      "label": "sample-photo.md",
+      "file_type": "document",
+      "source_file": "src/web/assets/sample-photo.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_web_assets_sample_photo",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
+      "norm_label": "sample-photo.md"
+    },
+    {
+      "label": "Sample photo provenance",
+      "file_type": "document",
+      "source_file": "src/web/assets/sample-photo.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_web_assets_sample_photo_sample_photo_provenance",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
+      "norm_label": "sample photo provenance"
+    },
+    {
+      "label": "Generation prompt",
+      "file_type": "document",
+      "source_file": "src/web/assets/sample-photo.md",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_web_assets_sample_photo_generation_prompt",
+      "community": 27,
+      "community_name": "PhotopeaBridge",
+      "norm_label": "generation prompt"
     },
     {
       "label": "Saved query: are Layerhand's inferred relationships correct",
@@ -10656,6 +10711,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/sample-photo.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_sample_photo_test",
+      "target": "src_editor_image_upload",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "re_exports",
       "context": "re-export",
       "confidence": "EXTRACTED",
@@ -11059,6 +11126,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "test_editor_image_upload_test",
+      "target": "src_editor_image_upload_validateimageupload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/web/sample-photo.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_sample_photo_test",
       "target": "src_editor_image_upload_validateimageupload",
       "confidence_score": 1.0
     },
@@ -19283,6 +19362,17 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "test/web/sample-photo.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_web_sample_photo_test",
+      "target": "test_web_sample_photo_test_sample_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tsconfig.json",
       "source_location": "L2",
       "weight": 1.0,
@@ -21453,6 +21543,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/assets/sample-photo.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_assets_sample_photo",
+      "target": "src_web_assets_sample_photo_sample_photo_provenance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/web/assets/sample-photo.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_web_assets_sample_photo_sample_photo_provenance",
+      "target": "src_web_assets_sample_photo_generation_prompt",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -22134,5 +22246,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "24c94fdf6964e0b233eee7eed944b87a68dbaf97"
+  "built_at_commit": "776a6daa61fff8e6f5de648e5a8b6d69d965c535"
 }

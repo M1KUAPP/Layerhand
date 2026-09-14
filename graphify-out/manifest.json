@@ -493,5 +493,20 @@
     "mtime": 1789414527.0716305,
     "ast_hash": "6daab8326aff6df7c9b7002719f79ea8",
     "semantic_hash": ""
+  },
+  "test/web/sample-photo.test.ts": {
+    "mtime": 1789414819.885597,
+    "ast_hash": "8e394ae441bc58f8d0c121d889593c89",
+    "semantic_hash": ""
+  },
+  "src/web/assets/sample-photo.md": {
+    "mtime": 1789414935.7319794,
+    "ast_hash": "62181dcf631b6356d36e657f3b9f0121",
+    "semantic_hash": ""
+  },
+  "src/web/assets/sample-photo.png": {
+    "mtime": 1789414928.008483,
+    "ast_hash": "9c1909a0b92c4fd58ac17e532cf3ebc0",
+    "semantic_hash": ""
   }
 }
