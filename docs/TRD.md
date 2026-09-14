@@ -137,6 +137,23 @@ interface RunHandle {
 }
 ```
 
+The types leave some behaviour open. The contract tests in
+`src/agent/contract-tests.ts` pin it, for the fake and the real loop
+alike:
+
+- A run carries on whether or not anyone reads `events`. Each iteration
+  replays the run from its first event and then follows it live, so a
+  reload can simply subscribe again (FR-14).
+- `cost` carries the run's totals so far, and they never fall (FR-15).
+- A run ends exactly once, with `done` or with an `error` whose
+  `recoverable` is false, and nothing follows. A recoverable error is
+  reported and the run carries on.
+- `complete` is false whenever the run stopped before the agent
+  finished: at the step cap, at the spend cap, or on cancel. The result
+  still carries the layers made so far (FR-12, FR-13).
+- A correction is acknowledged within three seconds (FR-21). Once the
+  run has ended, `steer()` rejects and `cancel()` changes nothing.
+
 ### Contract 3: the HTTP surface
 
 Owned by the web stream.
