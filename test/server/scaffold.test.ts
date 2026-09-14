@@ -19,4 +19,14 @@ describe('application scaffold', () => {
     expect(html).toContain('src="./app.ts"')
     expect(html).toContain('href="./styles.css"')
   })
+
+  test('boots the composed runtime with an HTTP body ceiling and clean shutdown', async () => {
+    const index = await Bun.file(new URL('../../src/server/index.ts', import.meta.url)).text()
+    const smoke = await Bun.file(new URL('./container-smoke.sh', import.meta.url)).text()
+
+    expect(index).toContain('await createLaunchRuntime')
+    expect(index).toContain('maxRequestBodySize: MAX_RUN_REQUEST_BODY_BYTES')
+    expect(index).toContain("process.once('SIGTERM', shutdown)")
+    expect(smoke).toContain('--env NODE_ENV=development')
+  })
 })

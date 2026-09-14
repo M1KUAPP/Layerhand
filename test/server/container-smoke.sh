@@ -19,7 +19,8 @@ if [[ -z "$user" || "$user" == "0" || "$user" == "root" ]]; then
   exit 1
 fi
 
-docker run --detach --name "$container" --publish "127.0.0.1:${port}:3000" "$image" >/dev/null
+docker run --detach --env NODE_ENV=development --name "$container" \
+  --publish "127.0.0.1:${port}:3000" "$image" >/dev/null
 
 for _ in {1..30}; do
   if response="$(curl --fail --silent "http://127.0.0.1:${port}/health")"; then

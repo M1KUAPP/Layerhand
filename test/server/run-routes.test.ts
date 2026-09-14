@@ -142,6 +142,7 @@ describe('run HTTP contract', () => {
     expect(target.released()).toBe(1)
     expect(target.runRequests[0]?.apiKey).toBeUndefined()
     expect(target.meter.calls).toContain('reconcile:211050')
+    expect(target.artifacts.calls).toContain('delete:upload/random.png')
   })
 
   test('rejects oversized metadata and malformed images before admission', async () => {

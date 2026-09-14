@@ -8,7 +8,7 @@ import { RunRegistry, RunRegistryError } from './run-registry'
 import { VisitorIdentityError, establishVisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
 
-const MAX_REQUEST_BODY_BYTES = MAX_IMAGE_BYTES + 64 * 1024
+export const MAX_RUN_REQUEST_BODY_BYTES = MAX_IMAGE_BYTES + 64 * 1024
 const MAX_INSTRUCTION_LENGTH = 500
 
 export interface RunRouteDependencies {
@@ -84,7 +84,7 @@ export class RunRoutes {
 
   async #start(request: Request): Promise<Response> {
     const declaredLength = Number(request.headers.get('content-length') ?? 0)
-    if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BODY_BYTES) {
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_RUN_REQUEST_BODY_BYTES) {
       return apiError('request_too_large', 'The upload exceeds the 20 MB request limit.', 413)
     }
 
@@ -133,6 +133,7 @@ export class RunRoutes {
         contentType: upload.format === 'jpeg' ? 'image/jpeg' : 'image/png'
       })
       artifactKey = artifact.key
+      const runArtifactKey = artifact.key
       const runRequest: RunRequest = {
         image: upload.bytes,
         filename: upload.filename,
@@ -148,7 +149,11 @@ export class RunRoutes {
         instruction,
         managedRun,
         onTerminal: async ({ snapshot }) => {
-          await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
+          try {
+            await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
+          } finally {
+            await this.#dependencies.artifactStore.delete(runArtifactKey)
+          }
         }
       })
       return json({ runId }, 201, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
