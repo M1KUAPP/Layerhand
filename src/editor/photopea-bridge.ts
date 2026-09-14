@@ -72,6 +72,7 @@ export class PhotopeaBridge {
       } catch {
         return this.#throwTimeout()
       }
+      if (Date.now() >= deadline) return this.#throwTimeout()
       if (message.type === 'text' && message.value === value) return messages
       messages.push(message)
     }
