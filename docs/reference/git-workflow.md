@@ -84,8 +84,8 @@ notification, and the reviewer see first.
 | `.github/ISSUE_TEMPLATE/`                 | Blank issues, and titles with no type      |
 
 `.github/rulesets/main.json` is not in that table because GitHub never reads
-that path. It is a payload, inert until someone runs
-`scripts/setup-repo-rules.sh`, and merging a change to it applies nothing.
+that path. It is a payload, inert until an admin uploads it, and merging a
+change to it applies nothing.
 Once applied it is the only thing that blocks a merge without review,
 resolution, or green checks — and nothing detects drift between the committed
 file and the live ruleset.
@@ -103,20 +103,30 @@ bun install
 ```
 
 The server-side rules are applied once, by someone with admin on the
-repository:
+repository. Check that rulesets are available before changing anything:
 
 ```sh
-scripts/setup-repo-rules.sh
+gh api 'repos/{owner}/{repo}/rulesets'
 ```
 
-That script checks it can read rulesets before it changes anything, then
-turns on branch deletion after merge, makes rebase the only merge method,
-and uploads `.github/rulesets/main.json`.
+Rulesets on a private repository need GitHub Pro, Team, or Enterprise; below
+that it returns 403, and the hooks and workflows are the whole of the
+enforcement — none of which can stop a merge. Stop there, rather than leave
+the repository half-configured. Otherwise, make rebase the only merge
+method, delete branches after merge, and upload the ruleset:
 
-Two things it cannot do. Rulesets on a private repository need GitHub Pro,
-Team, or Enterprise; below that the API returns 403 and the script stops
-without touching the repository, leaving the hooks and workflows as the whole
-of the enforcement — none of which can stop a merge. And a solo maintainer
-cannot approve their own pull request, so they should set
-`required_approving_review_count` to `0` in the committed file rather than on
-the server, which the next run would overwrite.
+```sh
+gh api -X PATCH 'repos/{owner}/{repo}' --silent \
+  -F delete_branch_on_merge=true \
+  -F allow_auto_merge=true \
+  -F allow_rebase_merge=true \
+  -F allow_squash_merge=false \
+  -F allow_merge_commit=false
+gh api -X POST 'repos/{owner}/{repo}/rulesets' --input .github/rulesets/main.json
+```
+
+A solo maintainer cannot approve their own pull request, so they should set
+`required_approving_review_count` to `0` in the committed file before
+uploading it, rather than on the server. To change a ruleset already
+uploaded, `PUT` the file to `repos/{owner}/{repo}/rulesets/<id>`; a second
+`POST` creates a duplicate.
