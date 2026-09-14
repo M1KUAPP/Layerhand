@@ -281,9 +281,10 @@ is a real line item and a flattened JPEG is unusable because the client
 always asks for one more change.
 
 **Unit economics.** Order of magnitude, at $10/M input, $1/M cached, $50/M
-output: a 40–60 step screenshot-driven session accumulating roughly 400K
-input tokens mostly cached and ~30K output lands near $3–6 per image, with
-the 2x overage applying past 272K input. Assume the top of that range.
+output: forty screenshot-driven steps resend their history for roughly
+1.3M input tokens cumulatively, mostly cached, plus ~30K output, and land
+near $3–6 per image. Assume the top of that range. The 2x tier past 272K
+input is charged per request, and a single request tops out near 63K.
 Consequences: hard-cap the step count, cache aggressively, and never offer
 it unmetered. Three free images, then credits — or bring-your-own-key.
 
