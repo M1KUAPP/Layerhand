@@ -123,14 +123,14 @@ and documentation rather than against comparison articles.
 "Every AI photo tool hands you pixels" is **not true**, and the version
 of this document that said so was wrong.
 
-| Product                                                   | Returns a layered file?                                                                                |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Adobe Photoshop API v2                                    | **Yes.** Named, adjustment, smart-object, group layers, and pixel masks                                |
-| BRIA AI                                                   | **Yes.** A documented `image_to_psd` endpoint, self-serve from $0.018                                  |
-| Retouch4me                                                | **Partly.** Real Photoshop layers and masks, user's choice of separate or merged. No adjustment layers |
-| Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg | No. PNG, JPEG, WebP                                                                                    |
-| Evoto, Imagen AI, Aftershoot                              | No. Flat, or Lightroom XMP sidecars                                                                    |
-| BoxBrownie and the real-estate tools                      | No. Flat                                                                                               |
+| Product                                                   | Returns a layered file?                                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Adobe Photoshop API v2                                    | **Yes.** Named, adjustment, smart-object, group layers, and pixel masks                                       |
+| BRIA AI                                                   | **Yes, per its docs.** An `image_to_psd` endpoint, self-serve from $0.018; what layers it emits is unverified |
+| Retouch4me                                                | **Partly.** Real Photoshop layers and masks, user's choice of separate or merged. No adjustment layers        |
+| Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg | No. PNG, JPEG, WebP                                                                                           |
+| Evoto, Imagen AI, Aftershoot                              | No. Flat, or Lightroom XMP sidecars                                                                           |
+| BoxBrownie and the real-estate tools                      | No. Flat                                                                                                      |
 
 What is left of the gap is narrower and more specific than the pitch:
 **no shipping product delivers an automated, single-pass PSD that is
