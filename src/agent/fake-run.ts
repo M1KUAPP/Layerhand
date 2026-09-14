@@ -1,0 +1,123 @@
+// A scripted run on a timer, so the web application can build every screen,
+// failure, cap, and cancel included, before the agent loop exists.
+import type { LayerInfo } from '../editor/contract'
+import type { RunEvent, RunHandle, RunRequest, RunResult } from './contract'
+
+export interface FakeRunOptions {
+  /** Milliseconds between steps. */
+  intervalMs?: number
+  /** Report a recoverable error once this many steps have run, then carry on. */
+  recoverableErrorAtStep?: number
+  /**
+   * End the run with an unrecoverable error once this many steps have run.
+   * Never reached if the script or the step cap ends the run first.
+   */
+  failAtStep?: number
+}
+
+// Placeholders that render and open without a server: a grey PNG in the
+// viewport's proportions, and a one-pixel PSD with no layers. The layers a
+// result lists are the script's story, not this file's contents.
+const PNG_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAIAAAAy3EnLAAAAEklEQVR42mO4SSJgGNUwNDUAAH0VlvD5ZoSnAAAAAElFTkSuQmCC'
+const PSD_URL = 'data:image/vnd.adobe.photoshop;base64,OEJQUwABAAAAAAAAAAMAAAABAAAAAQAIAAMAAAAAAAAAAAAAAAAAANnZ2Q=='
+
+const ORIGINAL: LayerInfo = { name: 'Original photograph', kind: 'raster', visible: true }
+
+const SCRIPT: { narration: string; layer?: LayerInfo }[] = [
+  { narration: 'Selecting the product' },
+  { narration: 'Masking out the background', layer: { name: 'Background removed', kind: 'mask', visible: true } },
+  {
+    narration: 'Warming the highlights with a curves layer',
+    layer: { name: 'Warm highlights', kind: 'adjustment', visible: true }
+  },
+  { narration: 'Painting out the reflections', layer: { name: 'Reflections removed', kind: 'raster', visible: true } },
+  { narration: 'Checking the result against the instruction' }
+]
+
+// The TRD's cost model: each step resends one more 1440x900 frame of about
+// 1,570 tokens, read from cache at $1 per million, and writes about 750 tokens
+// of output at $50 per million.
+const FRAME_TOKENS = 1_570
+const OUTPUT_TOKENS_PER_STEP = 750
+const USD_PER_CACHED_INPUT_TOKEN = 1 / 1_000_000
+const USD_PER_OUTPUT_TOKEN = 50 / 1_000_000
+
+export function fakeRun(
+  request: RunRequest,
+  { intervalMs = 1000, recoverableErrorAtStep, failAtStep }: FakeRunOptions = {}
+): RunHandle {
+  const events: RunEvent[] = []
+  const waiting: (() => void)[] = []
+  const layers = [ORIGINAL]
+  let steps = 0
+  let tokensIn = 0
+  let tokensOut = 0
+  let ended = false
+  let timer: ReturnType<typeof setTimeout> | undefined
+
+  const emit = (event: RunEvent) => {
+    events.push(event)
+    for (const wake of waiting.splice(0)) wake()
+  }
+
+  const end = (event: RunEvent) => {
+    ended = true
+    clearTimeout(timer)
+    emit(event)
+  }
+
+  const result = (complete: boolean): RunResult => ({
+    psdUrl: PSD_URL,
+    previewUrl: PNG_URL,
+    layers: [...layers],
+    complete
+  })
+
+  const tick = () => {
+    const next = SCRIPT[steps]
+    if (steps === failAtStep) return end({ type: 'error', reason: 'The editor stopped responding', recoverable: false })
+    if (!next) return end({ type: 'done', result: result(true) })
+    if (steps >= request.stepCap) return end({ type: 'done', result: result(false) })
+
+    steps += 1
+    if (next.layer) layers.push(next.layer)
+    tokensIn += FRAME_TOKENS * steps
+    tokensOut += OUTPUT_TOKENS_PER_STEP
+    const usd = tokensIn * USD_PER_CACHED_INPUT_TOKEN + tokensOut * USD_PER_OUTPUT_TOKEN
+    emit({ type: 'step', n: steps, cap: request.stepCap, narration: next.narration })
+    emit({ type: 'frame', pngUrl: PNG_URL })
+    emit({ type: 'cost', usd, tokensIn, tokensOut })
+    if (steps === recoverableErrorAtStep) {
+      emit({ type: 'error', reason: 'The live view missed a frame', recoverable: true })
+    }
+    timer = setTimeout(tick, intervalMs)
+  }
+
+  emit({ type: 'started', runId: crypto.randomUUID(), viewport: { width: 1440, height: 900 } })
+  timer = setTimeout(tick, intervalMs)
+
+  return {
+    // Each iteration replays the run from its first event, then follows it live.
+    events: {
+      async *[Symbol.asyncIterator]() {
+        for (let i = 0; ; i++) {
+          while (i === events.length) {
+            if (ended) return
+            await new Promise<void>((wake) => waiting.push(wake))
+          }
+          yield events[i]!
+        }
+      }
+    },
+
+    async steer(text) {
+      if (ended) throw new Error('The run has already ended, so the correction was not applied')
+      emit({ type: 'correction_ack', text })
+    },
+
+    async cancel() {
+      if (!ended) end({ type: 'done', result: result(false) })
+    }
+  }
+}
