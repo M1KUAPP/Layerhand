@@ -49,6 +49,8 @@ Temporary Items
 .superpowers/
 docs/superpowers/
 node_modules/
+/dist/
+/web/
 
 # Environment
 .env*
