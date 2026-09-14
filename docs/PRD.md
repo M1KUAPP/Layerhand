@@ -214,4 +214,4 @@ on this document. In addition, and specific to requirements:
 
 - [Product brief](PRODUCT.md) — why this, and when we stop.
 - [Technical requirements](TRD.md) — how it is built.
-- [Git workflow](/docs/reference/git-workflow.md) — how changes land.
+- [Git workflow](/docs/references/git-workflow.md) — how changes land.

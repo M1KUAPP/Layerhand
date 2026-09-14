@@ -14,7 +14,7 @@ Contents:
 ## Git
 
 The full workflow is in the
-[git workflow reference](/docs/reference/git-workflow.md). The parts you must
+[git workflow reference](/docs/references/git-workflow.md). The parts you must
 not get wrong:
 
 - **Never commit or push to `main`.** Branch first:
@@ -34,7 +34,7 @@ not get wrong:
 
 ## Writing
 
-Markdown follows the [Markdown style guide](/docs/reference/markdown-style.md).
+Markdown follows the [Markdown style guide](/docs/references/markdown-style.md).
 In practice that means an 80-character line limit, with links, tables,
 headings, and code blocks exempt; ATX headings in sentence case; one H1 per
 document, matching the filename; a short introduction under it; and link
@@ -53,19 +53,19 @@ titles that say where the link goes.
 
 ## Layout
 
-| Path              | Holds                                                         |
-| ----------------- | ------------------------------------------------------------- |
-| `AGENTS.md`       | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md`     |
-| `docs/agents/`    | Instructions addressed to agents                              |
-| `docs/reference/` | Style guides and workflows, for humans and agents             |
-| `.agents/skills/` | Skills, installed and local; `.claude/skills/` symlinks to it |
-| `.github/`        | Workflows, templates, and the branch ruleset                  |
+| Path               | Holds                                                         |
+| ------------------ | ------------------------------------------------------------- |
+| `AGENTS.md`        | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md`     |
+| `docs/agents/`     | Instructions addressed to agents                              |
+| `docs/references/` | Style guides and workflows, for humans and agents             |
+| `.agents/skills/`  | Skills, installed and local; `.claude/skills/` symlinks to it |
+| `.github/`         | Workflows, templates, and the branch ruleset                  |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.
 
 ## See also
 
-- [Git workflow](/docs/reference/git-workflow.md)
-- [Markdown style guide](/docs/reference/markdown-style.md)
+- [Git workflow](/docs/references/git-workflow.md)
+- [Markdown style guide](/docs/references/markdown-style.md)
 - [Installed skill collections](skills.md)
