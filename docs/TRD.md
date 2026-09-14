@@ -398,15 +398,18 @@ operation still needs read-back verification.
     sentinel but evaluated to `undefined`, `null`, and `0` instead of
     their expected values. Adapter scripts stay within ES3 syntax.
 1.  **Not reproduced: a crashed script poisons the interpreter.** A
-    missing-method exception was followed by a layer rename and
-    sentinel in 13 ms without reloading. A sentinel timeout still
-    triggers a frame reload, but interpreter poisoning is not the
-    reason to assume.
+    missing-method call was followed by a 250 ms pause. A separate
+    layer rename and sentinel then completed in 13 ms without
+    reloading. The probe did not capture exception details or measure
+    end-to-end recovery. A sentinel timeout still triggers a frame
+    reload, but interpreter poisoning was not reproduced by this call.
 1.  **Not reproduced for the tested selection and colour calls.** A
     polygon selection reported the expected `0,0,64,64` bounds, and a
-    fill using `rgb.hexValue = "FF0000"` exported the pixel
-    `[255, 0, 0, 255]`. Read-back verification remains mandatory for
-    every scripted mutation.
+    fill using `rgb.hexValue = "FF0000"` produced first decoded bytes
+    `[255, 0, 0, 255]`. The first three establish red; the probe did
+    not retain the channel count needed to call all four one RGBA
+    pixel. Read-back verification remains mandatory for every scripted
+    mutation.
 1.  **Inconclusive: text layers need a two-second delay.** A text layer
     created immediately after the ready message returned its expected
     contents and layer count, as did one created after two seconds. The
