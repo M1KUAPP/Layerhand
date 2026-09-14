@@ -43,7 +43,8 @@
   "41": "Headings",
   "42": "Skills (installed skill collections)",
   "43": "application.ts",
-  "46": "editor-session.contract.ts",
+  "44": "SqlMeterStore",
+  "45": "photopea-document-loader.integration.test.ts",
   "49": "Andrej Karpathy Skills",
   "51": "dom.test.ts",
   "52": "assets.d.ts"
