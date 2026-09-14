@@ -63,6 +63,24 @@ test.each([24, 28, 29, 32])('rejects an incomplete PNG at %i bytes before bridge
 })
 
 test.each([
+  [24, 3],
+  [25, 1],
+  [26, 1],
+  [27, 1],
+  [28, 2]
+])('rejects invalid PNG header byte %i before bridge boot', async (offset, value) => {
+  const bridge = new RecordingBridge()
+  const bytes = png(1, 1)
+  bytes[offset] = value
+  new DataView(bytes.buffer).setUint32(29, Bun.hash.crc32(bytes.subarray(12, 29)))
+
+  await expect(new PhotopeaDocumentLoader(bridge).open(bytes, 'bad.png')).rejects.toMatchObject({
+    code: 'malformed_image'
+  })
+  expect(bridge.calls).toEqual([])
+})
+
+test.each([
   ['mismatched dimensions', ['layerhand:document:2:1:image.png']],
   ['mismatched height', ['layerhand:document:1:2:image.png']],
   ['missing metadata', ['done']],

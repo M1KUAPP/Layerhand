@@ -80,6 +80,51 @@ describe('validateImageUpload PNG', () => {
     expectUploadError(() => validateImageUpload(png(0, 1), 'broken.png'), 'malformed_image', 'Image data is malformed.')
   })
 
+  test.each([
+    [0, 1],
+    [0, 2],
+    [0, 4],
+    [0, 8],
+    [0, 16],
+    [2, 8],
+    [2, 16],
+    [3, 1],
+    [3, 2],
+    [3, 4],
+    [3, 8],
+    [4, 8],
+    [4, 16],
+    [6, 8],
+    [6, 16]
+  ])('accepts PNG color type %i with bit depth %i', (colorType, bitDepth) => {
+    for (const interlace of [0, 1]) {
+      const bytes = png(1, 1)
+      bytes.set([bitDepth, colorType, 0, 0, interlace], 24)
+      new DataView(bytes.buffer).setUint32(29, Bun.hash.crc32(bytes.subarray(12, 29)))
+
+      expect(validateImageUpload(bytes, 'image.png')).toMatchObject({ format: 'png', width: 1, height: 1 })
+    }
+  })
+
+  test.each([
+    ['invalid bit depth', [3, 6, 0, 0, 0]],
+    ['reserved color type', [8, 1, 0, 0, 0]],
+    ['reserved alpha color type', [8, 5, 0, 0, 0]],
+    ['low-depth truecolor', [4, 2, 0, 0, 0]],
+    ['16-bit palette', [16, 3, 0, 0, 0]],
+    ['low-depth greyscale alpha', [4, 4, 0, 0, 0]],
+    ['low-depth truecolor alpha', [4, 6, 0, 0, 0]],
+    ['unknown compression', [8, 6, 1, 0, 0]],
+    ['unknown filtering', [8, 6, 0, 1, 0]],
+    ['unknown interlacing', [8, 6, 0, 0, 2]]
+  ])('rejects PNG %s with a matching IHDR CRC', (_label, fields) => {
+    const bytes = png(1, 1)
+    bytes.set(fields, 24)
+    new DataView(bytes.buffer).setUint32(29, Bun.hash.crc32(bytes.subarray(12, 29)))
+
+    expectUploadError(() => validateImageUpload(bytes, 'bad.png'), 'malformed_image', 'Image data is malformed.')
+  })
+
   test.each([24, 25, 26, 27, 28])('rejects truncated IHDR data at %i bytes', (length) => {
     expectUploadError(
       () => validateImageUpload(png(1, 1, 33).subarray(0, length), 'truncated.png'),

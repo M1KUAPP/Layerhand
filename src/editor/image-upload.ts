@@ -27,6 +27,13 @@ export interface ValidatedImageUpload {
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] as const
 const PNG_IHDR_LENGTH = 13
 const PNG_IHDR_TYPE = [0x49, 0x48, 0x44, 0x52] as const
+const PNG_BIT_DEPTHS: Readonly<Record<number, readonly number[]>> = {
+  0: [1, 2, 4, 8, 16],
+  2: [8, 16],
+  3: [1, 2, 4, 8],
+  4: [8, 16],
+  6: [8, 16]
+}
 const JPEG_SOI = [0xff, 0xd8] as const
 const JPEG_SOF_MARKERS = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf])
 
@@ -72,7 +79,14 @@ function readPngDimensions(bytes: Uint8Array): { width: number; height: number }
   const width = view.getUint32(16)
   const height = view.getUint32(20)
 
-  if (width === 0 || height === 0) {
+  if (
+    width === 0 ||
+    height === 0 ||
+    !PNG_BIT_DEPTHS[bytes[25]!]?.includes(bytes[24]!) ||
+    bytes[26] !== 0 ||
+    bytes[27] !== 0 ||
+    (bytes[28] !== 0 && bytes[28] !== 1)
+  ) {
     throw uploadError('malformed_image')
   }
 
