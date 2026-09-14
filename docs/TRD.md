@@ -647,21 +647,28 @@ ceiling, because it is their money. It does not bypass the step or
 spend caps, because a runaway loop on someone else's key is still our
 bug.
 
-### Size the ceiling against concurrency, not against one user
+### Size the daily ceiling against concurrency, not one user
 
-Two numbers in these documents look related and are not. "A single
-user must not cost us fifty dollars" is a **per-user** limit, and three
-free runs at about $3.50 each already enforces it. The global daily
-ceiling (FR-37) is a separate **budget**, and it has to be sized against
-concurrency.
+NFR-4 and FR-37 are both P0, and read carelessly they collide. Twenty
+concurrent runs at about $3.50 each spend roughly **$70 in one
+ten-minute wave**. A daily ceiling set anywhere near the "no single
+user costs us fifty dollars" figure in the product brief is tripped by
+the first wave — NFR-4 then holds on paper and nobody can use it,
+though nothing is out of capacity.
 
-Twenty simultaneous runs (NFR-4) spend around $70 in the ten minutes
-they take. A daily ceiling set anywhere near the per-user figure is
-tripped by one burst, at which point NFR-4 is unmeetable in practice
-even though nothing is out of capacity. So the ceiling is a budget the
-team sets deliberately before launch day, several multiples above one
-full burst, and the arithmetic for it is written down next to the
-number.
+The two limits protect against different things:
+
+- **A single user** is bounded by the free allowance — three runs,
+  about $10.50 — not by the daily ceiling.
+- **The daily ceiling** bounds total exposure. It is a budget the team
+  sets deliberately, knowing roughly how many waves it buys, with that
+  arithmetic written down next to the number.
+- **NFR-4** describes capacity, not a commitment to spend. When the
+  ceiling is hit, free runs stop and user-supplied keys keep working,
+  so the concurrency is still there for anyone paying their own way.
+
+Setting the number is a day-4 decision with an owner, informed by the
+measured cost per run from spike A2 rather than by this estimate.
 
 ### The concurrency ceiling is a rate limit, not a server
 
@@ -674,29 +681,6 @@ organisation's tier and headroom is
 [spike A4](#decisions-deferred-to-spikes) and it is a day-0 item,
 because the remedy — raising the tier — has a lead time we do not
 control.
-
-### Concurrency and the daily ceiling pull against each other
-
-NFR-4 and FR-37 are both P0, and taken together they collide. Twenty
-concurrent runs at $3.50 each spend about **$70 in one ten-minute
-wave**. A daily ceiling set anywhere near the "no single user costs us
-fifty dollars" instinct in the product brief is tripped by the first
-wave, at which point NFR-4 holds on paper and nobody can use it.
-
-The two limits protect against different things, and sizing one from
-the other's intuition is the mistake:
-
-- **An honest visitor** is bounded by the free allowance — three runs,
-  about $10.50. The allowance is defeatable by design, so **a
-  determined one** is bounded by the daily ceiling instead.
-- **The daily ceiling** bounds total exposure, and it is a budget the
-  team sets deliberately, knowing roughly how many waves it buys.
-- **NFR-4** describes capacity, not a commitment to spend. When the
-  ceiling is hit, free runs stop and user-supplied keys keep working,
-  so the concurrency is still there for anyone paying their own way.
-
-Setting the number is a day-4 decision with an owner, informed by the
-measured cost per run from spike A2 rather than by this estimate.
 
 ## Security
 
