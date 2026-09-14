@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import type { ComputerAction, EditorSession, LayerInfo, Viewport } from './session'
 
 export interface EditorRecording {
@@ -121,4 +122,25 @@ export class FakeEditorSession implements EditorSession {
       throw new Error('Editor session is not open')
     }
   }
+}
+
+export async function createRecordedFakeEditorSession(): Promise<FakeEditorSession> {
+  const [frame, psd] = await Promise.all([
+    readFile(new URL('./fixtures/photopea-frame.png', import.meta.url)),
+    readFile(new URL('./fixtures/layered-output.psd', import.meta.url))
+  ])
+
+  return new FakeEditorSession({
+    id: 'recorded-photopea-session',
+    viewport: { width: 1440, height: 900 },
+    recording: {
+      frames: [frame],
+      psd,
+      preview: frame,
+      layers: [
+        { name: 'Original photograph', kind: 'raster', visible: true },
+        { name: 'Retouched copy', kind: 'raster', visible: true }
+      ]
+    }
+  })
 }
