@@ -1,16 +1,16 @@
 # Graph Report - feat-launch-application  (2026-09-15)
 
 ## Corpus Check
-- 98 files · ~148,917 words
+- 100 files · ~149,621 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 817 nodes · 1466 edges · 53 communities (42 shown, 11 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 16 edges (avg confidence: 0.74)
+- 830 nodes · 1530 edges · 48 communities (40 shown, 8 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ac24d4c7`
+- Built from commit: `10ea4aab`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -58,21 +58,16 @@
 - Headings
 - Skills (installed skill collections)
 - application.ts
-- run-routes.test.ts
-- PhotopeaDocumentBridge
 - editor-session.contract.ts
-- playwright-photopea-transport.ts
-- PhotopeaBridge
 - Andrej Karpathy Skills
-- meter-store.test.ts
 - dom.test.ts
 - assets.d.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `PhotopeaMessage` - 22 edges
-2. `Project conventions (rules.md)` - 21 edges
-3. `FakeEditorSession` - 20 edges
-4. `RunRegistry` - 19 edges
+2. `RunRegistry` - 21 edges
+3. `Project conventions (rules.md)` - 21 edges
+4. `FakeEditorSession` - 20 edges
 5. `Launch application design` - 18 edges
 6. `PhotopeaTransport` - 17 edges
 7. `TRD: Layerhand` - 17 edges
@@ -95,7 +90,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (53 total, 11 thin omitted)
+## Communities (48 total, 8 thin omitted)
 
 ### Community 0 - "Astra Ideation & Selection"
 Cohesion: 0.12
@@ -106,8 +101,8 @@ Cohesion: 0.06
 Nodes (33): @commitlint/cli, @commitlint/config-conventional, Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky, husky, lint-staged, dependencies, playwright-core, devDependencies (+25 more)
 
 ### Community 2 - "Run Contracts, Live View & Steering"
-Cohesion: 0.24
-Nodes (6): PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), createLiveBoundaryImages(), padJpegWithAppSegments()
+Cohesion: 0.21
+Nodes (7): createRecordedFakeEditorSession(), PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), createLiveBoundaryImages(), padJpegWithAppSegments()
 
 ### Community 3 - "Editor, Browser & Scope Limits"
 Cohesion: 0.05
@@ -126,8 +121,8 @@ Cohesion: 0.17
 Nodes (12): AGENTS.md (agent instruction entry point), CLAUDE.md (symlink to AGENTS.md), Graphify, RTK, AGENTS.md as the single agent entry point, .agents/skills/ skills directory, Skills (installed skill collections), graphify-labs/graphify skill collection (+4 more)
 
 ### Community 7 - "Launch Criteria & Go/No-Go"
-Cohesion: 0.05
-Nodes (34): RunEvent, RunHandle, RunRequest, RunResult, collect(), endOf(), EventOf, ofType() (+26 more)
+Cohesion: 0.06
+Nodes (32): RunEvent, RunHandle, RunRequest, RunResult, collect(), endOf(), EventOf, ofType() (+24 more)
 
 ### Community 8 - "Competition & Commercial Gate"
 Cohesion: 0.11
@@ -142,28 +137,28 @@ Cohesion: 0.11
 Nodes (17): DOM, ESNext, src/**/*.ts, test/**/*.ts, compilerOptions, lib, module, moduleDetection (+9 more)
 
 ### Community 11 - "fake-editor-session.ts"
-Cohesion: 0.18
-Nodes (6): AdmissionDenied, assertMicroUsd(), DAILY_LIMIT, FREE_LIMIT, MeterStore, SqlMeterStore
+Cohesion: 0.11
+Nodes (14): AdmissionDenied, AdmissionRequest, AdmissionResult, assertMicroUsd(), DAILY_LIMIT, FREE_LIMIT, MeterReservation, MeterStore (+6 more)
 
 ### Community 12 - "Product: Layerhand"
-Cohesion: 0.08
-Nodes (12): ArtifactKind, ArtifactPutRequest, ArtifactStore, createArtifactKey(), EXTENSIONS, MemoryArtifactStore, StoredArtifact, S3ArtifactStore (+4 more)
+Cohesion: 0.11
+Nodes (10): ArtifactKind, ArtifactPutRequest, createArtifactKey(), EXTENSIONS, StoredArtifact, S3ArtifactStore, S3ArtifactStoreConfig, S3Bucket (+2 more)
 
 ### Community 13 - "FakeEditorSession"
-Cohesion: 0.19
-Nodes (5): PhotopeaConfiguration, PhotopeaMessage, ControlledTransport, LateSentinelTransport, MemoryTransport
+Cohesion: 0.06
+Nodes (9): PhotopeaBridge, PhotopeaDocumentBridge, PhotopeaMessage, PhotopeaTransport, ControlledTransport, LateSentinelTransport, MemoryTransport, ImageTransport (+1 more)
 
 ### Community 14 - "PhotopeaDocumentBridge"
 Cohesion: 0.11
 Nodes (15): BrowserbaseClient, BrowserbaseError, BrowserbaseLiveView, BrowserbaseSession, Fetch, requiredString(), BrowserbaseProbeClient, BrowserbaseProbeEvidence (+7 more)
 
 ### Community 15 - "PhotopeaMessage"
-Cohesion: 0.19
-Nodes (12): ConfigurationError, Environment, EnvironmentName, parseBudget(), parseTrustedProxyHops(), readConfig(), REQUIRED_NAMES, requiredEnvironment() (+4 more)
+Cohesion: 0.10
+Nodes (18): APPLICATION_CSP, ApplicationDependencies, BASE_SECURITY_HEADERS, json(), PHOTOPEA_HOST_CSP, secured(), ConfigurationError, Environment (+10 more)
 
 ### Community 16 - "playwright-photopea-transport.ts"
-Cohesion: 0.18
-Nodes (18): accepted(), boolean(), decodeRunEvent(), decodeRunSnapshot(), EventSourceFactory, Fetch, integer(), layer() (+10 more)
+Cohesion: 0.15
+Nodes (19): accepted(), boolean(), decodeRunEvent(), decodeRunSnapshot(), EventSourceFactory, EventSourceLike, Fetch, integer() (+11 more)
 
 ### Community 17 - "Layerhand"
 Cohesion: 0.25
@@ -174,8 +169,12 @@ Cohesion: 0.17
 Nodes (12): Business model, Non-goals, Open questions, Product: Layerhand, Risks and the kill switch, See also, Success criteria, The problem (+4 more)
 
 ### Community 22 - "playwright-photopea-transport.ts"
-Cohesion: 0.18
-Nodes (4): decodePhotopeaWireMessage(), isByteArray(), PlaywrightPhotopeaTransport, PageFakeState
+Cohesion: 0.12
+Nodes (12): PhotopeaConfiguration, PhotopeaEnvironment, PhotopeaEnvironmentParameters, decodePhotopeaWireMessage(), DEFAULT_VIEWPORT, isByteArray(), LayerhandWindow, PhotopeaWireMessage (+4 more)
+
+### Community 23 - "FakeEditorSession"
+Cohesion: 0.23
+Nodes (4): cloneAction(), copyBytes(), FakeEditorSession, ComputerAction
 
 ### Community 24 - "PhotopeaDocumentBridge"
 Cohesion: 0.16
@@ -186,8 +185,8 @@ Cohesion: 0.27
 Nodes (17): Project conventions (rules.md), Git workflow reference, Atomic commits, Branch naming (<type>/<short-description>), Breaking change marker (! and BREAKING CHANGE footer), Conventional commit types (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test), Conventional Commits, gh pr create --fill-first (+9 more)
 
 ### Community 26 - "session.types.test.ts"
-Cohesion: 0.16
-Nodes (11): cloneAction(), EditorRecording, SessionState, Button, ComputerAction, LayerInfo, Pt, documentOperations (+3 more)
+Cohesion: 0.19
+Nodes (9): EditorRecording, SessionState, Button, LayerInfo, Pt, documentOperations, frameA, frameB (+1 more)
 
 ### Community 28 - "waitlist-export.ts"
 Cohesion: 0.24
@@ -234,49 +233,37 @@ Cohesion: 0.33
 Nodes (6): Add spacing to headings, ATX-style headings, Capitalization of titles and headers, Headings, Use a single H1 heading, Use unique, complete names for headings
 
 ### Community 43 - "application.ts"
-Cohesion: 0.15
-Nodes (8): Application, APPLICATION_CSP, ApplicationDependencies, BASE_SECURITY_HEADERS, json(), PHOTOPEA_HOST_CSP, secured(), application
-
-### Community 44 - "run-routes.test.ts"
-Cohesion: 0.29
-Nodes (7): fakeRun(), createApplication(), AdmissionRequest, AdmissionResult, MeterReservation, fixture(), RecordingMeter
+Cohesion: 0.11
+Nodes (14): fakeRun(), Application, createApplication(), ArtifactStore, RunRegistryOptions, createLaunchRuntime(), developmentNumber(), Environment (+6 more)
 
 ### Community 46 - "editor-session.contract.ts"
-Cohesion: 0.28
-Nodes (5): createRecordedFakeEditorSession(), defineEditorSessionContract(), EditorSessionFactory, pngSignature, image()
-
-### Community 47 - "playwright-photopea-transport.ts"
-Cohesion: 0.28
-Nodes (7): PhotopeaEnvironment, PhotopeaEnvironmentParameters, DEFAULT_VIEWPORT, LayerhandWindow, PhotopeaWireMessage, PlaywrightPhotopeaTransportOptions, Viewport
+Cohesion: 0.38
+Nodes (4): defineEditorSessionContract(), EditorSessionFactory, pngSignature, image()
 
 ### Community 49 - "Andrej Karpathy Skills"
 Cohesion: 0.33
 Nodes (5): 1. Think Before Coding, 2. Simplicity First, 3. Surgical Changes, 4. Goal-Driven Execution, Andrej Karpathy Skills
-
-### Community 50 - "meter-store.test.ts"
-Cohesion: 0.40
-Nodes (4): usdToMicroUsd(), databases, NOW, store()
 
 ### Community 51 - "dom.test.ts"
 Cohesion: 0.50
 Nodes (3): appFile, cssFile, htmlFile
 
 ## Knowledge Gaps
-- **259 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `browserbase:probe` (+254 more)
+- **258 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `browserbase:probe` (+253 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `validateImageUpload()` connect `Run Cost, Limits & Metering` to `Agent Behavioral Guidelines`, `Run Contracts, Live View & Steering`?**
-  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
 - **Why does `ImageUploadError` connect `Run Cost, Limits & Metering` to `Agent Behavioral Guidelines`, `Run Contracts, Live View & Steering`?**
-  _High betweenness centrality (0.044) - this node is a cross-community bridge._
-- **Why does `bun` connect `waitlist-export.ts` to `compilerOptions`, `fake-editor-session.ts`, `Product: Layerhand`, `meter-store.test.ts`, `PhotopeaDocumentBridge`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+- **Why does `bun` connect `waitlist-export.ts` to `PhotopeaDocumentBridge`, `compilerOptions`, `fake-editor-session.ts`, `Product: Layerhand`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **What connects `$schema`, `singleQuote`, `semi` to the rest of the system?**
-  _259 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _258 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Astra Ideation & Selection` be split into smaller, more focused modules?**
   _Cohesion score 0.125 - nodes in this community are weakly interconnected._
 - **Should `Formatting, Hooks & Package Tooling` be split into smaller, more focused modules?**
