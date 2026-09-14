@@ -14,7 +14,7 @@ Contents:
 ## Git
 
 The full workflow is in the
-[git workflow reference](../reference/git-workflow.md). The parts you must
+[git workflow reference](/docs/reference/git-workflow.md). The parts you must
 not get wrong:
 
 - **Never commit or push to `main`.** Branch first:
@@ -34,7 +34,7 @@ not get wrong:
 
 ## Writing
 
-Markdown follows the [Markdown style guide](../reference/markdown-style.md).
+Markdown follows the [Markdown style guide](/docs/reference/markdown-style.md).
 In practice that means an 80-character line limit, with links, tables,
 headings, and code blocks exempt; ATX headings in sentence case; one H1 per
 document, matching the filename; a short introduction under it; and link
@@ -66,6 +66,6 @@ symlinks to it.
 
 ## See also
 
-- [Git workflow](../reference/git-workflow.md)
-- [Markdown style guide](../reference/markdown-style.md)
+- [Git workflow](/docs/reference/git-workflow.md)
+- [Markdown style guide](/docs/reference/markdown-style.md)
 - [Installed skill collections](skills.md)
