@@ -16,11 +16,15 @@ are symlinks to it.
   before reading or searching raw files.
 - @docs/agents/rtk.md — shell output comes back condensed; re-run a command
   with `rtk proxy` only when its result is unusable.
+- @docs/agents/rules.md — the project conventions for git, writing,
+  tooling, and layout. They override an agent's own defaults.
 - @docs/agents/skills.md — the installed skill collections, and when to
   reach for each.
 
 ## References
 
+- @docs/references/git-workflow.md — how every change gets from a branch
+  to `main`, how commits and titles are named, and what enforces each step.
 - @docs/references/markdown-style.md — the style every Markdown document
   here follows: 80-character lines, sentence-case ATX headings, and
   informative links.
