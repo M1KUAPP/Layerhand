@@ -142,8 +142,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 1,
-      "community_name": "Formatting, Hooks & Package Tooling",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "lint"
     },
     {
@@ -164,8 +164,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_prepare",
-      "community": 1,
-      "community_name": "Formatting, Hooks & Package Tooling",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "prepare"
     },
     {
@@ -769,8 +769,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "fake-editor-session.ts"
     },
     {
@@ -780,8 +780,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_editorrecording",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "editorrecording"
     },
     {
@@ -791,8 +791,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_sessionstate",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "sessionstate"
     },
     {
@@ -1583,8 +1583,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_photopea_transport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "photopea-transport.ts"
     },
     {
@@ -1594,8 +1594,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironmentparameters",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "photopeaenvironmentparameters"
     },
     {
@@ -1605,8 +1605,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaenvironment",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "photopeaenvironment"
     },
     {
@@ -1616,8 +1616,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1704,8 +1704,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "playwright-photopea-transport.ts"
     },
     {
@@ -1715,8 +1715,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_default_viewport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "default_viewport"
     },
     {
@@ -1726,8 +1726,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_photopeawiremessage",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "photopeawiremessage"
     },
     {
@@ -1737,8 +1737,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_layerhandwindow",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "layerhandwindow"
     },
     {
@@ -1759,8 +1759,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransportoptions",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "playwrightphotopeatransportoptions"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "session.ts"
     },
     {
@@ -1957,8 +1957,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_editor_session_pt",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "pt"
     },
     {
@@ -1979,8 +1979,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_editor_session_button",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 26,
+      "community_name": "session.types.test.ts",
       "norm_label": "button"
     },
     {
@@ -1990,8 +1990,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_editor_session_viewport",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "viewport"
     },
     {
@@ -2001,8 +2001,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_session_layerinfo",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 25,
+      "community_name": "session.types.test.ts",
       "norm_label": "layerinfo"
     },
     {
@@ -2754,14 +2754,80 @@
       "norm_label": "application"
     },
     {
+      "label": "managed-run.ts",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_managed_run",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "managed-run.ts"
+    },
+    {
+      "label": "RunStopReason",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_server_managed_run_runstopreason",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runstopreason"
+    },
+    {
+      "label": "ManagedRunMetrics",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_server_managed_run_managedrunmetrics",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "managedrunmetrics"
+    },
+    {
+      "label": "ManagedRun",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_server_managed_run_managedrun",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "managedrun"
+    },
+    {
+      "label": ".metrics()",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_server_managed_run_managedrun_metrics",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".metrics()"
+    },
+    {
+      "label": ".releaseSecrets()",
+      "file_type": "code",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_server_managed_run_managedrun_releasesecrets",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".releasesecrets()"
+    },
+    {
       "label": "meter-store.ts",
       "file_type": "code",
       "source_file": "src/server/meter-store.ts",
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_meter_store",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "meter-store.ts"
     },
     {
@@ -2771,8 +2837,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_server_meter_store_admissionrequest",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "admissionrequest"
     },
     {
@@ -2782,8 +2848,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_server_meter_store_meterreservation",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "meterreservation"
     },
     {
@@ -2793,8 +2859,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_server_meter_store_admissionresult",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "admissionresult"
     },
     {
@@ -2804,8 +2870,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_server_meter_store_meterstore",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "meterstore"
     },
     {
@@ -2815,8 +2881,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_server_meter_store_meterstore_admit",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".admit()"
     },
     {
@@ -2826,8 +2892,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_server_meter_store_meterstore_reconcile",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".reconcile()"
     },
     {
@@ -2837,8 +2903,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_server_meter_store_meterstore_release",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".release()"
     },
     {
@@ -2848,8 +2914,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_server_meter_store_admissiondenied",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "admissiondenied"
     },
     {
@@ -2859,8 +2925,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_server_meter_store_admissiondenied_constructor",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -2870,8 +2936,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_server_meter_store_free_limit",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "free_limit"
     },
     {
@@ -2881,8 +2947,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_server_meter_store_daily_limit",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "daily_limit"
     },
     {
@@ -2892,8 +2958,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_server_meter_store_assertmicrousd",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "assertmicrousd()"
     },
     {
@@ -2903,8 +2969,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_server_meter_store_usdtomicrousd",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "usdtomicrousd()"
     },
     {
@@ -2914,8 +2980,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "sqlmeterstore"
     },
     {
@@ -2925,8 +2991,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_constructor",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -2936,8 +3002,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_admit",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".admit()"
     },
     {
@@ -2947,8 +3013,8 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_reconcile",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".reconcile()"
     },
     {
@@ -2958,8 +3024,8 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_release",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".release()"
     },
     {
@@ -2969,8 +3035,8 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_claim",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".#claim()"
     },
     {
@@ -2980,8 +3046,8 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "src_server_meter_store_sqlmeterstore_intransaction",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": ".#intransaction()"
     },
     {
@@ -3005,6 +3071,325 @@
       "community": 28,
       "community_name": "waitlist-export.ts",
       "norm_label": "applymigrations()"
+    },
+    {
+      "label": "run-registry.ts",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_run_registry",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "run-registry.ts"
+    },
+    {
+      "label": "RunStatus",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runstatus",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runstatus"
+    },
+    {
+      "label": "RunEventEnvelope",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runeventenvelope",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runeventenvelope"
+    },
+    {
+      "label": "RunSnapshot",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runsnapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runsnapshot"
+    },
+    {
+      "label": "TerminalRun",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "src_server_run_registry_terminalrun",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "terminalrun"
+    },
+    {
+      "label": "RegisterRun",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "src_server_run_registry_registerrun",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "registerrun"
+    },
+    {
+      "label": "RunRegistryOptions",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistryoptions",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runregistryoptions"
+    },
+    {
+      "label": "Subscriber",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "src_server_run_registry_subscriber",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "subscriber"
+    },
+    {
+      "label": "StoredRun",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "src_server_run_registry_storedrun",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "storedrun"
+    },
+    {
+      "label": "RunRegistryError",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistryerror",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runregistryerror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistryerror_constructor",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "initialSnapshot()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L81",
+      "_origin": "ast",
+      "id": "src_server_run_registry_initialsnapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "initialsnapshot()"
+    },
+    {
+      "label": "copyResult()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "src_server_run_registry_copyresult",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "copyresult()"
+    },
+    {
+      "label": "copySnapshot()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L101",
+      "_origin": "ast",
+      "id": "src_server_run_registry_copysnapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "copysnapshot()"
+    },
+    {
+      "label": "RunRegistry",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "runregistry"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L116",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_constructor",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".register()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L126",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_register",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".register()"
+    },
+    {
+      "label": ".getSnapshot()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L154",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_getsnapshot",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".getsnapshot()"
+    },
+    {
+      "label": ".waitForTerminal()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L160",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_waitforterminal",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".waitforterminal()"
+    },
+    {
+      "label": ".events()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L164",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_events",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".events()"
+    },
+    {
+      "label": ".steer()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L186",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_steer",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".steer()"
+    },
+    {
+      "label": ".cancel()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L191",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_cancel",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".cancel()"
+    },
+    {
+      "label": ".#pump()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L202",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_pump",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#pump()"
+    },
+    {
+      "label": ".#append()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L233",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_append",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#append()"
+    },
+    {
+      "label": ".#reduce()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L244",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_reduce",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#reduce()"
+    },
+    {
+      "label": ".#finalize()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L279",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_finalize",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#finalize()"
+    },
+    {
+      "label": ".#required()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L316",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_required",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#required()"
+    },
+    {
+      "label": ".#requiredRunning()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L323",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_requiredrunning",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#requiredrunning()"
+    },
+    {
+      "label": ".#purgeExpired()",
+      "file_type": "code",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L331",
+      "_origin": "ast",
+      "id": "src_server_run_registry_runregistry_purgeexpired",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": ".#purgeexpired()"
     },
     {
       "label": "s3-artifact-store.ts",
@@ -3706,8 +4091,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_boot",
-      "community": 22,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -3937,8 +4322,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 29,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -3948,8 +4333,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 29,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "openimage()"
     },
     {
@@ -4355,8 +4740,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 29,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -4366,8 +4751,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 29,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -4377,8 +4762,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 29,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createliveboundaryimages()"
     },
     {
@@ -4598,8 +4983,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_server_meter_store_test",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "meter-store.test.ts"
     },
     {
@@ -4609,8 +4994,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_server_meter_store_test_databases",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "databases"
     },
     {
@@ -4620,8 +5005,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_server_meter_store_test_now",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "now"
     },
     {
@@ -4631,8 +5016,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "test_server_meter_store_test_store",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "store()"
     },
     {
@@ -4642,8 +5027,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "test_server_meter_store_test_accepted",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 28,
+      "community_name": "waitlist-export.ts",
       "norm_label": "accepted()"
     },
     {
@@ -4689,6 +5074,72 @@
       "community": 28,
       "community_name": "waitlist-export.ts",
       "norm_label": "expectconstraint()"
+    },
+    {
+      "label": "run-registry.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "run-registry.test.ts"
+    },
+    {
+      "label": "RESULT",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test_result",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "result"
+    },
+    {
+      "label": "scriptedRun()",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test_scriptedrun",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "scriptedrun()"
+    },
+    {
+      "label": "collect()",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test_collect",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "collect()"
+    },
+    {
+      "label": "[Symbol.asyncIterator]()",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test_symbol_asynciterator",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "[symbol.asynciterator]()"
+    },
+    {
+      "label": "releaseSecrets()",
+      "file_type": "code",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L151",
+      "_origin": "ast",
+      "id": "test_server_run_registry_test_releasesecrets",
+      "community": 7,
+      "community_name": "Launch Criteria & Go/No-Go",
+      "norm_label": "releasesecrets()"
     },
     {
       "label": "scaffold.test.ts",
@@ -7048,8 +7499,8 @@
       "label": "bun (package manager and script runner)",
       "author": null,
       "captured_at": null,
-      "community": 1,
-      "community_name": "Formatting, Hooks & Package Tooling",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "bun (package manager and script runner)",
@@ -7093,8 +7544,8 @@
       "label": "Local hook setup (bun install, then uv tool install graphifyy)",
       "author": null,
       "captured_at": null,
-      "community": 1,
-      "community_name": "Formatting, Hooks & Package Tooling",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "local hook setup (bun install, then uv tool install graphifyy)",
@@ -8272,6 +8723,18 @@
       "target": "src_agent_contract_runhandle_steer"
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/agent/contract-tests.ts",
+      "source_location": "L73",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_agent_contract_tests_testruncontract",
+      "target": "src_server_run_registry_runregistry_events"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -8388,6 +8851,42 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run",
+      "target": "src_agent_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_agent_contract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_agent_contract",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -8432,6 +8931,66 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_agent_fake_run_test",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runeventenvelope",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L233",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_append",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L244",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_reduce",
+      "target": "src_agent_contract_runevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
       "target": "src_agent_contract_runevent",
       "confidence_score": 1.0
     },
@@ -8456,6 +9015,42 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_agent_fake_run",
+      "target": "src_agent_contract_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_agent_contract_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runsnapshot",
+      "target": "src_agent_contract_runresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
       "target": "src_agent_contract_runresult",
       "confidence_score": 1.0
     },
@@ -8490,6 +9085,42 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_agent_fake_run",
+      "target": "src_agent_contract_runhandle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run",
+      "target": "src_agent_contract_runhandle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run_managedrun",
+      "target": "src_agent_contract_runhandle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
       "target": "src_agent_contract_runhandle",
       "confidence_score": 1.0
     },
@@ -8605,6 +9236,30 @@
       "_origin": "ast",
       "source": "src_agent_fake_run",
       "target": "src_editor_contract_layerinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_agent_fake_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_agent_fake_run_fakerun",
       "confidence_score": 1.0
     },
     {
@@ -13601,6 +14256,157 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run",
+      "target": "src_server_managed_run_managedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run",
+      "target": "src_server_managed_run_managedrunmetrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run",
+      "target": "src_server_managed_run_runstopreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_managed_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_server_managed_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_managed_run_managedrunmetrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_terminalrun",
+      "target": "src_server_managed_run_managedrunmetrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run_managedrun",
+      "target": "src_server_managed_run_managedrun_metrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/managed-run.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_managed_run_managedrun",
+      "target": "src_server_managed_run_managedrun_releasesecrets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_managed_run_managedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_registerrun",
+      "target": "src_server_managed_run_managedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_storedrun",
+      "target": "src_server_managed_run_managedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_server_managed_run_managedrun",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -14165,6 +14971,578 @@
       "_origin": "ast",
       "source": "test_server_waitlist_store_test_store",
       "target": "src_server_migrations_applymigrations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_copyresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L101",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_copysnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_initialsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_registerrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runeventenvelope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L110",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runregistry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runregistryerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runregistryoptions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_runstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_storedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_subscriber",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry",
+      "target": "src_server_run_registry_terminalrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_server_run_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L311",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_finalize",
+      "target": "src_server_run_registry_storedrun"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistryerror",
+      "target": "src_server_run_registry_runregistryerror_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_server_run_registry_runregistryerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_register",
+      "target": "src_server_run_registry_initialsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_copysnapshot",
+      "target": "src_server_run_registry_copyresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L264",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_reduce",
+      "target": "src_server_run_registry_copyresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L302",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_finalize",
+      "target": "src_server_run_registry_copysnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L157",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_getsnapshot",
+      "target": "src_server_run_registry_copysnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L151",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_register",
+      "target": "src_server_run_registry_copysnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L233",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_append",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L191",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_cancel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L164",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_events",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L279",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_finalize",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L154",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_getsnapshot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L202",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_pump",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L331",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_purgeexpired",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L244",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_reduce",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_register",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L316",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_required",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L323",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_requiredrunning",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_steer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L160",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry",
+      "target": "src_server_run_registry_runregistry_waitforterminal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "src_server_run_registry_runregistry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L150",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_register",
+      "target": "src_server_run_registry_runregistry_pump",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_register",
+      "target": "src_server_run_registry_runregistry_purgeexpired",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L155",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_getsnapshot",
+      "target": "src_server_run_registry_runregistry_purgeexpired",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L161",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_waitforterminal",
+      "target": "src_server_run_registry_runregistry_required",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L165",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_events",
+      "target": "src_server_run_registry_runregistry_required",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L187",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_steer",
+      "target": "src_server_run_registry_runregistry_requiredrunning",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_cancel",
+      "target": "src_server_run_registry_runregistry_requiredrunning",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L207",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_pump",
+      "target": "src_server_run_registry_runregistry_append",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L209",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_pump",
+      "target": "src_server_run_registry_runregistry_finalize",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L236",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_append",
+      "target": "src_server_run_registry_runregistry_reduce",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L317",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_required",
+      "target": "src_server_run_registry_runregistry_purgeexpired",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/run-registry.ts",
+      "source_location": "L324",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_run_registry_runregistry_requiredrunning",
+      "target": "src_server_run_registry_runregistry_required",
       "confidence_score": 1.0
     },
     {
@@ -16119,6 +17497,61 @@
       "_origin": "ast",
       "source": "test_server_migrations_test",
       "target": "test_server_migrations_test_memorydatabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "test_server_run_registry_test_collect",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L178",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "test_server_run_registry_test_releasesecrets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "test_server_run_registry_test_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "test_server_run_registry_test_scriptedrun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/run-registry.test.ts",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_run_registry_test",
+      "target": "test_server_run_registry_test_symbol_asynciterator",
       "confidence_score": 1.0
     },
     {
@@ -19009,5 +20442,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e569781929b5a5bfa56bd47dd8b0610b7eb7843c"
+  "built_at_commit": "0058ee253eb977a33d50afb32101e1e1ea36f05f"
 }

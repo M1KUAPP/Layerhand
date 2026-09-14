@@ -468,5 +468,20 @@
     "mtime": 1789413979.1136267,
     "ast_hash": "ae559bc1baef2e83f90c8bb83750db70",
     "semantic_hash": ""
+  },
+  "src/server/managed-run.ts": {
+    "mtime": 1789414153.8751202,
+    "ast_hash": "8e0a47a275df73eec9ace2bb38ffb3b0",
+    "semantic_hash": ""
+  },
+  "src/server/run-registry.ts": {
+    "mtime": 1789414154.010789,
+    "ast_hash": "8d7478a33529d76c73ca0908001a00c4",
+    "semantic_hash": ""
+  },
+  "test/server/run-registry.test.ts": {
+    "mtime": 1789414061.419855,
+    "ast_hash": "82fb5c0947f08325fe6e84436adda3dc",
+    "semantic_hash": ""
   }
 }
