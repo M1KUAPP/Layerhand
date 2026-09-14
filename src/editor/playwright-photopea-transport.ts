@@ -14,6 +14,17 @@ interface LayerhandWindow extends Window {
   readonly __layerhandSendToPhotopea: (message: PhotopeaWireMessage) => void
 }
 
+function isByteArray(value: unknown): value is number[] {
+  if (!Array.isArray(value)) return false
+
+  for (let index = 0; index < value.length; index += 1) {
+    const byte = value[index]
+    if (typeof byte !== 'number' || !Number.isInteger(byte) || byte < 0 || byte > 255) return false
+  }
+
+  return true
+}
+
 export interface PlaywrightPhotopeaTransportOptions {
   readonly hostUrl: string
   readonly viewport?: Viewport
@@ -27,11 +38,7 @@ export function decodePhotopeaWireMessage(value: unknown): PhotopeaMessage {
     return { type: 'text', value: message.value }
   }
 
-  if (
-    message.type === 'bytes' &&
-    Array.isArray(message.value) &&
-    message.value.every((byte): byte is number => Number.isInteger(byte) && byte >= 0 && byte <= 255)
-  ) {
+  if (message.type === 'bytes' && isByteArray(message.value)) {
     return { type: 'bytes', value: Uint8Array.from(message.value) }
   }
 
