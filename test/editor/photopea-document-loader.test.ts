@@ -91,6 +91,69 @@ test('escapes filenames without modern JavaScript syntax', async () => {
   expect(bridge.scripts[0]).toContain('a\\"b.png')
 })
 
+test('verifies the full source filename when Photopea truncates document labels at the first period', async () => {
+  let label = 'file'
+  let assignedLabel = 'file'
+  const document = {
+    width: 1,
+    height: 1,
+    source: 'file',
+    get name() {
+      return label
+    },
+    set name(value: string) {
+      assignedLabel = value
+      label = value.split('.')[0]!
+    }
+  }
+  const bridge = new RecordingBridge()
+  bridge.runScript = async (script) => {
+    const messages: PhotopeaMessage[] = []
+    runInNewContext(script, {
+      app: {
+        activeDocument: document,
+        UI: { fitTheArea() {} },
+        echoToOE: (value: string) => messages.push({ type: 'text', value })
+      }
+    })
+    return messages
+  }
+
+  const result = await new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'retouch.v2.png')
+
+  expect(result.filename).toBe('retouch.v2.png')
+  expect(document.source).toBe('retouch.v2.png')
+  expect(assignedLabel).toBe('retouch.v2')
+  expect(document.name).toBe('retouch')
+  expect(bridge.calls).toEqual(['boot', 'openFile', 'press:v'])
+})
+
+test('rejects a source identifier mismatch even when the document label matches', async () => {
+  const document = { name: '', width: 1, height: 1 }
+  Object.defineProperty(document, 'source', {
+    get: () => 'other.png',
+    set: () => {}
+  })
+  const bridge = new RecordingBridge()
+  bridge.runScript = async (script) => {
+    const messages: PhotopeaMessage[] = []
+    runInNewContext(script, {
+      app: {
+        activeDocument: document,
+        UI: { fitTheArea() {} },
+        echoToOE: (value: string) => messages.push({ type: 'text', value })
+      }
+    })
+    return messages
+  }
+
+  await expect(new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'image')).rejects.toMatchObject({
+    code: 'photopea_document_mismatch'
+  })
+  expect(document.name).toBe('image')
+  expect(bridge.calls).toEqual(['boot', 'openFile'])
+})
+
 test('the generated script preserves special filenames and fits before emitting rounded metadata', async () => {
   const filename = 'a\\"\'\r\n\u2028\u2029:雪.png'
   const bridge = new RecordingBridge()
@@ -98,7 +161,7 @@ test('the generated script preserves special filenames and fits before emitting 
     { type: 'text', value: 'layerhand:document:1:1:a%5C%22%27%0D%0A%E2%80%A8%E2%80%A9%3A%E9%9B%AA.png' }
   ]
   await new PhotopeaDocumentLoader(bridge).open(png(1, 1), filename)
-  const document = { name: '', width: 1.2, height: 0.8 }
+  const document = { name: '', source: '', width: 1.2, height: 0.8 }
   const effects: string[] = []
 
   runInNewContext(bridge.scripts[0]!, {
@@ -109,7 +172,8 @@ test('the generated script preserves special filenames and fits before emitting 
     }
   })
 
-  expect(document.name).toBe(filename)
+  expect(document.name).toBe('a\\"\'\r\n\u2028\u2029:雪')
+  expect(document.source).toBe(filename)
   expect(effects).toEqual(['fit', "layerhand:document:1:1:a%5C%22'%0D%0A%E2%80%A8%E2%80%A9%3A%E9%9B%AA.png"])
   expect(bridge.scripts[0]).not.toMatch(/[\u2028\u2029]/)
 })

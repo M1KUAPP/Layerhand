@@ -25,6 +25,12 @@ export class PhotopeaDocumentError extends Error {
   }
 }
 
+function scriptString(value: string): string {
+  return JSON.stringify(value)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+}
+
 function verifyDocument(messages: readonly PhotopeaMessage[], upload: ValidatedImageUpload): void {
   const metadata = messages.filter(
     (message) => message.type === 'text' && message.value.startsWith('layerhand:document:')
@@ -70,12 +76,12 @@ export class PhotopeaDocumentLoader {
     await this.#bridge.boot()
     const startedAt = this.#now()
     await this.#bridge.openFile(upload.bytes)
-    const escapedFilename = JSON.stringify(upload.filename)
-      .replace(/\u2028/g, '\\u2028')
-      .replace(/\u2029/g, '\\u2029')
+    const escapedFilename = scriptString(upload.filename)
+    const escapedDisplayName = scriptString(upload.filename.replace(/\.(?:png|jpe?g)$/i, ''))
+    // Photopea truncates display names at the first period; source preserves identity.
     const messages = await this.#bridge.runScript(
-      `var d = app.activeDocument;\nd.name = ${escapedFilename};\napp.UI.fitTheArea();\n` +
-        'app.echoToOE("layerhand:document:" + Math.round(d.width) + ":" + Math.round(d.height) + ":" + encodeURIComponent(d.name));'
+      `var d = app.activeDocument;\nd.name = ${escapedDisplayName};\nd.source = ${escapedFilename};\napp.UI.fitTheArea();\n` +
+        'app.echoToOE("layerhand:document:" + Math.round(d.width) + ":" + Math.round(d.height) + ":" + encodeURIComponent(d.source));'
     )
     verifyDocument(messages, upload)
     await this.#bridge.press('v')
