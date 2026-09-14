@@ -1,0 +1,10 @@
+.env*
+.git
+.github
+.superpowers
+.worktrees
+dist
+graphify-out
+node_modules
+test
+web
