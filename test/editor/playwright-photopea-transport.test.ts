@@ -11,6 +11,8 @@ interface PageFakeState {
   readonly messages: unknown[]
   readonly received: unknown[]
   readonly messageLifecycle: string[]
+  viewport: { width: number; height: number }
+  readonly navigationViewports: Array<{ width: number; height: number }>
   reloads: number
 }
 
@@ -23,6 +25,8 @@ function createPageFake() {
     messages: [],
     received: [],
     messageLifecycle: [],
+    viewport: { width: 800, height: 600 },
+    navigationViewports: [],
     reloads: 0
   }
   const host = {
@@ -37,6 +41,10 @@ function createPageFake() {
   return Object.assign(state, {
     goto: async (url: string) => {
       state.navigations.push(url)
+      state.navigationViewports.push({ ...state.viewport })
+    },
+    setViewportSize: async (viewport: { width: number; height: number }) => {
+      state.viewport = { ...viewport }
     },
     evaluate: async (callback: Function, argument?: unknown): Promise<unknown> => {
       state.evaluations.push(argument)
@@ -136,6 +144,26 @@ describe('Playwright Photopea transport', () => {
     const navigated = new URL(page.navigations[0]!)
     expect(navigated.origin).toBe('http://127.0.0.1:4123')
     expect(JSON.parse(decodeURIComponent(navigated.hash.slice(1)))).toEqual(PHOTOPEA_CONFIGURATION)
+  })
+
+  test.each([
+    [undefined, { width: 1440, height: 900 }],
+    [
+      { width: 1280, height: 720 },
+      { width: 1280, height: 720 }
+    ]
+  ])('applies viewport %j before the host loads', async (viewport, expected) => {
+    const page = createPageFake()
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor',
+      ...(viewport ? { viewport } : {})
+    })
+
+    await transport.boot(PHOTOPEA_CONFIGURATION)
+
+    expect(page.viewport).toEqual(expected)
+    expect(page.navigationViewports).toEqual([expected])
+    expect(transport.viewport).toEqual(expected)
   })
 
   test('rejects opaque and non-HTTP host URLs', () => {
