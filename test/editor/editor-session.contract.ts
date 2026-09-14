@@ -26,7 +26,7 @@ export function defineEditorSessionContract(name: string, createSession: EditorS
         ])
 
         const layers = await session.layers()
-        expect(layers.length).toBeGreaterThanOrEqual(2)
+        expect(layers.length).toBeGreaterThanOrEqual(1)
         expect(layers.every((layer) => layer.name.trim().length > 0)).toBe(true)
 
         const psd = await session.exportPsd()

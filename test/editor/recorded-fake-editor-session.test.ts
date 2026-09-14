@@ -1,6 +1,20 @@
 import { expect, test } from 'bun:test'
 import { createRecordedFakeEditorSession } from '../../src/editor'
 
+test('exposes the two named raster layers in the recorded PSD', async () => {
+  const session = await createRecordedFakeEditorSession()
+  try {
+    await session.open(Uint8Array.of(1), 'portrait.jpg')
+
+    expect(await session.layers()).toEqual([
+      { name: 'Original photograph', kind: 'raster', visible: true },
+      { name: 'Retouched copy', kind: 'raster', visible: true }
+    ])
+  } finally {
+    await session.close()
+  }
+})
+
 test('exports the document preview separately from the editor viewport', async () => {
   const session = await createRecordedFakeEditorSession()
   try {
