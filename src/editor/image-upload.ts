@@ -79,7 +79,7 @@ function readPngDimensions(bytes: Uint8Array): { width: number; height: number }
 }
 
 function isStandaloneJpegMarker(marker: number): boolean {
-  return marker === 0x01 || marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7)
+  return marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)
 }
 
 function readJpegDimensions(bytes: Uint8Array): { width: number; height: number } {
@@ -102,7 +102,7 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
     const marker = bytes[position]!
     position += 1
 
-    if (marker === 0xd9 || marker === 0xda) {
+    if (marker === 0x00 || marker === 0xd8 || marker === 0xd9 || marker === 0xda) {
       throw uploadError('malformed_image')
     }
 
