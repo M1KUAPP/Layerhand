@@ -686,8 +686,9 @@ wave, at which point NFR-4 holds on paper and nobody can use it.
 The two limits protect against different things, and sizing one from
 the other's intuition is the mistake:
 
-- **A single user** is bounded by the free allowance — three runs,
-  about $10.50 — not by the daily ceiling.
+- **An honest visitor** is bounded by the free allowance — three runs,
+  about $10.50. The allowance is defeatable by design, so **a
+  determined one** is bounded by the daily ceiling instead.
 - **The daily ceiling** bounds total exposure, and it is a budget the
   team sets deliberately, knowing roughly how many waves it buys.
 - **NFR-4** describes capacity, not a commitment to spend. When the
