@@ -8,4 +8,12 @@ export {
   type ImageUploadErrorCode,
   type ValidatedImageUpload
 } from './image-upload'
+export { createPhotopeaHostHtml } from './photopea-host'
+export {
+  PHOTOPEA_CONFIGURATION,
+  PHOTOPEA_ORIGIN,
+  type PhotopeaConfiguration,
+  type PhotopeaMessage,
+  type PhotopeaTransport
+} from './photopea-transport'
 export type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from './session'
