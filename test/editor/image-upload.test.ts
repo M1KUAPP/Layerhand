@@ -1,0 +1,118 @@
+import { describe, expect, test } from 'bun:test'
+import { ImageUploadError, MAX_IMAGE_BYTES, validateImageUpload } from '../../src/editor/image-upload'
+
+function png(width: number, height: number, size = 24): Uint8Array {
+  const bytes = new Uint8Array(Math.max(size, 24))
+  bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+  new DataView(bytes.buffer).setUint32(8, 13)
+  bytes.set([0x49, 0x48, 0x44, 0x52], 12)
+  new DataView(bytes.buffer).setUint32(16, width)
+  new DataView(bytes.buffer).setUint32(20, height)
+  return bytes
+}
+
+function jpeg(width: number, height: number): Uint8Array {
+  return Uint8Array.of(
+    0xff,
+    0xd8,
+    0xff,
+    0xe0,
+    0x00,
+    0x04,
+    0x00,
+    0x00,
+    0xff,
+    0xc0,
+    0x00,
+    0x0b,
+    0x08,
+    (height >>> 8) & 0xff,
+    height & 0xff,
+    (width >>> 8) & 0xff,
+    width & 0xff,
+    0x01,
+    0x01,
+    0x11,
+    0x00,
+    0xff,
+    0xd9
+  )
+}
+
+function expectUploadError(operation: () => unknown, code: ImageUploadError['code'], message: string): void {
+  try {
+    operation()
+    throw new Error('Expected validateImageUpload to throw')
+  } catch (error) {
+    expect(error).toBeInstanceOf(ImageUploadError)
+    expect((error as ImageUploadError).code).toBe(code)
+    expect((error as Error).message).toBe(message)
+  }
+}
+
+describe('validateImageUpload PNG', () => {
+  test('reads the format and dimensions and copies the bytes', () => {
+    const source = png(6000, 1)
+    const result = validateImageUpload(source, 'wide.png')
+    source[0] = 0
+
+    expect(result).toMatchObject({
+      filename: 'wide.png',
+      format: 'png',
+      width: 6000,
+      height: 1
+    })
+    expect(result.bytes[0]).toBe(0x89)
+  })
+
+  test('accepts exactly 20 MiB', () => {
+    expect(validateImageUpload(png(1, 1, MAX_IMAGE_BYTES), 'max.png').bytes).toHaveLength(MAX_IMAGE_BYTES)
+  })
+
+  test('rejects one byte over 20 MiB', () => {
+    expectUploadError(
+      () => validateImageUpload(png(1, 1, MAX_IMAGE_BYTES + 1), 'large.png'),
+      'image_too_large',
+      'Image exceeds the 20 MB limit.'
+    )
+  })
+
+  test('rejects a 6001-pixel long edge', () => {
+    expectUploadError(
+      () => validateImageUpload(png(6001, 1), 'wide.png'),
+      'image_dimensions_too_large',
+      'Image dimensions exceed the 6000 px limit.'
+    )
+  })
+
+  test('rejects a truncated or invalid IHDR', () => {
+    expectUploadError(() => validateImageUpload(png(0, 1), 'broken.png'), 'malformed_image', 'Image data is malformed.')
+  })
+})
+
+describe('validateImageUpload JPEG', () => {
+  test('walks marker segments and reads SOF dimensions', () => {
+    expect(validateImageUpload(jpeg(6000, 1), 'wide.jpg')).toMatchObject({
+      filename: 'wide.jpg',
+      format: 'jpeg',
+      width: 6000,
+      height: 1
+    })
+  })
+
+  test('rejects a recognized JPEG without a complete SOF marker', () => {
+    expectUploadError(
+      () => validateImageUpload(Uint8Array.of(0xff, 0xd8, 0xff, 0xd9), 'bad.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test('rejects unknown magic bytes', () => {
+    expectUploadError(
+      () => validateImageUpload(Uint8Array.of(0x47, 0x49, 0x46), 'image.gif'),
+      'unsupported_image_format',
+      'Only JPEG and PNG images are supported.'
+    )
+  })
+})
