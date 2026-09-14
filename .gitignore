@@ -48,7 +48,7 @@ Temporary Items
 .worktrees/
 .superpowers/
 node_modules/
-/dist/
+dist/
 /web/
 .playwright-cli/
 
