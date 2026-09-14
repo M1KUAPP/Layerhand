@@ -54,14 +54,7 @@ node_modules/
 
 # Graphify
 graphify-out/cache/
-graphify-out/cost.json
-graphify-out/.vocab.txt
-graphify-out/needs_update
-graphify-out/.rebuild.lock
-graphify-out/.gfy-*
 graphify-out/????-??-??/
+graphify-out/cost.json
 graphify-out/.graphify_*
-!graphify-out/.graphify_build.json
 !graphify-out/.graphify_labels.json
-!graphify-out/.graphify_learning.json
-!graphify-out/.graphify_semantic_marker
