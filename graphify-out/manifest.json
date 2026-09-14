@@ -333,5 +333,15 @@
     "mtime": 1789407624.8720121,
     "ast_hash": "8f6b654f116ef6691d1ab8c042341286",
     "semantic_hash": ""
+  },
+  "src/server/browserbase-client.ts": {
+    "mtime": 1789412603.332493,
+    "ast_hash": "def175d394968d5137a0eed67826145f",
+    "semantic_hash": ""
+  },
+  "test/server/browserbase-client.test.ts": {
+    "mtime": 1789412635.2756746,
+    "ast_hash": "9186b64bf5367058988ab74c795ec430",
+    "semantic_hash": ""
   }
 }

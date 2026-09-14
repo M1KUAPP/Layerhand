@@ -1,16 +1,16 @@
 # Graph Report - feat-launch-application  (2026-09-15)
 
 ## Corpus Check
-- 59 files · ~51,064 words
+- 61 files · ~51,716 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 479 nodes · 746 edges · 22 communities (16 shown, 6 thin omitted)
+- 496 nodes · 769 edges · 18 communities (16 shown, 2 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d6a0aba3`
+- Built from commit: `c2d1f25d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -30,10 +30,6 @@
 - Product: Layerhand
 - FakeEditorSession
 - PhotopeaDocumentBridge
-- editor-session.contract.ts
-- session.types.test.ts
-- EditorSession
-- ExpectedSession
 - .prettierrc.json
 - Saved query: are Layerhand's inferred relationships correct
 - Saved query: are Swap Test's inferred relationships correct
@@ -65,7 +61,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (22 total, 6 thin omitted)
+## Communities (18 total, 2 thin omitted)
 
 ### Community 0 - "Astra Ideation & Selection"
 Cohesion: 0.06
@@ -77,15 +73,15 @@ Nodes (23): @commitlint/cli, @commitlint/config-conventional, husky, lint-staged
 
 ### Community 2 - "Run Contracts, Live View & Steering"
 Cohesion: 0.05
-Nodes (25): PhotopeaBridge, PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), PhotopeaConfiguration, PhotopeaEnvironment, PhotopeaEnvironmentParameters (+17 more)
+Nodes (33): createRecordedFakeEditorSession(), PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), PhotopeaConfiguration, PhotopeaEnvironment, PhotopeaEnvironmentParameters (+25 more)
 
 ### Community 3 - "Editor, Browser & Scope Limits"
 Cohesion: 0.05
 Nodes (43): Advertising, An agent driving a browser is an attack surface, Contract 1: editor session, Contract 2: run orchestration, Contract 3: the HTTP surface, Cost control, Decisions deferred to spikes, Deployment (+35 more)
 
 ### Community 4 - "Run Cost, Limits & Metering"
-Cohesion: 0.09
-Nodes (30): detectFormat(), ERROR_MESSAGES, EXIF_SIGNATURE, ImageFormat, ImageUploadError, ImageUploadErrorCode, isStandaloneJpegMarker(), JPEG_SOF_MARKERS (+22 more)
+Cohesion: 0.06
+Nodes (32): detectFormat(), ERROR_MESSAGES, EXIF_SIGNATURE, ImageFormat, ImageUploadError, ImageUploadErrorCode, isStandaloneJpegMarker(), JPEG_SOF_MARKERS (+24 more)
 
 ### Community 5 - "Project Rules & Markdown Style"
 Cohesion: 0.05
@@ -112,44 +108,44 @@ Cohesion: 0.11
 Nodes (18): bun, DOM, ESNext, src/**/*.ts, test/**/*.ts, compilerOptions, lib, module (+10 more)
 
 ### Community 11 - "fake-editor-session.ts"
-Cohesion: 0.16
-Nodes (11): cloneAction(), EditorRecording, SessionState, Button, ComputerAction, LayerInfo, Pt, documentOperations (+3 more)
+Cohesion: 0.09
+Nodes (12): cloneAction(), copyBytes(), EditorRecording, FakeEditorSession, SessionState, ComputerAction, LayerInfo, documentOperations (+4 more)
 
 ### Community 12 - "Product: Layerhand"
 Cohesion: 0.12
 Nodes (17): Adobe is the serious threat, and it is already shipped, And the demand signal is missing, Business model, Competition, Non-goals, Open questions, Product: Layerhand, Risks and the kill switch (+9 more)
 
-### Community 15 - "editor-session.contract.ts"
-Cohesion: 0.28
-Nodes (5): createRecordedFakeEditorSession(), defineEditorSessionContract(), EditorSessionFactory, pngSignature, image()
+### Community 13 - "FakeEditorSession"
+Cohesion: 0.09
+Nodes (7): PhotopeaBridge, PhotopeaMessage, PhotopeaTransport, ControlledTransport, LateSentinelTransport, MemoryTransport, ImageTransport
 
-### Community 16 - "session.types.test.ts"
-Cohesion: 0.22
-Nodes (7): ActionVariantKeyChecks, Assert, Assertions, ExpectedAction, IsExact, KeysOfUnion, MethodIsExact
+### Community 14 - "PhotopeaDocumentBridge"
+Cohesion: 0.17
+Nodes (7): BrowserbaseClient, BrowserbaseError, BrowserbaseLiveView, BrowserbaseSession, Fetch, requiredString(), RecordedRequest
 
 ### Community 19 - ".prettierrc.json"
 Cohesion: 0.33
 Nodes (5): printWidth, $schema, semi, singleQuote, trailingComma
 
 ## Knowledge Gaps
-- **201 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `lint:fix` (+196 more)
+- **205 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `lint:fix` (+200 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Markdown style guide` connect `Project Rules & Markdown Style` to `Git Workflow & Conventions`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Why does `TRD: Layerhand` connect `Editor, Browser & Scope Limits` to `Astra Ideation & Selection`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Why does `PhotopeaMessage` connect `Run Contracts, Live View & Steering` to `Run Cost, Limits & Metering`, `PhotopeaDocumentBridge`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `PhotopeaMessage` connect `FakeEditorSession` to `Run Contracts, Live View & Steering`, `Run Cost, Limits & Metering`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `$schema`, `singleQuote`, `semi` to the rest of the system?**
-  _201 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _205 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Astra Ideation & Selection` be split into smaller, more focused modules?**
   _Cohesion score 0.062388591800356503 - nodes in this community are weakly interconnected._
 - **Should `Formatting, Hooks & Package Tooling` be split into smaller, more focused modules?**
   _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._
 - **Should `Run Contracts, Live View & Steering` be split into smaller, more focused modules?**
-  _Cohesion score 0.05261261261261261 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.050203527815468114 - nodes in this community are weakly interconnected._
