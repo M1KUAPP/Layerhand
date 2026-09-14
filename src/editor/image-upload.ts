@@ -20,6 +20,7 @@ export interface ValidatedImageUpload {
   readonly bytes: Uint8Array
   readonly filename: string
   readonly format: ImageFormat
+  // Expected displayed dimensions, including JPEG EXIF orientation.
   readonly width: number
   readonly height: number
 }
@@ -35,6 +36,7 @@ const PNG_BIT_DEPTHS: Readonly<Record<number, readonly number[]>> = {
   6: [8, 16]
 }
 const JPEG_SOI = [0xff, 0xd8] as const
+const EXIF_SIGNATURE = [0x45, 0x78, 0x69, 0x66, 0, 0] as const
 const JPEG_SOF_MARKERS = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf])
 
 const ERROR_MESSAGES: Record<ImageUploadErrorCode, string> = {
@@ -97,9 +99,53 @@ function isStandaloneJpegMarker(marker: number): boolean {
   return marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)
 }
 
+function readExifOrientation(payload: Uint8Array): number | undefined {
+  if (!matchesBytes(payload, 0, EXIF_SIGNATURE)) return undefined
+
+  const tiff = new DataView(
+    payload.buffer,
+    payload.byteOffset + EXIF_SIGNATURE.length,
+    payload.byteLength - EXIF_SIGNATURE.length
+  )
+  if (tiff.byteLength < 8) throw uploadError('malformed_image')
+
+  const byteOrder = tiff.getUint16(0)
+  const littleEndian = byteOrder === 0x4949
+  if ((byteOrder !== 0x4949 && byteOrder !== 0x4d4d) || tiff.getUint16(2, littleEndian) !== 42) {
+    throw uploadError('malformed_image')
+  }
+
+  const ifd = tiff.getUint32(4, littleEndian)
+  if (ifd < 8 || ifd + 2 > tiff.byteLength) throw uploadError('malformed_image')
+  const entries = tiff.getUint16(ifd, littleEndian)
+  // Bound the complete IFD0 table and its next-IFD field to this APP1 segment.
+  if (ifd + 2 + entries * 12 + 4 > tiff.byteLength) throw uploadError('malformed_image')
+
+  let orientation: number | undefined
+  for (let index = 0; index < entries; index += 1) {
+    const entry = ifd + 2 + index * 12
+    if (tiff.getUint16(entry, littleEndian) !== 0x0112) continue
+    if (
+      orientation !== undefined ||
+      tiff.getUint16(entry + 2, littleEndian) !== 3 ||
+      tiff.getUint32(entry + 4, littleEndian) !== 1
+    ) {
+      throw uploadError('malformed_image')
+    }
+
+    // A single SHORT is stored inline; do not follow unrelated EXIF offsets.
+    orientation = tiff.getUint16(entry + 8, littleEndian)
+    if (orientation < 1 || orientation > 8) throw uploadError('malformed_image')
+  }
+
+  return orientation
+}
+
 function readJpegDimensions(bytes: Uint8Array): { width: number; height: number } {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
   let position = JPEG_SOI.length
+  let dimensions: { width: number; height: number } | undefined
+  let orientation: number | undefined
 
   while (position < bytes.byteLength) {
     if (bytes[position] !== 0xff) {
@@ -117,7 +163,9 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
     const marker = bytes[position]!
     position += 1
 
-    if (marker === 0x00 || marker === 0xd8 || marker === 0xd9 || marker === 0xda) {
+    // APP1 metadata can occur after SOF, but never inspect entropy-coded data.
+    if (marker === 0xd9 || marker === 0xda) break
+    if (marker === 0x00 || marker === 0xd8) {
       throw uploadError('malformed_image')
     }
 
@@ -134,8 +182,16 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
       throw uploadError('malformed_image')
     }
 
+    if (marker === 0xe1) {
+      const value = readExifOrientation(bytes.subarray(position + 2, position + length))
+      if (value !== undefined) {
+        if (orientation !== undefined) throw uploadError('malformed_image')
+        orientation = value
+      }
+    }
+
     if (JPEG_SOF_MARKERS.has(marker)) {
-      if (length < 8) {
+      if (dimensions !== undefined || length < 8) {
         throw uploadError('malformed_image')
       }
 
@@ -180,13 +236,16 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
         componentIds.add(id)
       }
 
-      return { width, height }
+      dimensions = { width, height }
     }
 
     position += length
   }
 
-  throw uploadError('malformed_image')
+  if (!dimensions) throw uploadError('malformed_image')
+  return orientation !== undefined && orientation >= 5
+    ? { width: dimensions.height, height: dimensions.width }
+    : dimensions
 }
 
 export function validateImageUpload(bytes: Uint8Array, filename: string): ValidatedImageUpload {

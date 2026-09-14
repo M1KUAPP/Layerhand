@@ -112,6 +112,34 @@ describeLive('Photopea document loader in Google Chrome', () => {
     }
   }, 60_000)
 
+  test.each([
+    [1, 32, 16],
+    [2, 32, 16],
+    [3, 32, 16],
+    [4, 32, 16],
+    [5, 16, 32],
+    [6, 16, 32],
+    [7, 16, 32],
+    [8, 16, 32]
+  ])(
+    'opens EXIF orientation %i at displayed dimensions %ix%i',
+    async (orientation, width, height) => {
+      const bytes = await sharp({
+        create: { width: 32, height: 16, channels: 3, background: '#558899' }
+      })
+        .jpeg()
+        .withMetadata({ orientation })
+        .toBuffer()
+
+      expect(await openImage(bytes, `orientation-${orientation}.jpg`)).toMatchObject({
+        format: 'jpeg',
+        width,
+        height
+      })
+    },
+    60_000
+  )
+
   test('opens PNG, JPEG, and exact-20-MiB JPEG boundary images', async () => {
     const fixtures = await createLiveBoundaryImages()
     expect(fixtures.maxJpeg.byteLength).toBe(20 * 1024 * 1024)
