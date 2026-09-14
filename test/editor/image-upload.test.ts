@@ -108,6 +108,23 @@ describe('validateImageUpload JPEG', () => {
     )
   })
 
+  test('rejects byte stuffing before a start-of-frame marker', () => {
+    expectUploadError(
+      () =>
+        validateImageUpload(Uint8Array.of(0xff, 0xd8, 0xff, 0x00, 0x00, 0x02, ...jpeg(1, 1).slice(8)), 'stuffed.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
+  test('rejects a repeated start-of-image marker before a start-of-frame marker', () => {
+    expectUploadError(
+      () => validateImageUpload(Uint8Array.of(0xff, 0xd8, 0xff, 0xd8, ...jpeg(1, 1).slice(8)), 'repeated.jpg'),
+      'malformed_image',
+      'Image data is malformed.'
+    )
+  })
+
   test('rejects unknown magic bytes', () => {
     expectUploadError(
       () => validateImageUpload(Uint8Array.of(0x47, 0x49, 0x46), 'image.gif'),
