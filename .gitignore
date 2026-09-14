@@ -45,9 +45,13 @@ Temporary Items
 # Custom
 
 # Development
+.worktrees/
 .superpowers/
 docs/superpowers/
 node_modules/
+/dist/
+/web/
+.playwright-cli/
 
 # Environment
 .env*
