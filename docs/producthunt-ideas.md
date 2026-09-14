@@ -303,7 +303,7 @@ Written before any code, because the contest judges a launch.
 **First comment, opening line:**
 
 > Most AI photo tools hand you pixels you can't change — so I stopped
-> generating images and taught Astra to use Photoshop instead.
+> generating images and taught Astra to use a real image editor instead.
 
 **Thirty-second demo storyboard**, silent, no narrator:
 
