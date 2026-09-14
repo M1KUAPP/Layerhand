@@ -33,6 +33,9 @@ The September 14 Chrome proof and review refined the original steps below:
   reuses successful readiness, and permits fresh attempts after failure.
 - The loader verifies the complete filename through `Document.source`, then
   selects the Move tool. Load timing includes that final tool selection.
+- Before delivery, the loader snapshots the document count. It requires one
+  newly appended document and selects it before changing its name or source;
+  a failed second decode cannot be mistaken for the previously active photo.
 - `commandTimeoutMs` bounds each message wait, excluding navigation,
   delivery, and awaited reload cleanup.
 
@@ -1022,18 +1025,16 @@ export interface LoadedPhotopeaDocument {
 }
 ```
 
-Call `validateImageUpload()` before `bridge.boot()`. Start timing immediately
-before `bridge.openFile()`. Build an ES3 script that:
+Call `validateImageUpload()` before `bridge.boot()`. Before sending bytes,
+read `app.documents.length` through the bridge and validate one canonical,
+non-negative integer response. Start timing immediately before
+`bridge.openFile()`.
 
-```js
-var d = app.activeDocument
-d.name = 'escaped display stem'
-d.source = 'escaped full filename'
-app.UI.fitTheArea()
-app.echoToOE(
-  'layerhand:document:' + Math.round(d.width) + ':' + Math.round(d.height) + ':' + encodeURIComponent(d.source)
-)
-```
+Build an ES3 script that first requires `app.documents.length` to equal the
+saved count plus one. Only inside that guard, read the newly appended entry
+at the saved count, select it through `app.activeDocument`, set its display
+stem and full `source`, fit the viewport, and echo its dimensions and encoded
+source. Do not change any document when the count check fails.
 
 Escape backslash, quote, carriage return, newline, U+2028, and U+2029 in the
 filename before insertion. Parse exactly one `layerhand:document:` message

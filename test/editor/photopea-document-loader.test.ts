@@ -7,7 +7,10 @@ import { jpeg, png } from './support/image-headers'
 class RecordingBridge implements PhotopeaDocumentBridge {
   readonly calls: string[] = []
   readonly scripts: string[] = []
-  messages: readonly PhotopeaMessage[] = []
+  readonly documents: Array<{ name: string; source: string; width: number; height: number }> = []
+  messages?: readonly PhotopeaMessage[]
+
+  constructor(readonly document = { name: 'file', source: 'file', width: 1, height: 1 }) {}
 
   async boot(): Promise<void> {
     this.calls.push('boot')
@@ -15,12 +18,24 @@ class RecordingBridge implements PhotopeaDocumentBridge {
 
   async openFile(): Promise<void> {
     this.calls.push('openFile')
+    this.documents.push(this.document)
   }
 
   async runScript(script: string): Promise<readonly PhotopeaMessage[]> {
     this.calls.push('runScript')
     this.scripts.push(script)
-    return this.messages
+    const messages: PhotopeaMessage[] = []
+    runInNewContext(script, {
+      app: {
+        documents: this.documents,
+        activeDocument: this.document,
+        UI: { fitTheArea() {} },
+        echoToOE: (value: string) => messages.push({ type: 'text', value })
+      }
+    })
+    return messages.some((message) => message.type === 'text' && message.value.startsWith('layerhand:document:'))
+      ? (this.messages ?? messages)
+      : messages
   }
 
   async press(key: string): Promise<void> {
@@ -36,9 +51,9 @@ test('opens, verifies, fits, and selects the Move tool', async () => {
 
   const result = await loader.open(png(6000, 1), 'wide photo.png')
 
-  expect(bridge.calls).toEqual(['boot', 'openFile', 'runScript', 'press:v'])
-  expect(bridge.scripts[0]).toContain('app.UI.fitTheArea();')
-  expect(bridge.scripts[0]).toContain('wide photo.png')
+  expect(bridge.calls).toEqual(['boot', 'runScript', 'openFile', 'runScript', 'press:v'])
+  expect(bridge.scripts[1]).toContain('app.UI.fitTheArea();')
+  expect(bridge.scripts[1]).toContain('wide photo.png')
   expect(result).toEqual({ filename: 'wide photo.png', format: 'png', width: 6000, height: 1, loadMs: 37 })
 })
 
@@ -48,6 +63,69 @@ test('rejects invalid bytes before bridge boot', async () => {
 
   await expect(loader.open(Uint8Array.of(1), 'bad.gif')).rejects.toMatchObject({ code: 'unsupported_image_format' })
   expect(bridge.calls).toEqual([])
+})
+
+test('does not rename a previous document when upload decoding creates no new document', async () => {
+  const document = { name: 'original', source: 'original.png', width: 1, height: 1 }
+  const effects: string[] = []
+  const bridge: PhotopeaDocumentBridge = {
+    boot: async () => {},
+    openFile: async () => {},
+    runScript: async (script) => {
+      const messages: PhotopeaMessage[] = []
+      runInNewContext(script, {
+        app: {
+          documents: [document],
+          activeDocument: document,
+          UI: { fitTheArea: () => effects.push('fit') },
+          echoToOE: (value: string) => messages.push({ type: 'text', value })
+        }
+      })
+      return messages
+    },
+    press: async () => {
+      effects.push('press')
+    }
+  }
+
+  const result = await new PhotopeaDocumentLoader(bridge)
+    .open(png(1, 1), 'truncated.png')
+    .catch((error: unknown) => error)
+
+  expect(result).toMatchObject({ code: 'photopea_document_mismatch' })
+  expect(document).toEqual({ name: 'original', source: 'original.png', width: 1, height: 1 })
+  expect(effects).toEqual([])
+})
+
+test('rejects an upload that creates more than one document before changing either', async () => {
+  const first = { name: 'first', source: 'first.png', width: 1, height: 1 }
+  const second = { name: 'second', source: 'second.png', width: 1, height: 1 }
+  const bridge = new RecordingBridge(second)
+  bridge.openFile = async () => {
+    bridge.documents.push(first, second)
+  }
+
+  await expect(new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'unexpected.png')).rejects.toMatchObject({
+    code: 'photopea_document_mismatch'
+  })
+  expect(first.source).toBe('first.png')
+  expect(second.source).toBe('second.png')
+})
+
+test.each([
+  ['missing', []],
+  ['duplicate', ['layerhand:documents:0', 'layerhand:documents:0']],
+  ['negative', ['layerhand:documents:-1']],
+  ['fractional', ['layerhand:documents:1.5']],
+  ['noncanonical', ['layerhand:documents:01']]
+])('rejects a %s document-count snapshot before delivering bytes', async (_label, values) => {
+  const bridge = new RecordingBridge()
+  bridge.runScript = async () => values.map((value) => ({ type: 'text', value }))
+
+  await expect(new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'image.png')).rejects.toMatchObject({
+    code: 'photopea_document_mismatch'
+  })
+  expect(bridge.calls).toEqual(['boot'])
 })
 
 test.each([24, 28, 29, 32])('rejects an incomplete PNG at %i bytes before bridge boot', async (length) => {
@@ -130,7 +208,7 @@ test.each([
     code: 'photopea_document_mismatch',
     message: 'Photopea opened a document that does not match the uploaded image.'
   })
-  expect(bridge.calls).toEqual(['boot', 'openFile', 'runScript'])
+  expect(bridge.calls).toEqual(['boot', 'runScript', 'openFile', 'runScript'])
 })
 
 test('escapes filenames without modern JavaScript syntax', async () => {
@@ -138,8 +216,8 @@ test('escapes filenames without modern JavaScript syntax', async () => {
   bridge.messages = [{ type: 'text', value: 'layerhand:document:1:1:a%22b.png' }]
   await new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'a"b.png')
 
-  expect(bridge.scripts[0]).not.toMatch(/=>|`|for\s*\([^)]*\sof\s/)
-  expect(bridge.scripts[0]).toContain('a\\"b.png')
+  expect(bridge.scripts[1]).not.toMatch(/=>|`|for\s*\([^)]*\sof\s/)
+  expect(bridge.scripts[1]).toContain('a\\"b.png')
 })
 
 test('verifies the full source filename when Photopea truncates document labels at the first period', async () => {
@@ -157,18 +235,7 @@ test('verifies the full source filename when Photopea truncates document labels 
       label = value.split('.')[0]!
     }
   }
-  const bridge = new RecordingBridge()
-  bridge.runScript = async (script) => {
-    const messages: PhotopeaMessage[] = []
-    runInNewContext(script, {
-      app: {
-        activeDocument: document,
-        UI: { fitTheArea() {} },
-        echoToOE: (value: string) => messages.push({ type: 'text', value })
-      }
-    })
-    return messages
-  }
+  const bridge = new RecordingBridge(document)
 
   const result = await new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'retouch.v2.png')
 
@@ -176,33 +243,22 @@ test('verifies the full source filename when Photopea truncates document labels 
   expect(document.source).toBe('retouch.v2.png')
   expect(assignedLabel).toBe('retouch.v2')
   expect(document.name).toBe('retouch')
-  expect(bridge.calls).toEqual(['boot', 'openFile', 'press:v'])
+  expect(bridge.calls).toEqual(['boot', 'runScript', 'openFile', 'runScript', 'press:v'])
 })
 
 test('rejects a source identifier mismatch even when the document label matches', async () => {
-  const document = { name: '', width: 1, height: 1 }
+  const document = { name: '', source: '', width: 1, height: 1 }
   Object.defineProperty(document, 'source', {
     get: () => 'other.png',
     set: () => {}
   })
-  const bridge = new RecordingBridge()
-  bridge.runScript = async (script) => {
-    const messages: PhotopeaMessage[] = []
-    runInNewContext(script, {
-      app: {
-        activeDocument: document,
-        UI: { fitTheArea() {} },
-        echoToOE: (value: string) => messages.push({ type: 'text', value })
-      }
-    })
-    return messages
-  }
+  const bridge = new RecordingBridge(document)
 
   await expect(new PhotopeaDocumentLoader(bridge).open(png(1, 1), 'image')).rejects.toMatchObject({
     code: 'photopea_document_mismatch'
   })
   expect(document.name).toBe('image')
-  expect(bridge.calls).toEqual(['boot', 'openFile'])
+  expect(bridge.calls).toEqual(['boot', 'runScript', 'openFile', 'runScript'])
 })
 
 test('the generated script preserves special filenames and fits before emitting rounded metadata', async () => {
@@ -215,8 +271,9 @@ test('the generated script preserves special filenames and fits before emitting 
   const document = { name: '', source: '', width: 1.2, height: 0.8 }
   const effects: string[] = []
 
-  runInNewContext(bridge.scripts[0]!, {
+  runInNewContext(bridge.scripts[1]!, {
     app: {
+      documents: [document],
       activeDocument: document,
       UI: { fitTheArea: () => effects.push('fit') },
       echoToOE: (value: string) => effects.push(value)
@@ -226,7 +283,7 @@ test('the generated script preserves special filenames and fits before emitting 
   expect(document.name).toBe('a\\"\'\r\n\u2028\u2029:雪')
   expect(document.source).toBe(filename)
   expect(effects).toEqual(['fit', "layerhand:document:1:1:a%5C%22'%0D%0A%E2%80%A8%E2%80%A9%3A%E9%9B%AA.png"])
-  expect(bridge.scripts[0]).not.toMatch(/[\u2028\u2029]/)
+  expect(bridge.scripts[1]).not.toMatch(/[\u2028\u2029]/)
 })
 
 test('times the open through tool selection, excluding boot, and sends validated bytes', async () => {
@@ -242,6 +299,7 @@ test('times the open through tool selection, excluding boot, and sends validated
     },
     openFile: async (bytes) => {
       sent = bytes
+      await bridge.openFile()
       clock += 10
     },
     runScript: async (script) => {
