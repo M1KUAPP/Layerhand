@@ -5,6 +5,9 @@
 Approved in chat on September 14, 2026. This design implements issue #15,
 `feat(editor): open an uploaded image in the editor`.
 
+The current-behavior sections include the Chrome proof and September 14
+review corrections. The approval date records the original design decision.
+
 ## Context
 
 Layerhand edits photographs in Photopea. Photoshop is not the production
@@ -25,13 +28,13 @@ message is not a safe script terminator, so every script call uses a unique
 
 - Accept valid JPEG and PNG uploads no larger than 20 MiB and 6000 pixels on
   the long edge.
-- Reject invalid input before a browser is started, with a stable code and a
-  message that names the reason.
+- Reject unsupported formats, malformed inspected headers, and input-limit
+  violations before browser navigation, with a stable reason code and message.
 - Open the original bytes in Photopea without downsampling them.
 - Verify the resulting Photopea document rather than assuming that a message
   was successful.
-- Leave Photopea in a deterministic English-language layout, fitted to the
-  viewport with the Move tool selected.
+- Initialize Photopea in a deterministic English-language layout, then fit
+  each opened document to the viewport and select the Move tool.
 - Exercise the production path against installed Google Chrome and record the
   observed load time.
 - Keep browser-provider creation outside the adapter so issue #18 can connect
@@ -96,10 +99,16 @@ Validation uses bytes, never the filename or a supplied content type:
 4. Reject a zero dimension or malformed segment structure.
 5. Check the long edge against `MAX_IMAGE_EDGE`.
 
-PNG validation requires the eight-byte signature and a valid first `IHDR`
-chunk. JPEG validation scans bounded marker segments until a supported
-start-of-frame marker supplies the dimensions. The returned bytes are a
-defensive copy.
+PNG validation requires the eight-byte signature, a complete first `IHDR`
+chunk, legal bit-depth/color-type combinations, compression and filter method
+zero, and interlace method zero or one. JPEG validation scans bounded marker
+segments to a supported start-of-frame marker, then checks precision for that
+frame type, component count, distinct component IDs, sampling factors, and
+quantization-table selectors. The returned bytes are a defensive copy.
+
+This is a header-only boundary. It does not verify PNG CRCs, decode pixels,
+or validate data after the inspected header. A complete header followed by
+truncated or corrupt pixel data can still reach Photopea and fail there.
 
 Messages are stable and user-facing:
 
@@ -132,6 +141,11 @@ export interface PhotopeaTransport {
 an injected Playwright `Page` and a non-opaque outer-host URL. It does not
 launch or own the browser.
 
+The transport applies its configured viewport to the injected page before
+navigation, defaulting to 1440x900. Each transport `boot()` initializes a fresh
+host document. A same-document navigation returns no response in Playwright,
+so the transport reloads in that case to replace the old message queue.
+
 The outer host accepts messages only from its Photopea iframe and the
 `https://www.photopea.com` origin. Binary inputs are copied into a fresh
 `ArrayBuffer` before `postMessage`. Incoming binary values are also copied.
@@ -162,8 +176,13 @@ export class PhotopeaBridge {
 ```
 
 `boot()` supplies the fixed Photopea configuration and waits for the first
-ready `"done"`. `openFile()` sends one file followed by an ES3 sentinel script
-and waits for that exact sentinel, ignoring generic `"done"` messages.
+ready `"done"` from the fresh host. Concurrent callers share that queued
+readiness wait. After success, later calls complete without navigation or
+reading another message; a failed attempt permits a fresh transport boot.
+Readiness uses the same queue as file and script commands.
+
+`openFile()` sends one file followed by an ES3 sentinel script and waits for
+that exact sentinel, ignoring generic `"done"` messages.
 `runScript()` follows the same rule, returns messages received before its
 sentinel, and never allows overlapping commands. `press()` delegates a keyboard
 shortcut to the injected transport.
@@ -171,7 +190,12 @@ shortcut to the injected transport.
 On a readiness or command timeout, the bridge reloads the outer page once and
 throws `PhotopeaProtocolError` with code `photopea_timeout`. It does not resend
 the file automatically, because a late first request plus a retry could open the
-document twice.
+document twice. A command timeout also invalidates cached readiness.
+
+`commandTimeoutMs` is an absolute budget for each readiness or sentinel
+message wait. It starts after navigation or message delivery and excludes
+awaited reload cleanup. The caller owns limits on those operations; this
+option is not a deadline for the whole bridge call.
 
 ### Document loader
 
@@ -195,13 +219,19 @@ export class PhotopeaDocumentLoader {
 
 `open()` validates before calling `bridge.boot()`. It then:
 
-1. Boots the configured Photopea frame.
+1. Ensures the configured Photopea frame is ready, reusing a successful boot.
 2. Sends the validated bytes.
-3. Runs one ES3 verification script that sets the document name, calls
-   `app.UI.fitTheArea()`, and echoes the actual width, height, and name.
-4. Presses `v` through Chrome to select the Move tool.
-5. Compares the echoed dimensions and name with the validated input.
-6. Returns the measured time from byte send through successful verification.
+3. Runs one ES3 verification script that sets a display stem in `Document.name`
+   and the full filename in `Document.source`, calls `app.UI.fitTheArea()`,
+   and echoes the actual width, height, and encoded source identifier.
+4. Compares the echoed dimensions and source with the validated input.
+5. Presses `v` through Chrome to select the Move tool after metadata matches.
+6. Returns the measured time from byte send through Move-tool selection.
+
+Photopea truncates `Document.name` at the first period; `Document.source`
+preserves the complete filename for verification. Reused opens retain the
+existing workspace and other documents. Initial panel configuration applies
+at boot; fitting and Move-tool selection apply to every successful open.
 
 The loader throws `PhotopeaDocumentError` with code
 `photopea_document_mismatch` when read-back differs. It never returns a document
@@ -240,19 +270,19 @@ helping issue #15.
 upload bytes
     |
     v
-validate magic, length, and dimensions
+validate magic, length, header fields, and dimensions
     |
     v
-boot outer host and Photopea iframe in Chrome
+ensure outer host and Photopea iframe are ready in Chrome
     |
     v
 post copied ArrayBuffer and wait for completion
     |
     v
-run ES3 read-back script with unique sentinel
+set display name and source, fit, echo metadata with unique sentinel
     |
     v
-fit viewport, select Move tool, compare metadata
+compare metadata, then select Move tool
     |
     v
 return LoadedPhotopeaDocument and timing
@@ -265,7 +295,7 @@ validated dimensions describe the source document, while `viewport` remains the
 ## Error handling
 
 - Validation errors are deterministic and have stable codes and messages.
-- Browser startup and message waits have bounded timeouts.
+- Each readiness or sentinel message wait has an absolute timeout budget.
 - A timeout reloads the frame once for cleanup, then reports failure.
 - Unexpected binary data during open is ignored until the expected text
   completion or sentinel; it is retained only within the current command.
@@ -284,6 +314,7 @@ validated dimensions describe the source document, while `viewport` remains the
 - Exact 6000 px acceptance and 6001 px rejection.
 - Truncated PNG chunks, truncated JPEG segments, zero dimensions, and missing
   JPEG start-of-frame markers.
+- Legal PNG field combinations and JPEG frame precision/component fields.
 - Stable error codes and messages.
 - Defensive byte copying.
 
@@ -293,6 +324,7 @@ validated dimensions describe the source document, while `viewport` remains the
 - File-byte copying.
 - Ignoring misleading `"done"` messages before an exact sentinel.
 - Command serialization.
+- Concurrent boot coalescing, successful reuse, and failed-boot retries.
 - Timeout reload without automatic resend.
 
 `test/editor/photopea-document-loader.test.ts` covers:
@@ -317,6 +349,11 @@ committing tens of megabytes. Unit tests prove the exact byte and dimension
 limits; the live test opens both formats, including a 6000-pixel long-edge
 fixture, and records the load time for a 20 MiB valid container. The committed
 test remains skipped in ordinary CI until a Chrome-enabled job is added.
+
+`test/editor/playwright-photopea-transport.integration.test.ts` uses the same
+opt-in flag with an in-memory HTTP host in installed Chrome. It verifies the
+injected viewport, fresh host initialization on repeated transport boots, and
+rejection of stale readiness from timeout cleanup.
 
 The implementation task runs this integration test locally and records the
 observed timings in `docs/TRD.md`. A final visible Chrome inspection confirms
@@ -354,5 +391,7 @@ the known panel layout, fitted canvas, and Move tool selection.
 - [Photopea environment](https://www.photopea.com/api/environment)
 - [Photopea live messaging](https://www.photopea.com/api/live)
 - [Photopea scripts](https://www.photopea.com/learn/scripts)
+- [PNG IHDR field specification](https://www.w3.org/TR/png-3/#11IHDR)
+- [JPEG frame header specification, section B.2.2](https://www.w3.org/Graphics/JPEG/itu-t81.pdf)
 - [Technical design](../../TRD.md#the-editor-adapter)
 - [Input requirements](../../PRD.md#input)
