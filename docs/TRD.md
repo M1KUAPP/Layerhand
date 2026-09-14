@@ -785,7 +785,7 @@ src/
   web/        the single page and the landing page
 test/
   images/     the ten-image set and its expectations
-docs/         PRODUCT.md, PRD.md, TRD.md, reference/
+docs/         PRODUCT.md, PRD.md, TRD.md, references/
 ```
 
 One directory per stream, so that day-to-day work rarely collides.
@@ -794,7 +794,7 @@ One directory per stream, so that day-to-day work rarely collides.
 
 Conventions are the repository's existing ones: bun, Prettier, atomic
 commits, Conventional Commits, and the
-[git workflow](/docs/reference/git-workflow.md). They are not relaxed for the
+[git workflow](/docs/references/git-workflow.md). They are not relaxed for the
 deadline.
 
 ## Decisions deferred to spikes
@@ -827,4 +827,4 @@ are day-0 despite being short.
 
 - [Product brief](PRODUCT.md) — why this, and when we stop.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
-- [Git workflow](/docs/reference/git-workflow.md) — how changes land.
+- [Git workflow](/docs/references/git-workflow.md) — how changes land.

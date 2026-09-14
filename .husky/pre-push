@@ -1,6 +1,6 @@
 # Work reaches the upstream default branch through a pull request, never a
 # direct push. Workflow: branch -> push -> PR -> review -> resolve -> merge
-# -> delete. See docs/reference/git-workflow.md.
+# -> delete. See docs/references/git-workflow.md.
 
 remote_name=$1
 
@@ -24,7 +24,7 @@ while read -r _local_ref _local_sha remote_ref _remote_sha; do
     echo "    git push -u origin HEAD" >&2
     echo "    gh pr create --fill-first" >&2
     echo >&2
-    echo "  See docs/reference/git-workflow.md. Emergencies: git push --no-verify" >&2
+    echo "  See docs/references/git-workflow.md. Emergencies: git push --no-verify" >&2
     exit 1
   fi
 done
