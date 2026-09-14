@@ -6,7 +6,7 @@ describe('application scaffold', () => {
   test('defines one Bun development, build, and start surface', () => {
     expect(packageJson.scripts.dev).toBe('bun --hot src/server/index.ts')
     expect(packageJson.scripts.build).toBe('bun build --target=bun src/server/index.ts --outdir dist')
-    expect(packageJson.scripts.start).toBe('bun dist/index.js')
+    expect(packageJson.scripts.start).toBe('cd dist && bun index.js')
   })
 
   test('ships one accessible HTML entry', async () => {
