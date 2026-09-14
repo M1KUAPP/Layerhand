@@ -341,13 +341,13 @@ So the split is fixed, and it is the adapter's one design rule:
 | Export the PSD and the PNG preview | Choosing and tuning adjustments |
 | Zoom, scroll, reset state          | Judging when the edit is right  |
 
-Two things make this more than a principle. Photopea's Action Manager
-is a **stub** — `stringIDToTypeID` is a short lookup table that returns
-its input unchanged for anything not in it — so the usual Photoshop
-escape hatch of dropping to action descriptors for whatever the DOM does
-not cover is closed. And several selection and colour operations
-silently do nothing from script. The judgement work is not scriptable
-even if we wanted it to be.
+Photopea's Action Manager is a **stub** — `stringIDToTypeID` is a short
+lookup table that returns its input unchanged for anything not in it —
+so the usual Photoshop escape hatch of dropping to action descriptors
+for whatever the DOM does not cover is closed. Basic selection and
+colour operations did work in spike B1, however. The table above is a
+product boundary that protects the premise, not a claim that every
+operation on its right is technically impossible to script.
 
 ### The protocol
 
@@ -370,40 +370,50 @@ The bytes arrive with **no filename, no MIME type, and no correlation
 id** — the format is identified by magic bytes (`8BPS`).
 
 Startup configuration goes in the URL as
-`https://www.photopea.com#<encodeURIComponent(json)>`, carrying `files`,
-`environment`, and an initial `script`.
+`https://www.photopea.com/#<encodeURIComponent(json)>`, carrying `files`,
+`environment`, and an initial `script`. The fragment is required:
+without one, the root URL now opens a marketing page and never starts
+the editor. The outer environment also needs a non-opaque origin. An
+`about:blank` parent denied Photopea access to `localStorage`, aborted
+its startup script, and never emitted the ready message; the same frame
+under `http://127.0.0.1` started normally.
 
 ### Known traps
 
-Worth writing down before someone loses an afternoon to each. **Trap 1
-and the Action Manager stub above were confirmed by reading Photopea's
-shipped bundle. Traps 2 to 6 come from a third party's recon and we have
-not reproduced them** — [spike B1](#decisions-deferred-to-spikes)
-confirms each or strikes it out, and until it does they are warnings,
-not facts.
+Spike B1 tested each warning locally on September 14, 2026.
 
-1.  **`"done"` is not a reliable terminator.** Some operations emit
-    their own mid-script, so a naive "wait for done" desynchronises.
-    Every scripted call ends with a unique sentinel via
-    `app.echoToOE("<uuid>")` and we wait for that.
-1.  **The script dialect is ES3**, interpreted by Photopea's own
-    evaluator rather than the browser's engine. No arrow functions, no
-    template literals, no `for...of` — and they fail _silently_.
-1.  **A crashed script poisons the interpreter.** It stops running any
-    script while still answering `echoToOE`, so a liveness ping is not
-    a health check. Only a reload recovers, and the adapter must treat
-    a sentinel timeout as "reload the frame", not "retry the call".
-1.  **Silent no-ops** exist in the DOM — some selection calls select
-    nothing, and setting a colour by hex fills black. Every scripted
-    call is verified by reading state back, never assumed.
-1.  **Text layers need about two seconds after boot** before a default
-    font exists. Creating one earlier produces nothing.
-1.  Boot is reported at roughly two seconds and a first round trip at
-    about five. If that holds, starting a session on demand costs
-    around seven seconds against an NFR-3 budget of five — it does not
-    fit, it overruns. Warming the session before the user presses the
-    button is therefore load-bearing, not an optimisation, and it is
-    the first thing to measure rather than the first thing to cut.
+The test used Google Chrome. Its result is deliberately scoped to the
+calls named below; an untested Photopea DOM operation still needs
+read-back verification.
+
+1.  **Confirmed: `"done"` is not a reliable terminator.** Document and
+    text-layer operations emitted `"done"` before the call's sentinel,
+    and a script that threw also ended with `"done"`. Every scripted
+    call therefore ends with a unique sentinel through
+    `app.echoToOE("<uuid>")` and waits for that exact string.
+1.  **Confirmed: modern JavaScript syntax fails silently.** Arrow
+    functions, template literals, and `for...of` all reached the
+    sentinel but evaluated to `undefined`, `null`, and `0` instead of
+    their expected values. Adapter scripts stay within ES3 syntax.
+1.  **Not reproduced: a crashed script poisons the interpreter.** A
+    missing-method exception was followed by a layer rename and
+    sentinel in 14 ms without reloading. A sentinel timeout still
+    triggers a frame reload, but interpreter poisoning is not the
+    reason to assume.
+1.  **Not reproduced for the tested selection and colour calls.** A
+    polygon selection reported the expected `0,0,64,64` bounds, and a
+    fill using `rgb.hexValue = "FF0000"` exported the pixel
+    `[255, 0, 0, 255]`. Read-back verification remains mandatory for
+    every scripted mutation.
+1.  **Not reproduced: text layers need a two-second delay.** A text
+    layer created immediately after the ready message, about 1.40
+    seconds after navigation, contained the expected text. The same
+    operation also worked after a two-second delay.
+1.  **Not reproduced locally: a seven-second cold start.** The editor
+    was ready in 1.22 seconds, opening the first 640x480 JPEG took 0.95
+    seconds, and PSD export took 0.17 seconds. The full cold probe ended
+    in 2.81 seconds. Browserbase cold-start time remains a separate B2
+    measurement and can still force session warming.
 
 ### Advertising
 
@@ -822,6 +832,16 @@ on day 0, and nobody should reach for the kill switch over them.
 
 A0 and A4 are the two that can still change the plan, which is why both
 are day-0 despite being short.
+
+**B1 result, September 14:** provisionally passed. A 13,442-byte JPEG
+sent through `postMessage` produced a 1,412,711-byte PSD with two named
+layers, `Original photograph` and `Retouched copy`. The `8BPS` signature,
+640x480 dimensions, and both layer names were verified with `ag-psd`.
+The exact message sequence was a deliberately misleading `"done"`, the
+PSD bytes, the unique sentinel, and the real completion `"done"`, which
+proved the sentinel handshake. The remaining acceptance check is to open
+the candidate file in Photoshop without a warning; Photoshop is not yet
+installed on the test machine.
 
 ## See also
 
