@@ -116,28 +116,34 @@ still theirs to edit.
 ## Competition
 
 A survey of twenty-six products, checked against their own format enums
-and documentation rather than against comparison articles.
+and documentation rather than against comparison articles, and a
+follow-up on the four products it could not settle.
 
 ### The claim, corrected
 
 "Every AI photo tool hands you pixels" is **not true**, and the version
 of this document that said so was wrong.
 
-| Product                                                   | Returns a layered file?                                                                                       |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Adobe Photoshop API v2                                    | **Yes.** Named, adjustment, smart-object, group layers, and pixel masks                                       |
-| BRIA AI                                                   | **Yes, per its docs.** An `image_to_psd` endpoint, self-serve from $0.018; what layers it emits is unverified |
-| Retouch4me                                                | **Partly.** Real Photoshop layers and masks, user's choice of separate or merged. No adjustment layers        |
-| Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg | No. PNG, JPEG, WebP                                                                                           |
-| Evoto, Imagen AI, Aftershoot                              | No. Flat, or Lightroom XMP sidecars                                                                           |
-| BoxBrownie and the real-estate tools                      | No. Flat                                                                                                      |
+| Product                                                   | Returns a layered file?                                                                                                                  |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Adobe Photoshop API v2                                    | **Yes.** Named, adjustment, smart-object, group layers, and pixel masks                                                                  |
+| Adobe Firefly Creative Production                         | **Yes.** The image on a masked layer, one layer per background, and a colour-decontamination layer. No adjustment layers documented      |
+| BRIA AI                                                   | **Yes, raster only.** A background layer, a foreground layer, and one layer per object. No masks, names, or adjustment layers documented |
+| Pixelz                                                    | **Yes, contents undocumented.** "A PSD complete with layers" as an extra output, from AI and human editors                               |
+| Retouch4me                                                | **Partly.** Real Photoshop layers and masks, user's choice of separate or merged. No adjustment layers                                   |
+| autoRetouch                                               | **Partly.** Background removal exports cut-out layers, optionally masked. Every other step exports one flat layer                        |
+| Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg | No. PNG, JPEG, WebP                                                                                                                      |
+| Evoto, Imagen AI, Aftershoot                              | No. Flat, or Lightroom XMP sidecars                                                                                                      |
+| BoxBrownie and the real-estate tools                      | No. Flat                                                                                                                                 |
 
 What is left of the gap is narrower and more specific than the pitch:
 **no self-serve product is known to deliver an automated, single-pass
 PSD that is named _and_ masked _and_ carries adjustment layers.** Adobe's
-API can, for whoever signs an enterprise contract. BRIA is self-serve,
-but which layers its PSD carries is unverified; if it carries all three,
-the gap is closed. It is not the gap we said it was.
+API can, for whoever signs an enterprise contract. Adobe's self-serve
+plans already return a masked PSD, so a mask sets nothing apart, and
+BRIA's PSD is raster layers with no documented masks at all. What
+remains is adjustment layers and human layer names, which no self-serve
+product documents. It is not the gap we said it was.
 
 ### Adobe is the serious threat, and it is already shipped
 
@@ -153,6 +159,13 @@ Adobe representative and the rate card is private. That is a commercial
 moat, not a technical one, and Adobe can remove it whenever it decides
 to open a self-serve tier.
 
+It has started to. Since October 28, 2025, Adobe's paid plans with
+premium generative features have included Firefly Creative Production's
+Remove Background preset, which runs in bulk and can return a layered
+PSD for 40 generative credits an output. Adobe's enterprise help puts the
+image on a masked layer in that file, over one layer per background. The
+rest of Creative Production still needs an enterprise plan.
+
 ### The price ceiling is the real problem
 
 Human retouching, from published price lists:
@@ -165,19 +178,22 @@ Human retouching, from published price lists:
 | Real-estate enhancement | $2.00     | 24 h       |
 
 At **$3.50 of model spend per image**, we are five to nine times the
-price of a human doing the same job, and roughly two hundred times
-BRIA's. The premise that "retouching is a real line item" is true and
-cuts against us: the line item is already small, and AI has compressed
-it further.
+price of a human doing the same job, and roughly two hundred times the
+$0.018 BRIA charges to remove a background. The premise that
+"retouching is a real line item" is true and cuts against us: the line
+item is already small, and AI has compressed it further.
 
 ### And the demand signal is missing
 
 Across thirteen retouching outsourcers with published pricing, **not
 one markets layered-PSD delivery as a named or priced deliverable.**
 The single vendor where layered files provably exist mentions them only
-in a refund clause. What photographers complain about is consistency
-and rework, not layers — which argues for a deterministic pipeline with
-quality control, roughly the opposite of an agent working by eye.
+in a refund clause. The nearest thing to an exception is Pixelz, whose
+help centre offers "a PSD complete with layers" as an extra output on an
+order without saying what the layers are. What photographers complain
+about is consistency and rework, not layers — which argues for a
+deterministic pipeline with quality control, roughly the opposite of an
+agent working by eye.
 
 This does not make the idea worthless. It makes the "who pays" story in
 the next section a hypothesis that the evidence currently contradicts,
@@ -273,11 +289,12 @@ Ranked by how likely they are to end the project.
 
 1.  **The commercial case does not survive the survey.** This moved to
     the top after the research and it is the one to answer first. Humans
-    retouch a product image for $0.39–$0.69; BRIA emits a layered PSD
-    for $0.018; Adobe's API does the whole job server-side for whoever
-    signs a contract; and no outsourcer anywhere sells layered delivery
-    as a priced deliverable. We cost $3.50 an image. Every one of those
-    is sourced in [competition](#competition).
+    retouch a product image for $0.39–$0.69; BRIA removes a background
+    for $0.018; Adobe's paid plans return a masked, layered PSD in bulk,
+    and its API does the whole job server-side for whoever signs a
+    contract; and no outsourcer surveyed sells layered delivery as a
+    priced deliverable. We cost $3.50 an image. Every one of those is
+    sourced in [competition](#competition).
 
     **This is a decision, not a risk to monitor**, and it comes before
     the day-2 technical gate because no amount of engineering answers
@@ -290,8 +307,9 @@ Ranked by how likely they are to end the project.
       claiming a market the evidence contradicts.
     - _Repoint it at the gap that is actually empty._ No self-serve product
       is known to ship named **and** masked **and** adjustment-layered
-      output in one pass. That is narrow and defensible, once BRIA's output
-      is checked — but it is a different product brief from this one.
+      output in one pass. Adobe already ships the mask, so the gap is
+      adjustment layers and names. That is narrow and defensible — but it
+      is a different product brief from this one.
     - _Take the runner-up._ The kill switch below already names it.
 
 1.  **Reliability of long GUI control.** Forty-plus steps in a dense
@@ -341,10 +359,10 @@ Each is assigned and answered before it can block work.
     commercial rather than legal: free embedding shows advertisements,
     and removing them needs a Distributor account from €60 a month.
 1.  ~~Does any existing product return a layered file?~~ **Answered:
-    yes, three do.** ~~Is there a first-party server-side editing
-    API?~~ **Answered: Adobe's, and it is GA.** Both are written up in
-    [competition](#competition), and together they are why risk 1
-    exists.
+    yes, six do, two of them only in part.** ~~Is there a first-party
+    server-side editing API?~~ **Answered: Adobe's, and it is GA.** Both
+    are written up in [competition](#competition), and together they are
+    why risk 1 exists.
 1.  What are the official contest rules? They sit behind a login wall
     and we have not read them. Specifically: is a public repository or
     an open-source licence required, and is a demo video required?
