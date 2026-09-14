@@ -10,6 +10,12 @@ export {
 } from './image-upload'
 export { createPhotopeaHostHtml } from './photopea-host'
 export {
+  PhotopeaDocumentError,
+  PhotopeaDocumentLoader,
+  type LoadedPhotopeaDocument,
+  type PhotopeaDocumentBridge
+} from './photopea-document-loader'
+export {
   PhotopeaBridge,
   PhotopeaProtocolError,
   type PhotopeaBridgeOptions,
