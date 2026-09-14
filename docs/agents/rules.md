@@ -69,4 +69,4 @@ symlinks to it.
 
 - [Git workflow](/docs/references/git-workflow.md)
 - [Markdown style guide](/docs/references/markdown-style.md)
-- [Installed skill collections](skills.md)
+- [Skills](skills.md)
