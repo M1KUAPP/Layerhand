@@ -341,20 +341,31 @@ function progressRail(progress: Extract<ClientState, { view: 'running' }>['progr
   const rail = node('aside', 'progress-rail', 'Run status')
   const metrics = node('dl')
   const entries = [
-    ['Step', `${progress.steps} / ${progress.cap ?? '?'}`],
-    ['Credits', formatCredits(progress.costUsd)],
-    ['Action', progress.narration ?? 'Opening the editor']
+    ['step', 'Step', `${progress.steps} / ${progress.cap ?? '?'}`],
+    ['credits', 'Credits', formatCredits(progress.costUsd)],
+    ['action', 'Action', progress.narration ?? 'Opening the editor']
   ]
-  for (const [term, detail] of entries) {
-    metrics.append(node('dt', undefined, term), node('dd', undefined, detail))
+  for (const [id, term, detail] of entries) {
+    const value = node('dd', undefined, detail)
+    value.id = `run-${id}`
+    metrics.append(node('dt', undefined, term), value)
   }
   rail.replaceChildren(metrics)
   return rail
 }
 
+function replaceNotices(container: HTMLElement, progress: Extract<ClientState, { view: 'running' }>['progress']): void {
+  container.replaceChildren()
+  for (const message of progress.recoverableErrors) container.append(node('p', 'notice', message))
+  for (const message of progress.corrections) {
+    container.append(node('p', 'correction-ack', `Correction applied: ${message}`))
+  }
+}
+
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
   const cancel = button(current.progress.cancelRequested ? 'Cancelling...' : 'Cancel and keep work', 'text-button')
+  cancel.id = 'cancel-run'
   cancel.disabled = current.progress.cancelRequested
   cancel.addEventListener('click', async () => {
     dispatch({ type: 'cancel_requested' })
@@ -369,6 +380,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   const layout = node('section', 'running-layout')
   layout.setAttribute('aria-label', 'Retouching in progress')
   const frame = node('figure', 'live-frame')
+  frame.id = 'live-frame'
   if (current.progress.frameUrl) {
     const image = node('img')
     image.src = current.progress.frameUrl
@@ -407,12 +419,37 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   })
 
   const notices = node('div', 'run-notices')
-  for (const message of current.progress.recoverableErrors) notices.append(node('p', 'notice', message))
-  for (const message of current.progress.corrections) {
-    notices.append(node('p', 'correction-ack', `Correction applied: ${message}`))
-  }
+  notices.id = 'run-notices'
+  replaceNotices(notices, current.progress)
   fragment.append(layout, correction, notices)
   return fragment
+}
+
+function updateRunning(current: Extract<ClientState, { view: 'running' }>): void {
+  const step = root.querySelector<HTMLElement>('#run-step')
+  const credits = root.querySelector<HTMLElement>('#run-credits')
+  const action = root.querySelector<HTMLElement>('#run-action')
+  const cancel = root.querySelector<HTMLButtonElement>('#cancel-run')
+  const frame = root.querySelector<HTMLElement>('#live-frame')
+  const notices = root.querySelector<HTMLElement>('#run-notices')
+  if (!step || !credits || !action || !cancel || !frame || !notices) return
+
+  step.textContent = `${current.progress.steps} / ${current.progress.cap ?? '?'}`
+  credits.textContent = formatCredits(current.progress.costUsd)
+  action.textContent = current.progress.narration ?? 'Opening the editor'
+  cancel.textContent = current.progress.cancelRequested ? 'Cancelling...' : 'Cancel and keep work'
+  cancel.disabled = current.progress.cancelRequested
+
+  if (current.progress.frameUrl) {
+    let image = frame.querySelector('img')
+    if (!image) {
+      image = node('img')
+      image.alt = 'Current editor frame'
+      frame.replaceChildren(image)
+    }
+    if (image.src !== current.progress.frameUrl) image.src = current.progress.frameUrl
+  }
+  replaceNotices(notices, current.progress)
 }
 
 function renderResult(current: Extract<ClientState, { view: 'result' }>): DocumentFragment {
@@ -481,6 +518,10 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
 }
 
 function render(): void {
+  if (root.dataset.view === 'running' && state.view === 'running') {
+    updateRunning(state)
+    return
+  }
   root.replaceChildren()
   root.dataset.view = state.view
   switch (state.view) {

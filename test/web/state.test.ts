@@ -24,6 +24,7 @@ function runningSnapshot(overrides: Partial<RunSnapshot> = {}): RunSnapshot {
     costUsd: 0.21105,
     tokensIn: 1570,
     tokensOut: 750,
+    lastEventId: -1,
     corrections: [],
     recoverableErrors: [],
     ...overrides
@@ -116,6 +117,24 @@ describe('client run reducer', () => {
     expect(running).toMatchObject({ view: 'running', progress: { frameUrl: '/frame-1.png' } })
     expect(incomplete).toMatchObject({ view: 'result', outcome: 'incomplete' })
     expect(cancelled).toMatchObject({ view: 'result', outcome: 'cancelled' })
+  })
+
+  test('ignores the replay prefix already represented by a snapshot', () => {
+    const snapshot = {
+      ...runningSnapshot({ corrections: ['Keep the label unchanged'] }),
+      lastEventId: 8
+    }
+    let state = reduceClientState(initialClientState(), { type: 'snapshot', snapshot })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 8,
+      event: { type: 'correction_ack', text: 'Keep the label unchanged' }
+    })
+
+    expect(state).toMatchObject({
+      view: 'running',
+      progress: { lastEventId: 8, corrections: ['Keep the label unchanged'] }
+    })
   })
 
   test('marks a locally cancelled run and preserves its partial result', () => {

@@ -13,6 +13,7 @@ const snapshot = {
   costUsd: 0.04,
   tokensIn: 1570,
   tokensOut: 750,
+  lastEventId: 3,
   corrections: [],
   recoverableErrors: []
 } satisfies RunSnapshot

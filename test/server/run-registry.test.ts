@@ -102,6 +102,7 @@ describe('RunRegistry', () => {
 
     expect(snapshot?.status).toBe('complete')
     expect(snapshot?.recoverableErrors).toEqual(['One frame was missed'])
+    expect(snapshot?.lastEventId).toBe(2)
   })
 
   test('finalizes once and releases secrets even when the terminal hook fails', async () => {

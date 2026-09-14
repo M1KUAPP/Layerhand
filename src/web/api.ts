@@ -55,6 +55,14 @@ function integer(value: unknown): number {
   return parsed
 }
 
+function eventId(value: unknown): number {
+  const parsed = number(value)
+  if (!Number.isSafeInteger(parsed) || parsed < -1) {
+    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+  }
+  return parsed
+}
+
 function boolean(value: unknown): boolean {
   if (typeof value !== 'boolean') throw new RunApiError('invalid_response', 'The server returned an invalid response.')
   return value
@@ -111,6 +119,7 @@ export function decodeRunSnapshot(value: unknown): RunSnapshot {
     costUsd: number(source.costUsd),
     tokensIn: integer(source.tokensIn),
     tokensOut: integer(source.tokensOut),
+    lastEventId: eventId(source.lastEventId),
     corrections: stringArray(source.corrections),
     recoverableErrors: stringArray(source.recoverableErrors)
   }

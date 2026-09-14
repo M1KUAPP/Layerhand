@@ -34,6 +34,8 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain('video.loop = true')
     expect(app).toContain("form.dataset.form = 'waitlist'")
     expect(app).toContain("correction.dataset.form = 'correction'")
+    expect(app).toContain("root.dataset.view === 'running' && state.view === 'running'")
+    expect(app).toContain('updateRunning(state)')
     expect(app).toContain("download.download = 'layerhand-result.psd'")
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")

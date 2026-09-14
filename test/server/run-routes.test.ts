@@ -218,6 +218,7 @@ describe('run HTTP contract', () => {
     const snapshotBody = await snapshot.json()
     expect(snapshotBody.status).toBe('complete')
     expect(snapshotBody.corrections).toEqual(['Keep the label unchanged'])
+    expect(snapshotBody.lastEventId).toBeGreaterThan(0)
 
     const events = await target.app.fetch(new Request(`https://layerhand.test/api/runs/${runId}/events`))
     const eventText = await events.text()

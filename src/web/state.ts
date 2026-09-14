@@ -66,7 +66,7 @@ function progressFromSnapshot(snapshot: RunSnapshot): RunProgress {
     tokensOut: snapshot.tokensOut,
     corrections: [...snapshot.corrections],
     recoverableErrors: [...snapshot.recoverableErrors],
-    lastEventId: -1,
+    lastEventId: snapshot.lastEventId,
     cancelRequested: snapshot.status === 'cancelled'
   }
 }

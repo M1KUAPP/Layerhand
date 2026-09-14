@@ -51,6 +51,7 @@ docs/superpowers/
 node_modules/
 /dist/
 /web/
+.playwright-cli/
 
 # Environment
 .env*

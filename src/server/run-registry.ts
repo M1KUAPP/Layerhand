@@ -20,6 +20,7 @@ export interface RunSnapshot {
   costUsd: number
   tokensIn: number
   tokensOut: number
+  lastEventId: number
   corrections: string[]
   recoverableErrors: string[]
   result?: RunResult
@@ -91,6 +92,7 @@ function initialSnapshot(runId: string): RunSnapshot {
     costUsd: 0,
     tokensIn: 0,
     tokensOut: 0,
+    lastEventId: -1,
     corrections: [],
     recoverableErrors: []
   }
@@ -237,6 +239,7 @@ export class RunRegistry {
     const envelope = { id: run.history.length, event }
     run.history.push(envelope)
     this.#reduce(run, event)
+    run.snapshot.lastEventId = envelope.id
     for (const subscriber of run.subscribers) {
       subscriber.queue.push(envelope)
       subscriber.wake?.()

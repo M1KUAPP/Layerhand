@@ -19,6 +19,7 @@ export interface LaunchRuntimeOptions {
   env?: Environment
   clientAddress(request: Request): string
   fakeRunIntervalMs?: number
+  stepCap?: number
   artifactStore?: ArtifactStore
   registryOptions?: RunRegistryOptions
 }
@@ -100,7 +101,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
           options.fakeRunIntervalMs ?? developmentNumber(env.FAKE_RUN_INTERVAL_MS, 1_000),
           config?.openAiApiKey ?? env.OPENAI_API_KEY
         ),
-      stepCap: 15
+      stepCap: options.stepCap ?? 15
     })
     return {
       application: createApplication({
