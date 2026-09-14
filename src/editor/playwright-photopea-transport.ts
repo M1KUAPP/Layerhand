@@ -99,7 +99,7 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
   }
 
   async nextMessage(timeoutMs: number): Promise<PhotopeaMessage> {
-    await this.#page.waitForFunction(
+    const ready = await this.#page.waitForFunction(
       () => {
         const layerhandWindow = window as unknown as LayerhandWindow
         return layerhandWindow.__layerhandPhotopeaMessages.length > 0
@@ -107,6 +107,7 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
       undefined,
       { timeout: timeoutMs }
     )
+    await ready.dispose()
     const wireMessage = await this.#page.evaluate(() => {
       const layerhandWindow = window as unknown as LayerhandWindow
       return layerhandWindow.__layerhandPhotopeaMessages.shift()

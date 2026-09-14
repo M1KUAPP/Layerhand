@@ -10,6 +10,7 @@ interface PageFakeState {
   readonly pressed: string[]
   readonly messages: unknown[]
   readonly received: unknown[]
+  readonly messageLifecycle: string[]
   reloads: number
 }
 
@@ -21,6 +22,7 @@ function createPageFake() {
     pressed: [],
     messages: [],
     received: [],
+    messageLifecycle: [],
     reloads: 0
   }
   const host = {
@@ -38,13 +40,19 @@ function createPageFake() {
     },
     evaluate: async (callback: Function, argument?: unknown): Promise<unknown> => {
       state.evaluations.push(argument)
+      state.messageLifecycle.push('evaluate')
       return runInNewContext(`(${callback.toString()})(argument)`, { ...host, argument })
     },
     waitForFunction: async (callback: Function, argument: unknown, options: { timeout: number }) => {
       state.waitTimeouts.push(options.timeout)
       const ready = runInNewContext(`(${callback.toString()})(argument)`, { ...host, argument })
       if (!ready) throw new Error('Host message wait timed out.')
-      return { dispose: async () => {} }
+      return {
+        dispose: async () => {
+          await Promise.resolve()
+          state.messageLifecycle.push('dispose')
+        }
+      }
     },
     reload: async () => {
       state.reloads += 1
@@ -177,6 +185,17 @@ describe('Playwright Photopea transport', () => {
     expect(await transport.nextMessage(750)).toEqual({ type: 'text', value: 'first' })
     expect(page.messages).toEqual([{ type: 'bytes', value: [4, 5] }])
     expect(page.waitTimeouts).toEqual([750])
+  })
+
+  test('disposes its wait handle once before shifting a queued message', async () => {
+    const page = createPageFake()
+    page.messages.push({ type: 'text', value: 'done' })
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    expect(await transport.nextMessage(750)).toEqual({ type: 'text', value: 'done' })
+    expect(page.messageLifecycle).toEqual(['dispose', 'evaluate'])
   })
 
   test('waits for a non-empty host message queue before reading it', async () => {
