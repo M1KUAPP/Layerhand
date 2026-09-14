@@ -16,15 +16,6 @@
   "14": "PhotopeaDocumentBridge",
   "15": "PhotopeaMessage",
   "16": "playwright-photopea-transport.ts",
-  "17": "FakeEditorSession",
-  "18": "PhotopeaDocumentBridge",
-  "19": ".prettierrc.json",
   "20": "Saved query: are Layerhand's inferred relationships correct",
-  "21": "Saved query: are Swap Test's inferred relationships correct",
-  "22": "editor-session.contract.ts",
-  "23": "session.types.test.ts",
-  "24": "PhotopeaBridge",
-  "25": "EditorSession",
-  "26": "ExpectedSession",
-  "27": "photopea-document-loader.integration.test.ts"
+  "21": "Saved query: are Swap Test's inferred relationships correct"
 }

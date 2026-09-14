@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prettierrc",
-      "community": 19,
-      "community_name": ".prettierrc.json",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": ".prettierrc.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "prettierrc_schema",
-      "community": 19,
-      "community_name": ".prettierrc.json",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "$schema"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "prettierrc_singlequote",
-      "community": 19,
-      "community_name": ".prettierrc.json",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "singlequote"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "prettierrc_semi",
-      "community": 19,
-      "community_name": ".prettierrc.json",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "semi"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "prettierrc_trailingcomma",
-      "community": 19,
-      "community_name": ".prettierrc.json",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "trailingcomma"
     },
     {
@@ -114,10 +114,32 @@
       "norm_label": "browserbase:probe"
     },
     {
-      "label": "lint",
+      "label": "build",
       "file_type": "code",
       "source_file": "package.json",
       "source_location": "L4",
+      "_origin": "ast",
+      "id": "package_scripts_build",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
+      "norm_label": "build"
+    },
+    {
+      "label": "dev",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "package_scripts_dev",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
+      "norm_label": "dev"
+    },
+    {
+      "label": "lint",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts_lint",
       "community": 6,
@@ -128,7 +150,7 @@
       "label": "lint:fix",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L5",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "package_scripts_lint_fix",
       "community": 1,
@@ -139,7 +161,7 @@
       "label": "prepare",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L6",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_prepare",
       "community": 6,
@@ -147,10 +169,21 @@
       "norm_label": "prepare"
     },
     {
+      "label": "start",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "package_scripts_start",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
+      "norm_label": "start"
+    },
+    {
       "label": "test",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L7",
+      "source_location": "L10",
       "_origin": "ast",
       "id": "package_scripts_test",
       "community": 1,
@@ -161,7 +194,7 @@
       "label": "typecheck",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L8",
+      "source_location": "L11",
       "_origin": "ast",
       "id": "package_scripts_typecheck",
       "community": 1,
@@ -172,7 +205,7 @@
       "label": "lint-staged",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L10",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "package_lint_staged",
       "community": 1,
@@ -183,7 +216,7 @@
       "label": "devDependencies",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L13",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "package_devdependencies",
       "community": 1,
@@ -194,7 +227,7 @@
       "label": "@commitlint/cli",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "package_devdependencies_commitlint_cli",
       "community": 1,
@@ -205,7 +238,7 @@
       "label": "@commitlint/cli",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "commitlint_cli",
       "community": 1,
@@ -216,7 +249,7 @@
       "label": "@commitlint/config-conventional",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "package_devdependencies_commitlint_config_conventional",
       "community": 1,
@@ -227,7 +260,7 @@
       "label": "@commitlint/config-conventional",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "commitlint_config_conventional",
       "community": 1,
@@ -238,7 +271,7 @@
       "label": "@types/bun",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "package_devdependencies_types_bun",
       "community": 1,
@@ -249,7 +282,7 @@
       "label": "@types/bun",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "types_bun",
       "community": 1,
@@ -260,7 +293,7 @@
       "label": "@types/node",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L17",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "package_devdependencies_types_node",
       "community": 1,
@@ -271,7 +304,7 @@
       "label": "@types/node",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L17",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "types_node",
       "community": 1,
@@ -282,7 +315,7 @@
       "label": "husky",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "package_devdependencies_husky",
       "community": 1,
@@ -293,7 +326,7 @@
       "label": "husky",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "husky",
       "community": 1,
@@ -304,7 +337,7 @@
       "label": "lint-staged",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "package_devdependencies_lint_staged",
       "community": 1,
@@ -315,7 +348,7 @@
       "label": "lint-staged",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "lint_staged",
       "community": 1,
@@ -326,7 +359,7 @@
       "label": "prettier",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "package_devdependencies_prettier",
       "community": 1,
@@ -337,7 +370,7 @@
       "label": "prettier",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "prettier",
       "community": 1,
@@ -348,7 +381,7 @@
       "label": "sharp",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "package_devdependencies_sharp",
       "community": 1,
@@ -359,7 +392,7 @@
       "label": "sharp",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "sharp",
       "community": 1,
@@ -370,7 +403,7 @@
       "label": "typescript",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "package_devdependencies_typescript",
       "community": 1,
@@ -381,7 +414,7 @@
       "label": "typescript",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "typescript",
       "community": 1,
@@ -392,7 +425,7 @@
       "label": "dependencies",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L24",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "package_dependencies",
       "community": 1,
@@ -403,7 +436,7 @@
       "label": "playwright-core",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "package_dependencies_playwright_core",
       "community": 1,
@@ -414,7 +447,7 @@
       "label": "playwright-core",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "playwright_core",
       "community": 1,
@@ -758,8 +791,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_copybytes",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "copybytes()"
     },
     {
@@ -780,8 +813,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "fakeeditorsession"
     },
     {
@@ -791,8 +824,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_constructor",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -802,8 +835,8 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_openedimage",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".openedimage()"
     },
     {
@@ -813,8 +846,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_openedfilename",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".openedfilename()"
     },
     {
@@ -835,8 +868,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_open",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".open()"
     },
     {
@@ -846,8 +879,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_screenshot",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".screenshot()"
     },
     {
@@ -868,8 +901,8 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_layers",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".layers()"
     },
     {
@@ -879,8 +912,8 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_exportpsd",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpsd()"
     },
     {
@@ -890,8 +923,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_exportpreview",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpreview()"
     },
     {
@@ -901,8 +934,8 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_close",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".close()"
     },
     {
@@ -912,8 +945,8 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_ensurenotclosed",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".#ensurenotclosed()"
     },
     {
@@ -923,8 +956,8 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_fakeeditorsession_ensureopen",
-      "community": 17,
-      "community_name": "FakeEditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".#ensureopen()"
     },
     {
@@ -934,8 +967,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_editor_fake_editor_session_createrecordedfakeeditorsession",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createrecordedfakeeditorsession()"
     },
     {
@@ -1170,7 +1203,7 @@
       "norm_label": "validateimageupload()"
     },
     {
-      "label": "index.ts",
+      "label": "editor/index.ts",
       "file_type": "code",
       "source_file": "src/editor/index.ts",
       "source_location": "L1",
@@ -1178,7 +1211,7 @@
       "id": "src_editor_index",
       "community": 2,
       "community_name": "Run Contracts, Live View & Steering",
-      "norm_label": "index.ts"
+      "norm_label": "editor/index.ts"
     },
     {
       "label": "photopea-bridge.ts",
@@ -1242,8 +1275,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeabridge"
     },
     {
@@ -1264,8 +1297,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_boot",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1275,8 +1308,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_openfile",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1286,8 +1319,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_runscript",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1297,8 +1330,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_press",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1308,8 +1341,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_waitfortext",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#waitfortext()"
     },
     {
@@ -1319,8 +1352,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_throwtimeout",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#throwtimeout()"
     },
     {
@@ -1330,8 +1363,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_enqueue",
-      "community": 24,
-      "community_name": "PhotopeaBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#enqueue()"
     },
     {
@@ -1352,8 +1385,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeadocumentbridge"
     },
     {
@@ -1363,8 +1396,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_boot",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1374,8 +1407,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_openfile",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1385,8 +1418,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_runscript",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1396,8 +1429,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_photopea_document_loader_photopeadocumentbridge_press",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1572,8 +1605,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1583,8 +1616,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeamessage",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeamessage"
     },
     {
@@ -1660,8 +1693,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "playwright-photopea-transport.ts"
     },
     {
@@ -1671,8 +1704,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_default_viewport",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "default_viewport"
     },
     {
@@ -1682,8 +1715,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_photopeawiremessage",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopeawiremessage"
     },
     {
@@ -1693,8 +1726,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_layerhandwindow",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "layerhandwindow"
     },
     {
@@ -1704,8 +1737,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_isbytearray",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "isbytearray()"
     },
     {
@@ -1726,8 +1759,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_decodephotopeawiremessage",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "decodephotopeawiremessage()"
     },
     {
@@ -1737,8 +1770,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "playwrightphotopeatransport"
     },
     {
@@ -1748,8 +1781,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_constructor",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".constructor()"
     },
     {
@@ -1759,8 +1792,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_boot",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".boot()"
     },
     {
@@ -1770,8 +1803,8 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_send",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".send()"
     },
     {
@@ -1781,8 +1814,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_nextmessage",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".nextmessage()"
     },
     {
@@ -1792,8 +1825,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_press",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".press()"
     },
     {
@@ -1803,8 +1836,8 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_reload",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".reload()"
     },
     {
@@ -1825,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "editorsession"
     },
     {
@@ -1836,8 +1869,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".open()"
     },
     {
@@ -1847,8 +1880,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".screenshot()"
     },
     {
@@ -1858,8 +1891,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".act()"
     },
     {
@@ -1869,8 +1902,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".layers()"
     },
     {
@@ -1880,8 +1913,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1891,8 +1924,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1902,8 +1935,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 25,
-      "community_name": "EditorSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".close()"
     },
     {
@@ -1960,6 +1993,116 @@
       "community": 11,
       "community_name": "fake-editor-session.ts",
       "norm_label": "layerinfo"
+    },
+    {
+      "label": "application.ts",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_application",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "application.ts"
+    },
+    {
+      "label": "ApplicationDependencies",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_server_application_applicationdependencies",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "applicationdependencies"
+    },
+    {
+      "label": "Application",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "src_server_application_application",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "application"
+    },
+    {
+      "label": ".fetch()",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_server_application_application_fetch",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": ".fetch()"
+    },
+    {
+      "label": "BASE_SECURITY_HEADERS",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_server_application_base_security_headers",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "base_security_headers"
+    },
+    {
+      "label": "APPLICATION_CSP",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "src_server_application_application_csp",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "application_csp"
+    },
+    {
+      "label": "PHOTOPEA_HOST_CSP",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "src_server_application_photopea_host_csp",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "photopea_host_csp"
+    },
+    {
+      "label": "secured()",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_server_application_secured",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "secured()"
+    },
+    {
+      "label": "json()",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "src_server_application_json",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "json()"
+    },
+    {
+      "label": "createApplication()",
+      "file_type": "code",
+      "source_file": "src/server/application.ts",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_server_application_createapplication",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "createapplication()"
     },
     {
       "label": "browserbase-client.ts",
@@ -2237,14 +2380,47 @@
       "norm_label": "main()"
     },
     {
+      "label": "server/index.ts",
+      "file_type": "code",
+      "source_file": "src/server/index.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_server_index",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "server/index.ts"
+    },
+    {
+      "label": "application",
+      "file_type": "code",
+      "source_file": "src/server/index.ts",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_server_index_application",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "application"
+    },
+    {
+      "label": "app.ts",
+      "file_type": "code",
+      "source_file": "src/web/app.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_web_app",
+      "community": 16,
+      "community_name": "playwright-photopea-transport.ts",
+      "norm_label": "app.ts"
+    },
+    {
       "label": "editor-session.contract.ts",
       "file_type": "code",
       "source_file": "test/editor/editor-session.contract.ts",
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "editor-session.contract.ts"
     },
     {
@@ -2254,8 +2430,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_editorsessionfactory",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "editorsessionfactory"
     },
     {
@@ -2265,8 +2441,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_pngsignature",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "pngsignature"
     },
     {
@@ -2276,8 +2452,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_editor_session_contract_defineeditorsessioncontract",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "defineeditorsessioncontract()"
     },
     {
@@ -2430,8 +2606,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopea-bridge.test.ts"
     },
     {
@@ -2441,8 +2617,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "memorytransport"
     },
     {
@@ -2452,8 +2628,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_boot",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -2463,8 +2639,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_send",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -2474,8 +2650,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_nextmessage",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -2485,8 +2661,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_press",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -2496,8 +2672,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_memorytransport_reload",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -2507,8 +2683,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_controlledtransport",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "controlledtransport"
     },
     {
@@ -2518,8 +2694,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_controlledtransport_nextmessage",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -2529,8 +2705,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_controlledtransport_resolvenext",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".resolvenext()"
     },
     {
@@ -2540,8 +2716,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_controlledtransport_waitforsentcount",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".waitforsentcount()"
     },
     {
@@ -2551,8 +2727,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_controlledtransport_waitformessagerequest",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".waitformessagerequest()"
     },
     {
@@ -2562,8 +2738,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_latesentineltransport",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "latesentineltransport"
     },
     {
@@ -2573,8 +2749,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "test_editor_photopea_bridge_test_latesentineltransport_nextmessage",
-      "community": 15,
-      "community_name": "PhotopeaMessage",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -2672,8 +2848,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_image",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "image()"
     },
     {
@@ -2683,8 +2859,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test",
-      "community": 27,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "photopea-document-loader.integration.test.ts"
     },
     {
@@ -2694,8 +2870,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_integration_test_openimage",
-      "community": 27,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "openimage()"
     },
     {
@@ -2716,8 +2892,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "recordingbridge"
     },
     {
@@ -2727,8 +2903,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_constructor",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -2738,8 +2914,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_boot",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -2749,8 +2925,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_openfile",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -2760,8 +2936,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_runscript",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -2771,8 +2947,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_recordingbridge_press",
-      "community": 18,
-      "community_name": "PhotopeaDocumentBridge",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -2782,8 +2958,8 @@
       "source_location": "L230",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_test_name",
-      "community": 4,
-      "community_name": "Run Cost, Limits & Metering",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
       "norm_label": "name()"
     },
     {
@@ -2804,8 +2980,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_integration_test",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "playwright-photopea-transport.integration.test.ts"
     },
     {
@@ -2815,8 +2991,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_test",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "playwright-photopea-transport.test.ts"
     },
     {
@@ -2826,8 +3002,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_test_pagefakestate",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "pagefakestate"
     },
     {
@@ -2837,8 +3013,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "test_editor_playwright_photopea_transport_test_createpagefake",
-      "community": 16,
-      "community_name": "playwright-photopea-transport.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createpagefake()"
     },
     {
@@ -2848,8 +3024,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_contract_test",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "recorded-fake-editor-session.contract.test.ts"
     },
     {
@@ -2859,8 +3035,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_recorded_fake_editor_session_test",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "recorded-fake-editor-session.test.ts"
     },
     {
@@ -2870,8 +3046,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -2881,8 +3057,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "isexact"
     },
     {
@@ -2892,8 +3068,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "assert"
     },
     {
@@ -2903,8 +3079,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "keysofunion"
     },
     {
@@ -2914,8 +3090,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "methodisexact"
     },
     {
@@ -2925,8 +3101,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "expectedaction"
     },
     {
@@ -2936,8 +3112,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -2947,8 +3123,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "expectedsession"
     },
     {
@@ -2958,8 +3134,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_open",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".open()"
     },
     {
@@ -2969,8 +3145,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_screenshot",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".screenshot()"
     },
     {
@@ -2980,8 +3156,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_act",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".act()"
     },
     {
@@ -2991,8 +3167,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_layers",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".layers()"
     },
     {
@@ -3002,8 +3178,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpsd",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpsd()"
     },
     {
@@ -3013,8 +3189,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_exportpreview",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".exportpreview()"
     },
     {
@@ -3024,8 +3200,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedsession_close",
-      "community": 26,
-      "community_name": "ExpectedSession",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": ".close()"
     },
     {
@@ -3035,8 +3211,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "assertions"
     },
     {
@@ -3046,8 +3222,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 23,
-      "community_name": "session.types.test.ts",
+      "community": 11,
+      "community_name": "fake-editor-session.ts",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -3057,8 +3233,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_single_layer_editor_session_contract_test",
-      "community": 22,
-      "community_name": "editor-session.contract.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "single-layer-editor-session.contract.test.ts"
     },
     {
@@ -3101,8 +3277,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures",
-      "community": 27,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "live-image-fixtures.ts"
     },
     {
@@ -3112,8 +3288,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
-      "community": 27,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "padjpegwithappsegments()"
     },
     {
@@ -3123,9 +3299,31 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "test_editor_support_live_image_fixtures_createliveboundaryimages",
-      "community": 27,
-      "community_name": "photopea-document-loader.integration.test.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "createliveboundaryimages()"
+    },
+    {
+      "label": "application.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/application.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_application_test",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "application.test.ts"
+    },
+    {
+      "label": "request()",
+      "file_type": "code",
+      "source_file": "test/server/application.test.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "test_server_application_test_request",
+      "community": 15,
+      "community_name": "PhotopeaMessage",
+      "norm_label": "request()"
     },
     {
       "label": "browserbase-client.test.ts",
@@ -3192,6 +3390,17 @@
       "community": 14,
       "community_name": "PhotopeaDocumentBridge",
       "norm_label": "clientthat()"
+    },
+    {
+      "label": "scaffold.test.ts",
+      "file_type": "code",
+      "source_file": "test/server/scaffold.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "test_server_scaffold_test",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
+      "norm_label": "scaffold.test.ts"
     },
     {
       "label": "tsconfig.json",
@@ -5855,7 +6064,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L24",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package",
@@ -5866,7 +6075,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L13",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package",
@@ -5877,7 +6086,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L10",
+      "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package",
@@ -5893,6 +6102,18 @@
       "_origin": "ast",
       "source": "package",
       "target": "package_scripts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/scaffold.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_scaffold_test",
+      "target": "package",
       "confidence_score": 1.0
     },
     {
@@ -5914,7 +6135,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_scripts",
-      "target": "package_scripts_lint",
+      "target": "package_scripts_build",
       "confidence_score": 1.0
     },
     {
@@ -5925,7 +6146,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_scripts",
-      "target": "package_scripts_lint_fix",
+      "target": "package_scripts_dev",
       "confidence_score": 1.0
     },
     {
@@ -5936,7 +6157,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_scripts",
-      "target": "package_scripts_prepare",
+      "target": "package_scripts_lint",
       "confidence_score": 1.0
     },
     {
@@ -5947,7 +6168,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_scripts",
-      "target": "package_scripts_test",
+      "target": "package_scripts_lint_fix",
       "confidence_score": 1.0
     },
     {
@@ -5955,6 +6176,39 @@
       "confidence": "EXTRACTED",
       "source_file": "package.json",
       "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "package_scripts",
+      "target": "package_scripts_prepare",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "package_scripts",
+      "target": "package_scripts_start",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "package_scripts",
+      "target": "package_scripts_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_scripts",
@@ -6015,7 +6269,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6026,7 +6280,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6037,7 +6291,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6048,7 +6302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6059,7 +6313,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6070,7 +6324,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6081,7 +6335,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6092,7 +6346,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L17",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6103,7 +6357,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
@@ -6124,7 +6378,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L17",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6146,7 +6400,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L18",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6158,7 +6412,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L19",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6170,7 +6424,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L17",
+      "source_location": "L20",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6192,7 +6446,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6204,7 +6458,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L22",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6216,7 +6470,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L23",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6228,7 +6482,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6240,7 +6494,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L25",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6252,7 +6506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_dependencies",
@@ -6263,7 +6517,7 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L28",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -9434,6 +9688,30 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_editor_photopea_host",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_editor_photopea_host_createphotopeahosthtml",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10528,6 +10806,177 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_application_csp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_applicationdependencies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_base_security_headers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_createapplication",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_photopea_host_csp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application",
+      "target": "src_server_application_secured",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/index.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_index",
+      "target": "src_server_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/application.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_application_test",
+      "target": "src_server_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application_application",
+      "target": "src_server_application_application_fetch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/application.ts",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application_json",
+      "target": "src_server_application_secured",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/server/application.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_application_secured",
+      "target": "test_editor_photopea_document_loader_test_name"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/index.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_index",
+      "target": "src_server_application_createapplication",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/application.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_application_test",
+      "target": "src_server_application_createapplication",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/server/browserbase-client.ts",
       "source_location": "L27",
       "weight": 1.0,
@@ -11052,6 +11501,17 @@
       "_origin": "ast",
       "source": "src_server_browserbase_probe_main",
       "target": "src_server_browserbase_probe_probephotopeaovercdp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/server/index.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_server_index",
+      "target": "src_server_index_application",
       "confidence_score": 1.0
     },
     {
@@ -11984,6 +12444,17 @@
       "_origin": "ast",
       "source": "test_editor_support_live_image_fixtures_createliveboundaryimages",
       "target": "test_editor_support_live_image_fixtures_padjpegwithappsegments",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/application.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_application_test",
+      "target": "test_server_application_test_request",
       "confidence_score": 1.0
     },
     {
@@ -14807,5 +15278,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "80df606ffa24c5da2ddd822c838b62f1bd4dc672"
+  "built_at_commit": "5cc8caa1ace0a295201ae1fa72472b6202c3fb64"
 }

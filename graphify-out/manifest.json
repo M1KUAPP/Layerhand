@@ -10,8 +10,8 @@
     "semantic_hash": "52ab4ac1646fcab89c9e7e059b1ef9db"
   },
   "package.json": {
-    "mtime": 1789412790.3735197,
-    "ast_hash": "20105e8dc379baae11af97e38d1dcd96",
+    "mtime": 1789412925.521505,
+    "ast_hash": "395ab4135cce27478093cf65a56934e7",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -352,6 +352,36 @@
   "test/server/browserbase-probe.test.ts": {
     "mtime": 1789412783.9055386,
     "ast_hash": "6812ad002eb52be521c01360a7535d21",
+    "semantic_hash": ""
+  },
+  "src/server/application.ts": {
+    "mtime": 1789412958.4065151,
+    "ast_hash": "bf2eeab60abc89ce4b0e226bcd57b1d7",
+    "semantic_hash": ""
+  },
+  "src/server/index.ts": {
+    "mtime": 1789412925.521505,
+    "ast_hash": "160864b5b546cf769e42be15fd8ff379",
+    "semantic_hash": ""
+  },
+  "src/web/app.ts": {
+    "mtime": 1789412925.52561,
+    "ast_hash": "04658c1a7ad00a3b79058e4b1ccf2952",
+    "semantic_hash": ""
+  },
+  "test/server/application.test.ts": {
+    "mtime": 1789412859.2829506,
+    "ast_hash": "4ea36df84bb790cbcff6142afee0f17d",
+    "semantic_hash": ""
+  },
+  "test/server/scaffold.test.ts": {
+    "mtime": 1789412958.5953116,
+    "ast_hash": "4038f0d0e375eba00742574976a8909c",
+    "semantic_hash": ""
+  },
+  "src/web/index.html": {
+    "mtime": 1789412958.4927049,
+    "ast_hash": "7094aef814a22afacfc9408656a518fa",
     "semantic_hash": ""
   }
 }
