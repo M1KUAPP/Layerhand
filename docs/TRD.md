@@ -855,8 +855,14 @@ finish processing a truncated file without creating a document. The loader
 now snapshots the document count before delivery and requires one newly
 appended document before selecting or renaming it. Public-Photopea Chrome
 coverage rejects a truncated second PNG without renaming the original,
-then opens a valid second image on the same loader. Complete open
-workflows require caller serialization during document-count bookkeeping.
+then opens a valid second image on the same loader. A follow-up concurrency
+regression showed that the bridge's per-command queue did not protect the
+complete count-to-verification workflow. Complete opens now share an internal
+FIFO by bridge identity, including multiple loader instances. It holds through
+Move-tool selection; failed calls do not block later work. Validation and byte
+copying happen before queueing, and load timing excludes queue wait. Chrome
+coverage verifies overlapping failed/valid and valid/valid uploads without
+mistaking another call's document for the uploaded image.
 
 The September 15 EXIF regression used a valid JPEG with raw SOF dimensions
 of 32x16 and orientation 6. Photopea correctly displayed it at 16x32, while
