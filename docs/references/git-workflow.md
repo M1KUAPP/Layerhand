@@ -102,6 +102,15 @@ Local hooks install themselves:
 bun install
 ```
 
+The pre-commit hook also runs
+[graphify](https://github.com/graphify-labs/graphify) to update the
+knowledge graph, and `bun install` does not provide it. Install it first,
+or every commit fails:
+
+```sh
+uv tool install graphifyy
+```
+
 The server-side rules are applied once, by someone with admin on the
 repository. Check that rulesets are available before changing anything:
 

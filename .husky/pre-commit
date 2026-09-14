@@ -1,1 +1,1 @@
-bunx lint-staged
+graphify update . && bunx lint-staged
