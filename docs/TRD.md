@@ -841,6 +841,15 @@ Serializing 20 MiB as individual numbers initially took
 `maxJpegMs: 28022.7145`; a compact base64 transfer reduced it to the
 measurement above while preserving every byte and defensive copies.
 
+The September 14 review added header-field validation before browser
+navigation, applied the transport viewport to injected pages, and made
+bridge boot reusable. Concurrent boot calls share one readiness wait;
+successful boot is cached, while a failed attempt permits a fresh host.
+Installed-Chrome tests with a local host confirm fresh initialization on
+repeated transport boots and that cleanup messages cannot satisfy a retry.
+The bridge's `commandTimeoutMs` bounds each message wait, excluding
+navigation, message delivery, and awaited reload cleanup.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a

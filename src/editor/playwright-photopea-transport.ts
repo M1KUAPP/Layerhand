@@ -29,6 +29,7 @@ function isByteArray(value: unknown): value is number[] {
 
 export interface PlaywrightPhotopeaTransportOptions {
   readonly hostUrl: string
+  /** Applied before host navigation. Defaults to 1440x900. */
   readonly viewport?: Viewport
 }
 
