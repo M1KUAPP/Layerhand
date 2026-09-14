@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "browserbase:probe": "bun src/server/browserbase-probe.ts",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky",
