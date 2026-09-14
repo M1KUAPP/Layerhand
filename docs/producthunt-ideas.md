@@ -5,8 +5,9 @@ Challenge, run September 12, 2026 using the `astra-challenge` skill.
 
 **Days remaining: 6.** Entries must launch on Product Hunt by September 18.
 Launching at 12:01am PT on the 18th to get the full 24-hour window leaves
-five working days to build. Scope killed more ideas below than any other
-gate.
+five working days to build. The [PRD schedule](PRD.md#schedule) counts
+six build days, September 12 to 17, and is the one to plan against. Scope
+killed more ideas below than any other gate.
 
 **Rubric caveat.** OpenAI published no judging criteria for this contest.
 Every score here is against the four equally-weighted WebMCP Challenge
