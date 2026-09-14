@@ -46,11 +46,11 @@ Temporary Items
 
 # Development
 .worktrees/
+.playwright-cli/
 .superpowers/
 node_modules/
 dist/
 /web/
-.playwright-cli/
 
 # Environment
 .env*
