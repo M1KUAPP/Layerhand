@@ -72,6 +72,7 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
   async boot(configuration: PhotopeaConfiguration): Promise<void> {
     const hostUrl = new URL(this.#hostUrl)
     hostUrl.hash = encodeURIComponent(JSON.stringify(configuration))
+    await this.#page.setViewportSize(this.viewport)
     await this.#page.goto(hostUrl.toString())
   }
 
