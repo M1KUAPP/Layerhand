@@ -47,5 +47,7 @@ Temporary Items
 # Development
 .superpowers/
 node_modules/
+
+# Environment
 .env*
 !.env.example
