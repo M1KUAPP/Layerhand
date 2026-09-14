@@ -8,7 +8,8 @@
     "prepare": "husky",
     "start": "cd dist && bun index.js",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "waitlist:export": "bun src/server/waitlist-export.ts"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
