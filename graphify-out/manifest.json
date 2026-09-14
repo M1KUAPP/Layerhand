@@ -403,5 +403,20 @@
     "mtime": 1789413328.7765577,
     "ast_hash": "fb22dbfa5a743f06f697ed8e32bd55a5",
     "semantic_hash": ""
+  },
+  "src/server/database.ts": {
+    "mtime": 1789413409.7388122,
+    "ast_hash": "671710864d2363c30b2332be3c3e39f5",
+    "semantic_hash": ""
+  },
+  "src/server/migrations.ts": {
+    "mtime": 1789413409.7429204,
+    "ast_hash": "8ff6d3bf7013081133d8cf0eb1678c27",
+    "semantic_hash": ""
+  },
+  "test/server/migrations.test.ts": {
+    "mtime": 1789413515.6135309,
+    "ast_hash": "8e34bd758ca783fabd6d19f167780341",
+    "semantic_hash": ""
   }
 }

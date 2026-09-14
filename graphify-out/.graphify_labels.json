@@ -18,6 +18,16 @@
   "16": "playwright-photopea-transport.ts",
   "17": "Layerhand",
   "18": "container-smoke.sh",
+  "19": "PhotopeaTransport",
   "20": "Saved query: are Layerhand's inferred relationships correct",
-  "21": "Saved query: are Swap Test's inferred relationships correct"
+  "21": "Saved query: are Swap Test's inferred relationships correct",
+  "22": "playwright-photopea-transport.ts",
+  "23": "FakeEditorSession",
+  "24": "PhotopeaDocumentBridge",
+  "25": "session.types.test.ts",
+  "26": "editor-session.contract.ts",
+  "27": "PhotopeaBridge",
+  "28": "EditorSession",
+  "29": "ExpectedSession",
+  "30": "photopea-document-loader.integration.test.ts"
 }
