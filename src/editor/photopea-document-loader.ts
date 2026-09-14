@@ -31,6 +31,17 @@ function scriptString(value: string): string {
     .replace(/\u2029/g, '\\u2029')
 }
 
+function readDocumentCount(messages: readonly PhotopeaMessage[]): number {
+  const snapshots = messages.filter(
+    (message) => message.type === 'text' && message.value.startsWith('layerhand:documents:')
+  )
+  if (snapshots.length !== 1 || snapshots[0]?.type !== 'text') throw new PhotopeaDocumentError()
+  const raw = snapshots[0].value.slice('layerhand:documents:'.length)
+  const count = Number(raw)
+  if (!Number.isSafeInteger(count + 1) || count < 0 || String(count) !== raw) throw new PhotopeaDocumentError()
+  return count
+}
+
 function verifyDocument(messages: readonly PhotopeaMessage[], upload: ValidatedImageUpload): void {
   const metadata = messages.filter(
     (message) => message.type === 'text' && message.value.startsWith('layerhand:document:')
@@ -74,14 +85,19 @@ export class PhotopeaDocumentLoader {
   async open(bytes: Uint8Array, filename: string): Promise<LoadedPhotopeaDocument> {
     const upload = validateImageUpload(bytes, filename)
     await this.#bridge.boot()
+    const documentCount = readDocumentCount(
+      await this.#bridge.runScript('app.echoToOE("layerhand:documents:" + app.documents.length);')
+    )
     const startedAt = this.#now()
     await this.#bridge.openFile(upload.bytes)
     const escapedFilename = scriptString(upload.filename)
     const escapedDisplayName = scriptString(upload.filename.replace(/\.(?:png|jpe?g)$/i, ''))
     // Photopea truncates display names at the first period; source preserves identity.
     const messages = await this.#bridge.runScript(
-      `var d = app.activeDocument;\nd.name = ${escapedDisplayName};\nd.source = ${escapedFilename};\napp.UI.fitTheArea();\n` +
-        'app.echoToOE("layerhand:document:" + Math.round(d.width) + ":" + Math.round(d.height) + ":" + encodeURIComponent(d.source));'
+      `if (app.documents.length === ${documentCount + 1}) {\n` +
+        `var d = app.documents[${documentCount}];\napp.activeDocument = d;\n` +
+        `d.name = ${escapedDisplayName};\nd.source = ${escapedFilename};\napp.UI.fitTheArea();\n` +
+        'app.echoToOE("layerhand:document:" + Math.round(d.width) + ":" + Math.round(d.height) + ":" + encodeURIComponent(d.source));\n}'
     )
     verifyDocument(messages, upload)
     await this.#bridge.press('v')

@@ -850,6 +850,14 @@ repeated transport boots and that cleanup messages cannot satisfy a retry.
 The bridge's `commandTimeoutMs` bounds each message wait, excluding
 navigation, message delivery, and awaited reload cleanup.
 
+A subsequent same-page decode regression established that Photopea can
+finish processing a truncated file without creating a document. The loader
+now snapshots the document count before delivery and requires one newly
+appended document before selecting or renaming it. Public-Photopea Chrome
+coverage rejects a truncated second PNG without renaming the original,
+then opens a valid second image on the same loader. Complete open
+workflows require caller serialization during document-count bookkeeping.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a

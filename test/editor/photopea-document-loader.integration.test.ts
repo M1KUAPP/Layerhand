@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser } from 'playwright-core'
+import sharp from 'sharp'
 import {
   PhotopeaBridge,
   PhotopeaDocumentLoader,
@@ -52,6 +53,64 @@ describeLive('Photopea document loader in Google Chrome', () => {
       await context.close()
     }
   }
+
+  test('rejects a failed second decode without renaming the previous document', async () => {
+    const page = await browser.newPage()
+    const bytes = await sharp({
+      create: { width: 32, height: 16, channels: 3, background: '#558899' }
+    })
+      .png()
+      .toBuffer()
+
+    try {
+      const transport = new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
+      const bridge = new PhotopeaBridge(transport)
+      const loader = new PhotopeaDocumentLoader(bridge)
+      await loader.open(bytes, 'original.png')
+
+      const result = await loader.open(bytes.subarray(0, 33), 'truncated.png').catch((error: unknown) => error)
+      const metadata = await bridge.runScript(
+        'app.echoToOE("previous:" + app.documents.length + ":" + encodeURIComponent(app.activeDocument.source));'
+      )
+
+      expect(result).toMatchObject({ code: 'photopea_document_mismatch' })
+      expect(metadata).toContainEqual({ type: 'text', value: 'previous:1:original.png' })
+
+      await loader.open(bytes, 'second.png')
+      const reopened = await bridge.runScript(
+        'app.echoToOE("reopened:" + app.documents.length + ":" + app.documents[0].source + ":" + app.documents[1].source + ":" + app.activeDocument.source);'
+      )
+      expect(reopened).toContainEqual({ type: 'text', value: 'reopened:2:original.png:second.png:second.png' })
+    } finally {
+      await page.close()
+    }
+  }, 60_000)
+
+  test('addresses the newly appended document through the Photopea collection', async () => {
+    const page = await browser.newPage()
+    const bytes = await sharp({
+      create: { width: 32, height: 16, channels: 3, background: '#558899' }
+    })
+      .png()
+      .toBuffer()
+    try {
+      const transport = new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
+      const bridge = new PhotopeaBridge(transport)
+      await new PhotopeaDocumentLoader(bridge).open(bytes, 'original.png')
+      await bridge.openFile(bytes)
+      const result = await bridge.runScript(
+        'var next = app.documents[1]; app.activeDocument = app.documents[0]; ' +
+          'var previous = app.activeDocument.source; app.activeDocument = next; next.source = "second.png"; ' +
+          'app.echoToOE("collection:" + app.documents.length + ":" + previous + ":" + app.documents[0].source + ":" + app.documents[1].source + ":" + app.activeDocument.source);'
+      )
+      expect(result).toContainEqual({
+        type: 'text',
+        value: 'collection:2:original.png:original.png:second.png:second.png'
+      })
+    } finally {
+      await page.close()
+    }
+  }, 60_000)
 
   test('opens PNG, JPEG, and exact-20-MiB JPEG boundary images', async () => {
     const fixtures = await createLiveBoundaryImages()

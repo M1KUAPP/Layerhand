@@ -220,13 +220,24 @@ export class PhotopeaDocumentLoader {
 `open()` validates before calling `bridge.boot()`. It then:
 
 1. Ensures the configured Photopea frame is ready, reusing a successful boot.
-2. Sends the validated bytes.
-3. Runs one ES3 verification script that sets a display stem in `Document.name`
-   and the full filename in `Document.source`, calls `app.UI.fitTheArea()`,
-   and echoes the actual width, height, and encoded source identifier.
-4. Compares the echoed dimensions and source with the validated input.
-5. Presses `v` through Chrome to select the Move tool after metadata matches.
-6. Returns the measured time from byte send through Move-tool selection.
+2. Reads and validates the current document count through an ES3 script.
+3. Sends the validated bytes.
+4. Runs an ES3 verification script that requires exactly one additional
+   document. It selects the newly appended document, sets a display stem in
+   `Document.name` and the full filename in `Document.source`, calls
+   `app.UI.fitTheArea()`, and echoes dimensions and the encoded source.
+5. Compares the echoed dimensions and source with the validated input.
+6. Presses `v` through Chrome to select the Move tool after metadata matches.
+7. Returns the measured time from byte send through Move-tool selection,
+   excluding boot and the document-count snapshot.
+
+If decoding produces no new document, or more than one, the loader rejects
+before changing a document's name or source. The successful file sentinel
+alone does not prove a decode succeeded. Chrome verification established
+that new documents append to `app.documents` and can be selected through
+that collection; Photopea document wrappers do not support object-identity
+comparison. The caller must serialize complete open workflows and avoid
+concurrent document creation or removal while a load is in progress.
 
 Photopea truncates `Document.name` at the first period; `Document.source`
 preserves the complete filename for verification. Reused opens retain the
@@ -276,7 +287,13 @@ validate magic, length, header fields, and dimensions
 ensure outer host and Photopea iframe are ready in Chrome
     |
     v
+read and validate the pre-upload document count
+    |
+    v
 post copied ArrayBuffer and wait for completion
+    |
+    v
+require one new document and select it from the collection
     |
     v
 set display name and source, fit, echo metadata with unique sentinel
@@ -336,6 +353,7 @@ validated dimensions describe the source document, while `viewport` remains the
 - Fit-to-area and Move-tool normalization.
 - Deterministic load-time measurement.
 - Metadata mismatch and malformed response failures.
+- A failed decode cannot rename an existing document or return it as success.
 
 ### Google Chrome integration test
 
@@ -343,6 +361,9 @@ validated dimensions describe the source document, while `viewport` remains the
 `LAYERHAND_CHROME_INTEGRATION=1`. It uses `playwright-core` with
 `channel: 'chrome'`, serves the outer host on `127.0.0.1`, and opens real JPEG
 and PNG bytes in the public Photopea editor.
+
+Same-page coverage also rejects a truncated second PNG without renaming the
+first document, then successfully opens another valid image on that loader.
 
 The integration harness creates boundary fixtures at runtime rather than
 committing tens of megabytes. Unit tests prove the exact byte and dimension
