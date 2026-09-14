@@ -39,9 +39,10 @@ function createPageFake() {
   }
 
   return Object.assign(state, {
-    goto: async (url: string) => {
+    goto: async (url: string): Promise<unknown> => {
       state.navigations.push(url)
       state.navigationViewports.push({ ...state.viewport })
+      return undefined
     },
     setViewportSize: async (viewport: { width: number; height: number }) => {
       state.viewport = { ...viewport }
@@ -164,6 +165,24 @@ describe('Playwright Photopea transport', () => {
     expect(page.viewport).toEqual(expected)
     expect(page.navigationViewports).toEqual([expected])
     expect(transport.viewport).toEqual(expected)
+  })
+
+  test('reloads after same-document navigation so old messages cannot mark a new boot ready', async () => {
+    const page = createPageFake()
+    page.messages.push({ type: 'text', value: 'done' })
+    page.goto = async () => null
+    page.reload = async () => {
+      page.reloads += 1
+      page.messages.splice(0)
+    }
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    await transport.boot(PHOTOPEA_CONFIGURATION)
+
+    expect(page.reloads).toBe(1)
+    await expect(transport.nextMessage(100)).rejects.toThrow('Host message wait timed out.')
   })
 
   test('rejects opaque and non-HTTP host URLs', () => {
