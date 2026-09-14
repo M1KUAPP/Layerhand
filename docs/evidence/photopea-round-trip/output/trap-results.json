@@ -1,0 +1,102 @@
+{
+  "colour": {
+    "completed": true,
+    "elapsedMs": 50.11650000000009,
+    "messages": [
+      "binary:264",
+      "colour:c2f0114d-e066-4841-a896-eaef8ed8e87a",
+      "done"
+    ],
+    "pixel": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "readyMs": 1231,
+    "uploadMs": 33
+  },
+  "crash": {
+    "crashMessages": [
+      "done",
+      "after-crash:08cb4807-0114-40aa-9d50-9e8f12cf11f5:After crash",
+      "done"
+    ],
+    "readyMs": 2232,
+    "recovery": {
+      "completed": true,
+      "elapsedMs": 13.117750000000342,
+      "messages": [
+        "after-crash:08cb4807-0114-40aa-9d50-9e8f12cf11f5:After crash",
+        "done"
+      ]
+    },
+    "uploadMs": 32
+  },
+  "selection": {
+    "completed": true,
+    "elapsedMs": 33.95749999999862,
+    "messages": [
+      "selection:7ebae62b-3967-455c-a4f7-899ef524119b:0,0,64,64",
+      "done"
+    ],
+    "readyMs": 1214,
+    "uploadMs": 32
+  },
+  "syntax": [
+    {
+      "name": "arrow",
+      "readyMs": 1736,
+      "completed": true,
+      "elapsedMs": 15.443166999999903,
+      "messages": [
+        "arrow:97f41771-ac1a-401c-b464-39fbc5045e29:undefined",
+        "done"
+      ]
+    },
+    {
+      "name": "template",
+      "readyMs": 1248,
+      "completed": true,
+      "elapsedMs": 15.642541000000165,
+      "messages": [
+        "template:bfeaf147-f49d-4ec4-bdca-720aded9d77c:null",
+        "done"
+      ]
+    },
+    {
+      "name": "for-of",
+      "readyMs": 1385,
+      "completed": true,
+      "elapsedMs": 16.336957999999868,
+      "messages": [
+        "for-of:f2f3b134-bbc0-4b79-9c4d-ed60cbb83399:0",
+        "done"
+      ]
+    }
+  ],
+  "text": {
+    "immediate": {
+      "delayAfterReadyMs": 0,
+      "readyMs": 1348,
+      "completed": true,
+      "elapsedMs": 33.53424999999879,
+      "messages": [
+        "done",
+        "text-0:b03b87b2-0c5e-496f-b636-7975fcdb9bee:Layerhand:2",
+        "done"
+      ]
+    },
+    "delayed": {
+      "delayAfterReadyMs": 2000,
+      "readyMs": 1234,
+      "completed": true,
+      "elapsedMs": 46.68241699999999,
+      "messages": [
+        "done",
+        "text-2000:a9490bc2-9895-4b65-9257-c3c96ff943c6:Layerhand:2",
+        "done"
+      ]
+    }
+  }
+}

@@ -380,11 +380,13 @@ under `http://127.0.0.1` started normally.
 
 ### Known traps
 
-Spike B1 tested each warning locally on September 14, 2026.
+Spike B1 tested each warning locally on September 14, 2026. The scripts,
+captured outputs, and exact limitations are retained in the
+[B1 evidence bundle](evidence/photopea-round-trip/README.md).
 
-The test used Google Chrome. Its result is deliberately scoped to the
-calls named below; an untested Photopea DOM operation still needs
-read-back verification.
+The test used Google Chrome, but did not record its build. Its result is
+deliberately scoped to the calls named below; an untested Photopea DOM
+operation still needs read-back verification.
 
 1.  **Confirmed: `"done"` is not a reliable terminator.** Document and
     text-layer operations emitted `"done"` before the call's sentinel,
@@ -397,7 +399,7 @@ read-back verification.
     their expected values. Adapter scripts stay within ES3 syntax.
 1.  **Not reproduced: a crashed script poisons the interpreter.** A
     missing-method exception was followed by a layer rename and
-    sentinel in 14 ms without reloading. A sentinel timeout still
+    sentinel in 13 ms without reloading. A sentinel timeout still
     triggers a frame reload, but interpreter poisoning is not the
     reason to assume.
 1.  **Not reproduced for the tested selection and colour calls.** A
@@ -405,15 +407,19 @@ read-back verification.
     fill using `rgb.hexValue = "FF0000"` exported the pixel
     `[255, 0, 0, 255]`. Read-back verification remains mandatory for
     every scripted mutation.
-1.  **Not reproduced: text layers need a two-second delay.** A text
-    layer created immediately after the ready message, about 1.40
-    seconds after navigation, contained the expected text. The same
-    operation also worked after a two-second delay.
+1.  **Inconclusive: text layers need a two-second delay.** A text layer
+    created immediately after the ready message returned its expected
+    contents and layer count, as did one created after two seconds. The
+    probe did not retain rendered-pixel evidence, so font rendering at
+    either time remains unverified.
 1.  **Not reproduced locally: a seven-second cold start.** The editor
-    was ready in 1.22 seconds, opening the first 640x480 JPEG took 0.95
-    seconds, and PSD export took 0.17 seconds. The full cold probe ended
-    in 2.81 seconds. Browserbase cold-start time remains a separate B2
-    measurement and can still force session warming.
+    was ready in 1.337 seconds, opening the first 640x480 JPEG took
+    0.032 seconds, and PSD export through the exact sentinel took 0.066
+    seconds. The full local probe ended in 1.890 seconds. These are one
+    retained sample from a new local Chrome process and temporary
+    profile; the bundle defines each clock and its cache limitation.
+    Browserbase cold-start time remains a separate B2 measurement and
+    can still force session warming.
 
 ### Advertising
 
@@ -833,17 +839,17 @@ on day 0, and nobody should reach for the kill switch over them.
 A0 and A4 are the two that can still change the plan, which is why both
 are day-0 despite being short.
 
-**B1 result, September 14:** passed. A 13,442-byte JPEG
-sent through `postMessage` produced a 1,412,711-byte PSD with two named
-layers, `Original photograph` and `Retouched copy`. The `8BPS` signature,
-640x480 dimensions, and both layer names were verified with `ag-psd`.
-The exact message sequence was a deliberately misleading `"done"`, the
-PSD bytes, the unique sentinel, and the real completion `"done"`, which
-proved the sentinel handshake. The same candidate opened in Adobe
-Photoshop 2026 without a warning. Photoshop reported a 640x480 RGB/8
-document, and selecting adjacent layers changed its live document title
-from `Original photograph` to `Retouched copy`, confirming that both
-named layers survived the round trip.
+**B1 result, September 14:** provisionally passed. The retained run reports
+a 13,442-byte JPEG sent through `postMessage` and preserves its 1,412,711-byte
+PSD with two named layers, `Original photograph` and `Retouched copy`. The
+`8BPS` signature, 640x480 dimensions, and both layer names were verified with
+`ag-psd` 30.2.0. The captured sequence is the deliberately misleading
+`"done"`, the PSD bytes, the unique sentinel, and the real completion `"done"`;
+the host logic and test show why only the exact sentinel completes the wait.
+The [B1 evidence bundle](evidence/photopea-round-trip/README.md) retains the
+scripts, outputs, candidate PSD, hashes, trap results, and timing definitions.
+The exact input JPEG and durable Photoshop opening evidence were not retained,
+so the Photoshop compatibility acceptance check remains pending.
 
 ## See also
 
