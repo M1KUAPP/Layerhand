@@ -2,7 +2,7 @@
 
 The entry point for any agent working in this repository. It is short on
 purpose: the rules live in `docs/agents/`, and the long-form references they
-rest on live in `docs/reference/`. This file is symlinked as `CLAUDE.md` and
+rest on live in `docs/references/`. This file is symlinked as `CLAUDE.md` and
 `GEMINI.md`, so edit `AGENTS.md` and never the symlinks.
 
 Harnesses that support file imports pull the rules in here, so they are
@@ -18,7 +18,7 @@ Everything else is situational.
 ## Non-negotiables
 
 - **Never commit or push to `main`.** Branch, open a pull request, and let it
-  be reviewed. See [git workflow](docs/reference/git-workflow.md).
+  be reviewed. See [git workflow](docs/references/git-workflow.md).
 - **Commit messages, issue titles, and pull request titles follow
   [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).**
 - **Commits are atomic.** One reason to change per commit.
@@ -37,10 +37,10 @@ Everything else is situational.
 
 ## Reference
 
-| Document                                                 | Covers                                       |
-| -------------------------------------------------------- | -------------------------------------------- |
-| [Git workflow](docs/reference/git-workflow.md)           | Branch to merge, and what enforces each step |
-| [Markdown style guide](docs/reference/markdown-style.md) | How to write every document in `docs/`       |
+| Document                                                  | Covers                                       |
+| --------------------------------------------------------- | -------------------------------------------- |
+| [Git workflow](docs/references/git-workflow.md)           | Branch to merge, and what enforces each step |
+| [Markdown style guide](docs/references/markdown-style.md) | How to write every document in `docs/`       |
 
 ## Project documents
 
