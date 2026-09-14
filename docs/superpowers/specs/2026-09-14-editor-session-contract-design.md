@@ -95,16 +95,33 @@ The fake follows these deterministic rules:
 1. Construction rejects a recording with no frames because such a fake cannot
    satisfy `screenshot()`.
 
-The default factory loads two committed assets from
+The default factory loads three committed assets from
 `src/editor/fixtures/` using `node:fs/promises` and `import.meta.url`:
 
 - `photopea-frame.png` is the verified 1440x900 frame from issue #13.
 - `layered-output.psd` is the verified 1,412,711-byte PSD from issue #13.
+- `document-preview.png` is the 640x480 flattened composite of that PSD,
+  without the editor UI.
 
-The frame also serves as the flattened preview. The default layer metadata is
-`Original photograph` followed by `Retouched copy`, both visible raster
-layers. The factory does not parse the PSD; that deliberate duplication ends
-when issue #17 adds structural validation.
+The preview was exported once with macOS `sips`; the original frame and PSD
+remain byte-for-byte unchanged:
+
+```sh
+sips -s format png src/editor/fixtures/layered-output.psd \
+  --out src/editor/fixtures/document-preview.png
+shasum -a 256 src/editor/fixtures/document-preview.png
+```
+
+The committed preview's SHA-256 is:
+
+```text
+074d66b09f3d571c6b8a52e60fd60881d62299bc01211ad44596160085d867dd
+```
+
+The default layer metadata is `Original photograph` followed by
+`Retouched copy`, both visible raster layers. The factory does not parse the
+PSD; that deliberate duplication ends when issue #17 adds structural
+validation.
 
 ## Tests
 
@@ -154,8 +171,10 @@ src/editor/fake-editor-session.ts
 src/editor/index.ts
 src/editor/fixtures/photopea-frame.png
 src/editor/fixtures/layered-output.psd
+src/editor/fixtures/document-preview.png
 test/editor/editor-session.contract.ts
 test/editor/fake-editor-session.test.ts
+test/editor/recorded-fake-editor-session.test.ts
 ```
 
 No browser provider, agent loop, server code, or unrelated documentation is

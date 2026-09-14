@@ -591,6 +591,7 @@ git commit -m "feat(editor): add the fake editor session"
 - Create: `src/editor/index.ts`
 - Create: `src/editor/fixtures/photopea-frame.png`
 - Create: `src/editor/fixtures/layered-output.psd`
+- Create: `src/editor/fixtures/document-preview.png`
 - Create: `test/editor/editor-session.contract.ts`
 - Create: `test/editor/recorded-fake-editor-session.contract.test.ts`
 
@@ -691,6 +692,22 @@ Expected hashes:
 43f6382d40130b577e7e28537e95465a39c81a43c7bb3575ac7d4dac4de76b2d
 ```
 
+Export the PSD's flattened composite as a separate preview fixture with macOS
+`sips`. Keep the original screen and PSD fixtures unchanged:
+
+```bash
+sips -s format png src/editor/fixtures/layered-output.psd \
+  --out src/editor/fixtures/document-preview.png
+shasum -a 256 src/editor/fixtures/document-preview.png
+```
+
+Expected: a 640x480 PNG containing the document without the editor UI. The
+committed preview has SHA-256:
+
+```text
+074d66b09f3d571c6b8a52e60fd60881d62299bc01211ad44596160085d867dd
+```
+
 - [ ] **Step 4: Implement the recorded factory**
 
 Add this import to `src/editor/fake-editor-session.ts`:
@@ -703,9 +720,10 @@ Append:
 
 ```ts
 export async function createRecordedFakeEditorSession(): Promise<FakeEditorSession> {
-  const [frame, psd] = await Promise.all([
+  const [frame, psd, preview] = await Promise.all([
     readFile(new URL('./fixtures/photopea-frame.png', import.meta.url)),
-    readFile(new URL('./fixtures/layered-output.psd', import.meta.url))
+    readFile(new URL('./fixtures/layered-output.psd', import.meta.url)),
+    readFile(new URL('./fixtures/document-preview.png', import.meta.url))
   ])
 
   return new FakeEditorSession({
@@ -714,7 +732,7 @@ export async function createRecordedFakeEditorSession(): Promise<FakeEditorSessi
     recording: {
       frames: [frame],
       psd,
-      preview: frame,
+      preview,
       layers: [
         { name: 'Original photograph', kind: 'raster', visible: true },
         { name: 'Retouched copy', kind: 'raster', visible: true }

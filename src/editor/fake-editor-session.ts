@@ -4,7 +4,7 @@ import type { ComputerAction, EditorSession, LayerInfo, Viewport } from './sessi
 export interface EditorRecording {
   readonly frames: readonly Uint8Array[]
   readonly psd: Uint8Array
-  readonly preview: Uint8Array
+  readonly preview: Uint8Array // Flattened document PNG, without editor UI.
   readonly layers: readonly LayerInfo[]
 }
 
@@ -129,9 +129,10 @@ export class FakeEditorSession implements EditorSession {
 }
 
 export async function createRecordedFakeEditorSession(): Promise<FakeEditorSession> {
-  const [frame, psd] = await Promise.all([
+  const [frame, psd, preview] = await Promise.all([
     readFile(new URL('./fixtures/photopea-frame.png', import.meta.url)),
-    readFile(new URL('./fixtures/layered-output.psd', import.meta.url))
+    readFile(new URL('./fixtures/layered-output.psd', import.meta.url)),
+    readFile(new URL('./fixtures/document-preview.png', import.meta.url))
   ])
 
   return new FakeEditorSession({
@@ -140,7 +141,7 @@ export async function createRecordedFakeEditorSession(): Promise<FakeEditorSessi
     recording: {
       frames: [frame],
       psd,
-      preview: frame,
+      preview,
       layers: [
         { name: 'Original photograph', kind: 'raster', visible: true },
         { name: 'Retouched copy', kind: 'raster', visible: true }
