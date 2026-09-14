@@ -66,13 +66,15 @@ copying, the exact limits, and stable failures:
 import { describe, expect, test } from 'bun:test'
 import { ImageUploadError, MAX_IMAGE_BYTES, validateImageUpload } from '../../src/editor/image-upload'
 
-function png(width: number, height: number, size = 24): Uint8Array {
-  const bytes = new Uint8Array(Math.max(size, 24))
+function png(width: number, height: number, size = 33): Uint8Array {
+  const bytes = new Uint8Array(Math.max(size, 33))
   bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
   new DataView(bytes.buffer).setUint32(8, 13)
   bytes.set([0x49, 0x48, 0x44, 0x52], 12)
   new DataView(bytes.buffer).setUint32(16, width)
   new DataView(bytes.buffer).setUint32(20, height)
+  bytes.set([8, 6, 0, 0, 0], 24)
+  new DataView(bytes.buffer).setUint32(29, Bun.hash.crc32(bytes.subarray(12, 29)))
   return bytes
 }
 
@@ -151,9 +153,11 @@ const PNG_IHDR_LENGTH = 13
 const PNG_IHDR_TYPE = [0x49, 0x48, 0x44, 0x52] as const
 ```
 
-Read width and height with a big-endian `DataView`. Reject fewer than 24 bytes,
-an incorrect IHDR length or type, and zero dimensions. Return
-`Uint8Array.from(bytes)`.
+Read width and height with a big-endian `DataView`. Require all 33 bytes through
+the first chunk's CRC field: the signature, length, type, 13 IHDR data bytes,
+and four CRC bytes. Reject incomplete chunks, an incorrect IHDR length or
+type, and zero dimensions. Full-image decoding and CRC verification are outside
+this header-validation boundary. Return `Uint8Array.from(bytes)`.
 
 - [ ] **Step 4: Run the PNG tests and observe them pass**
 
