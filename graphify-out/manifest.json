@@ -10,8 +10,8 @@
     "semantic_hash": "52ab4ac1646fcab89c9e7e059b1ef9db"
   },
   "package.json": {
-    "mtime": 1789412925.521505,
-    "ast_hash": "395ab4135cce27478093cf65a56934e7",
+    "mtime": 1789413272.075026,
+    "ast_hash": "82e3594a7e39f2cd478eeb5a67a37d1d",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -375,8 +375,8 @@
     "semantic_hash": ""
   },
   "test/server/scaffold.test.ts": {
-    "mtime": 1789412958.5953116,
-    "ast_hash": "4038f0d0e375eba00742574976a8909c",
+    "mtime": 1789413272.079133,
+    "ast_hash": "85dabc9169e8e2ad85d70a0310f8e8b3",
     "semantic_hash": ""
   },
   "src/web/index.html": {
@@ -392,6 +392,16 @@
   "test/server/config.test.ts": {
     "mtime": 1789413054.5871058,
     "ast_hash": "7a64c27155887233abae4719e3c786ab",
+    "semantic_hash": ""
+  },
+  "test/server/container-smoke.sh": {
+    "mtime": 1789413209.7605894,
+    "ast_hash": "e66074bd11b516859ab4dfd09a30ed26",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789413328.7765577,
+    "ast_hash": "fb22dbfa5a743f06f697ed8e32bd55a5",
     "semantic_hash": ""
   }
 }

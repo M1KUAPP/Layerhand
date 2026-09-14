@@ -1,16 +1,16 @@
 # Graph Report - feat-launch-application  (2026-09-15)
 
 ## Corpus Check
-- 70 files · ~53,404 words
+- 72 files · ~53,790 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 544 nodes · 846 edges · 19 communities (17 shown, 2 thin omitted)
+- 555 nodes · 855 edges · 21 communities (18 shown, 3 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2e72278b`
+- Built from commit: `bfee5d1b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,6 +31,8 @@
 - FakeEditorSession
 - PhotopeaDocumentBridge
 - PhotopeaMessage
+- Layerhand
+- container-smoke.sh
 - Saved query: are Layerhand's inferred relationships correct
 - Saved query: are Swap Test's inferred relationships correct
 
@@ -49,31 +51,31 @@
 ## Surprising Connections (you probably didn't know these)
 - `Prettier owns syntax, not prose` --references--> `printWidth`  [INFERRED]
   docs/agents/rules.md → .prettierrc.json
-- `bun (package manager and script runner)` --references--> `lint`  [EXTRACTED]
+- `Prettier owns syntax, not prose` --references--> `lint-staged`  [EXTRACTED]
   docs/agents/rules.md → package.json
 - `bun (package manager and script runner)` --references--> `prepare`  [INFERRED]
   docs/agents/rules.md → package.json
 - `Local hook setup (bun install, then uv tool install graphifyy)` --references--> `prepare`  [INFERRED]
   docs/references/git-workflow.md → package.json
-- `Prettier owns syntax, not prose` --references--> `lint-staged`  [EXTRACTED]
-  docs/agents/rules.md → package.json
+- `Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky` --references--> `@commitlint/cli`  [EXTRACTED]
+  graphify-out/memory/weakly-connected-commitlint-and-husky.md → package.json
 
 ## Import Cycles
 - None detected.
 
-## Communities (19 total, 2 thin omitted)
+## Communities (21 total, 3 thin omitted)
 
 ### Community 0 - "Astra Ideation & Selection"
 Cohesion: 0.06
 Nodes (30): Deliberately excluded, Functional requirements, Input, Launch acceptance, Launch surface, Metering, Non-functional requirements, Output (+22 more)
 
 ### Community 1 - "Formatting, Hooks & Package Tooling"
-Cohesion: 0.11
-Nodes (20): @commitlint/cli, @commitlint/config-conventional, Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky, husky, lint-staged, devDependencies, @commitlint/cli, @commitlint/config-conventional (+12 more)
+Cohesion: 0.06
+Nodes (31): @commitlint/cli, @commitlint/config-conventional, husky, lint-staged, dependencies, playwright-core, devDependencies, @commitlint/cli (+23 more)
 
 ### Community 2 - "Run Contracts, Live View & Steering"
 Cohesion: 0.05
-Nodes (30): createRecordedFakeEditorSession(), PhotopeaBridge, PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), PhotopeaConfiguration, PhotopeaEnvironment (+22 more)
+Nodes (31): createRecordedFakeEditorSession(), PhotopeaBridgeOptions, PhotopeaProtocolError, PhotopeaProtocolErrorCode, createPhotopeaHostHtml(), PhotopeaEnvironment, PhotopeaEnvironmentParameters, decodePhotopeaWireMessage() (+23 more)
 
 ### Community 3 - "Editor, Browser & Scope Limits"
 Cohesion: 0.05
@@ -88,8 +90,8 @@ Cohesion: 0.05
 Nodes (37): Add spacing to headings, ATX-style headings, Avoid relative paths unless within the same directory, Better is better than best, Capitalization, Capitalization of titles and headers, Code, Codeblocks (+29 more)
 
 ### Community 6 - "Git Workflow & Conventions"
-Cohesion: 0.08
-Nodes (42): AGENTS.md (agent instruction entry point), CLAUDE.md (symlink to AGENTS.md), 1. Think Before Coding, 2. Simplicity First, 3. Surgical Changes, 4. Goal-Driven Execution, Andrej Karpathy Skills, Graphify (+34 more)
+Cohesion: 0.07
+Nodes (48): AGENTS.md (agent instruction entry point), CLAUDE.md (symlink to AGENTS.md), 1. Think Before Coding, 2. Simplicity First, 3. Surgical Changes, 4. Goal-Driven Execution, Andrej Karpathy Skills, Graphify (+40 more)
 
 ### Community 7 - "Launch Criteria & Go/No-Go"
 Cohesion: 0.16
@@ -100,52 +102,56 @@ Cohesion: 0.11
 Nodes (18): Artifact storage, Browserbase boundary, Delivery structure, External checkpoints and issue closure, Goals, Input and admission order, Launch application design, Metering and waitlist persistence (+10 more)
 
 ### Community 9 - "Agent Behavioral Guidelines"
-Cohesion: 0.09
-Nodes (21): Prettier owns syntax, not prose, Character line limit, Exceptions, dependencies, playwright-core, lint-staged, scripts, browserbase:probe (+13 more)
+Cohesion: 0.40
+Nodes (4): $schema, semi, singleQuote, trailingComma
 
 ### Community 10 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): bun, DOM, ESNext, src/**/*.ts, test/**/*.ts, compilerOptions, lib, module (+10 more)
 
 ### Community 11 - "fake-editor-session.ts"
-Cohesion: 0.06
-Nodes (20): cloneAction(), copyBytes(), EditorRecording, FakeEditorSession, SessionState, ComputerAction, EditorSession, LayerInfo (+12 more)
+Cohesion: 0.09
+Nodes (12): cloneAction(), copyBytes(), EditorRecording, FakeEditorSession, SessionState, ComputerAction, LayerInfo, documentOperations (+4 more)
 
 ### Community 12 - "Product: Layerhand"
 Cohesion: 0.12
 Nodes (17): Adobe is the serious threat, and it is already shipped, And the demand signal is missing, Business model, Competition, Non-goals, Open questions, Product: Layerhand, Risks and the kill switch (+9 more)
 
 ### Community 13 - "FakeEditorSession"
-Cohesion: 0.08
-Nodes (7): PhotopeaDocumentBridge, PhotopeaMessage, ControlledTransport, LateSentinelTransport, MemoryTransport, ImageTransport, RecordingBridge
+Cohesion: 0.06
+Nodes (11): PhotopeaBridge, PhotopeaDocumentBridge, PhotopeaConfiguration, PhotopeaMessage, PhotopeaTransport, ControlledTransport, LateSentinelTransport, MemoryTransport (+3 more)
 
 ### Community 14 - "PhotopeaDocumentBridge"
 Cohesion: 0.11
-Nodes (12): BrowserbaseClient, BrowserbaseError, BrowserbaseLiveView, BrowserbaseSession, Fetch, requiredString(), BrowserbaseProbeClient, createReadOnlyLiveView() (+4 more)
+Nodes (15): BrowserbaseClient, BrowserbaseError, BrowserbaseLiveView, BrowserbaseSession, Fetch, requiredString(), BrowserbaseProbeClient, BrowserbaseProbeEvidence (+7 more)
 
 ### Community 15 - "PhotopeaMessage"
 Cohesion: 0.09
 Nodes (21): Application, APPLICATION_CSP, ApplicationDependencies, BASE_SECURITY_HEADERS, createApplication(), json(), PHOTOPEA_HOST_CSP, secured() (+13 more)
 
+### Community 17 - "Layerhand"
+Cohesion: 0.25
+Nodes (7): Architecture, Browserbase probe, Container, Layerhand, Requirements, Run locally, Verify
+
 ## Knowledge Gaps
-- **220 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `browserbase:probe` (+215 more)
+- **227 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `browserbase:probe` (+222 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **2 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `PhotopeaMessage` connect `FakeEditorSession` to `Run Contracts, Live View & Steering`, `Run Cost, Limits & Metering`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
-- **Why does `Markdown style guide` connect `Project Rules & Markdown Style` to `Agent Behavioral Guidelines`, `Git Workflow & Conventions`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+- **Why does `Markdown style guide` connect `Project Rules & Markdown Style` to `Git Workflow & Conventions`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Why does `name()` connect `PhotopeaMessage` to `Run Cost, Limits & Metering`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **What connects `$schema`, `singleQuote`, `semi` to the rest of the system?**
-  _220 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _227 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Astra Ideation & Selection` be split into smaller, more focused modules?**
   _Cohesion score 0.062388591800356503 - nodes in this community are weakly interconnected._
 - **Should `Formatting, Hooks & Package Tooling` be split into smaller, more focused modules?**
-  _Cohesion score 0.11052631578947368 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06060606060606061 - nodes in this community are weakly interconnected._
 - **Should `Run Contracts, Live View & Steering` be split into smaller, more focused modules?**
-  _Cohesion score 0.054244306418219465 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05325140809011777 - nodes in this community are weakly interconnected._

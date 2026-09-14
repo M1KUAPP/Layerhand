@@ -32,8 +32,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "prettierrc_printwidth",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "printwidth"
     },
     {
@@ -87,8 +87,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "package",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "package.json"
     },
     {
@@ -98,8 +98,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "package_scripts",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "scripts"
     },
     {
@@ -109,8 +109,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "package_scripts_browserbase_probe",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "browserbase:probe"
     },
     {
@@ -120,8 +120,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "package_scripts_build",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "build"
     },
     {
@@ -131,8 +131,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "package_scripts_dev",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "dev"
     },
     {
@@ -142,8 +142,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "lint"
     },
     {
@@ -153,8 +153,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "package_scripts_lint_fix",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "lint:fix"
     },
     {
@@ -175,8 +175,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "package_scripts_start",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "start"
     },
     {
@@ -186,8 +186,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "package_scripts_test",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "test"
     },
     {
@@ -197,8 +197,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "package_scripts_typecheck",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "typecheck"
     },
     {
@@ -208,8 +208,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "package_lint_staged",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "lint-staged"
     },
     {
@@ -428,8 +428,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "package_dependencies",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "dependencies"
     },
     {
@@ -439,8 +439,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "package_dependencies_playwright_core",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "playwright-core"
     },
     {
@@ -450,8 +450,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "playwright_core",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "playwright-core"
     },
     {
@@ -1275,8 +1275,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeabridge"
     },
     {
@@ -1286,8 +1286,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_constructor",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".constructor()"
     },
     {
@@ -1297,8 +1297,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_boot",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1308,8 +1308,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_openfile",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".openfile()"
     },
     {
@@ -1319,8 +1319,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_runscript",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".runscript()"
     },
     {
@@ -1330,8 +1330,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_press",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1341,8 +1341,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_waitfortext",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#waitfortext()"
     },
     {
@@ -1352,8 +1352,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_throwtimeout",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#throwtimeout()"
     },
     {
@@ -1363,8 +1363,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_editor_photopea_bridge_photopeabridge_enqueue",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".#enqueue()"
     },
     {
@@ -1605,8 +1605,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeaconfiguration",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeaconfiguration"
     },
     {
@@ -1627,8 +1627,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopeatransport"
     },
     {
@@ -1638,8 +1638,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_boot",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1649,8 +1649,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_send",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".send()"
     },
     {
@@ -1660,8 +1660,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_nextmessage",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".nextmessage()"
     },
     {
@@ -1671,8 +1671,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_press",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".press()"
     },
     {
@@ -1682,8 +1682,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_editor_photopea_transport_photopeatransport_reload",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".reload()"
     },
     {
@@ -1792,8 +1792,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_editor_playwright_photopea_transport_playwrightphotopeatransport_boot",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": ".boot()"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_editor_session_editorsession",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "editorsession"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_open",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".open()"
     },
     {
@@ -1880,8 +1880,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_screenshot",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".screenshot()"
     },
     {
@@ -1891,8 +1891,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_act",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".act()"
     },
     {
@@ -1902,8 +1902,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_layers",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".layers()"
     },
     {
@@ -1913,8 +1913,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpsd",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".exportpsd()"
     },
     {
@@ -1924,8 +1924,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_exportpreview",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".exportpreview()"
     },
     {
@@ -1935,8 +1935,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_editor_session_editorsession_close",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": ".close()"
     },
     {
@@ -2254,8 +2254,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_server_browserbase_probe",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 14,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "browserbase-probe.ts"
     },
     {
@@ -2265,8 +2265,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_server_browserbase_probe_sample_png",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 14,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "sample_png"
     },
     {
@@ -2320,8 +2320,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_server_browserbase_probe_browserbaseprobeevidence",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 14,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "browserbaseprobeevidence"
     },
     {
@@ -2331,8 +2331,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_server_browserbase_probe_browserbaseprobeoptions",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 14,
+      "community_name": "PhotopeaDocumentBridge",
       "norm_label": "browserbaseprobeoptions"
     },
     {
@@ -2892,8 +2892,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "photopea-document-loader-concurrency.test.ts"
     },
     {
@@ -2914,8 +2914,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_fitthearea",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "fitthearea()"
     },
     {
@@ -2980,8 +2980,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "test_editor_photopea_document_loader_concurrency_test_image",
-      "community": 2,
-      "community_name": "Run Contracts, Live View & Steering",
+      "community": 13,
+      "community_name": "FakeEditorSession",
       "norm_label": "image()"
     },
     {
@@ -3178,8 +3178,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_editor_session_types_test",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "session.types.test.ts"
     },
     {
@@ -3189,8 +3189,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "test_editor_session_types_test_isexact",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "isexact"
     },
     {
@@ -3200,8 +3200,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assert",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "assert"
     },
     {
@@ -3211,8 +3211,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "test_editor_session_types_test_keysofunion",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "keysofunion"
     },
     {
@@ -3222,8 +3222,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "test_editor_session_types_test_methodisexact",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "methodisexact"
     },
     {
@@ -3233,8 +3233,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "test_editor_session_types_test_expectedaction",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "expectedaction"
     },
     {
@@ -3244,8 +3244,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "test_editor_session_types_test_actionvariantkeychecks",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "actionvariantkeychecks"
     },
     {
@@ -3343,8 +3343,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertions",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "assertions"
     },
     {
@@ -3354,8 +3354,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "test_editor_session_types_test_assertreadonlysessionmembers",
-      "community": 11,
-      "community_name": "fake-editor-session.ts",
+      "community": 2,
+      "community_name": "Run Contracts, Live View & Steering",
       "norm_label": "assertreadonlysessionmembers()"
     },
     {
@@ -3546,14 +3546,59 @@
       "norm_label": "valid_env"
     },
     {
+      "label": "container-smoke.sh",
+      "file_type": "code",
+      "source_file": "test/server/container-smoke.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "_origin": "ast",
+      "id": "test_server_container_smoke",
+      "community": 18,
+      "community_name": "container-smoke.sh",
+      "norm_label": "container-smoke.sh"
+    },
+    {
+      "label": "container-smoke.sh script",
+      "file_type": "code",
+      "source_file": "test/server/container-smoke.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "_origin": "ast",
+      "id": "test_server_container_smoke_sh__entry",
+      "community": 18,
+      "community_name": "container-smoke.sh",
+      "norm_label": "container-smoke.sh script"
+    },
+    {
+      "label": "cleanup()",
+      "file_type": "code",
+      "source_file": "test/server/container-smoke.sh",
+      "source_location": "L8",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "_origin": "ast",
+      "id": "test_server_container_smoke_cleanup",
+      "community": 18,
+      "community_name": "container-smoke.sh",
+      "norm_label": "cleanup()"
+    },
+    {
       "label": "scaffold.test.ts",
       "file_type": "code",
       "source_file": "test/server/scaffold.test.ts",
       "source_location": "L1",
       "_origin": "ast",
       "id": "test_server_scaffold_test",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 1,
+      "community_name": "Formatting, Hooks & Package Tooling",
       "norm_label": "scaffold.test.ts"
     },
     {
@@ -3808,6 +3853,94 @@
       "community": 6,
       "community_name": "Git Workflow & Conventions",
       "norm_label": "checklist"
+    },
+    {
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "readme",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "Layerhand",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "readme_layerhand",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "layerhand"
+    },
+    {
+      "label": "Requirements",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "readme_requirements",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "requirements"
+    },
+    {
+      "label": "Run locally",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "readme_run_locally",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "run locally"
+    },
+    {
+      "label": "Verify",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "readme_verify",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "verify"
+    },
+    {
+      "label": "Browserbase probe",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "readme_browserbase_probe",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "browserbase probe"
+    },
+    {
+      "label": "Container",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "readme_container",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "container"
+    },
+    {
+      "label": "Architecture",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "readme_architecture",
+      "community": 17,
+      "community_name": "Layerhand",
+      "norm_label": "architecture"
     },
     {
       "label": "PRD.md",
@@ -5268,8 +5401,8 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "docs_references_markdown_style_character_line_limit",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "character line limit"
     },
     {
@@ -5279,8 +5412,8 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "docs_references_markdown_style_exceptions",
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "norm_label": "exceptions"
     },
     {
@@ -5741,8 +5874,8 @@
       "label": "Saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
       "author": null,
       "captured_at": null,
-      "community": 1,
-      "community_name": "Formatting, Hooks & Package Tooling",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "contributor": "graphify",
       "file_type": "document",
       "norm_label": "saved query: what connects @commitlint/cli, @commitlint/config-conventional and husky",
@@ -5801,8 +5934,8 @@
       "label": "Prettier owns syntax, not prose",
       "author": null,
       "captured_at": null,
-      "community": 9,
-      "community_name": "Agent Behavioral Guidelines",
+      "community": 6,
+      "community_name": "Git Workflow & Conventions",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "prettier owns syntax, not prose",
@@ -12884,6 +13017,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/container-smoke.sh",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_container_smoke",
+      "target": "test_server_container_smoke_cleanup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "test/server/container-smoke.sh",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "test_server_container_smoke",
+      "target": "test_server_container_smoke_sh__entry",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tsconfig.json",
@@ -13127,6 +13282,83 @@
       "_origin": "ast",
       "source": "github_pull_request_template",
       "target": "github_pull_request_template_what_changed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme",
+      "target": "readme_layerhand",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_architecture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_browserbase_probe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_container",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_requirements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_run_locally",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_layerhand",
+      "target": "readme_verify",
       "confidence_score": 1.0
     },
     {
@@ -15660,5 +15892,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2e72278b2edd1a2ff15ee8b049b40d7136a4a3ba"
+  "built_at_commit": "bfee5d1b1ec42122023af1ef7ec2dbb4cc056c46"
 }
