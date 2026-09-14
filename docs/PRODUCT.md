@@ -249,7 +249,8 @@ The contest is judged on a launch, so the launch is the deliverable.
     and download a layered file that opens correctly in Photoshop.
 1.  That works unattended on **eight of ten** runs against our own test
     set, which is [NFR-1](PRD.md#non-functional-requirements) and the
-    number the go/no-go turns on.
+    number the launch decision turns on. The day-2 go/no-go asks less:
+    one scripted three-edit sequence (see [risks](#risks-and-the-kill-switch)).
 1.  The thirty-second silent demo exists and shows the mid-run
     correction and the hand-dragged mask.
 
