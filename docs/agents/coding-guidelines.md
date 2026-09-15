@@ -1,8 +1,12 @@
 # Coding guidelines
 
-Behavioral guidelines to reduce common LLM coding mistakes, from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), which derives them from Andrej Karpathy's observations on LLM coding pitfalls. Merge with project-specific instructions as needed.
+Behavioral guidelines to reduce common LLM coding mistakes, from
+[andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills),
+which derives them from Andrej Karpathy's observations on LLM coding pitfalls.
+Merge with project-specific instructions as needed.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial
+tasks, use judgment.
 
 Contents:
 
@@ -32,7 +36,8 @@ Before implementing:
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes,
+simplify.
 
 ## 3. Surgical changes
 
@@ -70,8 +75,11 @@ For multi-step tasks, state a brief plan:
 3. [Step] → verify: [check]
 ```
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+Strong success criteria let you loop independently. Weak criteria ("make it
+work") require constant clarification.
 
 ---
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer
+rewrites due to overcomplication, and clarifying questions come before
+implementation rather than after mistakes.

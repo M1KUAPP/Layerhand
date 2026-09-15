@@ -21,10 +21,11 @@ Contents:
 - Docker for the production-container smoke test
 - Chromium for opt-in browser integration tests
 
-The Bun version is pinned because the committed lockfile uses lockfile version 2. Copy `.env.example` to `.env` only for local development. Store production
-secrets as GitHub secrets, as the
-[Git workflow](/docs/references/git-workflow.md#secrets) asks.
-[Deploy](#deploy) names the one exception, `OPENAI_API_KEY`.
+The Bun version is pinned because the committed lockfile uses lockfile
+version 2. Copy `.env.example` to `.env` only for local development. Store
+production secrets as GitHub secrets, as the
+[Git workflow](/docs/references/git-workflow.md#secrets) asks. [Deploy](#deploy)
+names the one exception, `OPENAI_API_KEY`.
 
 Use Bun 1.4.2 for anything that connects to Browserbase: under Bun 1.3.14,
 Playwright's `connectOverCDP` never opens its WebSocket.
