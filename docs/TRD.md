@@ -824,6 +824,20 @@ every question worth asking on launch day.
 
 Frames are not logged. Instructions are, truncated; keys never.
 
+`createRunLogger()` in `src/server/run-log.ts` writes that line. The
+launch runtime prints it to standard output as one NDJSON record, and
+stores the same fields, with the cache hit rate added, in the `run_log`
+table, one row per run. A launch-day question is then one SQL statement:
+
+```sql
+SELECT outcome, count(*), avg(steps), avg(cost_usd) FROM run_log GROUP BY outcome;
+```
+
+`cap_hit` is true when either cap ended the run, and `outcome` says
+which. Before the instruction is cut to eighty characters, anything in
+it or in the failure reason shaped like an OpenAI key, `sk-` followed by
+eight or more characters, becomes `[redacted]`.
+
 ## Testing
 
 Proportionate to six days, and concentrated where being wrong is
