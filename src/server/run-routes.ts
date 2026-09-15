@@ -36,6 +36,47 @@ class RunStartError extends Error {
   }
 }
 
+class RequestTooLargeError extends Error {
+  constructor() {
+    super('The upload exceeds the 20 MB request limit.')
+    this.name = 'RequestTooLargeError'
+  }
+}
+
+/**
+ * The request's form, refusing a body that passes the limit as it reads it.
+ * A chunked request declares no length, so the declared one is only a
+ * shortcut: the bytes are counted as they arrive and the read stops at the
+ * first one past the limit, rather than buffering a body of any size (#82).
+ */
+async function boundedFormData(request: Request, limit: number): Promise<FormData> {
+  const declaredLength = Number(request.headers.get('content-length') ?? 0)
+  if (Number.isFinite(declaredLength) && declaredLength > limit) throw new RequestTooLargeError()
+  const body = request.body
+  if (!body) return await request.formData()
+
+  const chunks: Uint8Array[] = []
+  let total = 0
+  const reader = body.getReader()
+  try {
+    for (;;) {
+      const { value, done } = await reader.read()
+      if (done) break
+      total += value.byteLength
+      if (total > limit) throw new RequestTooLargeError()
+      chunks.push(value)
+    }
+  } finally {
+    // Whether the body ended or the limit refused it, nothing more is wanted.
+    await reader.cancel().catch(() => undefined)
+  }
+
+  // The content type carries the multipart boundary, so the parse needs it.
+  const contentType = request.headers.get('content-type')
+  const headers = contentType ? { 'content-type': contentType } : undefined
+  return await new Response(new Blob(chunks as unknown as BlobPart[]), headers ? { headers } : {}).formData()
+}
+
 function json(value: unknown, status = 200, headers?: HeadersInit): Response {
   return Response.json(value, { status, headers })
 }
@@ -86,6 +127,7 @@ export class RunRoutes {
       if (request.method === 'POST' && action === 'cancel') return await this.#cancel(runId)
       return apiError('method_not_allowed', 'This endpoint does not accept that method.', 405)
     } catch (error) {
+      if (error instanceof RequestTooLargeError) return apiError('request_too_large', error.message, 413)
       if (error instanceof RunRegistryError) return registryError(error)
       if (error instanceof RunStartError) {
         return apiError('run_start_failed', 'The run could not be started. Try again in a moment.', 500)
@@ -107,11 +149,7 @@ export class RunRoutes {
    * nothing on the model.
    */
   async #upload(request: Request): Promise<Response> {
-    const declaredLength = Number(request.headers.get('content-length') ?? 0)
-    if (Number.isFinite(declaredLength) && declaredLength > MAX_RUN_REQUEST_BODY_BYTES) {
-      return apiError('request_too_large', 'The upload exceeds the 20 MB request limit.', 413)
-    }
-    const form = await request.formData()
+    const form = await boundedFormData(request, MAX_RUN_REQUEST_BODY_BYTES)
     const image = form.get('image')
     const filenameValue = form.get('filename')
     if (!(image instanceof Blob) || typeof filenameValue !== 'string' || !filenameValue) {
@@ -138,12 +176,7 @@ export class RunRoutes {
   }
 
   async #start(request: Request): Promise<Response> {
-    const declaredLength = Number(request.headers.get('content-length') ?? 0)
-    if (Number.isFinite(declaredLength) && declaredLength > MAX_RUN_REQUEST_BODY_BYTES) {
-      return apiError('request_too_large', 'The upload exceeds the 20 MB request limit.', 413)
-    }
-
-    const form = await request.formData()
+    const form = await boundedFormData(request, MAX_RUN_REQUEST_BODY_BYTES)
     const instructionValue = form.get('instruction')
     if (typeof instructionValue !== 'string' || instructionValue.trim().length === 0) {
       return apiError('instruction_required', 'Enter a retouching instruction.', 400)
