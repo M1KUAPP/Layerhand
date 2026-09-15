@@ -1106,6 +1106,15 @@ Exported files now cross the page boundary as base64, which the transport
 encodes inside the page. The test checks SHA-256 digests taken in the page
 as each of its four files arrived against the bytes returned.
 
+That measurement is local. Over a CDP WebSocket, as a hosted session
+connects, Playwright caps one message at 256 MiB, about 192 MiB of file
+once encoded, and a larger message closes the connection. The sample
+exported at about 5.8 bytes a pixel. At that ratio a 6000x6000 upload,
+which FR-1 allows, passes the cap before any retouching, and a 6000x4000
+upload passes it with one full-size raster layer. Content moves the ratio,
+but until files are read out of the page in slices, exports of the largest
+uploads are likely to fail from a hosted session.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a
