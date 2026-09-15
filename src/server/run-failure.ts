@@ -74,7 +74,10 @@ export class FailureRecorder {
   #layersRead = false
 
   model(model: AgentModel): AgentModel {
-    return { next: (observation, signal) => this.#track('model', () => model.next(observation, signal)) }
+    return {
+      next: (observation, signal) => this.#track('model', () => model.next(observation, signal)),
+      ...(model.steer ? { steer: (text: string) => model.steer!(text) } : {})
+    }
   }
 
   session(session: EditorSession): EditorSession {

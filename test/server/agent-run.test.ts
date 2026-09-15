@@ -452,6 +452,52 @@ describe('managed agent run', () => {
     expect(managed.metrics().stopReason).toBe('failed')
   })
 
+  test('offers a model that can steer each correction the loop acknowledged, and none it refused', async () => {
+    const offered: string[] = []
+    let calls = 0
+    let inFlight!: () => void
+    const started = new Promise<void>((resolve) => (inFlight = resolve))
+    let answer!: () => void
+    const answered = new Promise<void>((resolve) => (answer = resolve))
+    const steeringModel: AgentModel = {
+      async next() {
+        calls += 1
+        if (calls === 1) {
+          inFlight()
+          await answered
+        }
+        return {
+          narration: 'Selecting the product',
+          actions: [],
+          usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+          done: calls > 1
+        }
+      },
+      steer(text) {
+        offered.push(text)
+        if (text === 'Leave the label') throw new Error('The socket is gone')
+        return true
+      }
+    }
+    const { managed } = await run(
+      {},
+      [{ name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }],
+      steeringModel
+    )
+
+    await started
+    await managed.handle.steer('Keep the shadow')
+    await managed.handle.steer('Leave the label')
+    answer()
+    const events = await finish(managed)
+
+    expect(offered).toEqual(['Keep the shadow', 'Leave the label'])
+    expect(events.filter((event) => event.type === 'correction_ack')).toHaveLength(2)
+    expect(managed.metrics().stopReason).toBe('complete')
+    await expect(managed.handle.steer('Too late')).rejects.toThrow()
+    expect(offered).toEqual(['Keep the shadow', 'Leave the label'])
+  })
+
   test('reports a cancel, and releases the key', async () => {
     const { managed, runRequest } = await run()
 
