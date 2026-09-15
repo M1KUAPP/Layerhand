@@ -56,7 +56,7 @@ GitHub Actions.
 
 **Interfaces:**
 
-- Consumes: `validateImageUpload(bytes: Uint8Array)` from
+- Consumes: `validateImageUpload(bytes: Uint8Array, filename: string)` from
   `src/editor/image-upload.ts`.
 - Produces: `ReliabilityCase`, `ReliabilityCategory`, and
   `loadReliabilityCorpus(manifestUrl: URL): Promise<ReliabilityCase[]>`.
@@ -86,7 +86,7 @@ GitHub Actions.
 
       for (const item of cases) {
         const bytes = await Bun.file(item.imageUrl).bytes()
-        expect(validateImageUpload(bytes)).toMatchObject({ format: 'jpeg' })
+        expect(validateImageUpload(bytes, 'image.jpg')).toMatchObject({ format: 'jpeg' })
         expect(createHash('sha256').update(bytes).digest('hex')).toBe(item.sha256)
         expect(item.instruction.trim().length).toBeGreaterThan(20)
         expect(item.expectation.trim().length).toBeGreaterThan(20)
@@ -515,6 +515,8 @@ GitHub Actions.
     writeReport?: typeof writeReliabilityReport
     write?: (text: string) => void
     now?: () => Date
+    createBrowserbaseClient?: (apiKey: string) => BrowserbaseClient
+    liveRun?: typeof liveAgentRun
   }
 
   export async function runReliabilityCommand(

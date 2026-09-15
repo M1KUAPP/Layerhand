@@ -455,4 +455,72 @@ describe('runReliabilitySuite', () => {
       failureCode: null
     })
   })
+
+  test('prioritizes aborted signal when deriving outcome after event loop drains normally', async () => {
+    const controller = new AbortController()
+    const passingPsdBytes = await getPassingPsd()
+    const cases = [createTestCase('product-one')]
+
+    const startRun: StartReliabilityRun = ({ publish }) => {
+      return createScriptedRun({
+        stopReason: 'complete',
+        events: [{ type: 'step', n: 1, cap: 10, narration: 'Finished' }],
+        onEventsStart() {
+          controller.abort()
+          void publish(passingPsdBytes, 'psd')
+        }
+      })
+    }
+
+    const summary = await runReliabilitySuite({ cases, startRun, signal: controller.signal })
+    const result = summary.results[0]
+    expect(result?.id).toBe('product-one')
+    expect(result?.outcome).toBe('cancelled')
+    expect(result?.failureCode).toBe('cancelled')
+    expect(result?.passed).toBe(false)
+  })
+
+  test('consumes rejected promises from cancel() during abort teardown without unhandled rejections', async () => {
+    const unhandledRejections: unknown[] = []
+    const onUnhandled = (reason: unknown) => {
+      unhandledRejections.push(reason)
+    }
+    process.on('unhandledRejection', onUnhandled)
+
+    try {
+      // 1. Abort event during run, cancel() rejects
+      const controller1 = new AbortController()
+      const cases1 = [createTestCase('product-one')]
+      const startRun1: StartReliabilityRun = () => {
+        return createScriptedRun({
+          stopReason: 'cancelled',
+          events: [{ type: 'step', n: 1, cap: 10, narration: 'Working' }],
+          onCancel: () => Promise.reject(new Error('cancel rejection from listener'))
+        })
+      }
+      const promise1 = runReliabilitySuite({ cases: cases1, startRun: startRun1, signal: controller1.signal })
+      controller1.abort()
+      await promise1
+
+      // 2. Already-aborted signal when run starts, cancel() rejects
+      const controller2 = new AbortController()
+      const cases2 = [createTestCase('product-two')]
+      const startRun2: StartReliabilityRun = () => {
+        controller2.abort()
+        return createScriptedRun({
+          stopReason: 'cancelled',
+          events: [{ type: 'step', n: 1, cap: 10, narration: 'Working' }],
+          onCancel: () => Promise.reject(new Error('cancel rejection from already aborted'))
+        })
+      }
+      await runReliabilitySuite({ cases: cases2, startRun: startRun2, signal: controller2.signal })
+
+      // Allow microtask turns for unhandled rejections to be reported
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(unhandledRejections).toHaveLength(0)
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
+  })
 })
