@@ -146,6 +146,8 @@ describe('Playwright Photopea transport', () => {
       type: 'bytes',
       value: Uint8Array.of(1, 2, 3)
     })
+    // An empty file is empty base64; the exporter's signature checks reject it later.
+    expect(decodePhotopeaWireMessage({ type: 'bytes', value: '' })).toEqual({ type: 'bytes', value: new Uint8Array() })
   })
 
   test('rejects malformed host messages', () => {
