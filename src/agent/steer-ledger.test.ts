@@ -82,6 +82,36 @@ describe('SteerLedger', () => {
     expect(ledger.outstanding()).toEqual([])
   })
 
+  test('a continuation also applies an accepted steer the server has not yet reported pending', () => {
+    const ledger = new SteerLedger()
+    ledger.sent('Keep the shadow', 'resp_1')
+    ledger.accepted('resp_1', 'steer_1')
+    ledger.sent('On another response', 'resp_2')
+    ledger.accepted('resp_2', 'steer_2')
+
+    ledger.continuationSent('resp_1')
+
+    expect(ledger.applied()).toEqual(['Keep the shadow'])
+    expect(ledger.outstanding()).toEqual(['On another response'])
+  })
+
+  test('reads and replays one entry by its id', () => {
+    const ledger = new SteerLedger()
+    const kept = ledger.sent('Keep the shadow', 'resp_1')
+    const refused = ledger.sent('Leave the label', 'resp_1')
+    ledger.accepted('resp_1', 'steer_1')
+    ledger.failed({ parentResponseId: 'resp_1', code: 'response_not_active' })
+
+    expect(ledger.entry(kept)).toEqual({ text: 'Keep the shadow', parentResponseId: 'resp_1', state: 'accepted' })
+    expect(ledger.awaitingSuccessor('resp_1')).toBe(true)
+    expect(ledger.takeReplay(kept)).toBe(false)
+    expect(ledger.takeReplay(refused)).toBe(true)
+    expect(ledger.takeReplay(refused)).toBe(false)
+    expect(ledger.entry(refused).state).toBe('replayed')
+    ledger.successorCreated('resp_1')
+    expect(ledger.awaitingSuccessor('resp_1')).toBe(false)
+  })
+
   test('a steer never answered before its parent completes is replayed, and accepted ones wait', () => {
     const ledger = new SteerLedger()
     ledger.sent('Accepted in time', 'resp_1')
