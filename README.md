@@ -113,7 +113,7 @@ that `src/server/config.ts` requires are set.
 organisation and region `aws-us-east-2`. It is not paused when it goes
 without queries, so it needs no keep-alive request.
 
-## Architecture## Architecture
+## Architecture
 
 One long-lived Bun process serves the single-page application and API. Agent
 runs conform to `src/agent/contract.ts`; image-editor integrations conform to
