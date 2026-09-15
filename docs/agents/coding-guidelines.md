@@ -1,6 +1,6 @@
-# Andrej Karpathy Skills
+# Coding guidelines
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+Behavioral guidelines to reduce common LLM coding mistakes, from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), which derives them from Andrej Karpathy's observations on LLM coding pitfalls. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
