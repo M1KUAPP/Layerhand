@@ -7,7 +7,7 @@
 // It composes the same pieces as liveAgentRun, holding the model itself so
 // that the run can report what the ledger settled.
 //
-//   bun --env-file=<path to .env> run live-steer.ts <public URL> [image] [--steer-after 3]
+//   bun --env-file=<path to .env> run docs/evidence/native-steering/live-steer.ts <public URL> [image] [--steer-after 3]
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'

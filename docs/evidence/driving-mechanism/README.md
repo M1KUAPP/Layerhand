@@ -66,15 +66,13 @@ Both kinds of evidence are kept in `code.ndjson`.
 
 ## Running it
 
-Install the repository root first, because the harness takes
-`playwright-core` from there. Then, from this directory, with a Playwright
-Chromium installed:
+From the repository root, with a Playwright Chromium installed:
 
 ```sh
-(cd ../../.. && bun install --frozen-lockfile)
 bun install --frozen-lockfile
-OPENAI_API_KEY=... bun run harness.ts
-bun run harness.ts --dry-run --mechanism computer
+OPENAI_API_KEY=... bun run docs/evidence/driving-mechanism/harness.ts
+bun run docs/evidence/driving-mechanism/harness.ts \
+  --dry-run --mechanism computer
 ```
 
 `--mechanism computer|code|both` and `--step-cap` narrow a run, and image

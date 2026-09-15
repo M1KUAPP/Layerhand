@@ -34,18 +34,18 @@ Contents:
 - [`results/photopea-final.png`](/docs/evidence/photopea-round-trip/results/photopea-final.png)
   is the final Photopea frame. It shows the opened photograph, but not the
   Layers panel and therefore is not used as layer-structure evidence.
-- [`bun.lock`](bun.lock) resolves `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp
-  0.35.4.
+- The run used `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp 0.35.4, the
+  versions the repository's `bun.lock` resolves.
 
 ## Reproduction
 
-From this directory, with Bun and Google Chrome installed:
+From the repository root, with Bun and Google Chrome installed:
 
 ```sh
 bun install --frozen-lockfile
-bun test
-bun run probe.ts
-bun run trap-probe.ts
+bun test docs/evidence/photopea-round-trip
+bun run docs/evidence/photopea-round-trip/probe.ts
+bun run docs/evidence/photopea-round-trip/trap-probe.ts
 ```
 
 The scripts use live Photopea and the Picsum URL recorded in `probe.ts`. A
