@@ -34,6 +34,14 @@ export {
   type PlaywrightPhotopeaTransportOptions
 } from './playwright-photopea-transport'
 export { cloneLayerInfo, cloneLayerTree } from './layer-tree'
+export {
+  assertLayerNames,
+  buildLayerRenamePlan,
+  normalizeLayerName,
+  type LayerPath,
+  type LayerRename
+} from './layer-names'
+export { assertCompleteLayerTree, LayerCompletionError, type LayerCompletionErrorCode } from './layer-tree-policy'
 export { PhotopeaExportError, type PhotopeaExportErrorCode } from './photopea-export-error'
 export {
   parsePsdMetadata,
