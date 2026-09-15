@@ -82,6 +82,20 @@ describe('SteerLedger', () => {
     expect(ledger.outstanding()).toEqual([])
   })
 
+  test('a steer never answered before its parent completes is replayed, and accepted ones wait', () => {
+    const ledger = new SteerLedger()
+    ledger.sent('Accepted in time', 'resp_1')
+    ledger.accepted('resp_1', 'steer_1')
+    ledger.sent('Never answered', 'resp_1')
+    ledger.sent('On another response', 'resp_2')
+    ledger.parentCompleted('resp_1')
+
+    expect(drain(ledger)).toEqual(['Never answered'])
+    expect(ledger.outstanding()).toEqual(['Accepted in time', 'On another response'])
+    ledger.successorCreated('resp_1')
+    expect(ledger.applied()).toEqual(['Accepted in time'])
+  })
+
   test('after a disconnect, stored evidence decides each unsettled steer', () => {
     const ledger = new SteerLedger()
     ledger.sent('Applied before the drop', 'resp_1')
