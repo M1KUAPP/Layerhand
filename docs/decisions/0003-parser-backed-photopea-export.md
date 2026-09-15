@@ -69,10 +69,13 @@ second flat type.
 
 The first call to `layers()`, `exportPsd()`, or `exportPreview()` creates an
 `ExportSnapshot` containing PSD bytes, PNG bytes, and the parsed layer tree.
-Later result calls return defensive copies of that snapshot. A successful
-`open()` or any attempted `act()` invalidates it; invalidation happens before
-actions run because a partly executed batch may already have changed the
-document.
+Later result calls return defensive copies of that snapshot. A successful or
+failed `open()` and any attempted `act()` invalidate it before browser work
+begins because a partly executed operation may already have changed the
+document. A failed `open()` returns the session to its not-open state. The lazy
+snapshot promise, including a rejection, remains cached until a new document or
+action generation invalidates it, so concurrent and later callers cannot turn
+one failed export into an implicit retry.
 
 The session queue prevents `open()`, `act()`, export, and `close()` from
 interleaving. Screenshots use the same lifecycle checks but do not invalidate a
@@ -80,13 +83,31 @@ snapshot because they do not mutate the document.
 
 Each export uses `Document.saveToOE()` through `PhotopeaBridge.runScript()` and
 therefore inherits the bridge's unique sentinel, timeout, and message ordering.
-The session accepts exactly one binary payload with the expected signature:
-`8BPS` for PSD and the eight-byte PNG signature for the preview. Generic
-`"done"` messages remain irrelevant.
+The script first echoes a unique export-begin marker. The session ignores
+binary messages before that marker and then requires exactly one payload before
+the bridge sentinel. This narrower correlation prevents a stale message from a
+previous command from becoming the export. Generic `"done"` messages remain
+irrelevant.
 
-Parse PSD metadata with `ag-psd`, skipping layer pixels, the composite image,
-the thumbnail, and linked-file data. `layers()` is derived only from the final
-PSD bytes. It never trusts a parallel Photopea DOM response or fixture metadata.
+PSD bytes must begin with `8BPS`. PNG validation walks a bounded chunk stream:
+`IHDR` is first, has length 13, and reports positive dimensions; chunk lengths
+stay in bounds; and `IEND` terminates the file. Signature-only PNG data is not a
+valid preview.
+
+Parse PSD metadata with `ag-psd` 30.2.0, skipping layer pixels, the composite
+image, the thumbnail, and linked-file data. A real mask is the pixel mask when
+present; otherwise `mask` is a pixel mask only when it was not derived from
+vector data. `vectorMask` is reported separately. Disabled flags map directly
+to each mask's `enabled` value. All sixteen adjustment variants supported by
+that parser map to stable display labels.
+
+The parser exposes PSD children in background-first order while Photopea's
+layer collections are foreground-first. `layers()` preserves the PSD order,
+but a parsed path is converted by reversing its sibling index at every level
+before addressing Photopea. The candidate's names, kinds, and child counts at
+every path are checked against the live tree before any rename is applied.
+`layers()` is derived only from the final PSD bytes. It never trusts a parallel
+Photopea DOM response or fixture metadata.
 
 ### Naming policy
 
@@ -97,13 +118,14 @@ verified. This records the source role before GUI edits add, move, duplicate,
 or delete layers; normalization does not invent a replacement when that layer
 no longer exists.
 
-Before the final snapshot, export a candidate PSD and parse its tree. Preserve
-names that contain at least one Unicode letter and are neither Photopea defaults
-nor document-wide duplicates after normalized, case-insensitive comparison.
-Collapse and trim whitespace. Treat empty names, `Layer`, `Layer <number>`,
-`Group`, `Group <number>`, parsed adjustment-type defaults, and names ending in
-`copy` or `copy <number>` as generic. Match all generic patterns
-case-insensitively.
+Before the final snapshot, export a candidate PSD and parse its tree. Normalize
+names to NFC, collapse and trim whitespace, and compare them using the
+locale-independent lowercase form. Preserve names that contain at least one
+Unicode letter and are neither Photopea defaults nor document-wide duplicates.
+Every occurrence of a duplicate is renamed, including the first. Treat empty
+names, `Layer`, `Layer <number>`, `Group`, `Group <number>`, raw parsed
+adjustment defaults with an optional number, and names ending in `copy` or
+`copy <number>` as generic. Match all generic patterns case-insensitively.
 
 Build a deterministic rename plan from the parsed tree:
 
@@ -111,14 +133,20 @@ Build a deterministic rename plan from the parsed tree:
 - generic adjustment layers use their parsed adjustment type, such as
   `Curves adjustment`;
 - generic groups become `Retouching group`;
-- repeated fallback names receive stable numeric suffixes.
+- repeated fallback names receive stable numeric suffixes starting at `2`.
+
+Reserve every preserved name before assigning fallbacks. A later preserved
+`Retouched pixels` therefore makes an earlier generic raster use the suffixed
+`Retouched pixels 2`. Traverse the whole tree in PSD order to keep the result
+deterministic.
 
 Apply the plan in Photopea by tree-index path with an ES3-compatible script.
-Abort if the live tree no longer matches the candidate paths. Export and parse
-the final PSD again, then require every final name to pass the policy and be
-unique case-insensitively. The PNG preview is exported only after naming is
-final. Names do not change pixels, but this ordering makes every result describe
-one final document state.
+Abort if the live tree no longer matches the candidate topology or names.
+When the plan is empty, reuse the candidate as the final PSD. Otherwise export
+and parse the final PSD again, then require every final name to pass the policy
+and be unique case-insensitively. The PNG preview is exported only after naming
+is final. Names do not change pixels, but this ordering makes every result
+describe one final document state.
 
 ### Completed and partial results
 
@@ -142,10 +170,19 @@ mouse and keyboard primitives. `wait` uses the session's injected delay, and
 `screenshot` captures and discards an intermediate frame because the contract's
 separate `screenshot()` call returns the frame consumed by the agent loop.
 
-`screenshot()` returns a PNG of the configured viewport. `close()` rejects new
-work, waits for the current queued operation, clears retained snapshots, and
-invokes the injected release callback once. Provider creation, CDP credentials,
-and hosted-session policy remain issue #18.
+Map `wheel` clicks to Playwright's middle button. Playwright's public mouse API
+cannot express `back` and `forward`, so a narrow injected auxiliary-click seam
+uses Chrome DevTools Protocol `Input.dispatchMouseEvent` with button values
+`back` and `forward`. Modifier aliases are normalized to Playwright key names,
+held in chord order, and released in reverse order even after a failed action.
+The default `wait` duration is 1,000 milliseconds.
+
+`screenshot()` returns a PNG of the configured viewport. `close()` closes the
+admission gate immediately, rejects newly submitted work, drains operations
+that were already admitted, clears retained snapshots, detaches the auxiliary
+CDP session, and invokes the injected release callback once. All callers
+observe the same release result. Provider creation, CDP credentials, and
+hosted-session policy remain issue #18.
 
 ## Errors
 
@@ -157,7 +194,8 @@ for a finished tree without an enabled mask or visible adjustment.
 
 No export error triggers an automatic retry. A late first export and a retry can
 consume messages from different commands, just as retrying upload can open a
-document twice.
+document twice. A response-correlation failure poisons the session, so no later
+export is attempted before `close()`.
 
 ## Alternatives considered
 
@@ -187,6 +225,8 @@ remove the visible GUI work the project exists to demonstrate.
 - Human layer names no longer depend on the model remembering to clean them up.
 - Completed-output policy remains strict without sacrificing partial exports.
 - A metadata-only PSD parser becomes a production dependency.
+- PSD paths need an explicit sibling-order conversion before Photopea scripts
+  address the corresponding live layers.
 - A generic-name correction can require two PSD exports, but only the final
   bytes are retained or returned.
 - Session-level serialization favors correctness over concurrent operations on
