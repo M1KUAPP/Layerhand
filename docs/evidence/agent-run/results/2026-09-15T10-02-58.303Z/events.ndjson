@@ -1,0 +1,71 @@
+{"ms":6,"type":"started","runId":"439569c5-fe4c-4ce4-9e30-ba57666a70cd","viewport":{"width":1440,"height":900}}
+{"ms":21319,"type":"frame","pngUrl":"frame:1"}
+{"ms":24612,"type":"cost","usd":0.0353125,"tokensIn":2677,"tokensOut":37}
+{"ms":24613,"type":"step","n":1,"cap":40,"narration":"I’ll inspect the editor before adding the three editable layers."}
+{"ms":35359,"type":"cost","usd":0.0612865,"tokensIn":6967,"tokensOut":99}
+{"ms":35360,"type":"step","n":2,"cap":40,"narration":"I’ll add a Brightness/Contrast adjustment for gentle brightening."}
+{"ms":37249,"type":"frame","pngUrl":"frame:2"}
+{"ms":44249,"type":"cost","usd":0.093886,"tokensIn":12895,"tokensOut":255}
+{"ms":44249,"type":"step","n":3,"cap":40,"narration":"I’ll brighten the image modestly and name the adjustment clearly."}
+{"ms":50820,"type":"frame","pngUrl":"frame:3"}
+{"ms":56607,"type":"cost","usd":0.1248485,"tokensIn":20555,"tokensOut":322}
+{"ms":56608,"type":"step","n":4,"cap":40,"narration":"I’ll select midtones for a natural warm colour balance."}
+{"ms":58914,"type":"frame","pngUrl":"frame:4"}
+{"ms":65708,"type":"cost","usd":0.1607805,"tokensIn":29858,"tokensOut":476}
+{"ms":65708,"type":"step","n":5,"cap":40,"narration":"I’ll add red and yellow while preserving luminosity."}
+{"ms":72382,"type":"frame","pngUrl":"frame:5"}
+{"ms":75113,"type":"frame","pngUrl":"frame:6"}
+{"ms":77766,"type":"cost","usd":0.194743,"tokensIn":40891,"tokensOut":536}
+{"ms":77766,"type":"step","n":6,"cap":40,"narration":"I’ll rename the warming layer and verify its settings."}
+{"ms":79377,"type":"frame","pngUrl":"frame:7"}
+{"ms":81902,"type":"frame","pngUrl":"frame:8"}
+{"ms":87727,"type":"cost","usd":0.2302105,"tokensIn":53560,"tokensOut":615}
+{"ms":87727,"type":"step","n":7,"cap":40,"narration":"I’ll activate the layer name with two clicks."}
+{"ms":97358,"type":"cost","usd":0.2675515,"tokensIn":67884,"tokensOut":694}
+{"ms":97359,"type":"step","n":8,"cap":40,"narration":"I’ll use the layer menu to access its naming controls."}
+{"ms":99171,"type":"frame","pngUrl":"frame:9"}
+{"ms":101774,"type":"frame","pngUrl":"frame:10"}
+{"ms":105297,"type":"cost","usd":0.3058975,"tokensIn":83863,"tokensOut":760}
+{"ms":105298,"type":"step","n":9,"cap":40,"narration":"I’ll reopen the colour adjustment to check the applied values."}
+{"ms":107633,"type":"frame","pngUrl":"frame:11"}
+{"ms":117339,"type":"cost","usd":0.346236,"tokensIn":101484,"tokensOut":836}
+{"ms":117339,"type":"step","n":10,"cap":40,"narration":"I’ll set the warming layer’s descriptive name."}
+{"ms":119902,"type":"frame","pngUrl":"frame:12"}
+{"ms":122499,"type":"frame","pngUrl":"frame:13"}
+{"ms":127183,"type":"cost","usd":0.38769149999999997,"tokensIn":120757,"tokensOut":899}
+{"ms":127183,"type":"step","n":11,"cap":40,"narration":"I’ll name both adjustments by their purpose."}
+{"ms":129875,"type":"frame","pngUrl":"frame:14"}
+{"ms":132435,"type":"frame","pngUrl":"frame:15"}
+{"ms":135006,"type":"cost","usd":0.43033649999999996,"tokensIn":141669,"tokensOut":956}
+{"ms":135006,"type":"step","n":12,"cap":40,"narration":"I’ll finish naming the brightening layer."}
+{"ms":136641,"type":"frame","pngUrl":"frame:16"}
+{"ms":139288,"type":"frame","pngUrl":"frame:17"}
+{"ms":143229,"type":"cost","usd":0.47774549999999993,"tokensIn":164214,"tokensOut":1077}
+{"ms":143229,"type":"step","n":13,"cap":40,"narration":"I’ll create a separate layer for the soft corner shading."}
+{"ms":147944,"type":"frame","pngUrl":"frame:18"}
+{"ms":150499,"type":"frame","pngUrl":"frame:19"}
+{"ms":156536,"type":"cost","usd":0.5263874999999999,"tokensIn":188456,"tokensOut":1174}
+{"ms":156536,"type":"step","n":14,"cap":40,"narration":"I’ll fill the vignette layer and prepare an elliptical mask."}
+{"ms":160284,"type":"frame","pngUrl":"frame:20"}
+{"ms":162821,"type":"frame","pngUrl":"frame:21"}
+{"ms":169269,"type":"cost","usd":0.5789764999999999,"tokensIn":214371,"tokensOut":1322}
+{"ms":169269,"type":"step","n":15,"cap":40,"narration":"I’ll feather a broad oval to keep the centre clear."}
+{"ms":179728,"type":"frame","pngUrl":"frame:22"}
+{"ms":182457,"type":"frame","pngUrl":"frame:23"}
+{"ms":189338,"type":"cost","usd":0.6316759999999999,"tokensIn":242010,"tokensOut":1426}
+{"ms":189339,"type":"step","n":16,"cap":40,"narration":"I’ll lower the vignette opacity for subtle, soft corners."}
+{"ms":193478,"type":"frame","pngUrl":"frame:24"}
+{"ms":199975,"type":"cost","usd":0.6842995,"tokensIn":271329,"tokensOut":1505}
+{"ms":199976,"type":"step","n":17,"cap":40,"narration":"I’ll review the complete edit and save an editable PSD."}
+{"ms":205731,"type":"frame","pngUrl":"frame:25"}
+{"ms":208367,"type":"frame","pngUrl":"frame:26"}
+{"ms":213791,"type":"cost","usd":0.7380405,"tokensIn":302303,"tokensOut":1579}
+{"ms":213792,"type":"step","n":18,"cap":40,"narration":"I’ll choose PSD rather than a flattened web export."}
+{"ms":216591,"type":"frame","pngUrl":"frame:27"}
+{"ms":219248,"type":"frame","pngUrl":"frame:28"}
+{"ms":222759,"type":"cost","usd":0.793874,"tokensIn":334927,"tokensOut":1663}
+{"ms":222759,"type":"step","n":19,"cap":40,"narration":"I’ll leave the finished image visible with all three editable layers."}
+{"ms":225814,"type":"frame","pngUrl":"frame:29"}
+{"ms":228604,"type":"frame","pngUrl":"frame:30"}
+{"ms":234382,"type":"cost","usd":0.8487825,"tokensIn":369211,"tokensOut":1693}
+{"ms":243522,"type":"done","result":{"psdUrl":"result.psd","previewUrl":"preview.png","layers":[{"name":"Original photograph","kind":"raster","visible":true,"masks":[],"children":[]},{"name":"Brighten photograph","kind":"adjustment","visible":true,"masks":[{"kind":"pixel","enabled":true}],"children":[]},{"name":"Warm colours","kind":"adjustment","visible":true,"masks":[{"kind":"pixel","enabled":true}],"children":[]},{"name":"Darken corners softly","kind":"raster","visible":true,"masks":[{"kind":"pixel","enabled":true}],"children":[]}],"complete":true}}
