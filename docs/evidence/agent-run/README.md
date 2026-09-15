@@ -20,14 +20,15 @@ Bun 1.3.14 cannot run it. There, Playwright's `connectOverCDP` never opens
 its WebSocket to Browserbase. Under Bun 1.4.2 and under Node it connects in
 about two seconds.
 
-Output goes to `results/<timestamp>/`:
+Output goes to `output/<timestamp>/`, which Git ignores. The recorded run's
+files are kept in [`results/`](/docs/evidence/agent-run/results/):
 
 - `summary.json`;
 - `events.ndjson`, with each frame reduced to a counter;
 - `preview.png` and `last-frame.png`.
 
 The script also writes `result.psd` and `first-frame.png`, which are not
-kept here.
+kept.
 
 ## Result
 
