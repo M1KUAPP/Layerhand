@@ -41,6 +41,12 @@ headings, and code blocks exempt; ATX headings in sentence case; one H1 per
 document, matching the filename; a short introduction under it; and link
 titles that say where the link goes.
 
+A plan or a spec is named for what it holds, in lower case with hyphens, and
+carries no date: the history records when it was written, and the document
+outlives the day it was drafted. This overrides the superpowers skills, which
+name them `YYYY-MM-DD-<topic>`. The project briefs keep their capitals and the
+decision records their numbers.
+
 ## Tooling
 
 - **Bun**, not npm or Yarn. `bun install`, `bun run lint`.
