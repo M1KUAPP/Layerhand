@@ -118,12 +118,17 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
   return Object.assign(state, { session })
 }
 
-async function httpOutcome(h: Harness, url: string): Promise<'continued' | 'aborted'> {
-  let outcome: 'continued' | 'aborted' | undefined
+async function httpOutcome(h: Harness, url: string, responseStatus = 200): Promise<'fulfilled' | 'aborted'> {
+  let outcome: 'fulfilled' | 'aborted' | undefined
+  let fetchOptions: { maxRedirects?: number } | undefined
   const route = {
     request: () => ({ url: () => url }),
-    continue: async () => {
-      outcome = 'continued'
+    fetch: async (options?: { maxRedirects?: number }) => {
+      fetchOptions = options
+      return { status: () => responseStatus }
+    },
+    fulfill: async () => {
+      outcome = 'fulfilled'
     },
     abort: async () => {
       outcome = 'aborted'
@@ -131,6 +136,7 @@ async function httpOutcome(h: Harness, url: string): Promise<'continued' | 'abor
   } as unknown as Route
   await h.httpRoute?.(route)
   if (!outcome) throw new Error('The HTTP route did not decide the request')
+  if (outcome === 'fulfilled') expect(fetchOptions).toEqual({ maxRedirects: 0 })
   return outcome
 }
 
@@ -175,12 +181,19 @@ describe('Browserbase editor session', () => {
     await h.session.open(IMAGE, 'source.png')
 
     const cases = [
-      [`${HOST_URL}?run=one`, 'continued'],
-      [`${PHOTOPEA_ORIGIN}/#editor`, 'continued'],
+      [`${HOST_URL}?run=one`, 'fulfilled'],
+      [`${PHOTOPEA_ORIGIN}/#editor`, 'fulfilled'],
       ['https://www.photopea.com.evil.test/collect', 'aborted'],
       ['https://tracker.test/collect', 'aborted']
     ] as const
     for (const [url, expected] of cases) expect(await httpOutcome(h, url)).toBe(expected)
+  })
+
+  test('does not return redirects to Chrome, where later hops bypass routing', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    expect(await httpOutcome(h, HOST_URL, 302)).toBe('aborted')
   })
 
   test('allows WebSockets only on the Layerhand host and Photopea origins', async () => {
