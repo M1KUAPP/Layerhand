@@ -1053,9 +1053,9 @@ One directory per stream, so that day-to-day work rarely collides.
 `src/agent` and `src/editor` meet only at Contract 1; `src/server` and
 `src/agent` meet only at Contract 2.
 
-Conventions are the repository's existing ones: bun, Prettier, atomic
+Conventions are the repository's existing ones: Bun, Prettier, atomic
 commits, Conventional Commits, and the
-[git workflow](/docs/references/git-workflow.md). They are not relaxed for the
+[Git workflow](/docs/references/git-workflow.md). They are not relaxed for the
 deadline.
 
 ## Decisions deferred to spikes
