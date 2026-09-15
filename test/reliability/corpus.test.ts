@@ -95,13 +95,14 @@ describe('reliability corpus', () => {
     }
 
     async function assertCorpusError(manifestUrl: URL, expectedCode: ReliabilityCorpusErrorCode) {
+      let thrown: unknown
       try {
         await loadReliabilityCorpus(manifestUrl)
-        expect().fail(`Expected loadReliabilityCorpus to throw ${expectedCode}`)
       } catch (error) {
-        expect(error).toBeInstanceOf(ReliabilityCorpusError)
-        expect((error as ReliabilityCorpusError).code).toBe(expectedCode)
+        thrown = error
       }
+      expect(thrown).toBeInstanceOf(ReliabilityCorpusError)
+      expect((thrown as ReliabilityCorpusError).code).toBe(expectedCode)
     }
 
     test('rejects duplicate case ids', async () => {
@@ -172,6 +173,18 @@ describe('reliability corpus', () => {
       cases[0]!.image = '/etc/passwd'
       const manifestUrl = await writeManifest(cases)
       await assertCorpusError(manifestUrl, 'invalid_case')
+    })
+
+    test('rejects URI schemes and absolute URLs in image path', async () => {
+      const casesFile = createTenCases()
+      casesFile[0]!.image = 'file:///etc/passwd'
+      const manifestUrlFile = await writeManifest(casesFile)
+      await assertCorpusError(manifestUrlFile, 'invalid_case')
+
+      const casesHttp = createTenCases()
+      casesHttp[0]!.image = 'https://example.com/image.jpg'
+      const manifestUrlHttp = await writeManifest(casesHttp)
+      await assertCorpusError(manifestUrlHttp, 'invalid_case')
     })
 
     test('rejects non-HTTPS provenance URLs', async () => {
