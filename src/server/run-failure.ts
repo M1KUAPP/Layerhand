@@ -68,6 +68,7 @@ const CODES: Readonly<Record<Operation, RunFailureCode>> = {
 /** Watches the calls a run makes to its model, editor, and store, so a failed run can say which one failed. */
 export class FailureRecorder {
   #last: { operation: Operation; error: unknown } | undefined
+  #frozenFailure: RunFailure | undefined
   // The live view takes screenshots on its own, and a missed frame does not end
   // the run, so a screenshot failure is only the cause when nothing else is.
   #lastScreenshotError: { error: unknown } | undefined
@@ -109,8 +110,17 @@ export class FailureRecorder {
     return (bytes, kind) => this.#track('publish', () => publish(bytes, kind))
   }
 
+  /** Keeps fatal cleanup failures from replacing the error that triggered cleanup. */
+  freeze(): void {
+    this.#frozenFailure ??= this.#currentFailure(false)
+  }
+
   /** The most likely cause of a failed run, given what was watched. */
   failure(missingNarration: boolean): RunFailure {
+    return this.#frozenFailure ?? this.#currentFailure(missingNarration)
+  }
+
+  #currentFailure(missingNarration: boolean): RunFailure {
     if (this.#last) return describeFailure(CODES[this.#last.operation], this.#last.error)
     if (missingNarration) return describeFailure('missing_narration')
     // Every call succeeded through reading the layers, so the loop refused the layer tree.

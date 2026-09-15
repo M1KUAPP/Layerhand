@@ -85,6 +85,31 @@ describe('FailureRecorder', () => {
     expect(recorder.failure(false).code).toBe('model_call_failed')
   })
 
+  test('keeps the failure that ended the run when recovery also fails', async () => {
+    const recorder = new FailureRecorder()
+    const recorded = await createRecordedFakeEditorSession()
+    const model = recorder.model({
+      next: async () => {
+        throw new Error('The Responses API returned HTTP 500')
+      }
+    })
+    recorded.exportPsd = async () => {
+      throw new Error('The recovery export failed')
+    }
+    const session = recorder.session(recorded)
+
+    await expect(
+      model.next({ screenshot: Uint8Array.of(1), corrections: [] }, new AbortController().signal)
+    ).rejects.toThrow('HTTP 500')
+    recorder.freeze()
+    await expect(session.exportPsd()).rejects.toThrow('recovery export failed')
+
+    expect(recorder.failure(false)).toMatchObject({
+      code: 'model_call_failed',
+      message: 'The Responses API returned HTTP 500'
+    })
+  })
+
   test('names a publish that failed', async () => {
     const recorder = new FailureRecorder()
     const publish = recorder.publish(async () => {

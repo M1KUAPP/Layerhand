@@ -99,7 +99,9 @@ export function managedAgentRun(
     ...dependencies,
     model,
     session: failures.session(dependencies.session),
-    publish: failures.publish(dependencies.publish)
+    publish: failures.publish(dependencies.publish),
+    abandon,
+    captureFailure: () => failures.freeze()
   })
 
   // At the ceiling the run is cancelled, so it exports and closes as a cancel
