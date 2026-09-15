@@ -36,7 +36,10 @@ interface Step {
   awaiting: string | undefined
   /** Responses a successor was created for. */
   succeeded: string[]
-  timer: ReturnType<typeof setTimeout> | undefined
+  /** Bounds the wait for a successor that carries a steer. */
+  successorTimer: ReturnType<typeof setTimeout> | undefined
+  /** Bounds a step the connection has gone silent on, which is how a half-open socket looks. */
+  idleTimer: ReturnType<typeof setTimeout> | undefined
   settle(result: StepResult): void
   abandon(reason: unknown): void
 }
@@ -106,6 +109,8 @@ export interface SteeringEvent {
 
 export interface ResponsesSocketOptions {
   successorTimeoutMs?: number
+  /** How long a step may go without any traffic at all before the connection is given up on. */
+  stepIdleTimeoutMs?: number
   /** Sees each steering and response event, in arrival order (NFR-8). */
   onEvent?: (event: SteeringEvent) => void
 }
@@ -114,6 +119,7 @@ export class ResponsesSocket {
   readonly #socket: WebSocket
   readonly #ledger: SteerLedger
   readonly #successorTimeoutMs: number
+  readonly #stepIdleTimeoutMs: number
   readonly #onEvent: ((event: SteeringEvent) => void) | undefined
   #step: Step | undefined
   #lost = false
@@ -121,11 +127,12 @@ export class ResponsesSocket {
   constructor(
     socket: WebSocket,
     ledger: SteerLedger,
-    { successorTimeoutMs = 10_000, onEvent }: ResponsesSocketOptions = {}
+    { successorTimeoutMs = 10_000, stepIdleTimeoutMs = 120_000, onEvent }: ResponsesSocketOptions = {}
   ) {
     this.#socket = socket
     this.#ledger = ledger
     this.#successorTimeoutMs = successorTimeoutMs
+    this.#stepIdleTimeoutMs = stepIdleTimeoutMs
     this.#onEvent = onEvent
     socket.addEventListener('message', (event) => this.#receive(event.data))
     socket.addEventListener('close', () => this.#lose())
@@ -144,10 +151,16 @@ export class ResponsesSocket {
 
   /** Sends one step, with the settings of a `response.create` body. */
   step(body: Json, continuationOf: string | undefined, signal: AbortSignal): Promise<StepResult> {
-    if (this.#lost) return Promise.resolve({ lost: true })
+    // A socket that is not open can swallow a send without ever reporting it,
+    // which would leave the step waiting for the run ceiling.
+    if (this.#lost || this.#socket.readyState !== WebSocket.OPEN) {
+      this.#lose()
+      return Promise.resolve({ lost: true, responses: [] })
+    }
     return new Promise<StepResult>((resolve, reject) => {
       const finish = () => {
-        clearTimeout(step.timer)
+        clearTimeout(step.successorTimer)
+        clearTimeout(step.idleTimer)
         signal.removeEventListener('abort', onAbort)
         if (this.#step === step) this.#step = undefined
       }
@@ -157,7 +170,8 @@ export class ResponsesSocket {
         current: undefined,
         awaiting: undefined,
         succeeded: [],
-        timer: undefined,
+        successorTimer: undefined,
+        idleTimer: undefined,
         settle(result) {
           finish()
           resolve(result)
@@ -174,6 +188,7 @@ export class ResponsesSocket {
       }
       signal.addEventListener('abort', onAbort, { once: true })
       this.#step = step
+      this.#waitForTraffic(step)
       try {
         this.#socket.send(JSON.stringify({ type: 'response.create', stream_id: STREAM_ID, store: true, ...body }))
       } catch {
@@ -199,7 +214,14 @@ export class ResponsesSocket {
     this.#lose()
   }
 
+  /** Any traffic means the connection is alive, so the step's idle bound starts again. */
+  #waitForTraffic(step: Step): void {
+    clearTimeout(step.idleTimer)
+    step.idleTimer = setTimeout(() => this.#lose(), this.#stepIdleTimeoutMs)
+  }
+
   #receive(data: unknown): void {
+    if (this.#step) this.#waitForTraffic(this.#step)
     let event: unknown
     try {
       event = JSON.parse(String(data))
@@ -279,7 +301,7 @@ export class ResponsesSocket {
       return this.#lose()
     }
     if (step.awaiting) {
-      clearTimeout(step.timer)
+      clearTimeout(step.successorTimer)
       step.succeeded.push(step.awaiting)
       step.awaiting = undefined
     }
@@ -298,7 +320,7 @@ export class ResponsesSocket {
     // continuation. One that does not is followed by a successor carrying them.
     if (!hasToolCall(response) && (steered || this.#ledger.awaitingSuccessor(id))) {
       step.awaiting = id
-      step.timer = setTimeout(() => this.#lose(), this.#successorTimeoutMs)
+      step.successorTimer = setTimeout(() => this.#lose(), this.#successorTimeoutMs)
       return
     }
     this.#adopt(step)
@@ -308,7 +330,7 @@ export class ResponsesSocket {
   #successorMayBeDue(): void {
     const step = this.#step
     if (!step?.awaiting || step.current !== undefined || this.#ledger.awaitingSuccessor(step.awaiting)) return
-    clearTimeout(step.timer)
+    clearTimeout(step.successorTimer)
     step.awaiting = undefined
     this.#adopt(step)
   }
