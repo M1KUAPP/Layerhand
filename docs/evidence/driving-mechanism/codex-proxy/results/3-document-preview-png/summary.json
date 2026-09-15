@@ -1,0 +1,47 @@
+{
+  "label": "Feasibility hint from Codex on GPT-6 Astra. Not spike A0 data.",
+  "image": "document-preview.png",
+  "effort": "low",
+  "stopReason": "finished",
+  "codexExitCode": 0,
+  "minutes": 4.7,
+  "runCalls": 19,
+  "creditsSpent": 0,
+  "sessionLog": "/home/adam/.codex/sessions/2026/09/15/rollout-2026-09-15T16-40-01-01a0a439-1d38-7533-a376-8dc180bebe0a.jsonl",
+  "estimatedCreditsAtListRates": 51.42,
+  "startBalance": 1805.106298,
+  "endBalance": 1805.106298,
+  "fiveHourPercent": 52,
+  "weeklyPercent": 51,
+  "tokens": {
+    "input": 1447885,
+    "cached": 1399936,
+    "output": 3547
+  },
+  "layers": [
+    {
+      "name": "Background",
+      "visible": true,
+      "kind": "raster"
+    },
+    {
+      "name": "Brighten photograph",
+      "visible": true,
+      "kind": "adjustment"
+    },
+    {
+      "name": "Warm colours",
+      "visible": true,
+      "kind": "adjustment"
+    },
+    {
+      "name": "Soft dark corners",
+      "visible": true,
+      "kind": "raster"
+    }
+  ],
+  "adjustmentLayers": 2,
+  "threeEditsVisible": true,
+  "disqualified": false,
+  "completed": true
+}
