@@ -26,6 +26,13 @@ export interface RunRouteDependencies {
   stepCap?: number
 }
 
+class RunStartError extends Error {
+  constructor() {
+    super('The run could not be started.')
+    this.name = 'RunStartError'
+  }
+}
+
 function json(value: unknown, status = 200, headers?: HeadersInit): Response {
   return Response.json(value, { status, headers })
 }
@@ -73,6 +80,9 @@ export class RunRoutes {
       return apiError('method_not_allowed', 'This endpoint does not accept that method.', 405)
     } catch (error) {
       if (error instanceof RunRegistryError) return registryError(error)
+      if (error instanceof RunStartError) {
+        return apiError('run_start_failed', 'The run could not be started. Try again in a moment.', 500)
+      }
       if (error instanceof ImageUploadError) return apiError(error.code, error.message, 400)
       if (error instanceof WaitlistEmailError || error instanceof VisitorIdentityError) {
         const code = error instanceof WaitlistEmailError ? error.code : 'invalid_visitor'
@@ -142,7 +152,12 @@ export class RunRoutes {
         budgetUsd: this.#dependencies.freeRunReservationMicroUsd / 1_000_000,
         apiKey
       }
-      managedRun = await this.#dependencies.runFactory(runRequest)
+      try {
+        managedRun = await this.#dependencies.runFactory(runRequest)
+      } catch {
+        // Starting a run can fail on our side, as when an editor session cannot be created.
+        throw new RunStartError()
+      }
       const runId = this.#dependencies.idGenerator()
       this.#dependencies.registry.register({
         runId,
