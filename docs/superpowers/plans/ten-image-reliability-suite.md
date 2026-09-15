@@ -1,5 +1,9 @@
 # Ten-image reliability suite implementation plan
 
+The task-by-task plan for issue #10: ten photographs through the production
+agent, one command reporting how many produced a valid layered PSD, and a
+guarded nightly workflow that publishes the result.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use
