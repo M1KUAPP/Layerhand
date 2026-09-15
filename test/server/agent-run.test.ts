@@ -553,6 +553,20 @@ describe('managed agent run', () => {
     expect(offered).toEqual(['Keep the shadow', 'Leave the label'])
   })
 
+  test('closes a model that holds something, once, when the run ends', async () => {
+    const scripted = new ScriptedModel({ delayMs: 1 })
+    let closed = 0
+    const closingModel: AgentModel = {
+      next: (observation, signal) => scripted.next(observation, signal),
+      close: () => void (closed += 1)
+    }
+    const { managed } = await run({}, undefined, closingModel)
+
+    await finish(managed)
+
+    expect(closed).toBe(1)
+  })
+
   test('reports a cancel, and releases the key', async () => {
     const { managed, runRequest } = await run()
 
