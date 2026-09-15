@@ -1,9 +1,9 @@
 # Markdown style guide
 
-Much of what makes Markdown refreshing is the ability to write plain text and get
-great formatted output as a result. To keep the slate clean for the next author,
-your Markdown should be simple and consistent with the whole corpus wherever
-possible.
+Much of what makes Markdown refreshing is the ability to write plain text and
+get great formatted output as a result. To keep the slate clean for the next
+author, your Markdown should be simple and consistent with the whole corpus
+wherever possible.
 
 We seek to balance three goals:
 
@@ -137,12 +137,13 @@ Content.
     revision history generally suffices.
 
 1.  `Short introduction.` 1–3 sentences providing a high-level overview of the
-    topic. Imagine yourself as a complete newbie who landed on your "Extending Foo" doc
-    and doesn't know the most basic information you take for granted. "What is
-    Foo? Why would I extend it?"
+    topic. Imagine yourself as a complete newbie who landed on your "Extending
+    Foo" doc and doesn't know the most basic information you take for granted.
+    "What is Foo? Why would I extend it?"
 
-1.  `[TOC]`: if you use hosting that supports table of contents, such as Gitiles,
-    put `[TOC]` after the short introduction. See [`[TOC]` documentation][TOC-docs].
+1.  `[TOC]`: if you use hosting that supports table of contents, such as
+    Gitiles, put `[TOC]` after the short introduction. See
+    [`[TOC]` documentation][TOC-docs].
 
 1.  `## Topic`: The rest of your headings should start from level 2.
 
@@ -188,9 +189,9 @@ This is my introduction **after** the TOC where it should not be.
 ```
 
 For users who read your documentation visually, it doesn't matter where your
-`[TOC]` directive is placed, as Markdown always displays the TOC toward the top and
-to the right of the page. However, `[TOC]` placement matters a lot when screen
-readers or keyboard controls are involved.
+`[TOC]` directive is placed, as Markdown always displays the TOC toward the top
+and to the right of the page. However, `[TOC]` placement matters a lot when
+screen readers or keyboard controls are involved.
 
 That's because `[TOC]` inserts the HTML for the table of contents into the DOM
 wherever you've included the directive in your Markdown file. If, for example,
@@ -741,7 +742,8 @@ Some more text using a [different_link][different_link_def].
 
 ## Images
 
-See [image syntax](https://gerrit.googlesource.com/gitiles/+/HEAD/Documentation/markdown.md#Images).
+See
+[image syntax](https://gerrit.googlesource.com/gitiles/+/HEAD/Documentation/markdown.md#Images).
 
 Use images sparingly, and prefer simple screenshots. This guide is designed
 around the idea that plain text gets users down to the business of communication

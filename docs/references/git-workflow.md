@@ -4,10 +4,11 @@ Every change to this repository travels the same path: a branch, small
 commits, a pull request, a review, resolved conversations, a rebase merge,
 and a deleted branch. Nothing reaches `main` any other way.
 
-Names follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+Names follow
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 everywhere they appear — commit subjects, issue titles, and pull request
-titles — so that one glance at any of the three tells you what kind of change
-it is.
+titles — so that one glance at any of the three tells you what kind of change it
+is.
 
 Contents:
 
