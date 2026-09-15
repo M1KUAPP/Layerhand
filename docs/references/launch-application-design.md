@@ -58,10 +58,10 @@ several issues. The user-authorized merge method for this branch is squash.
 
 The implementation is divided into four plans:
 
-1. External gates and application foundation: issues 22, 23, and 24.
-1. Admission and persistence: issue 29 and the storage needed by issue 30.
-1. Single-page run flow: issues 25 through 28 and the visible part of issue 30.
-1. Completion observability: issue 31.
+1.  External gates and application foundation: issues 22, 23, and 24.
+1.  Admission and persistence: issue 29 and the storage needed by issue 30.
+1.  Single-page run flow: issues 25 through 28 and the visible part of issue 30.
+1.  Completion observability: issue 31.
 
 Issue 31 remains the final implementation package because it is P1. The
 foundation exposes a terminal-run callback so adding its log sink does not
@@ -172,14 +172,14 @@ real adapter reports the measured rate and differentiates step and spend caps.
 `instruction`, and optional `apiKey` fields. Processing is ordered to avoid
 paid work for invalid or refused requests:
 
-1. Enforce the request-body ceiling.
-1. Validate instruction presence and the 500-character limit.
-1. Validate JPEG or PNG magic bytes, byte length, and dimensions with the
-   existing `validateImageUpload()` function.
-1. Establish the signed visitor identity.
-1. Atomically admit or refuse the run through `MeterStore`.
-1. Persist the upload under an unguessable object key.
-1. Create the `RunHandle` and return its `runId`.
+1.  Enforce the request-body ceiling.
+1.  Validate instruction presence and the 500-character limit.
+1.  Validate JPEG or PNG magic bytes, byte length, and dimensions with the
+    existing `validateImageUpload()` function.
+1.  Establish the signed visitor identity.
+1.  Atomically admit or refuse the run through `MeterStore`.
+1.  Persist the upload under an unguessable object key.
+1.  Create the `RunHandle` and return its `runId`.
 
 An admission or persistence failure never starts a browser session. A failure
 after quota reservation releases the reservation before returning.
@@ -341,15 +341,15 @@ after its focused test fails for the expected missing behavior.
 
 The test layers are:
 
-1. Pure reducer, validation, identity, quota, and serialization tests.
-1. HTTP integration tests against an ephemeral `Bun.serve` port and injected
-   fakes, including reconnect, actual limit hits, and secret-redaction checks.
-1. Browser tests at 1440x900, 1280x800, and 1279x800 for upload, running,
-   correction, reload, result, download, and desktop-required states.
-1. Opt-in Browserbase and S3 integration tests guarded by explicit environment
-   variables and skipped otherwise.
-1. Container build, health check, full test suite, typecheck, and lint before
-   the pull request is eligible to merge.
+1.  Pure reducer, validation, identity, quota, and serialization tests.
+1.  HTTP integration tests against an ephemeral `Bun.serve` port and injected
+    fakes, including reconnect, actual limit hits, and secret-redaction checks.
+1.  Browser tests at 1440x900, 1280x800, and 1279x800 for upload, running,
+    correction, reload, result, download, and desktop-required states.
+1.  Opt-in Browserbase and S3 integration tests guarded by explicit environment
+    variables and skipped otherwise.
+1.  Container build, health check, full test suite, typecheck, and lint before
+    the pull request is eligible to merge.
 
 Worker reports and exit codes are not verification. The coordinator inspects
 every diff, checks ownership boundaries, reruns the relevant tests, and runs
