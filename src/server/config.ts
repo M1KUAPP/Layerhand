@@ -46,15 +46,47 @@ function requiredEnvironment(env: Environment): Record<EnvironmentName, string> 
   return Object.fromEntries(REQUIRED_NAMES.map((name) => [name, env[name]!])) as Record<EnvironmentName, string>
 }
 
-function parseBudget(value: string): number {
+function parsePositiveDecimal(name: string, value: string): number {
   if (!/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value)) {
-    throw new ConfigurationError('FREE_DAILY_BUDGET_USD must be a positive decimal number')
+    throw new ConfigurationError(`${name} must be a positive decimal number`)
   }
-  const budget = Number(value)
-  if (!Number.isFinite(budget) || budget <= 0) {
-    throw new ConfigurationError('FREE_DAILY_BUDGET_USD must be a positive decimal number')
+  const number = Number(value)
+  if (!Number.isFinite(number) || number <= 0) {
+    throw new ConfigurationError(`${name} must be a positive decimal number`)
   }
-  return budget
+  return number
+}
+
+function parsePositiveInteger(name: string, value: string): number {
+  const number = Number(value)
+  if (!/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(number)) {
+    throw new ConfigurationError(`${name} must be a positive integer`)
+  }
+  return number
+}
+
+export interface RunLimits {
+  /** Model calls one run may make (FR-12). */
+  stepCap: number
+  /** What one run may spend, and what a free run reserves from the daily ceiling (NFR-2, FR-37). */
+  freeRunSpendCapUsd: number
+}
+
+// The live agent run needed 19 steps, so 40 leaves room; $3 is several times its $0.85.
+export const DEFAULT_RUN_LIMITS: RunLimits = { stepCap: 40, freeRunSpendCapUsd: 3 }
+
+/** The run limits, in every environment. Each is optional and has a default. */
+export function readRunLimits(env: Environment): RunLimits {
+  return {
+    stepCap:
+      env.RUN_STEP_CAP === undefined
+        ? DEFAULT_RUN_LIMITS.stepCap
+        : parsePositiveInteger('RUN_STEP_CAP', env.RUN_STEP_CAP),
+    freeRunSpendCapUsd:
+      env.FREE_RUN_SPEND_CAP_USD === undefined
+        ? DEFAULT_RUN_LIMITS.freeRunSpendCapUsd
+        : parsePositiveDecimal('FREE_RUN_SPEND_CAP_USD', env.FREE_RUN_SPEND_CAP_USD)
+  }
 }
 
 function parseTrustedProxyHops(value: string): number {
@@ -83,7 +115,7 @@ export function readConfig(env: Environment): ServerConfig {
   return {
     databaseUrl: value.DATABASE_URL,
     sessionSecret: value.SESSION_SECRET,
-    freeDailyBudgetUsd: parseBudget(value.FREE_DAILY_BUDGET_USD),
+    freeDailyBudgetUsd: parsePositiveDecimal('FREE_DAILY_BUDGET_USD', value.FREE_DAILY_BUDGET_USD),
     s3: {
       endpoint: validateStorageEndpoint(value.S3_ENDPOINT),
       region: value.S3_REGION,

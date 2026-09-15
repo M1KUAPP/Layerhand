@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { ConfigurationError, readConfig } from '../../src/server/config'
+import { ConfigurationError, readConfig, readRunLimits } from '../../src/server/config'
 
 const VALID_ENV = {
   DATABASE_URL: 'postgres://layerhand:password@database.internal/layerhand',
@@ -81,4 +81,33 @@ describe('readConfig', () => {
     expect(String(error)).toContain('S3_ENDPOINT must use HTTP or HTTPS')
     expect(String(error)).not.toContain(endpoint)
   })
+})
+
+describe('readRunLimits', () => {
+  test('defaults to 40 steps and a $3 spend cap', () => {
+    expect(readRunLimits({})).toEqual({ stepCap: 40, freeRunSpendCapUsd: 3 })
+  })
+
+  test('reads both limits from the environment', () => {
+    expect(readRunLimits({ RUN_STEP_CAP: '25', FREE_RUN_SPEND_CAP_USD: '2.50' })).toEqual({
+      stepCap: 25,
+      freeRunSpendCapUsd: 2.5
+    })
+  })
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5', '99999999999999999999'])(
+    'rejects invalid RUN_STEP_CAP %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ RUN_STEP_CAP: value })).toThrow('RUN_STEP_CAP must be a positive integer')
+    }
+  )
+
+  test.each(['0', '-1', 'NaN', 'Infinity', ' 5'])(
+    'rejects invalid FREE_RUN_SPEND_CAP_USD %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ FREE_RUN_SPEND_CAP_USD: value })).toThrow(
+        'FREE_RUN_SPEND_CAP_USD must be a positive decimal number'
+      )
+    }
+  )
 })
