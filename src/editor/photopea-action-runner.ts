@@ -16,35 +16,80 @@ export interface PhotopeaActionPage {
 
 export interface PhotopeaActionRunnerOptions {
   readonly delay?: (milliseconds: number) => Promise<void>
+  /** Told about an action skipped because Playwright has no key by that name. */
+  readonly onSkippedAction?: (action: ComputerAction, reason: string) => void
 }
 
+// Playwright's key names, looked up from the names the computer tool sends,
+// which include X11 names such as Return, Down, and Page_Down.
 const KEY_ALIASES = {
   SHIFT: 'Shift',
+  SHIFT_L: 'Shift',
+  SHIFT_R: 'Shift',
   CTRL: 'Control',
   CONTROL: 'Control',
+  CONTROL_L: 'Control',
+  CONTROL_R: 'Control',
   ALT: 'Alt',
+  ALT_L: 'Alt',
+  ALT_R: 'Alt',
+  OPTION: 'Alt',
   CMD: 'Meta',
   COMMAND: 'Meta',
   META: 'Meta',
+  SUPER: 'Meta',
+  SUPER_L: 'Meta',
+  SUPER_R: 'Meta',
+  WIN: 'Meta',
   ENTER: 'Enter',
+  RETURN: 'Enter',
+  KP_ENTER: 'Enter',
   ESC: 'Escape',
   ESCAPE: 'Escape',
   BACKSPACE: 'Backspace',
   DELETE: 'Delete',
+  DEL: 'Delete',
+  INSERT: 'Insert',
+  INS: 'Insert',
   ARROWUP: 'ArrowUp',
   ARROWDOWN: 'ArrowDown',
   ARROWLEFT: 'ArrowLeft',
   ARROWRIGHT: 'ArrowRight',
+  UP: 'ArrowUp',
+  DOWN: 'ArrowDown',
+  LEFT: 'ArrowLeft',
+  RIGHT: 'ArrowRight',
   HOME: 'Home',
   END: 'End',
   PAGEUP: 'PageUp',
   PAGEDOWN: 'PageDown',
+  PAGE_UP: 'PageUp',
+  PAGE_DOWN: 'PageDown',
+  PGUP: 'PageUp',
+  PGDN: 'PageDown',
+  PRIOR: 'PageUp',
+  NEXT: 'PageDown',
   TAB: 'Tab',
-  SPACE: 'Space'
+  SPACE: 'Space',
+  CAPS_LOCK: 'CapsLock',
+  MINUS: 'Minus',
+  EQUAL: 'Equal',
+  PLUS: '+'
 } as const
 
 function normalizeKey(key: string): string {
   return KEY_ALIASES[key.toUpperCase() as keyof typeof KEY_ALIASES] ?? key
+}
+
+// Playwright's words for a key name it does not have.
+const UNKNOWN_KEY = /Unknown key: .*/
+
+function unknownKey(error: unknown): string | undefined {
+  return error instanceof Error ? UNKNOWN_KEY.exec(error.message)?.[0] : undefined
+}
+
+function reportSkippedAction(action: ComputerAction, reason: string): void {
+  process.stderr.write(`${JSON.stringify({ event: 'editor_action_skipped', action: action.type, reason })}\n`)
 }
 
 function delay(milliseconds: number): Promise<void> {
@@ -55,17 +100,27 @@ export class PhotopeaActionRunner {
   readonly #page: PhotopeaActionPage
   readonly #auxiliaryMouse: AuxiliaryMouse
   readonly #delay: (milliseconds: number) => Promise<void>
+  readonly #onSkippedAction: (action: ComputerAction, reason: string) => void
   #closePromise: Promise<void> | undefined
 
   constructor(page: PhotopeaActionPage, auxiliaryMouse: AuxiliaryMouse, options: PhotopeaActionRunnerOptions = {}) {
     this.#page = page
     this.#auxiliaryMouse = auxiliaryMouse
     this.#delay = options.delay ?? delay
+    this.#onSkippedAction = options.onSkippedAction ?? reportSkippedAction
   }
 
   async act(actions: readonly ComputerAction[]): Promise<void> {
     for (const action of actions) {
-      await this.#act(action)
+      try {
+        await this.#act(action)
+      } catch (error) {
+        // A key Playwright cannot name skips that one action rather than ending
+        // the run. The next screenshot shows the model nothing happened.
+        const reason = unknownKey(error)
+        if (reason === undefined) throw error
+        this.#onSkippedAction(action, reason)
+      }
     }
   }
 
@@ -124,9 +179,13 @@ export class PhotopeaActionRunner {
           await this.#page.mouse.wheel(action.scroll_x, action.scroll_y)
         })
         return
-      case 'keypress':
-        await this.#page.keyboard.press(action.keys.map(normalizeKey).join('+'))
+      case 'keypress': {
+        // Modifiers are held here rather than joined into one press, because a
+        // press that fails on its last key would leave its modifiers held.
+        const key = action.keys.at(-1)!
+        await this.#withModifiers(action.keys.slice(0, -1), () => this.#page.keyboard.press(normalizeKey(key)))
         return
+      }
       case 'type':
         await this.#page.keyboard.insertText(action.text)
         return
