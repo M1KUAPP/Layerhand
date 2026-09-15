@@ -7,7 +7,7 @@ import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
 import { BrowserbaseClient } from './browserbase-client'
-import { ConfigurationError, readConfig, type ServerConfig } from './config'
+import { ConfigurationError, readConfig, readRunLimits, type ServerConfig } from './config'
 import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
@@ -128,6 +128,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
   const production = env.NODE_ENV === 'production'
   const runMode = readRunMode(env.RUN_MODE)
   const config = production ? readConfig(env) : undefined
+  const limits = readRunLimits(env)
   const agent = runMode === 'agent' ? readAgentConfig(env, config) : undefined
   const database = createDatabase(config?.databaseUrl ?? env.DATABASE_URL ?? ':memory:')
 
@@ -154,7 +155,8 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       waitlistStore: new SqlWaitlistStore(database),
       sessionSecret: config?.sessionSecret ?? env.SESSION_SECRET ?? 'layerhand-development-session-secret',
       trustProxyHops: config?.trustProxyHops ?? 0,
-      freeRunReservationMicroUsd: usdToMicroUsd(8),
+      // A free run reserves the most it may spend (NFR-2), so the ceiling never undercounts it.
+      freeRunReservationMicroUsd: usdToMicroUsd(limits.freeRunSpendCapUsd),
       clientAddress: options.clientAddress,
       now: () => new Date(),
       idGenerator: () => crypto.randomUUID(),
@@ -170,7 +172,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
               })
             }
           : (request) => managedFakeRun(request, intervalMs, serverApiKey),
-      stepCap: options.stepCap ?? 15
+      stepCap: options.stepCap ?? limits.stepCap
     })
     return {
       application: createApplication({
