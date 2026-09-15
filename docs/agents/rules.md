@@ -1,4 +1,4 @@
-# Project conventions
+# Project rules
 
 The rules that hold for every change in this repository, whoever or
 whatever makes it. Anything here overrides an agent's own defaults. The
