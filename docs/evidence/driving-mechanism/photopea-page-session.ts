@@ -128,9 +128,8 @@ export class PhotopeaPageSession implements EditorSession {
     try {
       switch (action.type) {
         case 'click':
-          if (action.button === 'back' || action.button === 'forward') {
-            throw new Error('The editor page has no back or forward navigation to click')
-          }
+          // The editor page has nowhere to go back or forward to. Throwing would fail the whole run.
+          if (action.button === 'back' || action.button === 'forward') break
           await mouse.click(action.x, action.y, { button: action.button === 'wheel' ? 'middle' : action.button })
           break
         case 'double_click':
