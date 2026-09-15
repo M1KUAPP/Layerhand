@@ -103,11 +103,11 @@ export class PhotopeaActionRunner {
         })
         return
       case 'drag':
+        if (action.path.length === 0) return
         await this.#withModifiers(action.keys, async () => {
           const [start, ...rest] = action.path
-          if (!start) return
 
-          await this.#page.mouse.move(start.x, start.y)
+          await this.#page.mouse.move(start!.x, start!.y)
           await this.#page.mouse.down({ button: 'left' })
           try {
             for (const point of rest) {

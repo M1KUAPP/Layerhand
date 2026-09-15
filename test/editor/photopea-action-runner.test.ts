@@ -184,6 +184,15 @@ describe('Photopea action runner', () => {
     expect(page.calls).toEqual(['mouse.move:22,23', 'mouse.down:left', 'mouse.move:24,25', 'mouse.up:left'])
   })
 
+  test('does nothing for an empty drag even when modifiers are supplied', async () => {
+    const page = createRecordingPage()
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls))
+
+    await runner.act([{ type: 'drag', path: [], keys: ['shift'] }])
+
+    expect(page.calls).toEqual([])
+  })
+
   test('closes the auxiliary mouse once and shares its rejection', async () => {
     const page = createRecordingPage()
     const rejection = new Error('auxiliary close failed')
