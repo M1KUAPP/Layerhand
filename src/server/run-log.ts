@@ -4,6 +4,7 @@
 import type { SQL } from 'bun'
 
 import type { RunStopReason } from './managed-run'
+import type { RunFailureCode } from './run-failure'
 import type { TerminalRun } from './run-registry'
 
 const MAX_INSTRUCTION = 80
@@ -22,6 +23,8 @@ export interface RunLogLine {
   durationMs: number
   outcome: RunStopReason
   failureReason: string | null
+  /** Which call a failed run failed on, so launch day can be triaged without the message. */
+  failureCode: RunFailureCode | null
   instruction: string
 }
 
@@ -61,6 +64,7 @@ export function runLogLine({ runId, instruction, startedAt, completedAt, snapsho
     durationMs: Math.max(0, completedAt - startedAt),
     outcome: metrics.stopReason,
     failureReason: failureReason(snapshot, metrics.stopReason),
+    failureCode: metrics.stopReason === 'failed' ? (metrics.failure?.code ?? 'run_failed') : null,
     instruction: truncate(instruction)
   }
 }
@@ -68,6 +72,8 @@ export function runLogLine({ runId, instruction, startedAt, completedAt, snapsho
 export interface RunLoggerOptions {
   /** Receives each line as one NDJSON record, newline included. */
   write(record: string): void
+  /** Receives one NDJSON record per failed run, with the error that caused it, already redacted. */
+  writeFailure?(record: string): void
   store?: RunLogStore
 }
 
@@ -75,13 +81,27 @@ export interface RunLoggerOptions {
  * A terminal hook for RunRegistry: writes the line, then stores it. One sink
  * failing does not stop the other, and the hook still rejects afterwards.
  */
-export function createRunLogger({ write, store }: RunLoggerOptions): (run: TerminalRun) => Promise<void> {
+export function createRunLogger({ write, writeFailure, store }: RunLoggerOptions): (run: TerminalRun) => Promise<void> {
   return async (run) => {
     const line = runLogLine(run)
     let written = true
     let writeError: unknown
     try {
       write(`${JSON.stringify(line)}\n`)
+      const failure = run.metrics.failure
+      if (line.outcome === 'failed' && failure) {
+        writeFailure?.(
+          `${JSON.stringify({
+            event: 'run_failed',
+            runId: run.runId,
+            step: run.snapshot.steps,
+            failureCode: failure.code,
+            errorName: failure.errorName,
+            message: failure.message,
+            stack: failure.stack
+          })}\n`
+        )
+      }
     } catch (error) {
       written = false
       writeError = error
@@ -102,12 +122,12 @@ export class SqlRunLogStore implements RunLogStore {
     await this.#database`
       INSERT INTO run_log (
         run_id, completed_at, steps, cap_hit, tokens_in, tokens_out, cost_usd,
-        cache_hit_rate, duration_ms, outcome, failure_reason, instruction
+        cache_hit_rate, duration_ms, outcome, failure_reason, failure_code, instruction
       )
       VALUES (
         ${line.runId}, ${line.completedAt}, ${line.steps}, ${line.capHit}, ${line.tokensIn},
         ${line.tokensOut}, ${line.costUsd}, ${line.cacheHitRate}, ${line.durationMs},
-        ${line.outcome}, ${line.failureReason}, ${line.instruction}
+        ${line.outcome}, ${line.failureReason}, ${line.failureCode}, ${line.instruction}
       )
       ON CONFLICT (run_id) DO NOTHING
     `

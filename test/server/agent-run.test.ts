@@ -569,5 +569,46 @@ describe('managed agent run', () => {
 
     expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
     expect(late.metrics().stopReason).toBe('failed')
+    expect(late.metrics().failure?.code).toBe('model_call_failed')
+  })
+
+  test('records which editor call a failed run failed on, redacted, while the page keeps the fixed reason', async () => {
+    const session = await createRecordedFakeEditorSession()
+    session.act = async () => {
+      throw new Error(
+        'keyboard.press failed near wss://connect.browserbase.test/?signingKey=secret for sk-proj-abcdefghijklmnop'
+      )
+    }
+    const clickingModel: AgentModel = {
+      async next() {
+        return {
+          narration: 'Clicking the Layers panel',
+          actions: [{ type: 'wait' }],
+          usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+          done: false
+        }
+      }
+    }
+    const managed = managedAgentRun(request(), {
+      session,
+      model: clickingModel,
+      publish: async (_bytes, kind) => `memory://${kind}`
+    })
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toEqual({
+      type: 'error',
+      reason: 'The run stopped because of an unexpected error',
+      recoverable: false
+    })
+    const { stopReason, failure } = managed.metrics()
+    expect(stopReason).toBe('failed')
+    expect(failure).toMatchObject({
+      code: 'editor_action_failed',
+      errorName: 'Error',
+      message: 'keyboard.press failed near [url] for [redacted]'
+    })
+    expect(failure!.stack.length).toBeLessThanOrEqual(3)
   })
 })

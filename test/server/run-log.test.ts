@@ -88,7 +88,48 @@ describe('run log', () => {
       durationMs: 200_000,
       outcome: 'complete',
       failureReason: null,
+      failureCode: null,
       instruction: 'Remove the background'
+    })
+  })
+
+  test('names what a failed run failed on, and calls an unexplained failure run_failed', () => {
+    const failure = { code: 'editor_action_failed' as const, errorName: 'Error', message: 'Unknown key', stack: [] }
+
+    expect(
+      runLogLine(terminalRun({ metrics: { cacheHitRate: null, stopReason: 'failed', failure } })).failureCode
+    ).toBe('editor_action_failed')
+    expect(runLogLine(terminalRun({ metrics: { cacheHitRate: null, stopReason: 'failed' } })).failureCode).toBe(
+      'run_failed'
+    )
+    expect(runLogLine(terminalRun({ metrics: { cacheHitRate: null, stopReason: 'step_cap' } })).failureCode).toBeNull()
+  })
+
+  test("writes a failed run's cause to its own sink, and nothing for a run that did not fail", async () => {
+    const failures: string[] = []
+    const logger = createRunLogger({ write: () => undefined, writeFailure: (record) => void failures.push(record) })
+    const failure = {
+      code: 'editor_action_failed' as const,
+      errorName: 'Error',
+      message: 'keyboard.press: Unknown key: "Down"',
+      stack: ['at press (/app/dist/index.js:1:1)']
+    }
+    const failed = terminalRun({ metrics: { cacheHitRate: null, stopReason: 'failed', failure } })
+    failed.snapshot.steps = 12
+
+    await logger(failed)
+    await logger(terminalRun({ runId: 'run-2' }))
+
+    expect(failures).toHaveLength(1)
+    expect(failures[0]).toEndWith('}\n')
+    expect(JSON.parse(failures[0]!)).toEqual({
+      event: 'run_failed',
+      runId: 'run-1',
+      step: 12,
+      failureCode: 'editor_action_failed',
+      errorName: 'Error',
+      message: 'keyboard.press: Unknown key: "Down"',
+      stack: ['at press (/app/dist/index.js:1:1)']
     })
   })
 
@@ -213,5 +254,20 @@ describe('run log', () => {
     ])
     expect(Number(runs)).toBe(2)
     expect(spent).toBe(7)
+  })
+
+  test('stores the failure code, and gains its column on a database made before it existed', async () => {
+    const database = new SQL(':memory:')
+    databases.push(database)
+    await applyMigrations(database)
+    await applyMigrations(database)
+    const store = new SqlRunLogStore(database)
+
+    await store.append(
+      runLogLine(terminalRun({ metrics: { cacheHitRate: null, stopReason: 'failed', failure: undefined } }))
+    )
+
+    const rows = await database`SELECT run_id, outcome, failure_code FROM run_log`
+    expect(rows).toEqual([{ run_id: 'run-1', outcome: 'failed', failure_code: 'run_failed' }])
   })
 })
