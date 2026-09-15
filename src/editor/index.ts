@@ -34,6 +34,14 @@ export {
   type PlaywrightPhotopeaTransportOptions
 } from './playwright-photopea-transport'
 export { cloneLayerInfo, cloneLayerTree } from './layer-tree'
+export { PhotopeaExportError, type PhotopeaExportErrorCode } from './photopea-export-error'
+export {
+  parsePsdMetadata,
+  toLayerInfoTree,
+  type AdjustmentType,
+  type ParsedLayerInfo,
+  type ParsedPsdMetadata
+} from './psd-metadata'
 export type {
   Button,
   ComputerAction,
