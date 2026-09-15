@@ -21,4 +21,32 @@ describe('Spend', () => {
     expect(spend.tokensIn).toBe(300)
     expect(spend.tokensOut).toBe(30)
   })
+
+  test('prices the next call as if it missed the cache and grew as much as the last one did', () => {
+    const spend = new Spend({ usdPerInputToken: 0.01, usdPerCachedInputToken: 0.001, usdPerOutputToken: 0.1 })
+    expect(spend.wouldPass(0)).toBe(false)
+    spend.add({ inputTokens: 100, cachedInputTokens: 0, outputTokens: 10 })
+    spend.add({ inputTokens: 130, cachedInputTokens: 100, outputTokens: 10 })
+    // $2, then $1.40, spent. The next call is taken to send 160 tokens, none of
+    // them cached, and to write 10: $2.60.
+    expect(spend.wouldPass(6.01)).toBe(false)
+    expect(spend.wouldPass(5.99)).toBe(true)
+  })
+
+  test('lets a run reach its cap exactly, but not pass it', () => {
+    const spend = new Spend({ usdPerInputToken: 1, usdPerCachedInputToken: 0, usdPerOutputToken: 0 })
+    spend.add({ inputTokens: 10, cachedInputTokens: 0, outputTokens: 0 })
+    // $10 spent, and the next call is estimated at another $10.
+    expect(spend.wouldPass(20)).toBe(false)
+    expect(spend.wouldPass(19)).toBe(true)
+  })
+
+  test('does not expect the next call to shrink when the last one did', () => {
+    const spend = new Spend({ usdPerInputToken: 0.01, usdPerCachedInputToken: 0, usdPerOutputToken: 0 })
+    spend.add({ inputTokens: 100, cachedInputTokens: 0, outputTokens: 0 })
+    spend.add({ inputTokens: 80, cachedInputTokens: 0, outputTokens: 0 })
+    // $1.80 spent, and the next call is taken to send the last call's 80 tokens.
+    expect(spend.wouldPass(2.61)).toBe(false)
+    expect(spend.wouldPass(2.59)).toBe(true)
+  })
 })

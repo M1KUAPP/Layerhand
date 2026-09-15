@@ -22,6 +22,8 @@ export class Spend {
   #usd = 0
   #tokensIn = 0
   #tokensOut = 0
+  #last: TokenUsage | undefined
+  #growth = 0
 
   constructor(pricing: TokenPricing = ASTRA_PRICING) {
     this.#pricing = pricing
@@ -41,6 +43,8 @@ export class Spend {
 
   /** Adds one model call to the run's totals. */
   add(usage: TokenUsage): void {
+    if (this.#last) this.#growth = Math.max(0, usage.inputTokens - this.#last.inputTokens)
+    this.#last = usage
     const uncached = usage.inputTokens - usage.cachedInputTokens
     this.#usd +=
       uncached * this.#pricing.usdPerInputToken +
@@ -48,5 +52,19 @@ export class Spend {
       usage.outputTokens * this.#pricing.usdPerOutputToken
     this.#tokensIn += usage.inputTokens
     this.#tokensOut += usage.outputTokens
+  }
+
+  /**
+   * Whether one more call could take the run past `budgetUsd`. The next call
+   * is taken to resend the last call's input, grown as much as the last call
+   * grew it, with none of it read from the cache, and to write as much as the
+   * last call wrote. The first call has nothing to estimate from.
+   */
+  wouldPass(budgetUsd: number): boolean {
+    if (!this.#last) return false
+    const nextUsd =
+      (this.#last.inputTokens + this.#growth) * this.#pricing.usdPerInputToken +
+      this.#last.outputTokens * this.#pricing.usdPerOutputToken
+    return this.#usd + nextUsd > budgetUsd
   }
 }

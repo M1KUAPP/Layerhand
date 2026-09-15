@@ -41,8 +41,8 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
     }
   }
 
-  // Whether a limit rules out another model call (FR-12).
-  const limitReached = () => calls >= request.stepCap
+  // Whether a limit rules out another model call (FR-12, NFR-2).
+  const limitReached = () => calls >= request.stepCap || spend.wouldPass(request.budgetUsd)
 
   // Stops taking corrections. One acknowledged but not yet sent is reported rather than dropped.
   const refuseCorrections = () => {

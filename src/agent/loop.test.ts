@@ -204,6 +204,68 @@ describe('runAgent', () => {
     expect(result.layers).toEqual(RECORDED_LAYERS)
   })
 
+  test('stops before a model call could pass the spend cap, with the layered file made so far', async () => {
+    const run = await fixture(TEN_PASSES)
+    const events = await collect(runAgent({ ...request, budgetUsd: 1 }, run))
+    // Each call costs $0.095555, but the next one is priced as if none of its
+    // 40,000 input tokens were cached: $0.5375. After five calls, $0.477775
+    // spent plus that estimate would pass $1.
+    expect(run.model.observations).toHaveLength(5)
+    expect(ofType(events, 'cost').at(-1)?.usd).toBeCloseTo(0.477775, 9)
+    const result = resultOf(events)
+    expect(result.complete).toBe(false)
+    expect(psdLayerCount(run.published.get(result.psdUrl))).toBe(2)
+    expect(result.layers).toEqual(RECORDED_LAYERS)
+  })
+
+  test('takes the spend cap from the request', async () => {
+    const callsWithin = async (budgetUsd: number) => {
+      const run = await fixture(TEN_PASSES)
+      await collect(runAgent({ ...request, budgetUsd }, run))
+      return run.model.observations.length
+    }
+    // $0.095555 a call, with the next call estimated at $0.5375.
+    expect(await callsWithin(0.7)).toBe(2)
+    expect(await callsWithin(0.8)).toBe(3)
+  })
+
+  test('stays within the spend cap when the history grows and the cache misses', async () => {
+    // Input grows by ten tokens a call, at $0.01 a token uncached and $0.001
+    // cached. The fifth call would miss the cache.
+    const turn = (inputTokens: number, cachedInputTokens: number): ModelTurn => ({
+      ...step('Retouching'),
+      usage: { inputTokens, cachedInputTokens, outputTokens: 0 }
+    })
+    const run = await fixture([turn(100, 0), turn(110, 100), turn(120, 110), turn(130, 120), turn(140, 0)])
+    const pricing = { usdPerInputToken: 0.01, usdPerCachedInputToken: 0.001, usdPerOutputToken: 0 }
+    const events = await collect(runAgent({ ...request, budgetUsd: 3 }, { ...run, pricing }))
+    // Four calls spend $1.63. A fifth, estimated at 140 uncached tokens, would
+    // bring the total to $3.03, which is exactly what it would have cost.
+    expect(run.model.observations).toHaveLength(4)
+    const spent = ofType(events, 'cost').at(-1)?.usd
+    expect(spent).toBeCloseTo(1.63, 9)
+    expect(spent).toBeLessThanOrEqual(3)
+    expect(resultOf(events).complete).toBe(false)
+  })
+
+  test('refuses a correction during the actions of the last step the spend cap allows', async () => {
+    let handle!: RunHandle
+    let late: Promise<void> | undefined
+    const run = await fixture(TEN_PASSES)
+    const act = run.session.act.bind(run.session)
+    run.session.act = async (actions) => {
+      if (run.model.observations.length === 2) {
+        late = handle.steer('keep the shadow')
+        late.catch(() => undefined)
+      }
+      await act(actions)
+    }
+    handle = runAgent({ ...request, budgetUsd: 0.7 }, run)
+    const events = await collect(handle)
+    await expect(late).rejects.toThrow()
+    expect(ofType(events, 'correction_ack')).toEqual([])
+  })
+
   test('counts every model call against the step cap', async () => {
     let handle!: RunHandle
     const run = await fixture([], () => {
