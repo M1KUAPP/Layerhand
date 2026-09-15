@@ -1,0 +1,345 @@
+{
+  "label": "Live run with native steering: GPT-6 Astra over a Responses API WebSocket, Browserbase, deployed /photopea-host",
+  "image": "input.jpg",
+  "publicUrl": "https://layerhand-732371853772.us-central1.run.app",
+  "outcome": "complete",
+  "stopReason": "complete",
+  "steps": 16,
+  "durationMs": 192660,
+  "cost": {
+    "usd": 0.5048455000000001,
+    "tokensIn": 188259,
+    "tokensOut": 1789
+  },
+  "cacheHitRate": 0.8950860251037135,
+  "correction": {
+    "text": "Keep the vignette very subtle, and leave the middle of the photograph untouched.",
+    "step": 3,
+    "sentMs": 49494,
+    "steerableWhenSent": true,
+    "error": null
+  },
+  "steering": {
+    "available": true,
+    "applied": 1,
+    "indeterminate": 0
+  },
+  "steeringEvents": [
+    {
+      "ms": 22636,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952c69a8c87d0872fec5de1cbf031"
+    },
+    {
+      "ms": 25240,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952c69a8c87d0872fec5de1cbf031"
+    },
+    {
+      "ms": 30175,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952ce61e087d08f8fafd4684e2812"
+    },
+    {
+      "ms": 33134,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952ce61e087d08f8fafd4684e2812"
+    },
+    {
+      "ms": 37617,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952d5d50487d0bab5b36f3c58370c"
+    },
+    {
+      "ms": 41184,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952d5d50487d0bab5b36f3c58370c"
+    },
+    {
+      "ms": 49471,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952e1e3b887d0ba1c31d9e37e2adf"
+    },
+    {
+      "ms": 49689,
+      "type": "response.steer.accepted",
+      "responseId": "resp_09fd1918529f5726006aa952e1e3b887d0ba1c31d9e37e2adf",
+      "steerId": "steer_6a087d240c7d43c0bde6c0a73fb52619"
+    },
+    {
+      "ms": 51913,
+      "type": "response.incomplete",
+      "responseId": "resp_09fd1918529f5726006aa952e1e3b887d0ba1c31d9e37e2adf",
+      "reason": "steered"
+    },
+    {
+      "ms": 52206,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952e4d3ac87d09aa0f34c46083aaa"
+    },
+    {
+      "ms": 54788,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952e4d3ac87d09aa0f34c46083aaa"
+    },
+    {
+      "ms": 61600,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952ee8fa087d082eb76fd6592de4e"
+    },
+    {
+      "ms": 63588,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952ee8fa087d082eb76fd6592de4e"
+    },
+    {
+      "ms": 68406,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952f55b7487d08c40d98c1b84c33f"
+    },
+    {
+      "ms": 71346,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952f55b7487d08c40d98c1b84c33f"
+    },
+    {
+      "ms": 78602,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa952ffa8e487d082db7a17373b7788"
+    },
+    {
+      "ms": 83768,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa952ffa8e487d082db7a17373b7788"
+    },
+    {
+      "ms": 88455,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa9530a1af887d09a627cf10098c570"
+    },
+    {
+      "ms": 90750,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa9530a1af887d09a627cf10098c570"
+    },
+    {
+      "ms": 94755,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95310722887d097e4aff5a2297062"
+    },
+    {
+      "ms": 101069,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95310722887d097e4aff5a2297062"
+    },
+    {
+      "ms": 110369,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95320347487d08d7b31fdca1c8314"
+    },
+    {
+      "ms": 114498,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95320347487d08d7b31fdca1c8314"
+    },
+    {
+      "ms": 122839,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa9532d2cb887d08e643be0409c6202"
+    },
+    {
+      "ms": 128044,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa9532d2cb887d08e643be0409c6202"
+    },
+    {
+      "ms": 134417,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95338d87487d0bc9c96f371e8a31b"
+    },
+    {
+      "ms": 136697,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95338d87487d0bc9c96f371e8a31b"
+    },
+    {
+      "ms": 140905,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa9533f7b0087d0b7dc8614a258af1e"
+    },
+    {
+      "ms": 143490,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa9533f7b0087d0b7dc8614a258af1e"
+    },
+    {
+      "ms": 148111,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95346ef3c87d09377043aabedf989"
+    },
+    {
+      "ms": 151377,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95346ef3c87d09377043aabedf989"
+    },
+    {
+      "ms": 159878,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95352f90087d0ba90af624eaa4ea8"
+    },
+    {
+      "ms": 170660,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95352f90087d0ba90af624eaa4ea8"
+    },
+    {
+      "ms": 175823,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa9536329a487d0825c04e095eadd85"
+    },
+    {
+      "ms": 177876,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa9536329a487d0825c04e095eadd85"
+    },
+    {
+      "ms": 182125,
+      "type": "response.created",
+      "responseId": "resp_09fd1918529f5726006aa95369dd7c87d0b44d7908f7c6f6f1"
+    },
+    {
+      "ms": 184135,
+      "type": "response.completed",
+      "responseId": "resp_09fd1918529f5726006aa95369dd7c87d0b44d7908f7c6f6f1"
+    }
+  ],
+  "acknowledgedMs": 49495,
+  "stepsBeforeCorrection": [
+    {
+      "n": 1,
+      "ms": 25243,
+      "narration": "I’ll inspect the editor and create the brightness adjustment."
+    },
+    {
+      "n": 2,
+      "ms": 33135,
+      "narration": "I’ll add Brightness/Contrast as an editable adjustment layer."
+    },
+    {
+      "n": 3,
+      "ms": 41185,
+      "narration": "I’ll gently brighten the scene while retaining its soft highlights."
+    }
+  ],
+  "stepsAfterCorrection": [
+    {
+      "n": 4,
+      "ms": 54789,
+      "narration": "I’ll use restrained warmth and keep the vignette off the middle."
+    },
+    {
+      "n": 5,
+      "ms": 63589,
+      "narration": "I’ll name the warming layer clearly."
+    },
+    {
+      "n": 6,
+      "ms": 71347,
+      "narration": "I’ll label both adjustments and add a separate vignette layer."
+    },
+    {
+      "n": 7,
+      "ms": 83768,
+      "narration": "I’ll prepare a very soft corner-darkening layer."
+    },
+    {
+      "n": 8,
+      "ms": 90751,
+      "narration": "I’ll choose a large feathered brush for seamless corner shading."
+    },
+    {
+      "n": 9,
+      "ms": 101070,
+      "narration": "I’ll set a soft brush and limit the vignette to 10 percent opacity."
+    },
+    {
+      "n": 10,
+      "ms": 114499,
+      "narration": "I’ll clear the test mark and verify the brush softness."
+    },
+    {
+      "n": 11,
+      "ms": 128045,
+      "narration": "I’ll shade only the four corners, leaving the centre transparent."
+    },
+    {
+      "n": 12,
+      "ms": 136698,
+      "narration": "I’ll finish naming the brightness adjustment."
+    },
+    {
+      "n": 13,
+      "ms": 143490,
+      "narration": "I’ll confirm the brightness setting before saving."
+    },
+    {
+      "n": 14,
+      "ms": 151378,
+      "narration": "I’ll save the completed edit as a layered PSD."
+    },
+    {
+      "n": 15,
+      "ms": 170661,
+      "narration": "I’ll use the PSD save command to preserve all editable layers."
+    },
+    {
+      "n": 16,
+      "ms": 177877,
+      "narration": "I’ll close the menu and check the final layered result."
+    }
+  ],
+  "layers": [
+    {
+      "name": "Original photograph",
+      "kind": "raster",
+      "visible": true,
+      "masks": [],
+      "children": []
+    },
+    {
+      "name": "Brighten the photograph",
+      "kind": "adjustment",
+      "visible": true,
+      "masks": [
+        {
+          "kind": "pixel",
+          "enabled": true
+        }
+      ],
+      "children": []
+    },
+    {
+      "name": "Warm the colours",
+      "kind": "adjustment",
+      "visible": true,
+      "masks": [
+        {
+          "kind": "pixel",
+          "enabled": true
+        }
+      ],
+      "children": []
+    },
+    {
+      "name": "Very subtle corner vignette",
+      "kind": "raster",
+      "visible": true,
+      "masks": [],
+      "children": []
+    }
+  ],
+  "errors": [],
+  "frames": 25,
+  "providerAddressInEvents": false,
+  "browserbaseSessionCreatedMs": 833
+}
