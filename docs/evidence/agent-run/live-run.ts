@@ -37,7 +37,9 @@ const openAiApiKey = process.env.OPENAI_API_KEY
 const browserbaseApiKey = process.env.BROWSERBASE_API_KEY
 if (!openAiApiKey || !browserbaseApiKey) throw new Error('OPENAI_API_KEY and BROWSERBASE_API_KEY are required')
 
-const imagePath = resolve(imageArgument ?? new URL('../photopea-round-trip/output/input.jpg', import.meta.url).pathname)
+const imagePath = resolve(
+  imageArgument ?? new URL('../photopea-round-trip/results/input.jpg', import.meta.url).pathname
+)
 const output = resolve(import.meta.dir, 'output', new Date().toISOString().replaceAll(':', '-'))
 await mkdir(output, { recursive: true })
 

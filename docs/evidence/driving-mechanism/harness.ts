@@ -48,7 +48,7 @@ const TYPED_SCRIPT_PATTERN = /app\.|echoToOE|saveToOE/
 
 const DEFAULT_IMAGES = [
   '../../../src/web/assets/sample-photo.png',
-  '../photopea-round-trip/output/input.jpg',
+  '../photopea-round-trip/results/input.jpg',
   '../../../src/editor/fixtures/document-preview.png'
 ].map((path) => new URL(path, import.meta.url).pathname)
 
