@@ -35,16 +35,24 @@ For each run the harness records:
 - silent steps, which it counts and fills in so the loop does not stop on a
   missing narration;
 - safety checks it acknowledged;
-- the layers in the exported PSD.
+- the layers in the exported PSD;
+- every `run_code` call's code, then its logs and error, in `code.ndjson`.
 
 A run counts as completed when it finished its edit and the PSD holds at
-least four layers, two of them adjustment layers.
+least four layers, two of them adjustment layers. The model's code has the
+Playwright `page`, so it could reach Photopea's scripting interface through
+`page.evaluate` despite the prompt. A run whose code mentions `postMessage`,
+`__layerhand`, or `echoToOE` is marked disqualified in `summary.md` and never
+counts as completed, because it did not drive the GUI.
 
 ## Running it
 
-From this directory, with Bun and a Playwright Chromium installed:
+Install the repository root first, because the harness takes
+`playwright-core` from there. Then, from this directory, with a Playwright
+Chromium installed:
 
 ```sh
+(cd ../../.. && bun install --frozen-lockfile)
 bun install --frozen-lockfile
 OPENAI_API_KEY=... bun run harness.ts
 bun run harness.ts --dry-run --mechanism computer
@@ -53,7 +61,7 @@ bun run harness.ts --dry-run --mechanism computer
 `--mechanism computer|code|both` and `--step-cap` narrow a run, and image
 paths given as arguments replace the defaults. Output goes to
 `output/<timestamp>/`: `runs.ndjson`, `records.json`, `summary.md`, and each
-run's frames, PSD, and preview.
+run's frames, PSD, preview, and `code.ndjson`.
 
 Model-written code runs unsandboxed in the harness process, so the harness
 takes the key out of the environment before any run starts. Run it only
