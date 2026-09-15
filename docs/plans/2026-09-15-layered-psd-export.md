@@ -578,9 +578,10 @@ Build a nested parsed tree containing:
 - a custom NFC-equivalent duplicate in another group.
 
 Assert every duplicate occurrence is in the plan, preserved names are reserved
-before fallbacks, suffixes begin at `2`, paths use PSD order, and calling the
-planner twice returns equal arrays. Apply the plan in the test and assert a
-second plan is empty.
+before fallbacks, a valid name with extra whitespace receives a
+normalization-only rename, suffixes begin at `2`, paths use PSD order, and
+calling the planner twice returns equal arrays. Apply the plan in the test and
+assert a second plan is empty.
 
 - [ ] **Step 3: Run naming tests and observe RED**
 
@@ -593,8 +594,9 @@ Expected: fail because normalization and planning do not exist.
 Use `name.normalize('NFC').replace(/\s+/gu, ' ').trim()`. Use Unicode property
 escapes for the letter test and `.toLowerCase()` for comparison keys. First
 flatten the tree with paths, count normalized keys, and reserve valid unique
-names. In a second PSD-order pass, rename every generic or duplicated entry and
-allocate the first free fallback, then suffix `2`, `3`, and so on.
+names. In a second PSD-order pass, emit a normalization-only rename when a
+preserved raw name differs from its normalized value. Rename every generic or
+duplicated entry with the first free fallback, then suffix `2`, `3`, and so on.
 
 Adjustment fallbacks use a complete constant record:
 
