@@ -457,7 +457,7 @@ the correction as applied, and nothing was replayed at the step boundary.
 The adjustment made before the correction was still in the exported file,
 next to the two layers made after it, and the run finished complete in 16
 steps and 192.7 s for $0.50. The
-[A3 evidence bundle](evidence/native-steering/README.md) retains the event
+[A3 evidence bundle](/docs/evidence/native-steering/README.md) retains the event
 sequence, the narrations either side of the correction, the layers, and
 what the run cost. Native steering is therefore model leverage the launch
 copy can claim: the previous generation has no equivalent.
@@ -1174,7 +1174,7 @@ button, and without one **7.4 seconds** — 5.4 seconds saved, and the
 difference between meeting NFR-3's five-second budget and missing it.
 Neither is the 21.3 seconds above, measured in an earlier run on an earlier
 revision, and the gap between the two cold figures was not chased. The
-[warm editor evidence](evidence/warm-editor/README.md) has the method, the
+[warm editor evidence](/docs/evidence/warm-editor/README.md) has the method, the
 summary, and what the pair does not show.
 
 Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the

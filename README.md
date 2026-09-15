@@ -151,7 +151,7 @@ that `src/server/config.ts` requires are set.
 `STEERING` is `native`: a correction is applied to the response being
 generated, over one Responses API WebSocket per run. Spike A3 proved that
 against this service, and
-[the evidence bundle](docs/evidence/native-steering/README.md) holds the
+[the evidence bundle](/docs/evidence/native-steering/README.md) holds the
 run. `boundary`, the default, sends a correction with the next model call
 instead, and is what a run falls back to if its socket fails.
 
