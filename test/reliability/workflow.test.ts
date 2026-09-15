@@ -1,3 +1,7 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { describe, expect, test } from 'bun:test'
 
 interface WorkflowStep {
@@ -35,6 +39,9 @@ describe('reliability workflow contract', () => {
     const job = workflow.jobs.reliability
 
     // Verification from brief Step 1:
+    expect(source).toContain('# Scheduled nightly reliability run (#10).')
+    expect(source).not.toContain('#24')
+
     expect(workflow.on).toHaveProperty('schedule')
     expect(workflow.on).toHaveProperty('workflow_dispatch')
     expect(workflow.on).not.toHaveProperty('pull_request')
@@ -77,6 +84,7 @@ describe('reliability workflow contract', () => {
     expect(summaryStep).toBeDefined()
     expect(summaryStep?.if).toBe('always()')
     expect(summaryStep?.run).toContain('summary.md')
+    expect(summaryStep?.run).toMatch(/if\s+\[\s+-d\s+"?artifacts\/reliability"?\s+\]/)
 
     // Artifact step
     const artifactStep = job?.steps.find((step) => step.uses === 'actions/upload-artifact@v4')
@@ -95,6 +103,26 @@ describe('reliability workflow contract', () => {
         expect(step.run).not.toMatch(/GITHUB_ENV.*OPENAI_API_KEY/)
         expect(step.run).not.toMatch(/GITHUB_ENV.*BROWSERBASE_API_KEY/)
       }
+    }
+  })
+
+  test('summary step handles missing artifacts/reliability directory without error', async () => {
+    const source = await Bun.file(new URL('../../.github/workflows/reliability.yml', import.meta.url)).text()
+    const workflow = Bun.YAML.parse(source) as WorkflowDefinition
+    const summaryStep = workflow.jobs.reliability?.steps.find((step) => step.run?.includes('GITHUB_STEP_SUMMARY'))
+    expect(summaryStep?.run).toBeDefined()
+
+    const tempDir = await mkdtemp(join(tmpdir(), 'workflow-test-'))
+    try {
+      const summaryFile = join(tempDir, 'summary.log')
+      const proc = Bun.spawn(['bash', '-e', '-u', '-o', 'pipefail', '-c', summaryStep!.run!], {
+        cwd: tempDir,
+        env: { ...process.env, GITHUB_STEP_SUMMARY: summaryFile }
+      })
+      const exitCode = await proc.exited
+      expect(exitCode).toBe(0)
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
     }
   })
 })
