@@ -1,5 +1,6 @@
 const DEFAULT_BASE_URL = 'https://api.browserbase.com'
 const SESSION_TIMEOUT_SECONDS = 20 * 60
+const REQUEST_TIMEOUT_MS = 10_000
 
 type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 
@@ -28,12 +29,19 @@ export class BrowserbaseClient {
   readonly #apiKey: string
   readonly #fetch: Fetch
   readonly #baseUrl: string
+  readonly #requestTimeoutMs: number
 
-  constructor(apiKey: string, fetchImplementation: Fetch = fetch, baseUrl = DEFAULT_BASE_URL) {
+  constructor(
+    apiKey: string,
+    fetchImplementation: Fetch = fetch,
+    baseUrl = DEFAULT_BASE_URL,
+    requestTimeoutMs = REQUEST_TIMEOUT_MS
+  ) {
     if (apiKey.length === 0) throw new BrowserbaseError('Browserbase API key is required')
     this.#apiKey = apiKey
     this.#fetch = fetchImplementation
     this.#baseUrl = baseUrl.replace(/\/$/, '')
+    this.#requestTimeoutMs = requestTimeoutMs
   }
 
   async createSession(): Promise<BrowserbaseSession> {
@@ -72,6 +80,8 @@ export class BrowserbaseClient {
     try {
       response = await this.#fetch(`${this.#baseUrl}${path}`, {
         ...init,
+        // Bounds reading the body as well, so a stalled request cannot hold a release or a shutdown.
+        signal: AbortSignal.timeout(this.#requestTimeoutMs),
         headers: {
           'content-type': 'application/json',
           'x-bb-api-key': this.#apiKey
