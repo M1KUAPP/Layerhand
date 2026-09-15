@@ -9,7 +9,7 @@ are symlinks to it.
 
 ## Instructions
 
-- @docs/agents/andrej-karpathy-skills.md — how to approach a task: think
+- @docs/agents/coding-guidelines.md — how to approach a task: think
   before coding, keep it simple, change only what the request needs, and
   loop until the result is verified.
 - @docs/agents/graphify.md — query the knowledge graph in `graphify-out/`
