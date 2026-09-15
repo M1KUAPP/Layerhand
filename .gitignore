@@ -52,6 +52,7 @@ node_modules/
 dist/
 /web/
 /artifacts/reliability/
+docs/evidence/**/output/
 
 # Environment
 .env*
