@@ -1,5 +1,9 @@
 # ADR-0001: Define a provider-neutral editor session
 
+This record explains why the agent loop reaches the editor only through
+`EditorSession`, an interface that names no editor or browser provider, and
+why a fixture-backed fake implements it too.
+
 ## Status
 
 Accepted on September 14, 2026.
