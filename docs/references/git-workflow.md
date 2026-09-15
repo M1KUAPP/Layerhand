@@ -82,16 +82,17 @@ notification, and the reviewer see first.
 
 ## What enforces what
 
-| Where                                     | What it blocks                             |
-| ----------------------------------------- | ------------------------------------------ |
-| `.husky/commit-msg`                       | A commit whose message is not conventional |
-| `.husky/pre-push`                         | A push straight to the default branch      |
-| `.github/workflows/conventional-lint.yml` | A bad pull request title, or a bad commit  |
-| `.github/workflows/lint.yml`              | An unformatted tree                        |
-| `.github/workflows/container.yml`         | An image that does not build or start      |
-| `.github/workflows/issue-title-lint.yml`  | A bad issue title — labels and explains it |
-| `.github/pull_request_template.md`        | Nothing; it reminds you                    |
-| `.github/ISSUE_TEMPLATE/`                 | Blank issues, and titles with no type      |
+| Where                                     | What it blocks                                                    |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| `.husky/commit-msg`                       | A commit whose message is not conventional                        |
+| `.husky/pre-push`                         | A push straight to the default branch                             |
+| `.github/workflows/conventional-lint.yml` | A bad pull request title, or a bad commit                         |
+| `.github/workflows/lint.yml`              | An unformatted tree                                               |
+| `.github/workflows/container.yml`         | An image that does not build or start                             |
+| `.github/workflows/issue-title-lint.yml`  | A bad issue title — labels and explains it                        |
+| `.github/workflows/reliability.yml`       | Nothing; scheduled evidence rather than a pull-request merge gate |
+| `.github/pull_request_template.md`        | Nothing; it reminds you                                           |
+| `.github/ISSUE_TEMPLATE/`                 | Blank issues, and titles with no type                             |
 
 Nothing in that table can stop a merge. On a private repository, branch
 rulesets and branch protection need GitHub Pro, Team, or Enterprise, and
