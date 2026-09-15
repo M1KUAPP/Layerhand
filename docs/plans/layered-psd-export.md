@@ -61,7 +61,7 @@ Chrome DevTools Protocol, `ag-psd` 30.2.0, Sharp, Bun tests.
 
 ---
 
-### Task 1: Migrate the recursive layer contract
+## Task 1: Migrate the recursive layer contract
 
 **Files:**
 
@@ -350,7 +350,7 @@ rtk git add src/editor src/agent src/server/run-registry.ts src/web \
 rtk git commit -m "refactor(editor): model recursive layer trees"
 ```
 
-### Task 2: Parse exported PSD metadata
+## Task 2: Parse exported PSD metadata
 
 **Files:**
 
@@ -514,7 +514,7 @@ rtk git add package.json bun.lock src/editor test/editor
 rtk git commit -m "feat(editor): parse exported PSD layer metadata"
 ```
 
-### Task 3: Enforce names and completed-tree policy
+## Task 3: Enforce names and completed-tree policy
 
 **Files:**
 
@@ -701,7 +701,7 @@ rtk git add src/editor src/agent test/editor
 rtk git commit -m "feat(editor): enforce layer export policies"
 ```
 
-### Task 4: Build the correlated Photopea export transaction
+## Task 4: Build the correlated Photopea export transaction
 
 **Files:**
 
@@ -866,7 +866,7 @@ rtk git add src/editor test/editor
 rtk git commit -m "feat(editor): export coherent Photopea snapshots"
 ```
 
-### Task 5: Translate computer actions
+## Task 5: Translate computer actions
 
 **Files:**
 
@@ -1016,7 +1016,7 @@ rtk git add src/editor test/editor
 rtk git commit -m "feat(editor): execute Photopea computer actions"
 ```
 
-### Task 6: Own the production session lifecycle
+## Task 6: Own the production session lifecycle
 
 **Files:**
 
@@ -1152,7 +1152,7 @@ rtk git add src/editor test/editor
 rtk git commit -m "feat(editor): add production Photopea session"
 ```
 
-### Task 7: Prove masked export in installed Chrome
+## Task 7: Prove masked export in installed Chrome
 
 **Files:**
 
