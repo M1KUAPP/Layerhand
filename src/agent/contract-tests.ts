@@ -53,9 +53,15 @@ export function testRunContract(subject: RunContractSubject): void {
   const start = (overrides: Partial<RunRequest> = {}) => track(subject.start({ ...request, ...overrides }))
 
   // A test that fails or times out must not leave its run going, paying for a
-  // browser session and the model until the run ends by itself.
+  // browser session and the model until the run ends by itself. A cancel can
+  // return before the run has closed its session, so wait for the run to end.
   const cancelAll = async () => {
-    await Promise.allSettled(handles.splice(0).map(async (handle) => handle.cancel()))
+    await Promise.allSettled(
+      handles.splice(0).map(async (handle) => {
+        await handle.cancel()
+        await collect(handle)
+      })
+    )
   }
 
   describe(`${subject.name} keeps the run contract`, () => {
