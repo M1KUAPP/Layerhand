@@ -19,6 +19,22 @@ export interface AgentLoopDependencies {
   pricing?: TokenPricing
 }
 
+// FR-11 asks for narration short enough to read while the editor moves.
+const MAX_NARRATION = 80
+
+const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+
+// Cuts between whole characters as a reader sees them, so an emoji is never
+// split, even one joined from several code points.
+function cut(narration: string): string {
+  const characters = Array.from(graphemes.segment(narration), (part) => part.segment)
+  if (characters.length <= MAX_NARRATION) return narration
+  return `${characters
+    .slice(0, MAX_NARRATION - 1)
+    .join('')
+    .trimEnd()}…`
+}
+
 export function runAgent(request: RunRequest, { session, model, publish, pricing }: AgentLoopDependencies): RunHandle {
   const log = new EventLog()
   const spend = new Spend(pricing)
@@ -77,14 +93,26 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
       log.emit({ type: 'cost', usd: spend.usd, tokensIn: spend.tokensIn, tokensOut: spend.tokensOut })
       if (aborter.signal.aborted) return false
 
+      const takesStep = !turn.done || turn.actions.length > 0
+      const narration = turn.narration.trim()
+      if (takesStep && !narration) {
+        // A step the model does not describe stops the run, rather than leaving the page silent.
+        refuseCorrections()
+        log.emit({
+          type: 'error',
+          reason: 'The agent took a step without describing it, so the run stopped',
+          recoverable: true
+        })
+        return false
+      }
       // The edit is finished only if no correction is waiting for the model.
       const finished = turn.done && corrections.length === 0
       // Decide now whether another call can follow, so that no correction is
       // acknowledged that no call will carry.
       if (limitReached() || finished) refuseCorrections()
-      if (!turn.done || turn.actions.length > 0) {
+      if (takesStep) {
         steps += 1
-        log.emit({ type: 'step', n: steps, cap: request.stepCap, narration: turn.narration })
+        log.emit({ type: 'step', n: steps, cap: request.stepCap, narration: cut(narration) })
         if (turn.actions.length > 0) await session.act(turn.actions)
         screenshot = await session.screenshot()
         await showFrame(screenshot)
