@@ -71,14 +71,15 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
   }
 }
 
-type RunMode = 'agent' | 'fake'
+type RunMode = 'scripted' | 'fake'
 
-// Agent mode runs the loop against the recorded editor and a scripted model,
-// because nothing wires in a real model or editor yet. The default is fakeRun().
+// Scripted mode runs the loop against the recorded editor and a scripted
+// model, so the loop can be worked on without a key or a browser. The default
+// is fakeRun().
 function readRunMode(value: string | undefined): RunMode {
   if (value === undefined || value === 'fake') return 'fake'
-  if (value === 'agent') return 'agent'
-  throw new ConfigurationError('RUN_MODE must be agent or fake')
+  if (value === 'scripted') return 'scripted'
+  throw new ConfigurationError('RUN_MODE must be scripted or fake')
 }
 
 function developmentNumber(value: string | undefined, fallback: number): number {
@@ -122,7 +123,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       now: () => new Date(),
       idGenerator: () => crypto.randomUUID(),
       runFactory:
-        runMode === 'agent'
+        runMode === 'scripted'
           ? async (request) => {
               if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
               return managedAgentRun(request, {
