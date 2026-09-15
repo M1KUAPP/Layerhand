@@ -5,6 +5,19 @@ runs ten representative photographs through the production agent composition,
 checks the layered result, and leaves a report the team can inspect without
 reading raw event logs.
 
+Contents:
+
+1.  [Goals](#goals)
+1.  [Non-goals](#non-goals)
+1.  [Selected approach](#selected-approach)
+1.  [Corpus contract](#corpus-contract)
+1.  [Execution flow](#execution-flow)
+1.  [Results and visibility](#results-and-visibility)
+1.  [Nightly workflow and spending guard](#nightly-workflow-and-spending-guard)
+1.  [Testing strategy](#testing-strategy)
+1.  [Expected file layout](#expected-file-layout)
+1.  [Acceptance mapping](#acceptance-mapping)
+
 ## Goals
 
 - Keep five e-commerce product photographs and five interior photographs in
