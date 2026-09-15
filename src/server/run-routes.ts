@@ -48,7 +48,8 @@ async function jsonObject(request: Request): Promise<Record<string, unknown>> {
 }
 
 function registryError(error: RunRegistryError): Response {
-  return apiError(error.code, error.message, error.code === 'run_not_found' ? 404 : 409)
+  const status = error.code === 'run_not_found' ? 404 : error.code === 'shutting_down' ? 503 : 409
+  return apiError(error.code, error.message, status)
 }
 
 export class RunRoutes {
