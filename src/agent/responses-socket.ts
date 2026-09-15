@@ -262,7 +262,8 @@ export class ResponsesSocket {
         return this.#ended(response, event.type === 'response.incomplete')
       case 'response.failed': {
         const error = response && isObject(response.error) ? response.error : {}
-        this.#step?.settle({ failed: { status: 500, code: error.code } })
+        const status = typeof event.status === 'number' ? event.status : 500
+        this.#step?.settle({ failed: { status, code: error.code } })
         return
       }
       case 'error': {
