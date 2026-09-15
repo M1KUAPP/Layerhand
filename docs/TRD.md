@@ -100,6 +100,9 @@ interface LayerInfo {
 }
 ```
 
+The boundary and its fixture-backed fake are explained in
+[ADR-0001](/docs/decisions/0001-editor-session-contract.md).
+
 ### Contract 2: run orchestration
 
 Owned by the agent stream; consumed by the web application.
@@ -394,6 +397,9 @@ the editor. The outer environment also needs a non-opaque origin. An
 `about:blank` parent denied Photopea access to `localStorage`, aborted
 its startup script, and never emitted the ready message; the same frame
 under `http://127.0.0.1` started normally.
+
+The upload, transport, and sentinel choices are explained in
+[ADR-0002](/docs/decisions/0002-photopea-upload-transport.md).
 
 ### Known traps
 
@@ -939,4 +945,6 @@ structured Photoshop observation.
 
 - [Product brief](PRODUCT.md) — why this, and when we stop.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
+- [Architecture decisions](/docs/decisions/README.md) — why durable boundaries were
+  chosen.
 - [Git workflow](/docs/references/git-workflow.md) — how changes land.
