@@ -1,3 +1,4 @@
 .agents/
 .claude/
 graphify-out/
+docs/evidence/photopea-round-trip/output/*.json
