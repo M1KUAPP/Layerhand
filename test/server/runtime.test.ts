@@ -21,7 +21,8 @@ describe('launch runtime', () => {
     const runtime = await createLaunchRuntime({
       env: { NODE_ENV: 'development' },
       clientAddress: () => '203.0.113.20',
-      fakeRunIntervalMs: 1
+      fakeRunIntervalMs: 1,
+      writeRunLog: () => undefined
     })
 
     try {
