@@ -88,8 +88,12 @@ but pushes and deploys nothing until the repository variable
     also needs `PUBLIC_URL`, the service's own address, because
     Browserbase's browser loads `/photopea-host` from it. `scripted` runs
     the loop against a recorded editor, for development;
-  - `FREE_DAILY_BUDGET_USD`, a placeholder of 40 until the ceiling is
-    agreed (#29).
+  - `FREE_DAILY_BUDGET_USD`, a placeholder of 10 until the ceiling is
+    agreed (#29). It bounds the server's OpenAI key, a personal balance, to
+    $10 a day;
+  - `RUN_STEP_CAP`, 40, and `FREE_RUN_SPEND_CAP_USD`, 3: the model calls one
+    run may make, and what it may spend. A free run reserves its spend cap
+    from the daily ceiling.
 - **Storage** is the GCS bucket `layerhand-artifacts-732371853772`, through
   its S3 interoperability endpoint, with a 24-hour delete rule (NFR-6).
 

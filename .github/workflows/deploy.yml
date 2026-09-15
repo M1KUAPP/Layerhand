@@ -71,10 +71,12 @@ jobs:
       # continues in the background after POST /api/runs returns. One instance
       # at most, because run state lives in that process's memory.
       #
-      # FREE_DAILY_BUDGET_USD=40 is a deploy-time placeholder, not the agreed
-      # ceiling: $230 is unaffordable for the human paying, and $40 admits five
-      # concurrent free runs at the $8 reservation. docs/TRD.md keeps the number
-      # "proposed, not agreed" until kymil4 decides (#29).
+      # FREE_DAILY_BUDGET_USD=10 is a deploy-time placeholder, not the agreed
+      # ceiling. The server's OpenAI key is the human's personal balance, so $10
+      # bounds it to $10 a day, and admits three concurrent free runs at the $3
+      # reservation FREE_RUN_SPEND_CAP_USD sets. RUN_STEP_CAP=40 leaves room over
+      # the 19 steps the live run took. docs/TRD.md keeps the ceiling "proposed,
+      # not agreed" until kymil4 decides (#29).
       #
       # TRUST_PROXY_HOPS=1 assumes Google's front end appends the client address
       # to X-Forwarded-For. Verify it against a real request after the first
@@ -91,7 +93,7 @@ jobs:
             --max-instances 1 \
             --timeout 3600 \
             --allow-unauthenticated \
-            --set-env-vars "S3_ENDPOINT=https://storage.googleapis.com,S3_REGION=us-central1,S3_BUCKET=layerhand-artifacts-732371853772,TRUST_PROXY_HOPS=1,RUN_MODE=fake,FREE_DAILY_BUDGET_USD=40" \
+            --set-env-vars "S3_ENDPOINT=https://storage.googleapis.com,S3_REGION=us-central1,S3_BUCKET=layerhand-artifacts-732371853772,TRUST_PROXY_HOPS=1,RUN_MODE=fake,FREE_DAILY_BUDGET_USD=10,RUN_STEP_CAP=40,FREE_RUN_SPEND_CAP_USD=3" \
             --set-secrets "OPENAI_API_KEY=OPENAI_API_KEY:latest,BROWSERBASE_API_KEY=BROWSERBASE_API_KEY:latest,S3_ACCESS_KEY_ID=S3_ACCESS_KEY_ID:latest,S3_SECRET_ACCESS_KEY=S3_SECRET_ACCESS_KEY:latest,SESSION_SECRET=SESSION_SECRET:latest,DATABASE_URL=DATABASE_URL:latest"
       - name: Check the deployed service
         run: |
