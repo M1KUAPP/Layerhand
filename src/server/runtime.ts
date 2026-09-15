@@ -1,9 +1,12 @@
 import type { RunEvent, RunHandle, RunRequest } from '../agent/contract'
 import { fakeRun } from '../agent/fake-run'
+import { ScriptedModel } from '../agent/scripted-model'
+import { createRecordedFakeEditorSession } from '../editor/fake-editor-session'
+import { artifactPublisher, managedAgentRun } from './agent-run'
 import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
-import { readConfig } from './config'
+import { ConfigurationError, readConfig } from './config'
 import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
@@ -68,6 +71,16 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
   }
 }
 
+type RunMode = 'agent' | 'fake'
+
+// The agent loop runs against the recorded editor and a scripted model until
+// the Responses API adapter lands, so the default stays the scripted run.
+function readRunMode(value: string | undefined): RunMode {
+  if (value === undefined || value === 'fake') return 'fake'
+  if (value === 'agent') return 'agent'
+  throw new ConfigurationError('RUN_MODE must be agent or fake')
+}
+
 function developmentNumber(value: string | undefined, fallback: number): number {
   if (value === undefined) return fallback
   const parsed = Number(value)
@@ -77,6 +90,7 @@ function developmentNumber(value: string | undefined, fallback: number): number 
 export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promise<LaunchRuntime> {
   const env = options.env ?? process.env
   const production = env.NODE_ENV === 'production'
+  const runMode = readRunMode(env.RUN_MODE)
   const config = production ? readConfig(env) : undefined
   const database = createDatabase(config?.databaseUrl ?? env.DATABASE_URL ?? ':memory:')
 
@@ -85,6 +99,9 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
     const artifactStore =
       options.artifactStore ??
       (config ? new S3ArtifactStore(createS3Bucket(config.s3)) : new MemoryArtifactStore(() => crypto.randomUUID()))
+    const intervalMs = options.fakeRunIntervalMs ?? developmentNumber(env.FAKE_RUN_INTERVAL_MS, 1_000)
+    const serverApiKey = config?.openAiApiKey ?? env.OPENAI_API_KEY
+    const publish = artifactPublisher(artifactStore)
     const dailyBudgetUsd = config?.freeDailyBudgetUsd ?? developmentNumber(env.FREE_DAILY_BUDGET_USD, 1_000)
     const registry = new RunRegistry({
       ...options.registryOptions,
@@ -104,12 +121,17 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       clientAddress: options.clientAddress,
       now: () => new Date(),
       idGenerator: () => crypto.randomUUID(),
-      runFactory: (request) =>
-        managedFakeRun(
-          request,
-          options.fakeRunIntervalMs ?? developmentNumber(env.FAKE_RUN_INTERVAL_MS, 1_000),
-          config?.openAiApiKey ?? env.OPENAI_API_KEY
-        ),
+      runFactory:
+        runMode === 'agent'
+          ? async (request) => {
+              if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
+              return managedAgentRun(request, {
+                session: await createRecordedFakeEditorSession(),
+                model: new ScriptedModel({ delayMs: intervalMs }),
+                publish
+              })
+            }
+          : (request) => managedFakeRun(request, intervalMs, serverApiKey),
       stepCap: options.stepCap ?? 15
     })
     return {
