@@ -486,6 +486,42 @@ describe('PhotopeaEditorSession', () => {
     expect(events.slice(-2)).toEqual(['actions:close', 'release'])
   })
 
+  test('ambiguous source naming poisons queued and newly admitted document work', async () => {
+    const { session, dependencies, events } = fixture()
+    const naming = deferred()
+    const namingStarted = deferred()
+    const failure = new PhotopeaExportError('photopea_export_response', 'ambiguous source naming')
+    let names = 0
+    dependencies.exporter.nameSourceLayer = async () => {
+      events.push('name')
+      if (names++ === 0) {
+        namingStarted.resolve()
+        await naming.promise
+      }
+    }
+    const first = session.open(new Uint8Array([1]), 'first.png')
+    await namingStarted.promise
+    const queued = [session.open(new Uint8Array([2]), 'queued.png'), ...documentCalls(session)]
+    const queuedResults = Promise.allSettled([first, ...queued])
+    naming.reject(failure)
+    const results = await queuedResults
+    const admittedResults = await Promise.allSettled([
+      session.open(new Uint8Array([3]), 'later.png'),
+      ...documentCalls(session)
+    ])
+    const closeResult = await session.close().then(
+      () => undefined,
+      (error: unknown) => error
+    )
+    expect(results.map((result) => result.status)).toEqual(Array(7).fill('rejected'))
+    expect(admittedResults.map((result) => result.status)).toEqual(Array(6).fill('rejected'))
+    for (const result of [...results, ...admittedResults]) {
+      if (result.status === 'rejected') expect(result.reason).toBe(failure)
+    }
+    expect(closeResult).toBe(failure)
+    expect(events).toEqual(['open:first.png', 'name', 'actions:close', 'release'])
+  })
+
   test('an error with an ambiguous-response-shaped code does not poison the session', async () => {
     const { session, dependencies } = fixture()
     await session.open(new Uint8Array([1]), 'a.png')

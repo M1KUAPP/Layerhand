@@ -107,15 +107,7 @@ export class PhotopeaEditorSession implements EditorSession {
     if (rejection) return Promise.reject(rejection)
     return (this.#snapshot ??= this.#enqueue(async () => {
       this.#assertOpen()
-      try {
-        return await this.#dependencies.exporter.exportSnapshot()
-      } catch (error) {
-        // Invalidation cannot restore trust in an ambiguous protocol stream.
-        if (error instanceof PhotopeaExportError && error.code === 'photopea_export_response') {
-          this.#poison = error
-        }
-        throw error
-      }
+      return this.#dependencies.exporter.exportSnapshot()
     }))
   }
 
@@ -133,11 +125,19 @@ export class PhotopeaEditorSession implements EditorSession {
   #enqueue<T>(operation: () => Promise<T>): Promise<T> {
     const rejection = this.#admissionError()
     if (rejection) return Promise.reject(rejection)
-    const run = () => {
+    const run = async () => {
       // Closing stops admission; accepted work must still drain. Poisoning
       // also stops accepted work because it can no longer trust the stream.
       if (this.#poison) throw this.#poison
-      return operation()
+      try {
+        return await operation()
+      } catch (error) {
+        // Invalidation cannot restore trust in an ambiguous protocol stream.
+        if (error instanceof PhotopeaExportError && error.code === 'photopea_export_response') {
+          this.#poison = error
+        }
+        throw error
+      }
     }
     const result = this.#tail.then(run, run)
     this.#tail = result
