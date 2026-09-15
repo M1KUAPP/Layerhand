@@ -66,6 +66,29 @@ The command prints the session id, public live-view URL, and cold-start time.
 It never prints the API key or private CDP connection URL and requests session
 release in a `finally` block.
 
+## Reliability suite
+
+Run the ten-image production reliability benchmark against a public deployment:
+
+```sh
+bun run reliability
+```
+
+The command requires `OPENAI_API_KEY`, `BROWSERBASE_API_KEY`, and `PUBLIC_URL`
+in the environment. It runs the ten representative corpus cases sequentially,
+creating one Browserbase client and never starting concurrent paid sessions.
+Each case defaults to a 40-step cap and an $8 spend cap ($80 maximum total spend
+per suite run).
+
+Results are written beneath `artifacts/reliability/<timestamp>/` as
+`summary.json`, `summary.md`, and per-case layered PSD and PNG preview files.
+The command outputs a terminal summary and exits with code 0 only when at least
+eight of the ten cases pass (NFR-1).
+
+In automated CI and scheduled nightly workflows, paid execution is guarded by
+the repository variable `RELIABILITY_ENABLED == 'true'`. Normal pull-request CI
+never invokes live providers or creates paid sessions.
+
 ## Container
 
 ```sh
