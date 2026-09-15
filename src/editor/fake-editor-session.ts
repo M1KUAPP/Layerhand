@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises'
+import { cloneLayerTree } from './layer-tree'
 import type { ComputerAction, EditorSession, LayerInfo, Viewport } from './session'
 
 export interface EditorRecording {
@@ -58,7 +59,7 @@ export class FakeEditorSession implements EditorSession {
       frames: options.recording.frames.map(copyBytes),
       psd: copyBytes(options.recording.psd),
       preview: copyBytes(options.recording.preview),
-      layers: options.recording.layers.map((layer) => ({ ...layer }))
+      layers: cloneLayerTree(options.recording.layers)
     }
   }
 
@@ -97,7 +98,7 @@ export class FakeEditorSession implements EditorSession {
 
   async layers(): Promise<LayerInfo[]> {
     this.#ensureOpen()
-    return this.#recording.layers.map((layer) => ({ ...layer }))
+    return cloneLayerTree(this.#recording.layers)
   }
 
   async exportPsd(): Promise<Uint8Array> {
@@ -143,8 +144,8 @@ export async function createRecordedFakeEditorSession(): Promise<FakeEditorSessi
       psd,
       preview,
       layers: [
-        { name: 'Original photograph', kind: 'raster', visible: true },
-        { name: 'Retouched copy', kind: 'raster', visible: true }
+        { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+        { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
       ]
     }
   })
