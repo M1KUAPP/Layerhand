@@ -19,8 +19,12 @@ export type StepResult =
   | { responses: Json[] }
   /** The response failed, with a status and the provider's error code, never its message. */
   | { failed: { status: number; code: unknown } }
-  /** The connection failed first. Every unsettled steer has been settled for replay. */
-  | { lost: true }
+  /**
+   * The connection failed first, and every unsettled steer has been settled
+   * for replay. `responses` are the ones that ended before it did: the step is
+   * sent again, but those were billed and still have to be counted.
+   */
+  | { lost: true; responses: Json[] }
 
 interface Step {
   /** The response whose tool output this step returns, if any. */
@@ -330,6 +334,8 @@ export class ResponsesSocket {
       // Already closed.
     }
     this.#ledger.disconnected(() => 'indeterminate')
-    this.#step?.settle({ lost: true })
+    const step = this.#step
+    // Responses that ended before the connection did were billed all the same.
+    if (step) step.settle({ lost: true, responses: step.responses })
   }
 }
