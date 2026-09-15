@@ -1161,6 +1161,17 @@ not in a separate probe. The run is in the
 - **Not yet confirmed:** the read-only live view. The run publishes its own
   frames and does not use Browserbase's live view.
 
+**Warm against cold, September 15:** warming an editor while the
+instruction is typed (#70) was measured the same way, on the deployed
+service, by starting two runs and cancelling each at its first frame. With
+a warm session the first frame reached the page **2.0 seconds** after the
+button, and without one **7.4 seconds** — 5.4 seconds saved, and the
+difference between meeting NFR-3's five-second budget and missing it.
+Neither is the 21.3 seconds above, measured in an earlier run on an earlier
+revision, and the gap between the two cold figures was not chased. The
+[warm editor evidence](evidence/warm-editor/README.md) has the method, the
+summary, and what the pair does not show.
+
 Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
 opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
 resolution, including an exact 20 MiB JPEG padded with valid APP15
