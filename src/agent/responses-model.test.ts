@@ -230,6 +230,29 @@ describe('ResponsesModel with code execution', () => {
     expect(sent[1]!.body.input[0].output[0].text).toContain('did not carry a code string')
   })
 
+  test('forbids Photopea scripting in the prompt for both mechanisms', async () => {
+    const runner: CodeRunner = { run: async () => ({ logs: [] }) }
+    const instructions = await Promise.all(
+      (['computer', 'code'] as const).map(async (mechanism) => {
+        const { fetch, sent } = scriptedFetch([{ id: 'resp_1', output: [] }])
+        const model = new ResponsesModel({
+          apiKey: KEY,
+          instruction: 'x',
+          stepCap: 1,
+          mechanism,
+          codeRunner: runner,
+          fetch
+        })
+        await model.next(observe(), signal())
+        return sent[0]!.body.instructions as string
+      })
+    )
+
+    for (const prompt of instructions) {
+      expect(prompt).toContain("Do not use Photopea's scripting interface: not its script dialog, and not postMessage.")
+    }
+  })
+
   test('needs a code runner', () => {
     expect(() => new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 1, mechanism: 'code' })).toThrow(
       'code runner'
