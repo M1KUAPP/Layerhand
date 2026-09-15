@@ -8,6 +8,7 @@ import {
   createPhotopeaHostHtml,
   type PhotopeaMessage
 } from '../../src/editor'
+import { PhotopeaDocumentExporter } from '../../src/editor/photopea-document-exporter'
 
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip
@@ -45,7 +46,7 @@ describeLive('Photopea export in Google Chrome', () => {
     }
   })
 
-  test('brings the sample photograph out as a PSD and a preview, byte for byte, well inside the command timeout', async () => {
+  test('exports the sample photograph byte for byte, and through the production exporter, well inside the command timeout', async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     try {
       const bridge = new PhotopeaBridge(
@@ -78,9 +79,17 @@ describeLive('Photopea export in Google Chrome', () => {
         expect(files).toHaveLength(1)
         exported.push(files[0]!.value)
       }
+      // The production session names the source layer after opening, then exports a snapshot:
+      // the PSD, again if a layer needed renaming, and the preview.
+      const exporter = new PhotopeaDocumentExporter(bridge)
+      await exporter.nameSourceLayer()
+      const snapshotStartedAt = performance.now()
+      const snapshot = await exporter.exportSnapshot()
+      timings.snapshotMs = Math.round(performance.now() - snapshotStartedAt)
       const digests = await page.evaluate(() =>
         Promise.all((window as unknown as { __layerhandExportDigests: Promise<string>[] }).__layerhandExportDigests)
       )
+
       const [psd, preview] = exported
       console.log(
         JSON.stringify({
@@ -93,8 +102,11 @@ describeLive('Photopea export in Google Chrome', () => {
       )
 
       expect(new TextDecoder().decode(psd!.subarray(0, 4))).toBe('8BPS')
-      expect(digests).toEqual(exported.map(sha256))
+      // Every file the page received: the two exported directly, then the snapshot's two.
+      expect(digests).toEqual([...exported, snapshot.psd, snapshot.preview].map(sha256))
       expect(timings.psdMs).toBeLessThan(WELL_INSIDE_THE_DEFAULT_MS)
+      expect(snapshot.layers.map((layer) => layer.name)).toEqual(['Original photograph'])
+      expect(timings.snapshotMs).toBeLessThan(WELL_INSIDE_THE_DEFAULT_MS)
     } finally {
       await page.close()
     }
