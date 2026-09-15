@@ -65,7 +65,7 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
     async routeWebSocket(_url: string | RegExp | ((url: URL) => boolean), handler: Harness['webSocketRoute']) {
       state.webSocketRoute = handler
     }
-  } as BrowserContext
+  } as unknown as BrowserContext
   const page = { context: () => context } as Page
   const session = browserbaseEditorSession({
     id: 'run-editor',
