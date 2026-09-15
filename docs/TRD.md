@@ -53,7 +53,7 @@ These exist so three people can start on day 0 without waiting for each
 other. They are written down before anything is implemented, and
 changing one is a conversation, not a commit.
 
-### Contract 1: editor session
+### Contract 1: Editor session
 
 Owned by the editor and browser streams; consumed by the agent loop.
 
@@ -113,7 +113,7 @@ interface LayerInfo {
 The boundary and its fixture-backed fake are explained in
 [ADR-0001](/docs/decisions/0001-editor-session-contract.md).
 
-### Contract 2: run orchestration
+### Contract 2: Run orchestration
 
 Owned by the agent stream; consumed by the web application.
 
@@ -167,7 +167,7 @@ alike:
 - A correction is acknowledged within three seconds (FR-21). Once the
   run has ended, `steer()` rejects and `cancel()` changes nothing.
 
-### Contract 3: the HTTP surface
+### Contract 3: The HTTP surface
 
 Owned by the web stream.
 
@@ -697,7 +697,7 @@ would put about 590 MB of base64 into that history, so its frames need a
 home in object storage first, and the artifact store has no kind for a
 frame yet.
 
-### One ceiling: fifteen minutes
+### One ceiling: Fifteen minutes
 
 A run lasts at most **fifteen minutes**, and that single number is the
 ceiling everywhere. Two other durations appear in this document and
@@ -776,7 +776,7 @@ Three checks, each with its own message naming the reason:
 1.  **Dimensions**, at most 6000 px on the long edge, read from the
     header without decoding the whole image.
 
-### Resolution: two different things
+### Resolution: Two different things
 
 FR-1 allows a 6000 px image while the model sees a 1440x900 viewport,
 which reads like a contradiction and is not one.

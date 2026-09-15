@@ -3,7 +3,7 @@ name: astra-challenge
 description: Use when generating, evaluating, or narrowing project ideas for the OpenAI x Product Hunt GPT-6 Astra Challenge, or when deciding what to build with GPT-6 Astra for a launch, hackathon, or showcase submission
 ---
 
-# Astra Challenge Ideation
+# Astra Challenge ideation
 
 ## Overview
 
