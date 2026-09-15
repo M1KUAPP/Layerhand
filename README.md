@@ -100,11 +100,9 @@ but pushes and deploys nothing until the repository variable
 In production the container refuses to start unless all eleven variables
 that `src/server/config.ts` requires are set.
 
-**The database is a Supabase free project, which pauses after seven days
-without a query.** A paused database fails `/health` and every run. Query it
-at least weekly, for example with a scheduled request to the service's
-`/health`, which runs `SELECT 1`. Restoring a paused project takes about 30
-seconds.
+**The database is the Neon project `layerhand`**, in the M1KUAPP
+organisation and region `aws-us-east-2`. It is not paused when it goes
+without queries, so it needs no keep-alive request.
 
 ## Architecture## Architecture
 
