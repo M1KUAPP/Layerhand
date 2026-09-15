@@ -71,22 +71,58 @@ export function openResponsesSocket(url: string, apiKey: string, timeoutMs: numb
 
 const text = (value: unknown) => (typeof value === 'string' ? value : undefined)
 
+// The events worth reporting: every steering event, and the ones that end a response.
+const REPORTED = new Set([
+  'response.created',
+  'response.completed',
+  'response.incomplete',
+  'response.failed',
+  'response.steer.accepted',
+  'response.steer.pending',
+  'response.steer.failed',
+  'error'
+])
+
 function hasToolCall(response: Json): boolean {
   const output = Array.isArray(response.output) ? response.output : []
   return output.some((item) => isObject(item) && (item.type === 'computer_call' || item.type === 'function_call'))
+}
+
+/** What a steering event was, with nothing a provider could quote a key or a request in. */
+export interface SteeringEvent {
+  /** The server event's own type, such as `response.steer.accepted`. */
+  type: string
+  responseId?: string
+  steerId?: string
+  /** Why a response ended incomplete, or why a steer is still queued. */
+  reason?: string
+  /** A steering failure's code, or a request error's. */
+  code?: string
+}
+
+export interface ResponsesSocketOptions {
+  successorTimeoutMs?: number
+  /** Sees each steering and response event, in arrival order (NFR-8). */
+  onEvent?: (event: SteeringEvent) => void
 }
 
 export class ResponsesSocket {
   readonly #socket: WebSocket
   readonly #ledger: SteerLedger
   readonly #successorTimeoutMs: number
+  readonly #onEvent: ((event: SteeringEvent) => void) | undefined
   #step: Step | undefined
   #lost = false
 
-  constructor(socket: WebSocket, ledger: SteerLedger, { successorTimeoutMs = 10_000 } = {}) {
+  constructor(
+    socket: WebSocket,
+    ledger: SteerLedger,
+    { successorTimeoutMs = 10_000, onEvent }: ResponsesSocketOptions = {}
+  ) {
     this.#socket = socket
     this.#ledger = ledger
     this.#successorTimeoutMs = successorTimeoutMs
+    this.#onEvent = onEvent
     socket.addEventListener('message', (event) => this.#receive(event.data))
     socket.addEventListener('close', () => this.#lose())
     socket.addEventListener('error', () => this.#lose())
@@ -171,6 +207,7 @@ export class ResponsesSocket {
     const steerId = text(steer.id)
     const parentResponseId = text(steer.previous_response_id)
     const response = isObject(event.response) ? event.response : undefined
+    this.#report(event, response, steerId)
     switch (event.type) {
       case 'response.steer.accepted':
         if (steerId && parentResponseId) this.#ledger.accepted(parentResponseId, steerId)
@@ -210,6 +247,23 @@ export class ResponsesSocket {
         return
       }
     }
+  }
+
+  /** Reports one event: its type and the ids, reasons and codes it carries, and nothing else. */
+  #report(event: Json, response: Json | undefined, steerId: string | undefined): void {
+    if (!this.#onEvent || !REPORTED.has(String(event.type))) return
+    const details = response && isObject(response.incomplete_details) ? response.incomplete_details : {}
+    const error = isObject(event.error) ? event.error : response && isObject(response.error) ? response.error : {}
+    const responseId = text(response?.id) ?? text((isObject(event.steer) ? event.steer : {}).previous_response_id)
+    const reason = text(event.reason) ?? text(details.reason)
+    const code = text(error.code)
+    this.#onEvent({
+      type: String(event.type),
+      ...(responseId ? { responseId } : {}),
+      ...(steerId ? { steerId } : {}),
+      ...(reason ? { reason } : {}),
+      ...(code ? { code } : {})
+    })
   }
 
   #created(response: Json | undefined): void {
