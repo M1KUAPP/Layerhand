@@ -4,6 +4,7 @@ import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { LayerInfo } from '../../src/editor/session'
+import type { AgentModel } from '../../src/agent/model'
 import { managedAgentRun } from '../../src/server/agent-run'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
@@ -149,6 +150,17 @@ describe('steering the agent loop through the HTTP surface', () => {
 })
 
 describe('managed agent run', () => {
+  const blankNarrationModel: AgentModel = {
+    async next() {
+      return {
+        narration: '   ',
+        actions: [],
+        usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+        done: false
+      }
+    }
+  }
+
   const request = (overrides: Partial<RunRequest> = {}): RunRequest => ({
     image: Uint8Array.of(0x89, 0x50, 0x4e, 0x47),
     filename: 'source.png',
@@ -165,7 +177,11 @@ describe('managed agent run', () => {
     return events
   }
 
-  async function run(overrides: Partial<RunRequest> = {}, layers?: readonly LayerInfo[]) {
+  async function run(
+    overrides: Partial<RunRequest> = {},
+    layers?: readonly LayerInfo[],
+    model: AgentModel = new ScriptedModel({ delayMs: 1 })
+  ) {
     const runRequest = request(overrides)
     const session = await createRecordedFakeEditorSession()
     if (layers) {
@@ -177,7 +193,7 @@ describe('managed agent run', () => {
     }
     const managed = managedAgentRun(runRequest, {
       session,
-      model: new ScriptedModel({ delayMs: 1 }),
+      model,
       publish: async (_bytes, kind) => `memory://${kind}`
     })
     return { runRequest, managed }
@@ -205,6 +221,22 @@ describe('managed agent run', () => {
 
     expect(stepCapped.managed.metrics().stopReason).toBe('step_cap')
     expect(spendCapped.managed.metrics().stopReason).toBe('spend_cap')
+  })
+
+  test('reports missing narration as failed at the final step', async () => {
+    const { managed } = await run({ stepCap: 1 }, undefined, blankNarrationModel)
+
+    await finish(managed)
+
+    expect(managed.metrics().stopReason).toBe('failed')
+  })
+
+  test('reports missing narration as failed at the spend cap boundary', async () => {
+    const { managed } = await run({ budgetUsd: 0.0000625 }, undefined, blankNarrationModel)
+
+    await finish(managed)
+
+    expect(managed.metrics().stopReason).toBe('failed')
   })
 
   test('reports a cancel, and releases the key', async () => {
