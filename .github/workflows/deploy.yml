@@ -67,6 +67,32 @@ jobs:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ env.DEPLOYER }}
       - uses: google-github-actions/setup-gcloud@v3
+      # Team secrets live in GitHub repository secrets, their single source.
+      # Each is copied into Secret Manager before deploying, adding a version
+      # only when its value changed. OPENAI_API_KEY is a personal key and lives
+      # only in Secret Manager.
+      - name: Sync team secrets into Secret Manager
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+        run: |
+          for name in DATABASE_URL SESSION_SECRET S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY BROWSERBASE_API_KEY; do
+            value="${!name}"
+            if [ -z "$value" ]; then
+              echo "::error::The GitHub secret $name is not set"
+              exit 1
+            fi
+            current="$(gcloud secrets versions access latest --secret "$name" --project "$PROJECT_ID" 2>/dev/null || true)"
+            if [ "$current" = "$value" ]; then
+              echo "$name is unchanged"
+              continue
+            fi
+            printf '%s' "$value" | gcloud secrets versions add "$name" --project "$PROJECT_ID" --data-file=-
+            echo "$name has a new version"
+          done
       # --no-cpu-throttling keeps CPU while no request is open, because a run
       # continues in the background after POST /api/runs returns. One instance
       # at most, because run state lives in that process's memory.
