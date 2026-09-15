@@ -23,6 +23,10 @@ export interface AgentLoopDependencies {
   frameIntervalMs?: number
   /** Bounds the best-effort PSD export after an unexpected failure. */
   errorExportTimeoutMs?: number
+  /** Force-releases a hosted editor when its normal close path cannot drain. */
+  abandon?: () => Promise<void>
+  /** Captures the failure that triggered fatal cleanup before cleanup can fail too. */
+  captureFailure?: () => void
 }
 
 // FR-11 asks for narration short enough to read while the editor moves.
@@ -44,7 +48,16 @@ function cut(narration: string): string {
 
 export function runAgent(
   request: RunRequest,
-  { session, model, publish, pricing, frameIntervalMs, errorExportTimeoutMs }: AgentLoopDependencies
+  {
+    session,
+    model,
+    publish,
+    pricing,
+    frameIntervalMs,
+    errorExportTimeoutMs,
+    abandon,
+    captureFailure
+  }: AgentLoopDependencies
 ): RunHandle {
   const log = new EventLog()
   const spend = new Spend(pricing)
@@ -68,16 +81,17 @@ export function runAgent(
     return session.exportPsd()
   }
 
-  const bestEffortErrorExport = async () => {
+  const bestEffortErrorExport = async (): Promise<'settled' | 'timed_out'> => {
     let timer: ReturnType<typeof setTimeout> | undefined
-    const deadline = new Promise<void>((resolve) => {
-      timer = setTimeout(resolve, errorExportTimeoutMs ?? ERROR_EXPORT_TIMEOUT_MS)
+    const deadline = new Promise<'timed_out'>((resolve) => {
+      timer = setTimeout(() => resolve('timed_out'), errorExportTimeoutMs ?? ERROR_EXPORT_TIMEOUT_MS)
     })
     try {
-      await Promise.race([
+      return await Promise.race([
         Promise.resolve()
           .then(exportPsd)
-          .catch(() => undefined),
+          .catch(() => undefined)
+          .then(() => 'settled' as const),
         deadline
       ])
     } finally {
@@ -178,10 +192,16 @@ export function runAgent(
         result: { psdUrl: await publish(psd, 'psd'), previewUrl: await publish(preview, 'preview'), layers, complete }
       })
     } catch {
+      try {
+        captureFailure?.()
+      } catch {
+        // Diagnostics must never hold the editor open during fatal cleanup.
+      }
       refusing = true
       await liveView?.stop().catch(() => undefined)
-      if (!psdExportStarted) await bestEffortErrorExport()
-      await session.close().catch(() => undefined)
+      const errorExport = psdExportStarted ? 'settled' : await bestEffortErrorExport()
+      if (errorExport === 'timed_out' && abandon) await abandon().catch(() => undefined)
+      else await session.close().catch(() => undefined)
       // Provider messages can quote a key or a request, so none reaches the page.
       log.end({ type: 'error', reason: 'The run stopped because of an unexpected error', recoverable: false })
     }
