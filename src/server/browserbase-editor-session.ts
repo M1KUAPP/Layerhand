@@ -7,6 +7,7 @@
 import { chromium, type Page } from 'playwright-core'
 
 import { createPhotopeaEditorSession, type CreatePhotopeaEditorSessionOptions } from '../editor/photopea-editor-session'
+import { PHOTOPEA_ORIGIN } from '../editor/photopea-transport'
 import type { EditorSession, Viewport } from '../editor/session'
 import type { BrowserbaseSession } from './browserbase-client'
 
@@ -58,6 +59,36 @@ export interface BrowserbaseEditorSession extends EditorSession {
 
 const closedError = () => new Error('The editor session is closed')
 
+function comparableOrigin(rawUrl: string): string | undefined {
+  try {
+    const url = new URL(rawUrl)
+    if (url.protocol === 'ws:') url.protocol = 'http:'
+    if (url.protocol === 'wss:') url.protocol = 'https:'
+    return url.origin
+  } catch {
+    return undefined
+  }
+}
+
+async function installNetworkAllowList(page: Page, hostUrl: string): Promise<void> {
+  const allowedOrigins = new Set([new URL(hostUrl).origin, PHOTOPEA_ORIGIN])
+  const allowed = (url: string) => {
+    const origin = comparableOrigin(url)
+    return origin !== undefined && allowedOrigins.has(origin)
+  }
+  const context = page.context()
+  await context.route('**/*', (route) =>
+    allowed(route.request().url()) ? route.continue() : route.abort('blockedbyclient')
+  )
+  await context.routeWebSocket('**/*', (route) => {
+    if (allowed(route.url())) {
+      route.connectToServer()
+      return
+    }
+    return route.close({ code: 1008, reason: 'Network origin is not allowed' })
+  })
+}
+
 export function browserbaseEditorSession({
   id,
   hostUrl,
@@ -100,6 +131,8 @@ export function browserbaseEditorSession({
       } catch {
         throw new Error('The editor browser could not be reached')
       }
+      if (abandoned) throw closedError()
+      await installNetworkAllowList(browser.page, hostUrl)
       if (abandoned) throw closedError()
       return createEditorSession(browser.page, { id, hostUrl, viewport: VIEWPORT, release })
     } catch (error) {
