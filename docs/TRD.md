@@ -178,6 +178,7 @@ Owned by the web stream.
 | `POST` | `/api/runs/:id/steer`  | Send a correction             |
 | `POST` | `/api/runs/:id/cancel` | Stop, keep the partial result |
 | `GET`  | `/api/runs/:id`        | Current state, for reconnect  |
+| `POST` | `/api/uploads`         | Warm an editor for an image   |
 | `POST` | `/api/waitlist`        | Email capture (FR-31)         |
 
 Server-sent events rather than WebSockets for the browser leg: the
@@ -812,6 +813,18 @@ no account.
 FR-1 and FR-3 are enforced at `POST /api/runs`, **before a browser
 session is created**. A session opened for an upload we were always
 going to reject is a bill we chose to pay for nothing.
+
+`POST /api/uploads` runs the same three checks, and only then warms an
+editor (#70): the twenty-one seconds a first frame takes are spent inside
+the browser session, so they start when the image arrives rather than when
+the button is pressed, and the run that follows begins with the image
+already open (NFR-3). A visitor holds **one** warm session, so a retried
+upload cannot double the browser bill; a second upload releases the first,
+an unclaimed one is released after two minutes, and shutdown releases them
+all. Warming spends nothing on the model and reserves nothing from the
+daily ceiling: metering stays at run start, where the spend is. A run whose
+`uploadId` is unknown, expired, another visitor's, or for a different image
+starts cold, exactly as it did before.
 
 Three checks, each with its own message naming the reason:
 
