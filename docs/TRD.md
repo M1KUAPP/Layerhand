@@ -229,7 +229,7 @@ layer and a warming adjustment layer named in plain words, and a vignette
 layer. No run had a silent step, a model error, or a disqualification. Two
 of the three images show the same scene. The records, code logs, and final
 frames are in the
-[A0 results](evidence/driving-mechanism/results/records.json).
+[A0 results](/docs/evidence/driving-mechanism/results/records.json).
 To repeat the measurement:
 
 ```sh
@@ -512,7 +512,7 @@ The upload, transport, and sentinel choices are explained in
 
 Spike B1 retested each warning locally on September 15, 2026. The scripts,
 captured outputs, and exact limitations are retained in the
-[B1 evidence bundle](evidence/photopea-round-trip/README.md).
+[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md).
 
 The test used Google Chrome 153.0.8010.36. Its result is deliberately scoped
 to the calls named below; an untested Photopea DOM operation still needs
@@ -1078,12 +1078,12 @@ the same day, not extended.
 A0 is answered in
 [How the editor is actually driven](#how-the-editor-is-actually-driven):
 the `computer` tool, measured on September 15. The
-[Codex proxy run](evidence/driving-mechanism/codex-proxy/README.md) is a
+[Codex proxy run](/docs/evidence/driving-mechanism/codex-proxy/README.md) is a
 day-2 feasibility hint for A1, not A0 data.
 
 **B2 result, September 15:** it was measured in a live run of the real agent,
 not in a separate probe. The run is in the
-[agent run evidence](evidence/agent-run/README.md).
+[agent run evidence](/docs/evidence/agent-run/README.md).
 
 - **Session.** Browserbase created one in 0.8 seconds.
 - **First frame.** The first frame of the opened image reached the page 21.3
@@ -1201,7 +1201,7 @@ deliberately misleading `"done"`, the PSD bytes, the unique sentinel, and the
 real completion `"done"`; the host logic and tests show why only the exact
 sentinel completes the wait. Adobe Photoshop 2026 version 27.10.0 opened the
 same PSD without a warning dialog and displayed both named layers. The
-[B1 evidence bundle](evidence/photopea-round-trip/README.md) retains the exact
+[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md) retains the exact
 input, scripts, outputs, hashes, trap results, timing definitions, and the
 structured Photoshop observation.
 
