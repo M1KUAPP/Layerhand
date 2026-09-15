@@ -204,8 +204,6 @@ export class RunRoutes {
         managedRun = await this.#dependencies.runFactory(runRequest, warmSession)
       } catch {
         // Starting a run can fail on our side, as when an editor session cannot be created.
-        // A warm session the run never took is released rather than left billing.
-        await warmSession?.abandon().catch(() => undefined)
         throw new RunStartError()
       }
       const runId = this.#dependencies.idGenerator()
@@ -223,6 +221,10 @@ export class RunRoutes {
       })
       return json({ runId }, 201, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
     } catch (error) {
+      // A warm session no run ever took bills until the provider times it out,
+      // so it is released here however the start failed. A run that exists owns
+      // it instead, and releases it as it ends.
+      if (!managedRun) await warmSession?.abandon().catch(() => undefined)
       if (managedRun) {
         try {
           await managedRun.handle.cancel()
