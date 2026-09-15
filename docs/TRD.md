@@ -329,11 +329,11 @@ scripted model. How the loop applies the rules above:
   one that ignores the abort signal, but an editor call that hangs still
   waits for the [fifteen-minute ceiling](#one-ceiling-fifteen-minutes).
 - A finished edit, a cap, a cancel, or a missing narration exports the
-  file and then closes the session. A failure only closes it: contract 2
-  ends a failed run with an error event that carries no result, so the
-  best-effort export that [Disposal](#disposal) asks of the error path
-  waits on a contract change. A failure's reason is fixed, because a
-  provider's error message can quote a key.
+  file and then closes the session. A failure attempts one PSD export
+  after the frame pump stops, gives it four seconds, and then closes the
+  session whether that export succeeded or not. Contract 2 still ends a
+  failed run without a result, and the failure's reason is fixed because
+  a provider's error message can quote a key.
 - The page sees the editor through a frame pump of its own rather than
   the model's screenshots, as [Frames](#frames) describes.
 
@@ -1019,9 +1019,11 @@ control. Making the bad action impossible is.
 
 So the controls are structural:
 
-- **The browser session reaches the editor's origin and nothing else**,
-  by network allow-list. This is the single most valuable control we
-  have, and it is cheap because the product genuinely needs one site.
+- **The browser session reaches only Layerhand's public Photopea host and
+  Photopea's origin.** Context-wide HTTP and WebSocket routes install
+  before editor navigation and abort every other origin. This is the
+  single most valuable control we have, and it is cheap because the
+  product genuinely needs one site.
 - **The session holds no credentials** — no logged-in accounts, no
   payment methods, no cookies worth stealing. There is nothing to
   exfiltrate and nothing to spend.
