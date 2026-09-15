@@ -1,5 +1,8 @@
 # Sample photo provenance
 
+Where the sample photograph bundled with the web app came from, and the
+prompt that generated it.
+
 - Created: September 15, 2026
 - Tool: OpenAI image generation tool
 - Project use: bundled source photograph for the Layerhand demo
