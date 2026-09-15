@@ -52,7 +52,7 @@ const steerAfterStep = Number(values['steer-after'])
 const imagePath = resolve(
   imageArgument ?? new URL('../photopea-round-trip/results/input.jpg', import.meta.url).pathname
 )
-const output = resolve(import.meta.dir, 'results', new Date().toISOString().replaceAll(':', '-'))
+const output = resolve(import.meta.dir, 'output', new Date().toISOString().replaceAll(':', '-'))
 await mkdir(output, { recursive: true })
 
 const startedAt = performance.now()
