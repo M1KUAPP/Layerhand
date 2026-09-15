@@ -31,7 +31,7 @@ const { values, positionals } = parseArgs({
     port: { type: 'string', default: '4173' }
   }
 })
-const image = resolve(positionals[0] ?? new URL('../../photopea-round-trip/output/input.jpg', import.meta.url).pathname)
+const image = resolve(positionals[0] ?? new URL('../photopea-round-trip/output/input.jpg', import.meta.url).pathname)
 const capCredits = Number(values.cap)
 const port = Number(values.port)
 const output = resolve(import.meta.dir, 'output', `${new Date().toISOString().replaceAll(':', '-')}-${basename(image)}`)

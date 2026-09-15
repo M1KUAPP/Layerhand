@@ -1145,7 +1145,7 @@ the same day, not extended.
 A0 is answered in
 [How the editor is actually driven](#how-the-editor-is-actually-driven):
 the `computer` tool, measured on September 15. The
-[Codex proxy run](/docs/evidence/driving-mechanism/codex-proxy/README.md) is a
+[Codex proxy run](/docs/evidence/codex-proxy/README.md) is a
 day-2 feasibility hint for A1, not A0 data.
 
 **B2 result, September 15:** it was measured in a live run of the real agent,
