@@ -9,6 +9,7 @@ import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
 import { RunRoutes } from '../../src/server/run-routes'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
+import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
 
 let png: Uint8Array
 
@@ -62,26 +63,81 @@ class RecordingArtifacts implements ArtifactStore {
   }
 }
 
-function startRequest(options: { image?: Blob; instruction?: string; apiKey?: string } = {}) {
+function startRequest(
+  options: { image?: Blob; instruction?: string; apiKey?: string; uploadId?: string; cookie?: string } = {}
+) {
   const form = new FormData()
   const pngBuffer = png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer
   form.set('image', options.image ?? new File([pngBuffer], 'photo.png', { type: 'image/png' }), 'photo.png')
   form.set('filename', 'photo.png')
   form.set('instruction', options.instruction ?? 'Remove the background')
   if (options.apiKey) form.set('apiKey', options.apiKey)
-  return new Request('https://layerhand.test/api/runs', { method: 'POST', body: form })
+  if (options.uploadId) form.set('uploadId', options.uploadId)
+  return new Request('https://layerhand.test/api/runs', {
+    method: 'POST',
+    body: form,
+    ...(options.cookie ? { headers: { cookie: options.cookie } } : {})
+  })
 }
 
-function fixture(overrides: { meter?: RecordingMeter } = {}) {
+function uploadRequest(filename = 'photo.png') {
+  const form = new FormData()
+  const pngBuffer = png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer
+  form.set('image', new File([pngBuffer], filename, { type: 'image/png' }), filename)
+  form.set('filename', filename)
+  return new Request('https://layerhand.test/api/uploads', { method: 'POST', body: form })
+}
+
+/** The visitor cookie a response set, as a request would send it back. */
+function visitorCookie(response: Response): string {
+  return (response.headers.get('set-cookie') ?? '').split(';')[0] ?? ''
+}
+
+/** A warm editor session that records only what the routes do with it. */
+function warmSessionStub(id: string) {
+  let abandoned = 0
+  return {
+    session: {
+      id,
+      viewport: { width: 1440, height: 900 },
+      open: async () => undefined,
+      screenshot: async () => png,
+      act: async () => undefined,
+      layers: async () => [],
+      exportPsd: async () => png,
+      exportPreview: async () => png,
+      close: async () => undefined,
+      abandon: async () => void (abandoned += 1)
+    } satisfies WarmEditorSession,
+    get abandoned() {
+      return abandoned
+    }
+  }
+}
+
+function fixture(overrides: { meter?: RecordingMeter; warm?: boolean } = {}) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
   const registry = new RunRegistry()
   const runRequests: RunRequest[] = []
+  const warmed: ReturnType<typeof warmSessionStub>[] = []
+  const claimed: (WarmEditorSession | undefined)[] = []
   let releasedSecrets = 0
   let nextId = 0
   let failRunFactory = false
+  const warmSessions = overrides.warm
+    ? new WarmSessionPool({
+        create: () => {
+          const stub = warmSessionStub(`warm-${warmed.length + 1}`)
+          warmed.push(stub)
+          return stub.session
+        },
+        idGenerator: () => `upload-${warmed.length + 1}`
+      })
+    : undefined
   const routes = new RunRoutes({
     registry,
+    ...(warmSessions ? { warmSessions } : {}),
     meterStore: meter,
     artifactStore: artifacts,
     waitlistStore: new MemoryWaitlistStore(),
@@ -91,7 +147,8 @@ function fixture(overrides: { meter?: RecordingMeter } = {}) {
     clientAddress: () => '203.0.113.10',
     now: () => new Date('2026-09-15T12:00:00.000Z'),
     idGenerator: () => `public-run-${++nextId}`,
-    runFactory(request) {
+    runFactory(request, warmSession) {
+      claimed.push(warmSession)
       if (failRunFactory) return Promise.reject(new Error('run factory failed'))
       runRequests.push(request)
       return {
@@ -115,12 +172,88 @@ function fixture(overrides: { meter?: RecordingMeter } = {}) {
     meter,
     artifacts,
     runRequests,
+    warmSessions,
+    warmed,
+    claimed,
     released: () => releasedSecrets,
     failNextRunStart: () => {
       failRunFactory = true
     }
   }
 }
+
+describe('warming an editor before the run', () => {
+  test('warms a validated upload, and the run that follows takes that session', async () => {
+    const target = fixture({ warm: true })
+
+    const upload = await target.app.fetch(uploadRequest())
+    const body = (await upload.json()) as { uploadId: string; warming: boolean }
+    const started = await target.app.fetch(startRequest({ uploadId: body.uploadId, cookie: visitorCookie(upload) }))
+
+    expect(upload.status).toBe(201)
+    expect(body).toEqual({ uploadId: 'upload-1', warming: true })
+    expect(upload.headers.get('set-cookie')).toContain('HttpOnly')
+    expect(started.status).toBe(201)
+    expect(target.claimed).toHaveLength(1)
+    expect(target.claimed[0]?.id).toBe('warm-1')
+    // Claimed once: the run owns it now, and it is no longer warm.
+    expect(target.warmSessions?.size).toBe(0)
+    expect(target.warmed[0]?.abandoned).toBe(0)
+    expect(target.meter.calls[0]).toBe('admit:false')
+  })
+
+  test('refuses another visitor the warm session, and starts that run cold', async () => {
+    const target = fixture({ warm: true })
+
+    const upload = await target.app.fetch(uploadRequest())
+    const { uploadId } = (await upload.json()) as { uploadId: string }
+    // No cookie, so this is a different visitor.
+    const started = await target.app.fetch(startRequest({ uploadId }))
+
+    expect(started.status).toBe(201)
+    expect(target.claimed[0]).toBeUndefined()
+    expect(target.warmSessions?.size).toBe(1)
+  })
+
+  test('accepts an upload with nothing to warm, and the run starts as it always did', async () => {
+    const target = fixture()
+
+    const upload = await target.app.fetch(uploadRequest())
+    const started = await target.app.fetch(startRequest({ uploadId: 'upload-1', cookie: visitorCookie(upload) }))
+
+    expect(await upload.json()).toEqual({ uploadId: null, warming: false })
+    expect(started.status).toBe(201)
+    expect(target.claimed[0]).toBeUndefined()
+  })
+
+  test('releases the warm session when the run it was claimed for cannot start', async () => {
+    const target = fixture({ warm: true })
+    const upload = await target.app.fetch(uploadRequest())
+    const { uploadId } = (await upload.json()) as { uploadId: string }
+    target.failNextRunStart()
+
+    const started = await target.app.fetch(startRequest({ uploadId, cookie: visitorCookie(upload) }))
+
+    expect(started.status).toBe(500)
+    expect(target.warmed[0]?.abandoned).toBe(1)
+    expect(target.warmSessions?.size).toBe(0)
+    expect(target.meter.calls).toContain('release')
+  })
+
+  test('refuses an upload that is not an image', async () => {
+    const target = fixture({ warm: true })
+    const form = new FormData()
+    form.set('image', new File([new Uint8Array([1, 2, 3])], 'note.txt', { type: 'text/plain' }), 'note.txt')
+    form.set('filename', 'note.txt')
+
+    const response = await target.app.fetch(
+      new Request('https://layerhand.test/api/uploads', { method: 'POST', body: form })
+    )
+
+    expect(response.status).toBe(400)
+    expect(target.warmSessions?.size).toBe(0)
+  })
+})
 
 describe('run HTTP contract', () => {
   test('validates, admits, stores, and starts without returning a user key', async () => {

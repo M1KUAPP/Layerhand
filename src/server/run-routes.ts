@@ -7,6 +7,7 @@ import { usdToMicroUsd } from './meter-store'
 import { RunRegistry, RunRegistryError } from './run-registry'
 import { VisitorIdentityError, establishVisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
+import { imageDigest, type WarmEditorSession, type WarmSessionPool } from './warm-session-pool'
 
 export const MAX_RUN_REQUEST_BODY_BYTES = MAX_IMAGE_BYTES + 64 * 1024
 const MAX_INSTRUCTION_LENGTH = 500
@@ -22,8 +23,10 @@ export interface RunRouteDependencies {
   clientAddress(request: Request): string
   now(): Date
   idGenerator(): string
-  runFactory(request: RunRequest): ManagedRun | Promise<ManagedRun>
+  runFactory(request: RunRequest, warmSession?: WarmEditorSession): ManagedRun | Promise<ManagedRun>
   stepCap?: number
+  /** Warms an editor while the user types, when the run mode has a browser to warm (#70). */
+  warmSessions?: WarmSessionPool
 }
 
 class RunStartError extends Error {
@@ -65,6 +68,9 @@ export class RunRoutes {
       if (request.method === 'POST' && url.pathname === '/api/runs') {
         return await this.#start(request)
       }
+      if (request.method === 'POST' && url.pathname === '/api/uploads') {
+        return await this.#upload(request)
+      }
       if (request.method === 'POST' && url.pathname === '/api/waitlist') {
         return await this.#waitlist(request)
       }
@@ -93,6 +99,44 @@ export class RunRoutes {
     }
   }
 
+  /**
+   * Warms an editor for an upload that has passed validation, so the run the
+   * user starts a moment later has a browser with their image already open
+   * (#70, NFR-3). It answers as soon as the session exists, because opening
+   * the image is what takes the time. Nothing is metered here: warming spends
+   * nothing on the model.
+   */
+  async #upload(request: Request): Promise<Response> {
+    const declaredLength = Number(request.headers.get('content-length') ?? 0)
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_RUN_REQUEST_BODY_BYTES) {
+      return apiError('request_too_large', 'The upload exceeds the 20 MB request limit.', 413)
+    }
+    const form = await request.formData()
+    const image = form.get('image')
+    const filenameValue = form.get('filename')
+    if (!(image instanceof Blob) || typeof filenameValue !== 'string' || !filenameValue) {
+      return apiError('image_required', 'Choose a JPEG or PNG image.', 400)
+    }
+    const upload = validateImageUpload(new Uint8Array(await image.arrayBuffer()), filenameValue)
+    const identity = await this.#visitor(request)
+    const uploadId = await this.#dependencies.warmSessions?.warm(identity.visitorKey, upload.bytes, upload.filename)
+    return json(
+      { uploadId: uploadId ?? null, warming: uploadId !== undefined },
+      201,
+      identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+    )
+  }
+
+  #visitor(request: Request) {
+    return establishVisitorIdentity({
+      cookieHeader: request.headers.get('cookie'),
+      forwardedFor: request.headers.get('x-forwarded-for'),
+      directAddress: this.#dependencies.clientAddress(request),
+      sessionSecret: this.#dependencies.sessionSecret,
+      trustProxyHops: this.#dependencies.trustProxyHops
+    })
+  }
+
   async #start(request: Request): Promise<Response> {
     const declaredLength = Number(request.headers.get('content-length') ?? 0)
     if (Number.isFinite(declaredLength) && declaredLength > MAX_RUN_REQUEST_BODY_BYTES) {
@@ -117,13 +161,7 @@ export class RunRoutes {
     const bytes = new Uint8Array(await image.arrayBuffer())
     const upload = validateImageUpload(bytes, filenameValue)
 
-    const identity = await establishVisitorIdentity({
-      cookieHeader: request.headers.get('cookie'),
-      forwardedFor: request.headers.get('x-forwarded-for'),
-      directAddress: this.#dependencies.clientAddress(request),
-      sessionSecret: this.#dependencies.sessionSecret,
-      trustProxyHops: this.#dependencies.trustProxyHops
-    })
+    const identity = await this.#visitor(request)
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
     const admission = await this.#dependencies.meterStore.admit({
@@ -134,6 +172,15 @@ export class RunRoutes {
     if (!admission.accepted) {
       return json(admission, 429, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
     }
+
+    // A session warmed for this visitor and this image starts the run with the
+    // editor already open. Anything else leaves the run to start cold.
+    const uploadIdValue = form.get('uploadId')
+    const warmSession = this.#dependencies.warmSessions?.claim(
+      typeof uploadIdValue === 'string' ? uploadIdValue : undefined,
+      identity.visitorKey,
+      await imageDigest(upload.bytes)
+    )
 
     let artifactKey: string | undefined
     let managedRun: ManagedRun | undefined
@@ -154,9 +201,11 @@ export class RunRoutes {
         apiKey
       }
       try {
-        managedRun = await this.#dependencies.runFactory(runRequest)
+        managedRun = await this.#dependencies.runFactory(runRequest, warmSession)
       } catch {
         // Starting a run can fail on our side, as when an editor session cannot be created.
+        // A warm session the run never took is released rather than left billing.
+        await warmSession?.abandon().catch(() => undefined)
         throw new RunStartError()
       }
       const runId = this.#dependencies.idGenerator()

@@ -3,6 +3,8 @@ import { fakeRun } from '../agent/fake-run'
 import { ScriptedModel } from '../agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../editor/fake-editor-session'
 import { artifactPublisher, liveAgentRun, managedAgentRun } from './agent-run'
+import { browserbaseEditorSession } from './browserbase-editor-session'
+import { WarmSessionPool } from './warm-session-pool'
 import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
@@ -156,8 +158,16 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
         store: new SqlRunLogStore(database)
       })
     })
+    // Only agent mode has a browser to warm: the other modes start instantly (#70).
+    const warmSessions = agent
+      ? new WarmSessionPool({
+          create: () =>
+            browserbaseEditorSession({ id: crypto.randomUUID(), hostUrl: agent.hostUrl, sessions: agent.sessions })
+        })
+      : undefined
     const routes = new RunRoutes({
       registry,
+      ...(warmSessions ? { warmSessions } : {}),
       meterStore: new SqlMeterStore(database, usdToMicroUsd(dailyBudgetUsd)),
       artifactStore,
       waitlistStore: new SqlWaitlistStore(database),
@@ -169,7 +179,8 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       now: () => new Date(),
       idGenerator: () => crypto.randomUUID(),
       runFactory: agent
-        ? (request) => liveAgentRun(request, { ...agent, publish, serverApiKey })
+        ? (request, warmSession) =>
+            liveAgentRun(request, { ...agent, publish, serverApiKey, ...(warmSession ? { session: warmSession } : {}) })
         : runMode === 'scripted'
           ? async (request) => {
               if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
@@ -188,8 +199,10 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
         routes
       }),
       registry,
-      // Runs in flight end first, so their results and run log lines still reach the database.
+      // Warm sessions belong to nobody's run, so they are released first. Runs
+      // in flight then end, so their results and run log lines still reach the database.
       async close() {
+        await warmSessions?.close()
         await registry.close()
         await database.close()
       }
