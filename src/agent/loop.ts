@@ -2,6 +2,7 @@
 // editor, carry out the actions it returns, and repeat until it is done or the
 // run is stopped. Every ending but a failure exports the file before the
 // session closes, because the session holds the only copy of the work.
+import { startFramePump, type FramePump } from '../browser/frame-pump'
 import type { EditorSession } from '../editor/session'
 import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
@@ -18,6 +19,8 @@ export interface AgentLoopDependencies {
   /** Stores bytes where the page can load them, and returns their URL. */
   publish(bytes: Uint8Array, kind: PublishedKind): Promise<string>
   pricing?: TokenPricing
+  /** Milliseconds between frames of the live view; one second unless set (FR-10). */
+  frameIntervalMs?: number
 }
 
 // FR-11 asks for narration short enough to read while the editor moves.
@@ -36,7 +39,10 @@ function cut(narration: string): string {
     .trimEnd()}…`
 }
 
-export function runAgent(request: RunRequest, { session, model, publish, pricing }: AgentLoopDependencies): RunHandle {
+export function runAgent(
+  request: RunRequest,
+  { session, model, publish, pricing, frameIntervalMs }: AgentLoopDependencies
+): RunHandle {
   const log = new EventLog()
   const spend = new Spend(pricing)
   const aborter = new AbortController()
@@ -49,14 +55,9 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
   // Set once no further model call can carry a correction.
   let refusing = false
   let calls = 0
-
-  const showFrame = async (screenshot: Uint8Array) => {
-    try {
-      log.emit({ type: 'frame', pngUrl: await publish(screenshot, 'frame') })
-    } catch {
-      log.emit({ type: 'error', reason: 'The live view missed a frame', recoverable: true })
-    }
-  }
+  // The page's view of the editor, captured on a cadence of its own rather
+  // than once a step, so it keeps moving while the model thinks (FR-10).
+  let liveView: FramePump | undefined
 
   // Whether a limit rules out another model call (FR-12, NFR-2).
   const limitReached = () => calls >= request.stepCap || spend.wouldPass(request.budgetUsd)
@@ -73,7 +74,13 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
   const work = async (): Promise<boolean> => {
     await session.open(request.image, request.filename)
     let screenshot = await session.screenshot()
-    await showFrame(screenshot)
+    liveView = startFramePump({
+      capture: () => session.screenshot(),
+      publish: (frame) => publish(frame, 'frame'),
+      onFrame: (pngUrl) => log.emit({ type: 'frame', pngUrl }),
+      onMissedFrame: () => log.emit({ type: 'error', reason: 'The live view missed a frame', recoverable: true }),
+      intervalMs: frameIntervalMs
+    })
 
     let steps = 0
     while (!aborter.signal.aborted) {
@@ -116,7 +123,6 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
         log.emit({ type: 'step', n: steps, cap: request.stepCap, narration: cut(narration) })
         if (turn.actions.length > 0) await session.act(turn.actions)
         screenshot = await session.screenshot()
-        await showFrame(screenshot)
       }
       // A correction that arrived during the finishing call gets one more call.
       if (finished) return true
@@ -129,6 +135,10 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
   void (async () => {
     try {
       const complete = await work()
+      // No frame may follow the end of the run, and no look at the editor
+      // should overlap its export, so the live view stops first. A frame in
+      // progress gets up to a second to settle.
+      await liveView?.stop()
       // A cancel can leave an acknowledged correction unsent, so report that too.
       refuseCorrections()
       const psd = await session.exportPsd()
@@ -143,6 +153,7 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
       })
     } catch {
       refusing = true
+      await liveView?.stop()
       await session.close().catch(() => undefined)
       // Provider messages can quote a key or a request, so none reaches the page.
       log.end({ type: 'error', reason: 'The run stopped because of an unexpected error', recoverable: false })

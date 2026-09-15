@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { createRecordedFakeEditorSession } from '../editor/fake-editor-session'
-import type { ComputerAction } from '../editor/session'
+import type { ComputerAction, EditorSession } from '../editor/session'
 import type { RunEvent, RunHandle, RunRequest, RunResult } from './contract'
 import { collect, testRunContract } from './contract-tests'
 import { runAgent, type PublishedKind } from './loop'
@@ -94,7 +94,11 @@ class ScriptedModel implements AgentModel {
   }
 }
 
-/** A recorded editor session, a scripted model, and a publisher that keeps what it stores. */
+/**
+ * A recorded editor session, a scripted model, and a publisher that keeps what
+ * it stores. The live view looks at the editor every five milliseconds, so a
+ * run that lasts a few timer ticks still shows it at work.
+ */
 async function fixture(script: (ModelTurn | Error)[] = RETOUCH, onCall?: (call: number) => void) {
   const published = new Map<string, Uint8Array>()
   return {
@@ -105,7 +109,8 @@ async function fixture(script: (ModelTurn | Error)[] = RETOUCH, onCall?: (call: 
       const url = `memory://${kind}/${published.size}`
       published.set(url, bytes)
       return url
-    }
+    },
+    frameIntervalMs: 5
   }
 }
 
@@ -119,6 +124,34 @@ async function editableFixture(...args: Parameters<typeof fixture>): Promise<Fix
     return structuredClone(EDITABLE_LAYERS)
   }
   return run
+}
+
+/** Takes the given time over every call, as a model thinking does. */
+function thinking(model: AgentModel, ms: number): AgentModel {
+  return {
+    async next(observation, signal) {
+      await Bun.sleep(ms)
+      return model.next(observation, signal)
+    }
+  }
+}
+
+/**
+ * Makes each look at the editor differ from the last, as it does while an edit
+ * goes on, and returns a count of the looks taken so far.
+ */
+function changing(session: EditorSession): () => number {
+  const screenshot = session.screenshot.bind(session)
+  let looks = 0
+  session.screenshot = async () => {
+    const look = ++looks
+    const frame = await screenshot()
+    const changed = new Uint8Array(frame.length + 4)
+    changed.set(frame)
+    new DataView(changed.buffer).setUint32(frame.length, look)
+    return changed
+  }
+  return () => looks
 }
 
 async function fixtureBytes(name: string): Promise<Uint8Array> {
@@ -225,17 +258,32 @@ describe('runAgent', () => {
       { type: 'step', n: 1, cap: 40, narration: 'Running a curves adjustment from a script' }
     ])
     expect(run.session.actionBatches).toEqual([])
-    expect(ofType(events, 'frame')).toHaveLength(2)
     expect(run.model.observations).toHaveLength(2)
     expect(resultOf(events).complete).toBe(true)
   })
 
-  test('shows the editor before the first step and after every step', async () => {
+  test('looks at the editor again after a step without editor actions', async () => {
+    const run = await fixture([step('Running a curves adjustment from a script', [])])
+    changing(run.session)
+    await collect(runAgent(request, run))
+    const [before, after] = run.model.observations
+    expect(after?.screenshot).not.toEqual(before?.screenshot)
+  })
+
+  test('shows the page the editor it works in', async () => {
     const run = await fixture()
     const frames = ofType(await collect(runAgent(request, run)), 'frame')
     const screenshot = await fixtureBytes('photopea-frame.png')
-    expect(frames).toHaveLength(RETOUCH.length + 1)
+    expect(frames.length).toBeGreaterThan(0)
     for (const frame of frames) expect(run.published.get(frame.pngUrl)).toEqual(screenshot)
+  })
+
+  test('keeps the live view moving while the model thinks', async () => {
+    const run = await fixture([step('Selecting the product'), step('Masking out the background')])
+    changing(run.session)
+    const events = await collect(runAgent(request, { ...run, model: thinking(run.model, 40) }))
+    // Three calls of 40 ms with a frame every 5 ms, where one frame a step would show three.
+    expect(ofType(events, 'frame').length).toBeGreaterThanOrEqual(10)
   })
 
   test('adds the usage of every response to the running cost', async () => {
@@ -599,6 +647,49 @@ describe('runAgent', () => {
       await end(run)
       await expect(run.session.screenshot()).rejects.toThrow('Editor session is closed')
     })
+
+    test(`lets a look in progress finish, then looks no more, when the run ${ending}`, async () => {
+      const run = await fixture()
+      const looks = slowLooks(run.session)
+      // The export and the close each take a few of the live view's intervals.
+      let atEnd: { started: number; unfinished: number } | undefined
+      const exportPsd = run.session.exportPsd.bind(run.session)
+      run.session.exportPsd = async () => {
+        atEnd ??= looks()
+        await Bun.sleep(30)
+        return exportPsd()
+      }
+      const close = run.session.close.bind(run.session)
+      run.session.close = async () => {
+        atEnd ??= looks()
+        await Bun.sleep(30)
+        return close()
+      }
+      await end(run)
+      expect(atEnd).toMatchObject({ unfinished: 0 })
+      expect(looks().started).toBe(atEnd!.started)
+    })
+  }
+
+  /**
+   * Makes each look at the editor outlast the live view's interval, so one is
+   * nearly always under way, and counts the looks started and unfinished.
+   */
+  function slowLooks(session: EditorSession): () => { started: number; unfinished: number } {
+    const screenshot = session.screenshot.bind(session)
+    let started = 0
+    let unfinished = 0
+    session.screenshot = async () => {
+      started += 1
+      unfinished += 1
+      try {
+        await Bun.sleep(10)
+        return await screenshot()
+      } finally {
+        unfinished -= 1
+      }
+    }
+    return () => ({ started, unfinished })
   }
 
   test('fails the run when its file cannot be exported', async () => {
@@ -620,20 +711,22 @@ describe('runAgent', () => {
     expect(psdLayerCount(run.published.get(resultOf(events).psdUrl))).toBe(2)
   })
 
-  test('reports a missed frame and carries on', async () => {
+  test('reports missed frames once, and carries on', async () => {
     const run = await editableFixture([step('Selecting the product')])
-    let frames = 0
     const events = await collect(
       runAgent(request, {
         ...run,
+        model: thinking(run.model, 20),
         publish: async (bytes, kind) => {
-          if (kind === 'frame' && frames++ === 0) throw new Error('The bucket is unavailable')
+          if (kind === 'frame') throw new Error('The bucket is unavailable')
           return run.publish(bytes, kind)
         }
       })
     )
-    expect(ofType(events, 'error')).toMatchObject([{ type: 'error', recoverable: true }])
-    expect(ofType(events, 'frame')).toHaveLength(1)
+    expect(ofType(events, 'error')).toEqual([
+      { type: 'error', reason: 'The live view missed a frame', recoverable: true }
+    ])
+    expect(ofType(events, 'frame')).toEqual([])
     expect(resultOf(events).complete).toBe(true)
   })
 
