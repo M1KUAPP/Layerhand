@@ -38,7 +38,12 @@ describe('launch persistence migrations', () => {
       WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
       ORDER BY name
     `
-    expect(tables.map((row: { name: string }) => row.name)).toEqual(['daily_usage', 'visitor_usage', 'waitlist_emails'])
+    expect(tables.map((row: { name: string }) => row.name)).toEqual([
+      'daily_usage',
+      'run_log',
+      'visitor_usage',
+      'waitlist_emails'
+    ])
   })
 
   test('enforces non-negative integer usage and unique waitlist emails', async () => {

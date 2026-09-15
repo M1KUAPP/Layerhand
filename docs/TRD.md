@@ -259,6 +259,43 @@ Four things around it that are not optional:
   disturbing the cached prefix. Adjacent `configuration_update` items
   are rejected, and it cannot be combined with automatic truncation.
 
+`runAgent()` in `src/agent/loop.ts` is this loop. It reaches the model
+through an `AgentModel` port, one call per step. Each call takes the
+latest screenshot and any corrections sent since the previous call, and
+returns narration, actions, token usage, and whether the edit is done. A
+turn that is not done is a step even without actions, so a model that
+changes the editor by running code fits the port as well as one that
+returns `computer` actions. The Responses API adapter plugs into that
+port; until it exists, the loop runs against `FakeEditorSession` and a
+scripted model. How the loop applies the rules above:
+
+- Both caps come from the `RunRequest` and are checked before every call.
+  The step cap counts model calls. The spend cap stops the run when the
+  next call could pass `budgetUsd`, pricing that call as the last call's
+  input, grown by as much as the last call grew it and none of it cached,
+  plus the last call's output. A run can still pass the cap if its output
+  jumps or its history grows faster than before, and the first call has
+  nothing to estimate from.
+- Uncached input is priced as a cache write, at $12.50 per million rather
+  than $10, so the running cost errs high.
+- A step's narration is trimmed and cut to eighty characters. A step
+  without one stops the run before its actions are carried out, with a
+  recoverable error that says why.
+- Corrections are refused once no further call can carry one. One already
+  acknowledged by then is reported as a recoverable error rather than
+  dropped.
+- `cancel()` resolves at once. It abandons the model call in flight, even
+  one that ignores the abort signal, but an editor call that hangs still
+  waits for the [fifteen-minute ceiling](#one-ceiling-fifteen-minutes).
+- A finished edit, a cap, a cancel, or a missing narration exports the
+  file and then closes the session. A failure only closes it: contract 2
+  ends a failed run with an error event that carries no result, so the
+  best-effort export that [Disposal](#disposal) asks of the error path
+  waits on a contract change. A failure's reason is fixed, because a
+  provider's error message can quote a key.
+- Each step's screenshot is also published as the page's frame. That is
+  one frame per step, so the frame pump FR-10 needs is still owed.
+
 ### Screenshots
 
 Capture at **1440x900** and send with `detail: "original"`. The
@@ -331,6 +368,20 @@ boundary. Completed work survives trivially because the editor holds
 the state, not the model. It satisfies FR-20 — but it is not
 Astra-specific, so if only the fallback ships, steering stops being
 model leverage and we describe it accurately as a feature of the loop.
+
+`runAgent()` implements the fallback. A correction is acknowledged as
+soon as it arrives, and reaches the model with the next call. One that
+arrives during the call that finishes the edit gets one more call if the
+caps allow it, and otherwise leaves the run incomplete. Once no call can
+follow, a correction is refused, and one acknowledged but not yet sent,
+including one a cancel strands, is reported as a recoverable error.
+
+The server runs `runAgent()` when `RUN_MODE=agent`, and `fakeRun()` when
+it is `fake` or unset. Agent mode is not yet wired to a real model or
+editor: it drives the recorded `FakeEditorSession` with a scripted model
+that spends one step on each correction it is sent, so a correction
+visibly changes the narration that follows. A correction refused because the run is
+finishing gets the same HTTP 409 `run_ended` as one sent after it ended.
 
 ## The editor adapter
 
@@ -789,6 +840,20 @@ duration, outcome, and failure reason (NFR-8). That single table answers
 every question worth asking on launch day.
 
 Frames are not logged. Instructions are, truncated; keys never.
+
+`createRunLogger()` in `src/server/run-log.ts` writes that line. The
+launch runtime prints it to standard output as one NDJSON record, and
+stores the same fields, with the cache hit rate added, in the `run_log`
+table, one row per run. A launch-day question is then one SQL statement:
+
+```sql
+SELECT outcome, count(*), avg(steps), avg(cost_usd) FROM run_log GROUP BY outcome;
+```
+
+`cap_hit` is true when either cap ended the run, and `outcome` says
+which. Before the instruction is cut to eighty characters, anything in
+it or in the failure reason shaped like an OpenAI key, `sk-` followed by
+eight or more characters, becomes `[redacted]`.
 
 ## Testing
 
