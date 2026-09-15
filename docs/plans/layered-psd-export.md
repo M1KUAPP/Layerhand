@@ -765,8 +765,8 @@ export class PhotopeaDocumentExporter {
 Test exact failures for no begin marker, duplicate begin markers, no bytes after
 the marker, two byte messages after it, PSD with a wrong signature, and PNG
 with: signature only, non-`IHDR` first chunk, non-13-byte `IHDR`, zero width,
-out-of-bounds chunk length, no `IEND`, and trailing bytes after `IEND`. Test that
-arbitrary text and bytes before one begin marker are ignored.
+out-of-bounds chunk length, no `IEND`, and trailing bytes after `IEND`. Test
+that arbitrary text and bytes before one begin marker are ignored.
 
 Use a test helper that emits a valid 1-by-1 PNG chunk sequence. CRC values need
 not be recomputed because structural validation does not decode pixels, but all
@@ -1134,8 +1134,8 @@ the retained rejection is a `PhotopeaExportError` with code
 
 Set the admission flag before reading the queue tail. Retain one close promise
 that awaits the captured tail, action-runner close, and release in that order.
-Use `try/finally` so release still runs if draining or CDP cleanup rejects, while
-preserving the first failure for every close caller.
+Use `try/finally` so release still runs if draining or CDP cleanup rejects,
+while preserving the first failure for every close caller.
 
 - [ ] **Step 8: Compose the production factory**
 

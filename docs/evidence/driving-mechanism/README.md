@@ -1,17 +1,18 @@
 # Driving mechanism evidence
 
-The harness for spike A0 ([issue #2](https://github.com/M1KUAPP/astra/issues/2)):
-does GPT-6 Astra drive Photopea more reliably through the `computer` tool or
-through code execution? It is a throwaway like the
+The harness for spike A0
+([issue #2](https://github.com/M1KUAPP/astra/issues/2)): does GPT-6 Astra drive
+Photopea more reliably through the `computer` tool or through code execution? It
+is a throwaway like the
 [B1 probe](/docs/evidence/photopea-round-trip/README.md), not the production
 editor adapter.
 
-**Result, September 15, 2026:** both mechanisms completed all three images.
-The `computer` tool was chosen, for the reasons in
+**Result, September 15, 2026:** both mechanisms completed all three images. The
+`computer` tool was chosen, for the reasons in
 [TRD § How the editor is actually driven](/docs/TRD.md#how-the-editor-is-actually-driven).
 The records, code logs, and final frames are in
-[`results/`](/docs/evidence/driving-mechanism/results/records.json), without PSDs. The
-sweep, with its two smoke runs, spent $3.47.
+[`results/`](/docs/evidence/driving-mechanism/results/records.json), without
+PSDs. The sweep, with its two smoke runs, spent $3.47.
 
 Contents:
 
