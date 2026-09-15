@@ -6,7 +6,7 @@ than by a PSD-writing fixture helper.
 
 ## Retained artifact
 
-[`photopea-production-export.psd`](../../../src/editor/fixtures/photopea-production-export.psd)
+[`photopea-production-export.psd`](/src/editor/fixtures/photopea-production-export.psd)
 is the canonical artifact. It is 9,071,593 bytes and has this SHA-256 digest:
 
 ```text
@@ -21,7 +21,7 @@ Original photograph (raster, visible)
 ```
 
 The default test at
-[`test/editor/photopea-production-export.test.ts`](../../../test/editor/photopea-production-export.test.ts)
+[`test/editor/photopea-production-export.test.ts`](/test/editor/photopea-production-export.test.ts)
 parses this exact file, asserts that tree, applies `assertLayerNames()`, and
 applies `assertCompleteLayerTree()`.
 
@@ -29,7 +29,7 @@ applies `assertCompleteLayerTree()`.
 
 The artifact was retained on September 15, 2026 with Google Chrome
 153.0.8010.36. Its source was
-[`sample-photo.png`](../../../src/web/assets/sample-photo.png), whose SHA-256
+[`sample-photo.png`](/src/web/assets/sample-photo.png), whose SHA-256
 digest is:
 
 ```text
