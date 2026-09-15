@@ -1094,13 +1094,17 @@ CRCs, and full pixel decoding remain outside the validation boundary.
 Issue #50 export result (2026-09-15, Google Chrome 153.0.8010.37): the
 opt-in installed-Chrome export test opened the 1536x1024 sample photograph
 in public Photopea and exported it through the bridge. The 9,071,117-byte
-PSD took 325 ms and the 1,607,543-byte PNG preview 838 ms. The same exports
-took 16,481 ms and 3,779 ms while the host still passed files out as arrays
-of numbers, and the spike A0 harness had measured 62 seconds for that PSD
-in headless Chromium, twice the bridge's 30-second default. Exported files
-now cross the page boundary as base64, which the transport encodes inside
-the page. SHA-256 digests taken in the page as each file arrived match the
-bytes the bridge returned.
+PSD took 307 ms and the 1,607,543-byte PNG preview 749 ms, each one run
+from `runScript()` to its sentinel, including Photopea building the file.
+A snapshot through `PhotopeaDocumentExporter`, as the production session
+exports, took 1,081 ms from calling `exportSnapshot()` to its return: both
+exports again, plus parsing and checking the PSD. While the host still
+passed files out as arrays of numbers, the same PSD and preview took
+16,481 ms and 3,779 ms, and the spike A0 harness had measured 62 seconds
+for that PSD in headless Chromium, twice the bridge's 30-second default.
+Exported files now cross the page boundary as base64, which the transport
+encodes inside the page. The test checks SHA-256 digests taken in the page
+as each of its four files arrived against the bytes returned.
 
 B0 no longer gates anything. It was written when the licence question
 was open; it is
