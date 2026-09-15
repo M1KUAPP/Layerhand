@@ -114,6 +114,25 @@ describe('browser API validation', () => {
     ).toThrow(RunApiError)
   })
 
+  test('warms an editor for a chosen image, and reports a server with none to warm', async () => {
+    const calls: string[] = []
+    const responses = [
+      Response.json({ uploadId: 'upload-1', warming: true }, { status: 201 }),
+      Response.json({ uploadId: null, warming: false }, { status: 201 })
+    ]
+    const api = new RunApi(async (input) => {
+      calls.push(String(input))
+      return responses.shift()!
+    })
+    const form = new FormData()
+    form.set('filename', 'photo.png')
+
+    await expect(api.warmUpload(form)).resolves.toEqual({ uploadId: 'upload-1' })
+    await expect(api.warmUpload(form)).resolves.toEqual({ uploadId: null })
+
+    expect(calls).toEqual(['/api/uploads', '/api/uploads'])
+  })
+
   test('starts, restores, steers, cancels, and joins through stable routes', async () => {
     const calls: { url: string; init?: RequestInit }[] = []
     const responses = [

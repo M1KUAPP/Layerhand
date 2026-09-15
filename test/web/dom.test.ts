@@ -46,6 +46,18 @@ describe('Layerhand workbench markup', () => {
     expect(app).not.toMatch(/[—–]/)
   })
 
+  test('warms the editor as soon as a photograph is chosen, and starts the run on it', async () => {
+    const app = await appFile.text()
+
+    // The warm upload goes as soon as the file passes the checks, not on submit.
+    expect(app).toContain('warmEditor(file)')
+    expect(app).toContain('.warmUpload(body)')
+    expect(app.indexOf('warmEditor(file)')).toBeLessThan(app.indexOf("body.set('instruction'"))
+    expect(app).toContain("body.set('uploadId', warmUploadId)")
+    // The live view says what is happening until the first frame arrives.
+    expect(app).toContain('Preparing the editor...')
+  })
+
   test('uses the approved visual tokens, hard geometry, and restrained motion', async () => {
     const css = await cssFile.text()
 

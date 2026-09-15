@@ -153,15 +153,36 @@ function validateFile(file: File): string | undefined {
   return undefined
 }
 
+// The editor is warmed as soon as a file passes the checks here, so the run
+// starts with the image already open (#70). Warming that fails is silent: the
+// run starts cold, as it always did.
+let warmUploadId: string | undefined
+
+function warmEditor(file: File): void {
+  warmUploadId = undefined
+  const body = new FormData()
+  body.set('image', file, file.name)
+  body.set('filename', file.name)
+  void api
+    .warmUpload(body)
+    .then(({ uploadId }) => {
+      // A file chosen since this upload started owns the warm session now.
+      if (selectedFile === file) warmUploadId = uploadId ?? undefined
+    })
+    .catch(() => undefined)
+}
+
 function chooseFile(file: File): void {
   fileError = validateFile(file)
   if (fileError) {
     selectedFile = undefined
+    warmUploadId = undefined
     releaseSelectedPreview()
   } else {
     selectedFile = file
     releaseSelectedPreview()
     selectedPreviewUrl = URL.createObjectURL(file)
+    warmEditor(file)
   }
   render()
 }
@@ -330,10 +351,13 @@ function renderInput(): DocumentFragment {
       body.set('filename', selectedFile.name)
       body.set('instruction', instruction.value.trim())
       if (keyInput.value) body.set('apiKey', keyInput.value)
+      // The editor warmed while the instruction was typed, if it is still ours.
+      if (warmUploadId) body.set('uploadId', warmUploadId)
       const started = await api.start(body)
       keyInput.value = ''
       draftInstruction = ''
       draftApiKey = ''
+      warmUploadId = undefined
       selectedFile = undefined
       releaseSelectedPreview()
       sessionStorage.setItem(RUN_STORAGE_KEY, started.runId)
@@ -401,7 +425,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     image.alt = 'Current editor frame'
     frame.append(image)
   } else {
-    frame.append(node('p', 'frame-placeholder', 'Opening the editor...'))
+    frame.append(node('p', 'frame-placeholder', 'Preparing the editor...'))
   }
   layout.append(frame, progressRail(current.progress))
 
