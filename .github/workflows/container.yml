@@ -1,0 +1,19 @@
+# Builds the production image and checks that it starts, runs as a non-root
+# user, and answers /health. The first deployment is the one most likely to
+# fail, so the image is proven on every pull request rather than on day 5.
+name: Container
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Container smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash test/server/container-smoke.sh
