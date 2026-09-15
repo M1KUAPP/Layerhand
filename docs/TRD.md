@@ -229,7 +229,7 @@ layer and a warming adjustment layer named in plain words, and a vignette
 layer. No run had a silent step, a model error, or a disqualification. Two
 of the three images show the same scene. The records, code logs, and final
 frames are in the
-[A0 results](evidence/driving-mechanism/results/2026-09-15/records.json).
+[A0 results](evidence/driving-mechanism/results/records.json).
 To repeat the measurement:
 
 ```sh
