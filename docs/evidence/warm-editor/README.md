@@ -22,7 +22,9 @@ and times the first `frame` event from the moment the run request was sent.
 It then repeats the whole thing without an upload, as a second visitor with
 no warm session. Each run is cancelled as soon as its first frame arrives,
 so the measurement costs a model call or two rather than a whole retouch.
-Output is `results/<timestamp>/summary.json`.
+Output is `output/<timestamp>/summary.json`, which Git ignores. The recorded
+pair is in
+[`results/summary.json`](/docs/evidence/warm-editor/results/summary.json).
 
 ## Result
 

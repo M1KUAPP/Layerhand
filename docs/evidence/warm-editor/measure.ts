@@ -113,7 +113,7 @@ async function timeFirstFrame(uploadId: string | null, cookie: string | undefine
   return measurement
 }
 
-const output = resolve(import.meta.dir, 'results', new Date().toISOString().replaceAll(':', '-'))
+const output = resolve(import.meta.dir, 'output', new Date().toISOString().replaceAll(':', '-'))
 await mkdir(output, { recursive: true })
 
 console.error('Warming the editor, then waiting as a user would while typing...')
