@@ -588,4 +588,31 @@ describe('runAgent', () => {
     expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
     expect(JSON.stringify(events)).not.toContain('sk-proj-a1b2c3')
   })
+
+  test('stops a run whose step comes without narration, keeping the file made so far', async () => {
+    const run = await fixture([step('Selecting the product'), step('   ')])
+    const events = await collect(runAgent(request, run))
+    expect(ofType(events, 'step').map((event) => event.narration)).toEqual(['Selecting the product'])
+    expect(run.session.actionBatches).toEqual([[CLICK]])
+    expect(ofType(events, 'error')).toMatchObject([
+      { type: 'error', recoverable: true, reason: expect.stringContaining('without describing') }
+    ])
+    const result = resultOf(events)
+    expect(result.complete).toBe(false)
+    expect(psdLayerCount(run.published.get(result.psdUrl))).toBe(2)
+  })
+
+  test('cuts a long narration to eighty characters', async () => {
+    const long = 'Painting out the reflections on the left side of the bottle, then softening the edge of the mask'
+    const run = await fixture([step(long)])
+    const [narrated] = ofType(await collect(runAgent(request, run)), 'step')
+    expect(narrated?.narration).toBe('Painting out the reflections on the left side of the bottle, then softening the…')
+  })
+
+  test('cuts narration between whole characters, never through an emoji', async () => {
+    const artist = '\u{1F469}\u200D\u{1F3A8}' // Woman artist: three code points, one character.
+    const run = await fixture([step('a'.repeat(78) + artist + 'b'.repeat(10))])
+    const [narrated] = ofType(await collect(runAgent(request, run)), 'step')
+    expect(narrated?.narration).toBe('a'.repeat(78) + artist + '…')
+  })
 })
