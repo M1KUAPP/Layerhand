@@ -417,17 +417,17 @@ follow, a correction is refused, and one acknowledged but not yet sent,
 including one a cancel strands, is reported as a recoverable error.
 
 The server runs `fakeRun()` when `RUN_MODE` is `fake` or unset. When it is
-`agent`, the server runs the real agent: `ResponsesModel` on the `computer`
-tool drives Photopea in a Browserbase browser created when the run opens
-its image. That browser loads the host page from `PUBLIC_URL`, so agent
-mode needs that address and `BROWSERBASE_API_KEY`. The model reads the key
-from the run at every call, so releasing the run's secrets leaves no copy,
-and closing the editor, which the loop does on every ending, releases the
-browser. When it is `scripted`, the server runs `runAgent()` against the
-recorded `FakeEditorSession` with a scripted model. That model spends one step on
-each correction it is sent, so a correction visibly changes the narration
-that follows. A correction refused because the run is finishing gets the
-same HTTP 409 `run_ended` as one sent after it ended.
+`agent`, the server runs the real agent: `ResponsesModel` on the `computer` tool
+drives Photopea in a Browserbase browser created when the run opens its image.
+That browser loads the host page from `PUBLIC_URL`, so agent mode needs that
+address and `BROWSERBASE_API_KEY`. The model reads the key from the run at every
+call, so releasing the run's secrets leaves no copy, and closing the editor,
+which the loop does on every ending, releases the browser. When it is
+`scripted`, the server runs `runAgent()` against the recorded
+`FakeEditorSession` with a scripted model. That model spends one step on each
+correction it is sent, so a correction visibly changes the narration that
+follows. A correction refused because the run is finishing gets the same HTTP
+409 `run_ended` as one sent after it ended.
 
 ## The editor adapter
 
@@ -1192,23 +1192,23 @@ on day 0, and nobody should reach for the kill switch over them.
 A0 and A4 are the two that can still change the plan, which is why both
 are day-0 despite being short.
 
-**B1 result, September 15:** passed. The retained run reports a 13,442-byte
-JPEG sent through `postMessage` and preserves the exact input plus its
-1,412,711-byte PSD with two named layers, `Original photograph` and
-`Retouched copy`. The `8BPS` signature, 640x480 dimensions, and both layer
-names were verified with `ag-psd` 30.2.0. The captured sequence is the
-deliberately misleading `"done"`, the PSD bytes, the unique sentinel, and the
-real completion `"done"`; the host logic and tests show why only the exact
-sentinel completes the wait. Adobe Photoshop 2026 version 27.10.0 opened the
-same PSD without a warning dialog and displayed both named layers. The
-[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md) retains the exact
-input, scripts, outputs, hashes, trap results, timing definitions, and the
+**B1 result, September 15:** passed. The retained run reports a 13,442-byte JPEG
+sent through `postMessage` and preserves the exact input plus its 1,412,711-byte
+PSD with two named layers, `Original photograph` and `Retouched copy`. The
+`8BPS` signature, 640x480 dimensions, and both layer names were verified with
+`ag-psd` 30.2.0. The captured sequence is the deliberately misleading `"done"`,
+the PSD bytes, the unique sentinel, and the real completion `"done"`; the host
+logic and tests show why only the exact sentinel completes the wait. Adobe
+Photoshop 2026 version 27.10.0 opened the same PSD without a warning dialog and
+displayed both named layers. The
+[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md) retains the
+exact input, scripts, outputs, hashes, trap results, timing definitions, and the
 structured Photoshop observation.
 
 ## See also
 
 - [Product brief](PRODUCT.md) — why this, and when we stop.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
-- [Architecture decisions](/docs/decisions/README.md) — why durable boundaries were
-  chosen.
+- [Architecture decisions](/docs/decisions/README.md) — why durable boundaries
+  were chosen.
 - [Git workflow](/docs/references/git-workflow.md) — how changes land.

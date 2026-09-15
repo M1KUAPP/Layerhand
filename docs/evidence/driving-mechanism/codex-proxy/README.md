@@ -70,8 +70,9 @@ Output goes to `output/<timestamp>-<image>/`: `summary.json`, `code.ndjson`,
 
 Run on September 15, 2026, with Codex CLI 0.154.0 on `gpt-6-astra` at low
 reasoning effort, one image at a time. All three runs completed. Each run's
-`summary.json`, `code.ndjson`, final message, and last editor screenshot are
-in [`results/`](/docs/evidence/driving-mechanism/codex-proxy/results/). The identical prompt is in
+`summary.json`, `code.ndjson`, final message, and last editor screenshot are in
+[`results/`](/docs/evidence/driving-mechanism/codex-proxy/results/). The
+identical prompt is in
 [`results/prompt.txt`](/docs/evidence/driving-mechanism/codex-proxy/results/prompt.txt).
 
 | Image                               | Minutes | `/run` calls | Layers exported | Credits at list rates | Completed |

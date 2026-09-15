@@ -21,16 +21,19 @@ Contents:
   sentinel. [`protocol.test.ts`](protocol.test.ts) covers the valid ordering and
   rejects an absent or wrong sentinel and bytes arriving only after it.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
-  values are in [`output/trap-results.json`](/docs/evidence/photopea-round-trip/output/trap-results.json).
-- [`output/result.json`](/docs/evidence/photopea-round-trip/output/result.json) is the retained round-trip output.
-  [`output/input.jpg`](/docs/evidence/photopea-round-trip/output/input.jpg) is the exact JPEG used by that run.
-  [`output/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/output/photopea-round-trip.psd) is the PSD
-  selected from that message stream.
+  values are in
+  [`output/trap-results.json`](/docs/evidence/photopea-round-trip/output/trap-results.json).
+- [`output/result.json`](/docs/evidence/photopea-round-trip/output/result.json)
+  is the retained round-trip output.
+  [`output/input.jpg`](/docs/evidence/photopea-round-trip/output/input.jpg) is
+  the exact JPEG used by that run.
+  [`output/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/output/photopea-round-trip.psd)
+  is the PSD selected from that message stream.
 - [`output/photoshop-verification.json`](/docs/evidence/photopea-round-trip/output/photoshop-verification.json)
   records the manual compatibility observation against the PSD digest.
-- [`output/photopea-final.png`](/docs/evidence/photopea-round-trip/output/photopea-final.png) is the final Photopea
-  frame. It shows the opened photograph, but not the Layers panel and therefore
-  is not used as layer-structure evidence.
+- [`output/photopea-final.png`](/docs/evidence/photopea-round-trip/output/photopea-final.png)
+  is the final Photopea frame. It shows the opened photograph, but not the
+  Layers panel and therefore is not used as layer-structure evidence.
 - [`bun.lock`](bun.lock) resolves `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp
   0.35.4.
 
@@ -109,9 +112,10 @@ f42a44b9f1b76b4275b2757e76539ec2088f5001bc60e5c61ce1ae78f040a7e8  output/photosh
 
 ## Photoshop verification
 
-Adobe Photoshop 2026 version 27.10.0 opened the retained PSD on September 15, 2026. No warning dialog appeared between choosing Open and the rendered
-document window. Photoshop reported a 640 by 480 RGB/8 document, and its
-visible Layers panel showed `Retouched copy` above `Original photograph`.
+Adobe Photoshop 2026 version 27.10.0 opened the retained PSD on September
+15, 2026. No warning dialog appeared between choosing Open and the rendered
+document window. Photoshop reported a 640 by 480 RGB/8 document, and its visible
+Layers panel showed `Retouched copy` above `Original photograph`.
 
 The check used the exact PSD whose SHA-256 is listed above. Computer control
 closed the document without a save prompt after the observation. The
