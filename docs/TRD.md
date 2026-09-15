@@ -802,7 +802,34 @@ The two limits protect against different things:
   so the concurrency is still there for anyone paying their own way.
 
 Setting the number is a day-4 decision with an owner, informed by the
-measured cost per run from spike A2 rather than by this estimate.
+measured cost per run from spike A2 rather than by this estimate. The
+arithmetic below is what that owner redoes.
+
+Each free run reserves NFR-2's $8 spend cap when it is admitted, and gives
+back the difference when it ends. A run is admitted only while the day's
+spend, plus what is still reserved, plus its own $8, stays within the
+ceiling. So wave _k_ of twenty concurrent free runs fits only when:
+
+```text
+ceiling ≥ (k − 1) × spend per wave + 20 × $8 reservation
+```
+
+Spend per wave is twenty times the cost per run that A2 measures.
+
+| Ceiling | At $3.50 a run, caching working | At $14.50 a run, caching broken   |
+| ------- | ------------------------------- | --------------------------------- |
+| $150    | 18 concurrent free runs, not 20 | 18 concurrent free runs, not 20   |
+| $230    | Two full waves: $70 + $160      | One wave, then 8 runs of a second |
+
+With caching broken, the $8 spend cap stops each run at $8, so a wave
+spends at most $160, and $230 leaves $70: eight more runs.
+
+**Proposed: $230 a day**, for kymil04 to confirm on day 4 from A2's
+measurement. It is not yet agreed. The reservation stays at $8, because
+reserving less would undercount a run heading for its spend cap.
+`test/server/limits.test.ts` pins the first column: at $150 the nineteenth
+concurrent free run is refused, and at $230 a full wave of twenty is
+admitted.
 
 ### The concurrency ceiling is a rate limit, not a server
 
