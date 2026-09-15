@@ -96,14 +96,14 @@ the corpus is malformed.
 
 `src/reliability/suite.ts` owns the sequential orchestration. For each case it:
 
-1. reads the image;
-2. creates one run with the configured step and spend caps;
-3. collects the terminal event and final cumulative cost event;
-4. writes the PSD and preview beneath the run's output directory;
-5. parses the PSD and applies the production layer-tree policy;
-6. records one success or one stable failure reason; and
-7. continues to the next case unless the process receives a termination
-   signal.
+1.  reads the image;
+2.  creates one run with the configured step and spend caps;
+3.  collects the terminal event and final cumulative cost event;
+4.  writes the PSD and preview beneath the run's output directory;
+5.  parses the PSD and applies the production layer-tree policy;
+6.  records one success or one stable failure reason; and
+7.  continues to the next case unless the process receives a termination
+    signal.
 
 One case passes only when the run ends with `complete`, the PSD parses, and the
 parsed layer tree satisfies `assertCompleteLayerTree()`. A failure to start,
