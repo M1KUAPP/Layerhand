@@ -19,7 +19,7 @@ afterEach(async () => {
 
 async function agentRuntime(): Promise<LaunchRuntime> {
   const runtime = await createLaunchRuntime({
-    env: { NODE_ENV: 'development', RUN_MODE: 'agent' },
+    env: { NODE_ENV: 'development', RUN_MODE: 'scripted' },
     clientAddress: () => '203.0.113.30',
     fakeRunIntervalMs: MODEL_DELAY_MS,
     writeRunLog: () => undefined
@@ -145,7 +145,7 @@ describe('steering the agent loop through the HTTP surface', () => {
   test('refuses an unknown run mode', async () => {
     await expect(
       createLaunchRuntime({ env: { NODE_ENV: 'development', RUN_MODE: 'real' }, clientAddress: () => '203.0.113.30' })
-    ).rejects.toThrow('RUN_MODE must be agent or fake')
+    ).rejects.toThrow('RUN_MODE must be scripted or fake')
   })
 })
 
