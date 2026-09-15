@@ -63,12 +63,23 @@ export interface RunLoggerOptions {
   store?: RunLogStore
 }
 
-/** A terminal hook for RunRegistry: writes the line, then stores it. */
+/**
+ * A terminal hook for RunRegistry: writes the line, then stores it. One sink
+ * failing does not stop the other, and the hook still rejects afterwards.
+ */
 export function createRunLogger({ write, store }: RunLoggerOptions): (run: TerminalRun) => Promise<void> {
   return async (run) => {
     const line = runLogLine(run)
-    write(`${JSON.stringify(line)}\n`)
+    let written = true
+    let writeError: unknown
+    try {
+      write(`${JSON.stringify(line)}\n`)
+    } catch (error) {
+      written = false
+      writeError = error
+    }
     await store?.append(line)
+    if (!written) throw writeError
   }
 }
 
