@@ -1,4 +1,5 @@
 import samplePhotoUrl from './assets/sample-photo.png'
+import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
 import { formatCredits, initialClientState, reduceClientState, type ClientAction, type ClientState } from './state'
 
@@ -494,13 +495,7 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   const layers = node('section')
   layers.className = 'layer-list'
   const layersTitle = node('h2', undefined, 'Layers in the PSD')
-  const list = node('ol')
-  for (const layer of current.result.layers) {
-    const item = node('li')
-    item.append(node('strong', undefined, layer.name), node('span', undefined, layer.kind))
-    list.append(item)
-  }
-  layers.append(layersTitle, list)
+  layers.append(layersTitle, renderLayerTree(current.result.layers))
 
   const download = node('a', 'button button-accent', 'Download layered PSD')
   download.href = current.result.psdUrl
@@ -509,6 +504,24 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   section.append(image, copy, layers)
   fragment.append(section)
   return fragment
+}
+
+function renderLayerTree(layers: readonly LayerInfo[]): HTMLOListElement {
+  const list = node('ol')
+  for (const layer of layers) list.append(renderLayer(layer))
+  return list
+}
+
+function renderLayer(layer: LayerInfo): HTMLLIElement {
+  const item = node('li', 'layer-row')
+  const summary = node('div', 'layer-summary')
+  summary.append(node('strong', undefined, layer.name), node('span', undefined, layer.kind))
+  for (const mask of layer.masks) {
+    summary.append(node('span', 'layer-mask', `${mask.enabled ? '' : 'disabled '}${mask.kind} mask`))
+  }
+  item.append(summary)
+  if (layer.children.length > 0) item.append(renderLayerTree(layer.children))
+  return item
 }
 
 function renderError(current: Extract<ClientState, { view: 'error' }>): DocumentFragment {

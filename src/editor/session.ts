@@ -36,8 +36,19 @@ export interface Viewport {
   height: number
 }
 
+export type LayerKind = 'raster' | 'adjustment' | 'group'
+
+export type LayerMaskKind = 'pixel' | 'vector'
+
+export interface LayerMaskInfo {
+  readonly kind: LayerMaskKind
+  readonly enabled: boolean
+}
+
 export interface LayerInfo {
-  name: string
-  kind: 'raster' | 'mask' | 'adjustment' | 'group'
-  visible: boolean
+  readonly name: string
+  readonly kind: LayerKind
+  readonly visible: boolean
+  readonly masks: readonly LayerMaskInfo[]
+  readonly children: readonly LayerInfo[]
 }

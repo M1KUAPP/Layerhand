@@ -29,6 +29,11 @@ describe('fakeRun', () => {
     expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
   })
 
+  test('can return a partial result before the script adds an editable layer', async () => {
+    const events = await collect(fakeRun({ ...request, stepCap: 1 }, { intervalMs: 0 }))
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false } })
+  })
+
   test('returns the layers made before the cap stopped it', async () => {
     const all = layersOf(await collect(fakeRun(request, { intervalMs: 0 })))
     const some = layersOf(await collect(fakeRun({ ...request, stepCap: 2 }, { intervalMs: 0 })))

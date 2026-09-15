@@ -9,6 +9,13 @@ export {
   type ValidatedImageUpload
 } from './image-upload'
 export { createPhotopeaHostHtml } from './photopea-host'
+export { photopeaScriptString } from './photopea-script'
+export { selectPngExport, selectPsdExport } from './export-binary'
+export {
+  PhotopeaDocumentExporter,
+  type PhotopeaDocumentExporterOptions,
+  type PhotopeaExportSnapshot
+} from './photopea-document-exporter'
 export {
   PhotopeaDocumentError,
   PhotopeaDocumentLoader,
@@ -33,4 +40,45 @@ export {
   decodePhotopeaWireMessage,
   type PlaywrightPhotopeaTransportOptions
 } from './playwright-photopea-transport'
-export type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from './session'
+export { cloneLayerInfo, cloneLayerTree } from './layer-tree'
+export {
+  assertLayerNames,
+  buildLayerRenamePlan,
+  normalizeLayerName,
+  type LayerPath,
+  type LayerRename
+} from './layer-names'
+export { assertCompleteLayerTree, LayerCompletionError, type LayerCompletionErrorCode } from './layer-tree-policy'
+export { PhotopeaExportError, type PhotopeaExportErrorCode } from './photopea-export-error'
+export {
+  PhotopeaActionRunner,
+  type AuxiliaryButton,
+  type AuxiliaryMouse,
+  type PhotopeaActionPage,
+  type PhotopeaActionRunnerOptions
+} from './photopea-action-runner'
+export { createPlaywrightAuxiliaryMouse } from './playwright-auxiliary-mouse'
+export {
+  PhotopeaEditorSession,
+  createPhotopeaEditorSession,
+  type PhotopeaEditorSessionDependencies,
+  type CreatePhotopeaEditorSessionOptions
+} from './photopea-editor-session'
+export {
+  parsePsdMetadata,
+  toLayerInfoTree,
+  type AdjustmentType,
+  type ParsedLayerInfo,
+  type ParsedPsdMetadata
+} from './psd-metadata'
+export type {
+  Button,
+  ComputerAction,
+  EditorSession,
+  LayerInfo,
+  LayerKind,
+  LayerMaskInfo,
+  LayerMaskKind,
+  Pt,
+  Viewport
+} from './session'
