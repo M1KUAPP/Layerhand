@@ -245,10 +245,14 @@ database.
 **The `computer` tool is the fallback.** Switching is one option in
 `ResponsesModel`: the model returns `actions[]`, the loop carries them out
 through `EditorSession.act`, and the reply is a screenshot. It needs no
-code sandbox, and nothing it does can reach the scripting interface, but
-OpenAI documents it for the previous generation rather than for Astra. We
-switch if the measurement shows code execution completing fewer runs, or
-if its sandbox cannot be built in time.
+code sandbox and has no code path to the scripting interface, but OpenAI
+documents it for the previous generation rather than for Astra. It could
+still open Photopea's own script dialog through the menus, so that dialog
+falls under the same prompt prohibition and disqualification rule as
+scripting from code. Neither covers it yet: today the prohibition is only
+in the code-execution prompt, and the harness checks only `run_code` code.
+We switch if the measurement shows code execution completing fewer runs,
+or if its sandbox cannot be built in time.
 
 Contract 1 is expressed in the `computer` tool's action vocabulary
 either way, because it is a perfectly good description of "what you can
