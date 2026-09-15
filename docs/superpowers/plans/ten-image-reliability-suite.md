@@ -35,7 +35,7 @@ GitHub Actions.
 
 ---
 
-### Task 1: Add and validate the representative corpus
+## Task 1: Add and validate the representative corpus
 
 **Files:**
 
@@ -235,7 +235,7 @@ GitHub Actions.
 
 ---
 
-### Task 2: Run cases sequentially and validate their PSDs
+## Task 2: Run cases sequentially and validate their PSDs
 
 **Files:**
 
@@ -392,7 +392,7 @@ GitHub Actions.
 
 ---
 
-### Task 3: Persist and format inspectable reports
+## Task 3: Persist and format inspectable reports
 
 **Files:**
 
@@ -471,7 +471,7 @@ GitHub Actions.
 
 ---
 
-### Task 4: Add the paid production command
+## Task 4: Add the paid production command
 
 **Files:**
 
@@ -592,7 +592,7 @@ GitHub Actions.
 
 ---
 
-### Task 5: Publish the guarded nightly result
+## Task 5: Publish the guarded nightly result
 
 **Files:**
 
@@ -698,7 +698,7 @@ GitHub Actions.
 
 ---
 
-### Task 6: Run final verification and prepare review
+## Task 6: Run final verification and prepare review
 
 **Files:**
 
