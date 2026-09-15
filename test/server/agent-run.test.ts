@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from 'bun:test'
-import type { Page } from 'playwright-core'
+import type { BrowserContext, Page } from 'playwright-core'
 
 import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { ScriptedModel } from '../../src/agent/scripted-model'
@@ -268,8 +268,12 @@ describe('live agent run', () => {
         }
       },
       async connect() {
+        const context = {
+          async route() {},
+          async routeWebSocket() {}
+        } as unknown as BrowserContext
         return {
-          page: {} as Page,
+          page: { context: () => context } as Page,
           async close() {
             browser.closed += 1
           }
