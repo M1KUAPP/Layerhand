@@ -60,7 +60,13 @@ function isValidRelativeImagePath(imagePath: unknown): imagePath is string {
   if (typeof imagePath !== 'string' || !imagePath.trim()) {
     return false
   }
-  if (isAbsolute(imagePath) || imagePath.startsWith('/') || imagePath.startsWith('\\')) {
+  if (
+    isAbsolute(imagePath) ||
+    imagePath.startsWith('/') ||
+    imagePath.startsWith('\\') ||
+    /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(imagePath) ||
+    URL.canParse(imagePath)
+  ) {
     return false
   }
   const segments = imagePath.split(/[/\\]/)
