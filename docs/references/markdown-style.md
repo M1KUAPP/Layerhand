@@ -149,8 +149,6 @@ Content.
 1.  `## See also`: Put miscellaneous links at the bottom for the user who wants
     to know more or didn't find what they needed.
 
-[TOC-docs]: https://gerrit.googlesource.com/gitiles/+/HEAD/Documentation/markdown.md#Table-of-contents
-
 ## Table of contents
 
 ### Use a `[TOC]` directive
@@ -854,3 +852,5 @@ tools, which may either present the source as plain text or render it. See
 [Philosophy](https://github.com/google/styleguide/blob/gh-pages/docguide/philosophy.md).
 
 Gitiles does not render HTML.
+
+[TOC-docs]: https://gerrit.googlesource.com/gitiles/+/HEAD/Documentation/markdown.md#Table-of-contents
