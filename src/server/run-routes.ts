@@ -22,7 +22,7 @@ export interface RunRouteDependencies {
   clientAddress(request: Request): string
   now(): Date
   idGenerator(): string
-  runFactory(request: RunRequest): ManagedRun
+  runFactory(request: RunRequest): ManagedRun | Promise<ManagedRun>
   stepCap?: number
 }
 
@@ -142,7 +142,7 @@ export class RunRoutes {
         budgetUsd: this.#dependencies.freeRunReservationMicroUsd / 1_000_000,
         apiKey
       }
-      managedRun = this.#dependencies.runFactory(runRequest)
+      managedRun = await this.#dependencies.runFactory(runRequest)
       const runId = this.#dependencies.idGenerator()
       this.#dependencies.registry.register({
         runId,
