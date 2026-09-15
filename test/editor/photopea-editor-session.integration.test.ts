@@ -18,8 +18,7 @@ import { maskedSubjectPsd } from './support/psd-fixtures'
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip
 const viewport = { width: 1440, height: 900 }
-// Center of the visible mask thumbnail with the fixed 1440-by-900 host.
-const MASK_THUMBNAIL = { x: 1268, y: 324 }
+const MASK_THUMBNAIL_Y = 324
 const INVERT_MASK_KEYS = process.platform === 'darwin' ? ['COMMAND', 'I'] : ['CTRL', 'I']
 
 async function decodePreview(bytes: Uint8Array) {
@@ -27,6 +26,26 @@ async function decodePreview(bytes: Uint8Array) {
   const decoded = await sharp(bytes).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
   expect(decoded.info).toMatchObject({ width: 64, height: 64, channels: 4 })
   return decoded.data
+}
+
+async function locateMaskThumbnail(screenshot: Uint8Array) {
+  const { data, info } = await sharp(screenshot).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  const isDark = (x: number) => {
+    const offset = (MASK_THUMBNAIL_Y * info.width + x) * 4
+    return data[offset]! < 24 && data[offset + 1]! < 24 && data[offset + 2]! < 24 && data[offset + 3] === 255
+  }
+  let start: number | undefined
+  for (let x = 900; x < info.width; x += 1) {
+    if (isDark(x)) start ??= x
+    if ((!isDark(x) || x === info.width - 1) && start !== undefined) {
+      const end = isDark(x) ? x : x - 1
+      const width = end - start + 1
+      // The mask is the only solid dark thumbnail-width run on this row.
+      if (width >= 16 && width <= 32) return { x: Math.round((start + end) / 2), y: MASK_THUMBNAIL_Y }
+      start = undefined
+    }
+  }
+  throw new Error('Could not locate the visible pixel-mask thumbnail.')
 }
 
 describeLive('Photopea editor session in Google Chrome', () => {
@@ -105,8 +124,9 @@ describeLive('Photopea editor session in Google Chrome', () => {
       expect(reopened.layers).toEqual(layers)
       expect(await decodePreview(reopened.preview)).toEqual(before)
 
+      const maskThumbnail = await locateMaskThumbnail(await page.screenshot({ fullPage: false, type: 'png' }))
       await session.act([
-        { type: 'click', button: 'left', ...MASK_THUMBNAIL },
+        { type: 'click', button: 'left', ...maskThumbnail },
         { type: 'wait' },
         { type: 'keypress', keys: INVERT_MASK_KEYS },
         { type: 'wait' }
@@ -125,7 +145,7 @@ describeLive('Photopea editor session in Google Chrome', () => {
         JSON.stringify({
           event: 'photopea_masked_export',
           chrome: browser.version(),
-          maskThumbnail: MASK_THUMBNAIL,
+          maskThumbnail,
           invertKeys: INVERT_MASK_KEYS,
           psdBytes: psd.byteLength,
           previewBytes: preview.byteLength,
