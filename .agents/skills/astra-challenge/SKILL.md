@@ -5,8 +5,6 @@ description: Use when generating, evaluating, or narrowing project ideas for the
 
 # Astra Challenge ideation
 
-## Overview
-
 The GPT-6 Astra Challenge is a **launch** contest, not a hackathon. You win by shipping a real product on Product Hunt that is impossible — or obviously worse — on any other model.
 
 **Core principle:** Generate from a capability only Astra has, then find a domain for it. Never start from a product category and bolt an LLM onto it. Category-first thinking produces wrappers, and wrappers lose on the first judging criterion.

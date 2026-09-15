@@ -1,5 +1,9 @@
 # ADR-0002: Upload images through an injected Photopea transport
 
+This record explains how an upload reaches Photopea: validated from its
+bytes before any browser starts, posted through an injected Playwright page,
+and matched to its reply by a unique sentinel.
+
 ## Status
 
 Accepted on September 14, 2026.
