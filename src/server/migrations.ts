@@ -23,4 +23,20 @@ export async function applyMigrations(database: SQL): Promise<void> {
       created_at TEXT NOT NULL
     )
   `
+  await database`
+    CREATE TABLE IF NOT EXISTS run_log (
+      run_id TEXT PRIMARY KEY,
+      completed_at TEXT NOT NULL,
+      steps INTEGER NOT NULL,
+      cap_hit BOOLEAN NOT NULL,
+      tokens_in BIGINT NOT NULL,
+      tokens_out BIGINT NOT NULL,
+      cost_usd DOUBLE PRECISION NOT NULL,
+      cache_hit_rate DOUBLE PRECISION,
+      duration_ms BIGINT NOT NULL,
+      outcome TEXT NOT NULL,
+      failure_reason TEXT,
+      instruction TEXT NOT NULL
+    )
+  `
 }
