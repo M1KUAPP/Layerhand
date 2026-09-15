@@ -363,9 +363,27 @@ Each is assigned and answered before it can block work.
     server-side editing API?~~ **Answered: Adobe's, and it is GA.** Both
     are written up in [competition](#competition), and together they are
     why risk 1 exists.
-1.  What are the official contest rules? They sit behind a login wall
-    and we have not read them. Specifically: is a public repository or
-    an open-source licence required, and is a demo video required?
+1.  What are the official contest rules? **The deadline is answered; the
+    rest needs a person.** The contest runs on Friday, September 18 PT
+    alone. Submissions close at 12:00am PT that day, 07:00 UTC, and a
+    launch enters only if it is scheduled for the 18th and joined to the
+    challenge, which is a separate choice when scheduling. Every source
+    for that is quoted in
+    [the schedule change](https://github.com/M1KUAPP/astra/pull/69).
+
+    The rules themselves are not published. They were looked for twice on
+    September 15 in a logged-in browser: the contest page gives the prize,
+    the date and a countdown, and links no terms but Product Hunt's
+    site-wide ones. What is left sits behind the submission form, which is
+    part of the submission flow, so a person opens it rather than an
+    agent. Seven questions wait on that: whether a public repository is
+    required; whether an open-source licence is; whether a demo video is,
+    and how long it may run; any team-size limit; any region restriction;
+    any age restriction; and the IP terms. This repository is private and
+    unlicensed, so the first two would be blockers with a lead time, which
+    is why [#23](https://github.com/M1KUAPP/astra/issues/23) stays open
+    rather than being answered by inference.
+
 1.  Where does the launch-day audience come from?
 
 ## See also
