@@ -821,7 +821,9 @@ the button is pressed, and the run that follows begins with the image
 already open (NFR-3). A visitor holds **one** warm session, so a retried
 upload cannot double the browser bill; a second upload releases the first,
 an unclaimed one is released after two minutes, and shutdown releases them
-all. Warming spends nothing on the model and reserves nothing from the
+all. A visitor is only a cookie and an address, both of which anyone can
+change, so the pool is bounded globally too: at most four sessions are warm
+at once, and past that an upload does not warm and its run starts cold. Warming spends nothing on the model and reserves nothing from the
 daily ceiling: metering stays at run start, where the spend is. A run whose
 `uploadId` is unknown, expired, another visitor's, or for a different image
 starts cold, exactly as it did before.

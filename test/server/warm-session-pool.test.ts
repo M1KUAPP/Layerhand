@@ -39,7 +39,7 @@ function fakeSession(id: string, openFails = false) {
 }
 
 /** A pool whose timers the test fires itself. */
-function pooled(options: { openFails?: boolean } = {}) {
+function pooled(options: { openFails?: boolean; maxWarm?: number } = {}) {
   const sessions: ReturnType<typeof fakeSession>[] = []
   const timers: (() => void)[] = []
   let cleared = 0
@@ -49,7 +49,8 @@ function pooled(options: { openFails?: boolean } = {}) {
       sessions.push(next)
       return next.session
     },
-    idGenerator: () => `upload-${sessions.length}`,
+    ...(options.maxWarm === undefined ? {} : { maxWarm: options.maxWarm }),
+    idGenerator: () => `upload-${sessions.length + 1}`,
     setTimer: (run) => {
       timers.push(run)
       return timers.length as unknown as ReturnType<typeof setTimeout>
@@ -135,6 +136,37 @@ describe('WarmSessionPool', () => {
     await Bun.sleep(1)
 
     expect(pool.claim(uploadId, 'visitor-1', await imageDigest(IMAGE))).toBeUndefined()
+  })
+
+  test('warms nothing past its bound, however many visitors ask', async () => {
+    const { pool, sessions } = pooled({ maxWarm: 2 })
+
+    const first = await pool.warm('visitor-1', IMAGE, 'source.png')
+    const second = await pool.warm('visitor-2', IMAGE, 'source.png')
+    // A third visitor, which is all a rotated cookie amounts to.
+    const third = await pool.warm('visitor-3', IMAGE, 'source.png')
+
+    expect([first, second]).toEqual(['upload-1', 'upload-2'])
+    expect(third).toBeUndefined()
+    expect(sessions).toHaveLength(2)
+    expect(pool.size).toBe(2)
+
+    // A claim frees the slot, so the next upload warms again.
+    pool.claim(first, 'visitor-1', await imageDigest(IMAGE))
+    expect(await pool.warm('visitor-3', IMAGE, 'source.png')).toBe('upload-3')
+  })
+
+  test('does not release a session after a run has claimed it', async () => {
+    const { pool, sessions, fireTimers } = pooled()
+    const uploadId = await pool.warm('visitor-1', IMAGE, 'source.png')
+
+    const claimed = pool.claim(uploadId, 'visitor-1', await imageDigest(IMAGE))
+    // The timer for that upload fires after the run took the session.
+    fireTimers()
+    await Bun.sleep(1)
+
+    expect(claimed).toBeDefined()
+    expect(sessions[0]!.abandoned).toBe(0)
   })
 
   test('releases every warm session on shutdown, and warms nothing afterwards', async () => {

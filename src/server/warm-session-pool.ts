@@ -4,12 +4,23 @@
 // image arrives rather than when the button is pressed.
 //
 // A visitor holds at most one warm session, so a retried upload cannot double
-// the browser bill, and a session nobody claims is released. Warming spends
-// nothing on the model: it is the editor session and the open image, no more.
+// the browser bill, and a session nobody claims is released. A visitor is only
+// a cookie and an address, which anyone can change, so the pool is bounded
+// globally as well: past that bound an upload simply does not warm, and its
+// run starts cold. Warming spends nothing on the model: it is the editor
+// session and the open image, no more. The pool keeps the session, the
+// visitor's key and the image's digest; it never holds the image itself.
 import type { EditorSession } from '../editor/session'
 
 /** How long a warm session waits to be claimed before it is released. */
 export const WARM_SESSION_TTL_MS = 120_000
+
+/**
+ * How many sessions may be warm at once. Browserbase allows 25 at this tier
+ * and NFR-4 wants 20 of them for runs, so warming takes a small share and
+ * leaves the rest to runs that are actually spending.
+ */
+export const MAX_WARM_SESSIONS = 4
 
 export interface WarmEditorSession extends EditorSession {
   /** Releases the browser at once, without waiting for editor work. */
@@ -20,6 +31,8 @@ export interface WarmSessionPoolOptions {
   /** Creates the session a warm upload opens its image in. */
   create(): WarmEditorSession
   releaseAfterMs?: number
+  /** The most that may be warm at once, across every visitor. */
+  maxWarm?: number
   idGenerator?: () => string
   setTimer?: (run: () => void, ms: number) => ReturnType<typeof setTimeout>
   clearTimer?: (timer: ReturnType<typeof setTimeout>) => void
@@ -78,6 +91,7 @@ export class WarmSessionPool {
   constructor(options: WarmSessionPoolOptions) {
     this.#options = {
       releaseAfterMs: WARM_SESSION_TTL_MS,
+      maxWarm: MAX_WARM_SESSIONS,
       idGenerator: () => crypto.randomUUID(),
       setTimer: (run, ms) => setTimeout(run, ms),
       clearTimer: (timer) => clearTimeout(timer),
@@ -99,6 +113,9 @@ export class WarmSessionPool {
     const digest = await imageDigest(image)
     // One visitor, one billed session: a second upload replaces the first.
     await this.release(this.#byVisitor.get(visitorKey))
+    // The bound is global because a visitor is only a cookie and an address.
+    // Past it nothing is warmed, and those runs start cold rather than queue.
+    if (this.#byUpload.size >= this.#options.maxWarm) return undefined
     const uploadId = this.#options.idGenerator()
     const session = this.#options.create()
     const entry: Entry = {
