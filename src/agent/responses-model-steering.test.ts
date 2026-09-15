@@ -388,6 +388,22 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(model.steer('Leave the label')).toBe(false)
   })
 
+  test('bills the responses that ended before the connection failed', async () => {
+    const server = scriptedSocketServer()
+    const { model, http } = socketModel(server.url, {}, [{ id: 'resp_http', output: [], usage: USAGE }])
+
+    const turn = model.next(observe(), signal())
+    const connection = await server.connections.next()
+    await connection.received.next()
+    connection.send(created('resp_1'))
+    connection.send(steeredAway('resp_1'))
+    connection.close()
+
+    // The steered response and the one that replaced it were both billed.
+    expect(await turn).toMatchObject({ usage: { inputTokens: 4_000, cachedInputTokens: 3_000, outputTokens: 240 } })
+    expect(http.sent).toHaveLength(1)
+  })
+
   test('a correction a call already carried is not steered again', async () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
