@@ -71,6 +71,9 @@ project `layerhand-astra-2026`, region `us-central1`. It builds the image
 but pushes and deploys nothing until the repository variable
 `DEPLOY_PLATFORM` is `cloud-run`.
 
+Every merge to `main` deploys, so nothing is merged while runs may be live,
+and the launch freeze holds from Thursday evening, September 17.
+
 - **Authentication** is Workload Identity Federation, restricted to this
   repository, so no Google key exists.
 - **The image** goes to
