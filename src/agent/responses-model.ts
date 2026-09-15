@@ -6,7 +6,7 @@
 // WebSocket it also steers the response in flight (docs/TRD.md § Steering).
 import type { Button, ComputerAction, Pt } from '../editor/session'
 import type { AgentModel, ModelTurn, Observation } from './model'
-import { openResponsesSocket, ResponsesSocket } from './responses-socket'
+import { openResponsesSocket, ResponsesSocket, type SteeringEvent } from './responses-socket'
 import { SteerLedger } from './steer-ledger'
 
 export type DrivingMechanism = 'computer' | 'code'
@@ -49,6 +49,8 @@ export interface ResponsesModelOptions {
   connectTimeoutMs?: number
   /** How long a response that ended with an accepted steer waits for its successor. */
   successorTimeoutMs?: number
+  /** Sees each steering and response event, for a run that records what steering did (NFR-8). */
+  onSteeringEvent?: (event: SteeringEvent) => void
 }
 
 export class ResponsesApiError extends Error {
@@ -215,7 +217,10 @@ function narrationOf(output: unknown[]): string {
 }
 
 export class ResponsesModel implements AgentModel {
-  readonly #options: Required<Omit<ResponsesModelOptions, 'codeRunner'>> & { codeRunner?: CodeRunner }
+  readonly #options: Required<Omit<ResponsesModelOptions, 'codeRunner' | 'onSteeringEvent'>> & {
+    codeRunner?: CodeRunner
+    onSteeringEvent?: (event: SteeringEvent) => void
+  }
   #previousResponseId: string | undefined
   #pending: PendingCall | undefined
   #safetyChecksAcknowledged = 0
@@ -335,7 +340,8 @@ export class ResponsesModel implements AgentModel {
       try {
         const socket = await openResponsesSocket(this.#options.socketEndpoint, apiKey, this.#options.connectTimeoutMs)
         this.#socket = new ResponsesSocket(socket, this.#ledger, {
-          successorTimeoutMs: this.#options.successorTimeoutMs
+          successorTimeoutMs: this.#options.successorTimeoutMs,
+          ...(this.#options.onSteeringEvent ? { onEvent: this.#options.onSteeringEvent } : {})
         })
       } catch {
         // The run carries on over HTTP, with corrections at the step boundary.
