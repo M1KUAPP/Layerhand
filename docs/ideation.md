@@ -1,4 +1,4 @@
-# Product Hunt ideas: GPT-6 Astra Challenge
+# Ideation: GPT-6 Astra Challenge
 
 Ten rounds of ideation for the OpenAI × Product Hunt GPT-6 Astra
 Challenge, run September 12, 2026 using the `astra-challenge` skill.

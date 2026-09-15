@@ -86,7 +86,7 @@ worse — it stops existing. The agent cannot drive the editor to
 completion, so there is no layered file at the end, so there is no
 product. That is the test this idea was selected on, and it is the only
 one of the six shortlisted ideas that passes it outright. See
-[the pick](producthunt-ideas.md#the-pick-layerhand).
+[the pick](ideation.md#the-pick-layerhand).
 
 Astra also supplies the second and third properties directly:
 **mid-turn steering** over a persistent connection is what makes the
@@ -372,6 +372,5 @@ Each is assigned and answered before it can block work.
 
 - [Product requirements](PRD.md) — what to build, and in what order.
 - [Technical requirements](TRD.md) — how it is built.
-- [Product Hunt ideas](producthunt-ideas.md) — the ten-round ideation
-  this was selected from.
+- [Ideation](ideation.md) — the ten rounds this was selected from.
 - [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge)
