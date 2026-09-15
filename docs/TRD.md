@@ -417,8 +417,14 @@ follow, a correction is refused, and one acknowledged but not yet sent,
 including one a cancel strands, is reported as a recoverable error.
 
 The server runs `fakeRun()` when `RUN_MODE` is `fake` or unset. When it is
-`scripted`, the server runs `runAgent()` against the recorded
-`FakeEditorSession` with a scripted model. That model spends one step on
+`agent`, the server runs the real agent: `ResponsesModel` on the `computer`
+tool drives Photopea in a Browserbase browser created when the run opens
+its image. That browser loads the host page from `PUBLIC_URL`, so agent
+mode needs that address and `BROWSERBASE_API_KEY`. The model reads the key
+from the run at every call, so releasing the run's secrets leaves no copy,
+and closing the editor, which the loop does on every ending, releases the
+browser. When it is `scripted`, the server runs `runAgent()` against the
+recorded `FakeEditorSession` with a scripted model. That model spends one step on
 each correction it is sent, so a correction visibly changes the narration
 that follows. A correction refused because the run is finishing gets the
 same HTTP 409 `run_ended` as one sent after it ended.
