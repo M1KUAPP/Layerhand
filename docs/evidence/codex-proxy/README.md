@@ -20,8 +20,9 @@ Contents:
 ## Result
 
 Run on September 15, 2026, with Codex CLI 0.154.0 on `gpt-6-astra` at low
-reasoning effort, one image at a time. All three runs completed. Each run's
-`summary.json`, `code.ndjson`, final message, and last editor screenshot are in
+reasoning effort, one image at a time. All three runs completed, as
+[How it runs](#how-it-runs) defines completion. Each run's `summary.json`,
+`code.ndjson`, final message, and last editor screenshot are in
 [`results/`](/docs/evidence/codex-proxy/results/). The identical prompt is in
 [`results/prompt.txt`](/docs/evidence/codex-proxy/results/prompt.txt).
 
@@ -79,9 +80,10 @@ API key.
 - [`helper.ts`](helper.ts) opens one image in live Photopea in local headless
   Chromium, using [`PhotopeaPageSession`](photopea-page-session.ts). It
   exposes three endpoints on `127.0.0.1`:
-  - `POST /run` takes a JavaScript body. It runs through the harness's
-    `pageCodeRunner`, which refuses page calls once a step ends, and returns
-    the logs and a screenshot path.
+  - `POST /run` takes a JavaScript body. It runs through `pageCodeRunner`,
+    from the [A0 harness](/docs/evidence/driving-mechanism/code-runner.ts),
+    which refuses page calls once a step ends, and returns the logs and a
+    screenshot path.
   - `GET /screenshot` saves the current view and returns its path.
   - `POST /export` saves the PSD and preview and returns the layers.
 
@@ -111,7 +113,8 @@ API key.
 
 ## Running it
 
-With Codex CLI 0.153.0 or newer, signed in, from the repository root:
+With Codex CLI 0.153.0 or newer, signed in, and a Playwright Chromium
+installed, from the repository root:
 
 ```sh
 bun install --frozen-lockfile
@@ -119,6 +122,6 @@ bun run docs/evidence/codex-proxy/run.ts [image] \
   --cap 150 --minutes 20 --effort low
 ```
 
-Output goes to `output/<timestamp>-<image>/`: `summary.json`, `code.ndjson`,
-`codex-events.ndjson`, `prompt.txt`, every step's screenshot, and
-`result.psd`.
+Output goes to `output/<timestamp>-<image>/`, which Git ignores:
+`summary.json`, `code.ndjson`, `codex-events.ndjson`, `prompt.txt`, every
+step's screenshot, and `result.psd`.

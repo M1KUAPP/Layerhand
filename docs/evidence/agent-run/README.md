@@ -59,6 +59,7 @@ Use Bun 1.4.2, the version production runs. The script needs
 `OPENAI_API_KEY` and `BROWSERBASE_API_KEY`. From the repository root:
 
 ```sh
+bun install --frozen-lockfile
 bun --env-file=.env run docs/evidence/agent-run/live-run.ts \
   https://layerhand-732371853772.us-central1.run.app
 ```
