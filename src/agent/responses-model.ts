@@ -2,12 +2,17 @@
 // (docs/TRD.md § The agent loop). It drives the editor with either mechanism
 // spike A0 compares: the `computer` tool, whose actions the loop carries out,
 // or a `run_code` function tool, whose code the adapter runs itself against
-// the editor's browser page before the loop takes its next screenshot.
+// the editor's browser page before the loop takes its next screenshot. Over a
+// WebSocket it also steers the response in flight (docs/TRD.md § Steering).
 import type { Button, ComputerAction, Pt } from '../editor/session'
 import type { AgentModel, ModelTurn, Observation } from './model'
+import { openResponsesSocket, ResponsesSocket } from './responses-socket'
+import { SteerLedger } from './steer-ledger'
 
 export type DrivingMechanism = 'computer' | 'code'
 export type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
+/** `websocket` sends every step over one socket for the run, so a correction can steer the call in flight. */
+export type ModelTransport = 'http' | 'websocket'
 
 export interface CodeResult {
   /** What the code logged, in order. */
@@ -38,6 +43,12 @@ export interface ResponsesModelOptions {
   reasoningEffort?: ReasoningEffort
   endpoint?: string
   fetch?: typeof fetch
+  /** HTTP unless set. A socket that cannot open, or fails, leaves the run on HTTP. */
+  transport?: ModelTransport
+  socketEndpoint?: string
+  connectTimeoutMs?: number
+  /** How long a response that ended with an accepted steer waits for its successor. */
+  successorTimeoutMs?: number
 }
 
 export class ResponsesApiError extends Error {
@@ -107,6 +118,8 @@ const isObject = (value: unknown): value is Json => typeof value === 'object' &&
 const pngDataUrl = (png: Uint8Array) => `data:image/png;base64,${Buffer.from(png).toString('base64')}`
 const text = (value: string) => ({ type: 'input_text', text: value })
 const userMessage = (...content: object[]) => ({ role: 'user', content })
+// The same words whether a correction steers a response or waits for the next call.
+const correctionText = (correction: string) => `Correction from the user: ${correction}`
 
 function number(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error('The model returned a malformed action')
@@ -188,11 +201,33 @@ async function errorCode(response: Response): Promise<string | undefined> {
   }
 }
 
+/** The first line of what a response said, as a step's narration. */
+function narrationOf(output: unknown[]): string {
+  for (const item of output) {
+    if (!isObject(item) || item.type !== 'message' || !Array.isArray(item.content)) continue
+    const said = item.content
+      .flatMap((part) => (isObject(part) && typeof part.text === 'string' ? [part.text] : []))
+      .join(' ')
+      .trim()
+    return said.split('\n')[0]!.trim()
+  }
+  return ''
+}
+
 export class ResponsesModel implements AgentModel {
   readonly #options: Required<Omit<ResponsesModelOptions, 'codeRunner'>> & { codeRunner?: CodeRunner }
   #previousResponseId: string | undefined
   #pending: PendingCall | undefined
   #safetyChecksAcknowledged = 0
+  readonly #ledger = new SteerLedger()
+  #socket: ResponsesSocket | undefined
+  #socketTried = false
+  // Corrections are numbered in the order the loop acknowledged them: steer()
+  // offers them in that order, and calls pass them in that order.
+  #offered = 0
+  #passed = 0
+  /** The ledger entry for each correction sent as a native steer, by its number. */
+  readonly #steered = new Map<number, number>()
 
   constructor(options: ResponsesModelOptions) {
     if (options.mechanism === 'code' && !options.codeRunner) {
@@ -203,6 +238,10 @@ export class ResponsesModel implements AgentModel {
       reasoningEffort: 'low',
       endpoint: 'https://api.openai.com/v1/responses',
       fetch: globalThis.fetch,
+      transport: 'http',
+      socketEndpoint: 'wss://api.openai.com/v1/responses',
+      connectTimeoutMs: 10_000,
+      successorTimeoutMs: 10_000,
       ...options
     }
   }
@@ -212,40 +251,141 @@ export class ResponsesModel implements AgentModel {
     return this.#safetyChecksAcknowledged
   }
 
+  /** Whether a correction offered now would steer the response in flight. */
+  get steerable(): boolean {
+    return this.#socket?.steerable ?? false
+  }
+
+  /**
+   * Whether native steering is still possible for this run, how many
+   * corrections it delivered, and how many settlements the connection could
+   * not decide, which were replayed.
+   */
+  get steering(): { available: boolean; applied: number; indeterminate: number } {
+    return {
+      available: (this.#socket?.usable ?? false) && this.#ledger.nativeAvailable,
+      applied: this.#ledger.applied().length,
+      indeterminate: this.#ledger.indeterminate
+    }
+  }
+
+  steer(correction: string): boolean {
+    const index = this.#offered++
+    // A call already carried it, which happens when a call starts between the acknowledgement and the offer.
+    if (index < this.#passed || !this.#socket) return false
+    const id = this.#socket.steer(correctionText(correction))
+    if (id === undefined) return false
+    this.#steered.set(index, id)
+    return true
+  }
+
+  /** Closes the socket, if there is one. The run has ended. */
+  close(): void {
+    this.#socket?.close()
+  }
+
   async next({ screenshot, corrections }: Observation, signal: AbortSignal): Promise<ModelTurn> {
-    const { endpoint, mechanism, model, reasoningEffort } = this.#options
+    const first = this.#passed
+    this.#passed += corrections.length
+    const offered = corrections.map((correction, index) => ({ correction, id: this.#steered.get(first + index) }))
     const apiKey = typeof this.#options.apiKey === 'function' ? this.#options.apiKey() : this.#options.apiKey
     if (!apiKey) throw new Error('The run has no API key')
-    const response = await this.#options.fetch(endpoint, {
+    const pending = this.#pending
+    if (pending?.kind === 'computer') this.#safetyChecksAcknowledged += pending.safetyChecks.length
+    const input = (included: boolean[]) =>
+      this.#input(
+        screenshot,
+        offered.flatMap(({ correction }, index) => (included[index] ? [correction] : []))
+      )
+
+    const socket = this.#options.transport === 'websocket' ? await this.#connect(apiKey) : undefined
+    if (socket) {
+      const continuationOf = pending ? this.#previousResponseId : undefined
+      const included = offered.map(({ id }) => this.#carries(id, continuationOf))
+      const result = await socket.step(this.#body(input(included)), continuationOf, signal)
+      if ('responses' in result) return this.#turn(result.responses, signal)
+      if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
+      // The connection failed before the step ended, so the step is sent again
+      // over HTTP with every correction the socket could not vouch for. The
+      // editor has not acted on anything the lost responses said.
+      const resent = offered.map(
+        ({ id }, index) => included[index]! || (id !== undefined && this.#ledger.takeReplay(id))
+      )
+      return this.#overHttp(apiKey, input(resent), signal)
+    }
+    return this.#overHttp(apiKey, input(offered.map(({ id }) => this.#carries(id, undefined))), signal)
+  }
+
+  /**
+   * Whether this call carries a correction as a user message. The ledger
+   * decides: never one native steering applied, nor one the server holds for
+   * the response this call continues, and always one settled for replay. One
+   * nothing has settled goes in, because twice is harmless and never is not.
+   */
+  #carries(id: number | undefined, continuationOf: string | undefined): boolean {
+    if (id === undefined || this.#ledger.takeReplay(id)) return true
+    const { state, parentResponseId } = this.#ledger.entry(id)
+    if (state === 'applied') return false
+    return !(parentResponseId === continuationOf && (state === 'accepted' || state === 'pending'))
+  }
+
+  async #connect(apiKey: string): Promise<ResponsesSocket | undefined> {
+    if (!this.#socketTried) {
+      this.#socketTried = true
+      try {
+        const socket = await openResponsesSocket(this.#options.socketEndpoint, apiKey, this.#options.connectTimeoutMs)
+        this.#socket = new ResponsesSocket(socket, this.#ledger, {
+          successorTimeoutMs: this.#options.successorTimeoutMs
+        })
+      } catch {
+        // The run carries on over HTTP, with corrections at the step boundary.
+      }
+    }
+    return this.#socket?.usable ? this.#socket : undefined
+  }
+
+  #body(input: object[]): Json {
+    const { mechanism, model, reasoningEffort } = this.#options
+    return {
+      model,
+      instructions: PROMPTS[mechanism],
+      tools: TOOLS[mechanism],
+      parallel_tool_calls: false,
+      reasoning: { effort: reasoningEffort },
+      ...(this.#previousResponseId ? { previous_response_id: this.#previousResponseId } : {}),
+      input
+    }
+  }
+
+  async #overHttp(apiKey: string, input: object[], signal: AbortSignal): Promise<ModelTurn> {
+    const response = await this.#options.fetch(this.#options.endpoint, {
       method: 'POST',
       headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        instructions: PROMPTS[mechanism],
-        tools: TOOLS[mechanism],
-        parallel_tool_calls: false,
-        reasoning: { effort: reasoningEffort },
-        ...(this.#previousResponseId ? { previous_response_id: this.#previousResponseId } : {}),
-        input: this.#input(screenshot, corrections)
-      }),
+      body: JSON.stringify(this.#body(input)),
       signal
     })
     if (!response.ok) throw new ResponsesApiError(response.status, await errorCode(response))
     const payload: unknown = await response.json()
     if (!isObject(payload) || typeof payload.id !== 'string') throw new ResponsesApiError(response.status)
     if (isObject(payload.error)) throw new ResponsesApiError(response.status, safeCode(payload.error.code))
+    return this.#turn([payload], signal)
+  }
 
+  /**
+   * Builds the step from its responses: the last one, which a steer may have
+   * continued from earlier ones, gives the actions, and every one was billed.
+   */
+  async #turn(responses: Json[], signal: AbortSignal): Promise<ModelTurn> {
+    const { mechanism } = this.#options
+    const last = responses.at(-1)!
     let narration = ''
     let actions: ComputerAction[] = []
     let pending: PendingCall | undefined
-    for (const item of Array.isArray(payload.output) ? payload.output : []) {
+    const output = Array.isArray(last.output) ? last.output : []
+    for (const item of output) {
       if (!isObject(item)) continue
-      if (item.type === 'message' && !narration && Array.isArray(item.content)) {
-        const said = item.content
-          .flatMap((part) => (isObject(part) && typeof part.text === 'string' ? [part.text] : []))
-          .join(' ')
-          .trim()
-        narration = said.split('\n')[0]!.trim()
+      if (item.type === 'message' && !narration) {
+        narration = narrationOf([item])
       } else if (item.type === 'computer_call' && mechanism === 'computer' && typeof item.call_id === 'string') {
         const batch = Array.isArray(item.actions) ? item.actions : item.action ? [item.action] : []
         actions = batch.map(toComputerAction)
@@ -267,22 +407,24 @@ export class ResponsesModel implements AgentModel {
         pending = { kind: 'code', callId: item.call_id, result }
       }
     }
-
-    this.#previousResponseId = payload.id
-    this.#pending = pending
-    const usage = isObject(payload.usage) ? payload.usage : {}
-    const details = isObject(usage.input_tokens_details) ? usage.input_tokens_details : {}
-    const count = (value: unknown) => (typeof value === 'number' ? value : 0)
-    return {
-      narration,
-      actions,
-      usage: {
-        inputTokens: count(usage.input_tokens),
-        cachedInputTokens: count(details.cached_tokens),
-        outputTokens: count(usage.output_tokens)
-      },
-      done: pending === undefined
+    // A successor can act without a word, when the response it continues already said what it was doing.
+    for (const earlier of responses.slice(0, -1).reverse()) {
+      if (narration) break
+      narration = narrationOf(Array.isArray(earlier.output) ? earlier.output : [])
     }
+
+    this.#previousResponseId = String(last.id)
+    this.#pending = pending
+    const count = (value: unknown) => (typeof value === 'number' ? value : 0)
+    const usage = { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 }
+    for (const response of responses) {
+      const used = isObject(response.usage) ? response.usage : {}
+      const details = isObject(used.input_tokens_details) ? used.input_tokens_details : {}
+      usage.inputTokens += count(used.input_tokens)
+      usage.cachedInputTokens += count(details.cached_tokens)
+      usage.outputTokens += count(used.output_tokens)
+    }
+    return { narration, actions, usage, done: pending === undefined }
   }
 
   #input(screenshot: Uint8Array, corrections: string[]): object[] {
@@ -293,7 +435,6 @@ export class ResponsesModel implements AgentModel {
       input.push(userMessage(text(this.#options.instruction)))
       input.push(userMessage(text(`You have at most ${this.#options.stepCap} steps. This is the editor now.`), image))
     } else if (pending?.kind === 'computer') {
-      this.#safetyChecksAcknowledged += pending.safetyChecks.length
       input.push({
         type: 'computer_call_output',
         call_id: pending.callId,
@@ -309,7 +450,7 @@ export class ResponsesModel implements AgentModel {
     } else {
       input.push(userMessage(text('This is the editor now.'), image))
     }
-    for (const correction of corrections) input.push(userMessage(text(`Correction from the user: ${correction}`)))
+    for (const correction of corrections) input.push(userMessage(text(correctionText(correction))))
     return input
   }
 }
