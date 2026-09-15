@@ -51,6 +51,7 @@ With Bun and Google Chrome installed, regenerate and validate it from the
 repository root with:
 
 ```sh
+bun install --frozen-lockfile
 bun scripts/retain-photopea-production-export.ts
 bun test test/editor/photopea-production-export.test.ts
 ```
