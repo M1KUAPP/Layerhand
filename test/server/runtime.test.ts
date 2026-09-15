@@ -78,6 +78,28 @@ describe('launch runtime', () => {
     }
   })
 
+  test('logs a run the step cap stopped as capped', async () => {
+    const records: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development' },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      stepCap: 2,
+      writeRunLog: (record) => records.push(record)
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      const { runId } = (await response.json()) as { runId: string }
+      await runtime.registry.waitForTerminal(runId)
+
+      expect(records).toHaveLength(1)
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, steps: 2, capHit: true, outcome: 'step_cap' })
+    } finally {
+      await runtime.close()
+    }
+  })
+
   test('fails closed when production configuration is absent', async () => {
     await expect(
       createLaunchRuntime({
