@@ -1,10 +1,34 @@
 import { describe, expect, test } from 'bun:test'
 import { FakeEditorSession, type EditorRecording } from '../../src/editor/fake-editor-session'
-import type { ComputerAction } from '../../src/editor/session'
+import type { ComputerAction, LayerInfo } from '../../src/editor/session'
 
 const frameA = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 1)
 const frameB = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 2)
 const psd = Uint8Array.of(0x38, 0x42, 0x50, 0x53, 1)
+
+const nestedLayers: LayerInfo[] = [
+  {
+    name: 'Retouching group',
+    kind: 'group',
+    visible: true,
+    masks: [],
+    children: [
+      {
+        name: 'Background isolation',
+        kind: 'raster',
+        visible: true,
+        masks: [{ kind: 'pixel', enabled: true }],
+        children: []
+      }
+    ]
+  }
+]
+
+type MutableLayerInfo = {
+  name: string
+  masks: { enabled: boolean }[]
+  children: MutableLayerInfo[]
+}
 
 function recording(overrides: Partial<EditorRecording> = {}): EditorRecording {
   return {
@@ -12,8 +36,8 @@ function recording(overrides: Partial<EditorRecording> = {}): EditorRecording {
     psd,
     preview: frameB,
     layers: [
-      { name: 'Original photograph', kind: 'raster', visible: true },
-      { name: 'Retouched copy', kind: 'raster', visible: true }
+      { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+      { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
     ],
     ...overrides
   }
@@ -199,14 +223,28 @@ describe('FakeEditorSession', () => {
     const exportedPsd = await session.exportPsd()
     const preview = await session.exportPreview()
     const layers = await session.layers()
+    const mutableLayers = layers as unknown as { name: string }[]
     screenshot[0] = 0
     exportedPsd[0] = 0
     preview[0] = 0
-    layers[0]!.name = 'Changed'
+    mutableLayers[0]!.name = 'Changed'
 
     expect(await session.screenshot()).toEqual(frameA)
     expect(await session.exportPsd()).toEqual(psd)
     expect(await session.exportPreview()).toEqual(frameB)
     expect((await session.layers())[0]!.name).toBe('Original photograph')
+  })
+
+  test('returns recursively defensive layer copies', async () => {
+    const expected = structuredClone(nestedLayers)
+    const session = createSession(recording({ layers: nestedLayers }))
+    await session.open(Uint8Array.of(1), 'portrait.jpg')
+
+    const layers = (await session.layers()) as unknown as MutableLayerInfo[]
+    layers[0]!.children[0]!.name = 'Changed'
+    layers[0]!.children[0]!.masks[0]!.enabled = false
+
+    expect(nestedLayers).toEqual(expected)
+    expect(await session.layers()).toEqual(nestedLayers)
   })
 })

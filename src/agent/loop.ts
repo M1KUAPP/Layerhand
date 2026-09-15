@@ -4,6 +4,7 @@
 // session closes, because the session holds the only copy of the work.
 import { startFramePump, type FramePump } from '../browser/frame-pump'
 import type { EditorSession } from '../editor/session'
+import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
 import type { AgentModel, ModelTurn } from './model'
@@ -143,6 +144,7 @@ export function runAgent(
       const psd = await session.exportPsd()
       const preview = await session.exportPreview()
       const layers = await session.layers()
+      if (complete) assertCompleteLayerTree(layers)
       // The file is already in hand, so a session that fails to close does not cost the user their result.
       await session.close().catch(() => undefined)
       log.end({

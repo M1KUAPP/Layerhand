@@ -23,8 +23,20 @@ const USAGE: TokenUsage = { inputTokens: 40_000, cachedInputTokens: 38_430, outp
 
 // The layers createRecordedFakeEditorSession() reports, and its PSD contains.
 const RECORDED_LAYERS: RunResult['layers'] = [
-  { name: 'Original photograph', kind: 'raster', visible: true },
-  { name: 'Retouched copy', kind: 'raster', visible: true }
+  { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+  { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
+]
+
+// Explicit loop-test metadata; the historical PSD above has no adjustment.
+const EDITABLE_LAYERS: RunResult['layers'] = [
+  { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+  {
+    name: 'Tonal edits',
+    kind: 'group',
+    visible: true,
+    masks: [],
+    children: [{ name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }]
+  }
 ]
 
 const step = (narration: string, actions: ComputerAction[] = [CLICK]): ModelTurn => ({
@@ -104,6 +116,16 @@ async function fixture(script: (ModelTurn | Error)[] = RETOUCH, onCall?: (call: 
 
 type Fixture = Awaited<ReturnType<typeof fixture>>
 
+async function editableFixture(...args: Parameters<typeof fixture>): Promise<Fixture> {
+  const run = await fixture(...args)
+  const layers = run.session.layers.bind(run.session)
+  run.session.layers = async () => {
+    await layers()
+    return structuredClone(EDITABLE_LAYERS)
+  }
+  return run
+}
+
 /** Takes the given time over every call, as a model thinking does. */
 function thinking(model: AgentModel, ms: number): AgentModel {
   return {
@@ -164,12 +186,42 @@ const correctionsSeen = (run: Fixture) => run.model.observations.map((observatio
 testRunContract({
   name: 'runAgent',
   request,
-  start: async (request) => runAgent(request, await fixture()),
+  start: async (request) => runAgent(request, await editableFixture()),
   startFailing: async (request) =>
     runAgent(request, await fixture([step('Selecting the product'), new Error('The model stopped responding')]))
 })
 
 describe('runAgent', () => {
+  test('rejects a model-finished all-raster tree with one unrecoverable error and no result', async () => {
+    const run = await fixture([DONE])
+    run.session.layers = async () => [
+      { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }
+    ]
+    const events = await collect(runAgent(request, run))
+    expect(ofType(events, 'error')).toEqual([
+      { type: 'error', reason: 'The run stopped because of an unexpected error', recoverable: false }
+    ])
+    expect(ofType(events, 'done')).toEqual([])
+    expect(events.at(-1)?.type).toBe('error')
+    expect([...run.published.keys()].every((url) => url.startsWith('memory://frame/'))).toBe(true)
+    await expect(run.session.screenshot()).rejects.toThrow('Editor session is closed')
+  })
+
+  test('accepts a model-finished tree with an effectively visible adjustment as complete', async () => {
+    const run = await editableFixture([DONE])
+    const events = await collect(runAgent(request, run))
+    expect(ofType(events, 'error')).toEqual([])
+    expect(resultOf(events)).toMatchObject({ complete: true, layers: EDITABLE_LAYERS })
+  })
+
+  test('exports a raster-only step-capped result as incomplete', async () => {
+    const run = await fixture(TEN_PASSES)
+    const events = await collect(runAgent({ ...request, stepCap: 1 }, run))
+    expect(ofType(events, 'error')).toEqual([])
+    expect(resultOf(events)).toMatchObject({ complete: false, layers: RECORDED_LAYERS })
+    expect(psdLayerCount(run.published.get(resultOf(events).psdUrl))).toBe(2)
+  })
+
   test('opens the upload, then shows the model the editor', async () => {
     const run = await fixture()
     await collect(runAgent(request, run))
@@ -186,18 +238,21 @@ describe('runAgent', () => {
         { x: 50, y: 60 }
       ]
     }
-    const run = await fixture([step('Selecting the product'), step('Masking out the background', [drag, CLICK])])
+    const run = await editableFixture([
+      step('Selecting the product'),
+      step('Masking out the background', [drag, CLICK])
+    ])
     const events = await collect(runAgent(request, run))
     expect(run.session.actionBatches).toEqual([[CLICK], [drag, CLICK]])
     expect(ofType(events, 'step')).toEqual([
       { type: 'step', n: 1, cap: 40, narration: 'Selecting the product' },
       { type: 'step', n: 2, cap: 40, narration: 'Masking out the background' }
     ])
-    expect(resultOf(events)).toMatchObject({ complete: true, layers: RECORDED_LAYERS })
+    expect(resultOf(events)).toMatchObject({ complete: true, layers: EDITABLE_LAYERS })
   })
 
   test('counts a turn that is not done as a step, even without editor actions', async () => {
-    const run = await fixture([step('Running a curves adjustment from a script', [])])
+    const run = await editableFixture([step('Running a curves adjustment from a script', [])])
     const events = await collect(runAgent(request, run))
     expect(ofType(events, 'step')).toEqual([
       { type: 'step', n: 1, cap: 40, narration: 'Running a curves adjustment from a script' }
@@ -375,7 +430,7 @@ describe('runAgent', () => {
   test('asks the model again when a correction arrives during its last call', async () => {
     let handle!: RunHandle
     const steers: Promise<void>[] = []
-    const run = await fixture([], (call) => {
+    const run = await editableFixture([], (call) => {
       if (call === 0) steers.push(handle.steer('keep the shadow'))
     })
     handle = runAgent(request, run)
@@ -454,7 +509,7 @@ describe('runAgent', () => {
   test('refuses a correction once the model will not be asked again', async () => {
     let handle!: RunHandle
     let late: Promise<void> | undefined
-    const run = await fixture([step('Selecting the product')])
+    const run = await editableFixture([step('Selecting the product')])
     handle = runAgent(request, {
       ...run,
       publish: (bytes, kind) => {
@@ -588,7 +643,7 @@ describe('runAgent', () => {
 
   for (const [ending, end] of Object.entries(endings)) {
     test(`closes the editor session when the run ${ending}`, async () => {
-      const run = await fixture()
+      const run = await editableFixture()
       await end(run)
       await expect(run.session.screenshot()).rejects.toThrow('Editor session is closed')
     })
@@ -648,7 +703,7 @@ describe('runAgent', () => {
   })
 
   test('keeps the exported file when the session fails to close', async () => {
-    const run = await fixture([step('Selecting the product')])
+    const run = await editableFixture([step('Selecting the product')])
     run.session.close = async () => {
       throw new Error('The browser provider timed out')
     }
@@ -657,7 +712,7 @@ describe('runAgent', () => {
   })
 
   test('reports missed frames once, and carries on', async () => {
-    const run = await fixture([step('Selecting the product')])
+    const run = await editableFixture([step('Selecting the product')])
     const events = await collect(
       runAgent(request, {
         ...run,

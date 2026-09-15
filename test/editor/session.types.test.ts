@@ -1,5 +1,21 @@
 import { expect, test } from 'bun:test'
-import type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from '../../src/editor'
+import type {
+  Button,
+  ComputerAction,
+  EditorSession,
+  LayerInfo,
+  LayerKind,
+  LayerMaskInfo,
+  LayerMaskKind,
+  Pt,
+  Viewport
+} from '../../src/editor'
+import type {
+  LayerInfo as ContractLayerInfo,
+  LayerKind as ContractLayerKind,
+  LayerMaskInfo as ContractLayerMaskInfo,
+  LayerMaskKind as ContractLayerMaskKind
+} from '../../src/editor/contract'
 
 type IsExact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
 
@@ -31,6 +47,28 @@ type ExpectedAction =
   | { type: 'wait' }
   | { type: 'screenshot' }
 
+type ExpectedLayerInfo = {
+  readonly name: string
+  readonly kind: 'raster' | 'adjustment' | 'group'
+  readonly visible: boolean
+  readonly masks: readonly {
+    readonly kind: 'pixel' | 'vector'
+    readonly enabled: boolean
+  }[]
+  readonly children: readonly ExpectedLayerInfo[]
+}
+
+type LayerAssertions = [
+  Assert<IsExact<LayerKind, ExpectedLayerInfo['kind']>>,
+  Assert<IsExact<LayerMaskKind, ExpectedLayerInfo['masks'][number]['kind']>>,
+  Assert<IsExact<LayerMaskInfo, ExpectedLayerInfo['masks'][number]>>,
+  Assert<IsExact<LayerInfo, ExpectedLayerInfo>>,
+  Assert<IsExact<ContractLayerKind, LayerKind>>,
+  Assert<IsExact<ContractLayerMaskKind, LayerMaskKind>>,
+  Assert<IsExact<ContractLayerMaskInfo, LayerMaskInfo>>,
+  Assert<IsExact<ContractLayerInfo, LayerInfo>>
+]
+
 type ActionVariantKeyChecks = {
   [Type in ComputerAction['type']]: IsExact<
     keyof Extract<ComputerAction, { type: Type }>,
@@ -56,17 +94,7 @@ type Assertions = [
   Assert<IsExact<keyof Pt, 'x' | 'y'>>,
   Assert<IsExact<Viewport, { width: number; height: number }>>,
   Assert<IsExact<keyof Viewport, 'width' | 'height'>>,
-  Assert<
-    IsExact<
-      LayerInfo,
-      {
-        name: string
-        kind: 'raster' | 'mask' | 'adjustment' | 'group'
-        visible: boolean
-      }
-    >
-  >,
-  Assert<IsExact<keyof LayerInfo, 'name' | 'kind' | 'visible'>>,
+  ...LayerAssertions,
   Assert<IsExact<ComputerAction, ExpectedAction>>,
   Assert<IsExact<KeysOfUnion<ComputerAction>, KeysOfUnion<ExpectedAction>>>,
   Assert<IsExact<ActionVariantKeyChecks, true>>,

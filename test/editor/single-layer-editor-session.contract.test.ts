@@ -16,7 +16,7 @@ defineEditorSessionContract('single-layer metadata', async () => {
       frames: [frame],
       psd,
       preview,
-      layers: [{ name: 'Original photograph', kind: 'raster', visible: true }]
+      layers: [{ name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }]
     }
   })
 })
