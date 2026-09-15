@@ -1,0 +1,266 @@
+[
+  {
+    "runId": "computer-1-input.jpg",
+    "completedAt": "2026-09-15T09:21:48.006Z",
+    "steps": 12,
+    "capHit": false,
+    "tokensIn": 166268,
+    "tokensOut": 1316,
+    "costUsd": 0.4955675,
+    "cacheHitRate": 0.862192364135011,
+    "durationMs": 84805,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "computer",
+    "image": "input.jpg",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Soft dark corners",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 0,
+    "disqualified": false,
+    "completed": true
+  },
+  {
+    "runId": "code-1-input.jpg",
+    "completedAt": "2026-09-15T09:23:17.444Z",
+    "steps": 13,
+    "capHit": false,
+    "tokensIn": 180616,
+    "tokensOut": 1116,
+    "costUsd": 0.5098285,
+    "cacheHitRate": 0.8683671435531736,
+    "durationMs": 88515,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "code",
+    "image": "input.jpg",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten the photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm the colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Darken corners - soft vignette",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 13,
+    "disqualified": false,
+    "completed": true
+  },
+  {
+    "runId": "computer-1-sample-photo.png",
+    "completedAt": "2026-09-15T09:25:00.180Z",
+    "steps": 13,
+    "capHit": false,
+    "tokensIn": 189362,
+    "tokensOut": 1273,
+    "costUsd": 0.534141,
+    "cacheHitRate": 0.8709033491407991,
+    "durationMs": 102343,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "computer",
+    "image": "sample-photo.png",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Darken corners softly",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 0,
+    "disqualified": false,
+    "completed": true
+  },
+  {
+    "runId": "code-1-sample-photo.png",
+    "completedAt": "2026-09-15T09:26:59.092Z",
+    "steps": 16,
+    "capHit": false,
+    "tokensIn": 260544,
+    "tokensOut": 1111,
+    "costUsd": 0.6441775,
+    "cacheHitRate": 0.8905021800540408,
+    "durationMs": 117922,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "code",
+    "image": "sample-photo.png",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Soft dark corners",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 16,
+    "disqualified": false,
+    "completed": true
+  },
+  {
+    "runId": "computer-1-document-preview.png",
+    "completedAt": "2026-09-15T09:28:15.039Z",
+    "steps": 13,
+    "capHit": false,
+    "tokensIn": 189414,
+    "tokensOut": 1277,
+    "costUsd": 0.5344275,
+    "cacheHitRate": 0.870922951840941,
+    "durationMs": 75588,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "computer",
+    "image": "document-preview.png",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Darken corners softly",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 0,
+    "disqualified": false,
+    "completed": true
+  },
+  {
+    "runId": "code-1-document-preview.png",
+    "completedAt": "2026-09-15T09:29:41.437Z",
+    "steps": 15,
+    "capHit": false,
+    "tokensIn": 232950,
+    "tokensOut": 1161,
+    "costUsd": 0.601408,
+    "cacheHitRate": 0.8841296415539815,
+    "durationMs": 85421,
+    "outcome": "complete",
+    "failureReason": null,
+    "instruction": "Make three edits to this photograph, each on its own layer with a name that say\u2026",
+    "mechanism": "code",
+    "image": "document-preview.png",
+    "dryRun": false,
+    "silentSteps": 0,
+    "safetyChecksAcknowledged": 0,
+    "modelError": null,
+    "layers": [
+      {
+        "name": "Original photograph",
+        "kind": "raster"
+      },
+      {
+        "name": "Brighten the photograph",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Warm the colours",
+        "kind": "adjustment"
+      },
+      {
+        "name": "Soft dark corners",
+        "kind": "raster"
+      }
+    ],
+    "adjustmentLayers": 2,
+    "numberedLayerNames": 0,
+    "threeEditsVisible": true,
+    "codeCalls": 15,
+    "disqualified": false,
+    "completed": true
+  }
+]

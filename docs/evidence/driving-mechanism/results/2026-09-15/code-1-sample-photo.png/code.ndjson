@@ -1,0 +1,32 @@
+{"call":1,"code":"await page.mouse.click(1227,122);"}
+{"call":1,"logs":[]}
+{"call":2,"code":"await page.mouse.click(1069,203); await page.keyboard.press('Control+A'); await page.keyboard.type('18'); await page.keyboard.press('Enter'); await page.mouse.click(1149,91); await page.mouse.dblclick(1340,319); await page.keyboard.press('Control+A'); await page.keyboard.type('Brighten photograph'); await page.keyboard.press('Enter'); await page.mouse.click(1322,153);"}
+{"call":2,"logs":[]}
+{"call":3,"code":"await page.mouse.click(1071,231); await page.keyboard.press('Control+A'); await page.keyboard.type('18'); await page.keyboard.press('Enter'); await page.mouse.click(1149,91); await page.mouse.dblclick(1335,319,{delay:120});"}
+{"call":3,"logs":[]}
+{"call":4,"code":"await page.keyboard.type('Warm colours'); await page.keyboard.press('Enter'); await page.mouse.dblclick(1343,349,{delay:120}); await page.keyboard.type('Brighten photograph'); await page.keyboard.press('Enter'); await page.mouse.click(1338,318); await page.keyboard.press('Control+Shift+N');"}
+{"call":4,"logs":[]}
+{"call":5,"code":"await page.mouse.dblclick(1283,318,{delay:150});"}
+{"call":5,"logs":[]}
+{"call":6,"code":"await page.mouse.dblclick(1265,320,{delay:70});"}
+{"call":6,"logs":[]}
+{"call":7,"code":"await page.keyboard.type('Soft dark corners'); await page.keyboard.press('Enter'); await page.mouse.click(18,112,{button:'right'});"}
+{"call":7,"logs":[]}
+{"call":8,"code":"await page.mouse.click(111,146); await page.mouse.click(242,48); await page.keyboard.press('Control+A'); await page.keyboard.type('180'); await page.keyboard.press('Enter'); await page.mouse.move(135,197); await page.mouse.down(); await page.mouse.move(1033,800,{steps:30}); await page.mouse.up(); await page.keyboard.press('Control+Shift+I'); await page.keyboard.press('Alt+Backspace'); await page.keyboard.press('Control+D');"}
+{"call":8,"logs":[]}
+{"call":9,"code":"await page.mouse.click(1354,255); await page.keyboard.press('Control+A'); await page.keyboard.type('28'); await page.keyboard.press('Enter'); await page.mouse.dblclick(1338,380,{delay:70});"}
+{"call":9,"logs":[]}
+{"call":10,"code":"await page.mouse.dblclick(1340,380,{delay:70});"}
+{"call":10,"logs":[]}
+{"call":11,"code":"await page.keyboard.type('Brighten photograph'); await page.keyboard.press('Enter'); await page.mouse.dblclick(1215,381,{delay:70});"}
+{"call":11,"logs":[]}
+{"call":12,"code":"await page.mouse.click(1149,91); await page.keyboard.press('Control+Alt+Shift+S');"}
+{"call":12,"logs":[]}
+{"call":13,"code":"await page.mouse.click(868,165); await page.mouse.click(18,15);"}
+{"call":13,"logs":[]}
+{"call":14,"code":"await page.keyboard.press('Escape'); await page.mouse.click(868,165); await page.waitForTimeout(400);"}
+{"call":14,"logs":[]}
+{"call":15,"code":"await page.mouse.click(18,15); await page.waitForTimeout(200); await page.mouse.click(70,246); await page.waitForTimeout(1000);"}
+{"call":15,"logs":[]}
+{"call":16,"code":"await page.keyboard.press('Escape');"}
+{"call":16,"logs":[]}
