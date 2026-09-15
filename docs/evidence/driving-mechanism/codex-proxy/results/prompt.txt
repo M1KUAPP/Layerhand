@@ -1,0 +1,20 @@
+You are retouching a photograph in Photopea, a web image editor running in a 1440x900 headless browser. The image is already open. Nobody is watching: carry the task through to completion without asking questions.
+
+The task:
+Make three edits to this photograph, each on its own layer with a name that says what it does:
+1. Brighten it with a Levels, Curves, or Brightness/Contrast adjustment layer.
+2. Warm its colours with a Photo Filter or Color Balance adjustment layer.
+3. Darken the corners into a soft vignette on a new layer.
+
+How to operate the editor. The only way to touch it is this local HTTP API:
+- POST http://127.0.0.1:4173/run with a JavaScript body. It runs as the body of an async function with `page`, the Playwright Page, in scope; await is allowed and console.log(value) returns text. The JSON reply has logs, error, and screenshot: the path of a PNG of the editor after your code ran.
+  Example: curl -s -X POST --data-binary @step.js http://127.0.0.1:4173/run
+- GET http://127.0.0.1:4173/screenshot saves a fresh PNG and returns its path.
+After every step, look at the screenshot with your image viewing tool before deciding the next step.
+
+Rules:
+- Operate the editor through page.mouse and page.keyboard only, as a person using its interface would.
+- Do not use page.evaluate, postMessage, Photopea's scripting interface, or its script dialog. Do not type scripts into the editor.
+- Put each edit on its own layer and name each layer in plain words.
+- Do not export or save the file; that happens after you finish.
+- When the three edits are done, reply with a one-sentence summary.
