@@ -549,4 +549,25 @@ describe('managed agent run', () => {
     expect(events.filter((event) => event.type === 'step')).toHaveLength(19)
     expect(managed.metrics().stopReason).toBe('complete')
   })
+
+  test('a run that fails on its own is recorded as failed, even when its events are read after the ceiling', async () => {
+    const failingModel: AgentModel = {
+      async next() {
+        throw new Error('The model is unavailable')
+      }
+    }
+    const session = await createRecordedFakeEditorSession()
+    const late = managedAgentRun(
+      request(),
+      { session, model: failingModel, publish: async (_bytes, kind) => `memory://${kind}` },
+      { ceilingMs: 20 }
+    )
+
+    // Nothing reads the events until well after the ceiling would have fired.
+    await Bun.sleep(80)
+    const events = await finish(late)
+
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+    expect(late.metrics().stopReason).toBe('failed')
+  })
 })

@@ -68,11 +68,11 @@ export function managedAgentRun(
     }
   }
 
-  const stoppedBy = (complete: boolean): RunStopReason => {
+  const stoppedBy = (complete: boolean, endedAfterCeiling: boolean): RunStopReason => {
     if (cancelled) return 'cancelled'
     if (missingNarration) return 'failed'
     if (complete) return 'complete'
-    if (timedOut) return 'time_limit'
+    if (endedAfterCeiling) return 'time_limit'
     if (calls >= request.stepCap) return 'step_cap'
     if (spend.wouldPass(request.budgetUsd)) return 'spend_cap'
     return 'failed'
@@ -89,20 +89,31 @@ export function managedAgentRun(
     void underlying.cancel()
     graceTimer = setTimeout(() => void abandon().catch(() => undefined), exportGraceMs)
   }, ceilingMs)
-  void (async () => {
-    for await (const _event of underlying.events) {
-      // Only the end of the run matters here.
+
+  // Whether the ceiling had fired when the run's last event came. It is fixed
+  // by whichever reader sees that event first, so a reader that drains the
+  // events late cannot blame the ceiling for a run that ended on its own.
+  let endedAfterCeiling: boolean | undefined
+  const noteEnd = (): boolean => {
+    if (endedAfterCeiling === undefined) {
+      endedAfterCeiling = timedOut
+      clearTimeout(ceilingTimer)
+      clearTimeout(graceTimer)
     }
-    clearTimeout(ceilingTimer)
-    clearTimeout(graceTimer)
+    return endedAfterCeiling
+  }
+  const isLast = (event: RunEvent) => event.type === 'done' || (event.type === 'error' && !event.recoverable)
+  void (async () => {
+    for await (const event of underlying.events) if (isLast(event)) noteEnd()
+    noteEnd()
   })()
 
   const handle: RunHandle = {
     events: {
       async *[Symbol.asyncIterator](): AsyncIterator<RunEvent> {
         for await (const event of underlying.events) {
-          if (event.type === 'done') stopReason = stoppedBy(event.result.complete)
-          if (event.type === 'error' && !event.recoverable && timedOut) stopReason = 'time_limit'
+          if (event.type === 'done') stopReason = stoppedBy(event.result.complete, noteEnd())
+          if (event.type === 'error' && !event.recoverable && noteEnd()) stopReason = 'time_limit'
           yield event
         }
       }
