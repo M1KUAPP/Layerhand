@@ -190,7 +190,12 @@ export class RunRegistry {
 
   async steer(runId: string, text: string): Promise<void> {
     const run = this.#requiredRunning(runId)
-    await run.managedRun.handle.steer(text)
+    try {
+      await run.managedRun.handle.steer(text)
+    } catch {
+      // Contract 2 rejects a correction only once the run is ending.
+      throw new RunRegistryError('run_ended', 'The run is finishing, so the correction was not applied.')
+    }
   }
 
   async cancel(runId: string): Promise<void> {
