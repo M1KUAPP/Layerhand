@@ -53,13 +53,12 @@ Contents:
 
 ## Running it
 
-From the repository root, `bun install --frozen-lockfile`. Then, from
-`docs/evidence/driving-mechanism`, `bun install --frozen-lockfile`. With
-Codex CLI 0.153.0 or newer, signed in:
+With Codex CLI 0.153.0 or newer, signed in, from the repository root:
 
 ```sh
-cd docs/evidence/codex-proxy
-bun run run.ts [image] --cap 150 --minutes 20 --effort low
+bun install --frozen-lockfile
+bun run docs/evidence/codex-proxy/run.ts [image] \
+  --cap 150 --minutes 20 --effort low
 ```
 
 Output goes to `output/<timestamp>-<image>/`: `summary.json`, `code.ndjson`,

@@ -6,7 +6,7 @@
 // Each run is cancelled as soon as its first frame arrives, so the
 // measurement costs a few model calls rather than a whole retouch.
 //
-//   bun run measure.ts <base URL> [image] [--type-ms 8000]
+//   bun run docs/evidence/warm-editor/measure.ts <base URL> [image] [--type-ms 8000]
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
