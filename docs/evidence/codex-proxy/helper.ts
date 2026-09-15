@@ -13,7 +13,7 @@ import { chromium } from 'playwright-core'
 
 import { createPhotopeaHostHtml } from '../../../src/editor/photopea-host'
 import { pageCodeRunner } from '../driving-mechanism/code-runner'
-import { PhotopeaPageSession } from '../driving-mechanism/photopea-page-session'
+import { PhotopeaPageSession } from './photopea-page-session'
 
 const [imagePath, outputArgument, portArgument] = Bun.argv.slice(2)
 if (!imagePath || !outputArgument) throw new Error('Usage: bun run helper.ts <image> <output directory> [port]')
