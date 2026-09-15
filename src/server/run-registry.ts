@@ -4,6 +4,22 @@ import type { ManagedRun, ManagedRunMetrics } from './managed-run'
 
 const DEFAULT_RETENTION_MS = 60 * 60 * 1000
 
+// Cloud Run allows ten seconds after SIGTERM, which a cancel phase and an
+// abandon phase of this length both fit inside.
+const SHUTDOWN_GRACE_MS = 4_000
+
+/** Resolves when the promise settles, or after `ms`, whichever is first. */
+function within(promise: Promise<unknown>, ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms)
+    const done = () => {
+      clearTimeout(timer)
+      resolve()
+    }
+    promise.then(done, done)
+  })
+}
+
 export type RunStatus = 'running' | 'complete' | 'incomplete' | 'cancelled' | 'failed'
 
 export interface RunEventEnvelope {
@@ -207,6 +223,39 @@ export class RunRegistry {
     } catch (error) {
       run.cancelRequested = false
       throw error
+    }
+  }
+
+  /**
+   * Ends every run still going, for shutdown, so none is left billing. Each is
+   * cancelled and given `graceMs` to export and be recorded. One still going
+   * then is abandoned, which releases its browser, and gets `graceMs` more.
+   * Its secrets are released whether or not it has ended.
+   */
+  async close(graceMs = SHUTDOWN_GRACE_MS): Promise<void> {
+    const running = [...this.#runs.values()].filter((run) => !run.finalized)
+    await Promise.all(
+      running.map(async (run) => {
+        run.cancelRequested = true
+        try {
+          await run.managedRun.handle.cancel()
+        } catch {
+          // The abandon below still stops the bill.
+        }
+      })
+    )
+    await within(Promise.all(running.map((run) => run.terminal)), graceMs)
+
+    const stuck = running.filter((run) => !run.finalized)
+    await Promise.all(stuck.map((run) => run.managedRun.abandon?.().catch(() => undefined)))
+    await within(Promise.all(stuck.map((run) => run.terminal)), graceMs)
+    for (const run of stuck) {
+      if (run.finalized) continue
+      try {
+        run.managedRun.releaseSecrets()
+      } catch {
+        // Shutdown carries on.
+      }
     }
   }
 

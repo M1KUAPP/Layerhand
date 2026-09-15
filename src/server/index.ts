@@ -21,8 +21,11 @@ server = Bun.serve({
 async function shutdown(): Promise<void> {
   if (closing) return
   closing = true
-  await server?.stop()
+  // Stop taking connections, end the runs in flight, which also ends their
+  // event streams, then drop any connection still open.
+  void server?.stop()
   await runtime.close()
+  await server?.stop(true)
 }
 
 process.once('SIGTERM', shutdown)

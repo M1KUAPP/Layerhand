@@ -178,7 +178,11 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
         routes
       }),
       registry,
-      close: () => database.close()
+      // Runs in flight end first, so their results and run log lines still reach the database.
+      async close() {
+        await registry.close()
+        await database.close()
+      }
     }
   } catch (error) {
     await database.close().catch(() => undefined)

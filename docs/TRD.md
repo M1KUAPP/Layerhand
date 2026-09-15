@@ -737,6 +737,16 @@ applies to the cancel, ceiling, and error paths as much as to normal
 completion, and on the error path it is best-effort — an export that
 itself fails must not prevent the teardown that stops the bill.
 
+**Shutdown ends runs too.** On SIGTERM the server:
+
+1.  cancels every run in flight, and gives each four seconds to export and
+    be recorded;
+1.  abandons any run still going, and gives it four more seconds;
+1.  releases each run's secrets, whether or not it has ended.
+
+A deploy therefore never leaves a run billing. Both phases fit inside the
+ten seconds Cloud Run allows after SIGTERM.
+
 ## The web application
 
 A single page. Upload, prompt, run, result — no routing, no navigation,
