@@ -20,6 +20,16 @@ GitHub Actions.
 
 **Spec:** `docs/superpowers/specs/ten-image-reliability-suite-design.md`
 
+Contents:
+
+1.  [Global constraints](#global-constraints)
+1.  [Task 1: Add and validate the representative corpus](#task-1-add-and-validate-the-representative-corpus)
+1.  [Task 2: Run cases sequentially and validate their PSDs](#task-2-run-cases-sequentially-and-validate-their-psds)
+1.  [Task 3: Persist and format inspectable reports](#task-3-persist-and-format-inspectable-reports)
+1.  [Task 4: Add the paid production command](#task-4-add-the-paid-production-command)
+1.  [Task 5: Publish the guarded nightly result](#task-5-publish-the-guarded-nightly-result)
+1.  [Task 6: Run final verification and prepare review](#task-6-run-final-verification-and-prepare-review)
+
 ## Global constraints
 
 - Use Bun, never npm or yarn.
