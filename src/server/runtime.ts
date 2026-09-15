@@ -29,6 +29,8 @@ export interface LaunchRuntimeOptions {
   registryOptions?: Omit<RunRegistryOptions, 'onTerminal'>
   /** Receives one NDJSON record per finished run. Defaults to standard output. */
   writeRunLog?: (record: string) => void
+  /** Receives one NDJSON record per failed run, with its redacted cause. Defaults to standard error. */
+  writeRunFailure?: (record: string) => void
 }
 
 export interface LaunchRuntime {
@@ -145,6 +147,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       ...options.registryOptions,
       onTerminal: createRunLogger({
         write: options.writeRunLog ?? ((record) => process.stdout.write(record)),
+        writeFailure: options.writeRunFailure ?? ((record) => process.stderr.write(record)),
         store: new SqlRunLogStore(database)
       })
     })

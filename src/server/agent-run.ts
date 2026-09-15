@@ -8,6 +8,7 @@ import { Spend } from '../agent/spend'
 import type { ArtifactStore } from './artifact-store'
 import { browserbaseEditorSession, type BrowserbaseEditorSessionOptions } from './browserbase-editor-session'
 import type { ManagedRun, RunStopReason } from './managed-run'
+import { FailureRecorder } from './run-failure'
 
 /**
  * Frames travel over the event stream as data URLs, as docs/TRD.md § Frames
@@ -55,8 +56,10 @@ export function managedAgentRun(
   let timedOut = false
   let missingNarration = false
   let stopReason: RunStopReason = 'failed'
+  // The loop reports every failure with one fixed reason, so the calls it makes are watched for the cause.
+  const failures = new FailureRecorder()
 
-  const inner = dependencies.model
+  const inner = failures.model(dependencies.model)
   const model: AgentModel = {
     async next(observation, signal) {
       calls += 1
@@ -78,7 +81,12 @@ export function managedAgentRun(
     return 'failed'
   }
 
-  const underlying = runAgent(request, { ...dependencies, model })
+  const underlying = runAgent(request, {
+    ...dependencies,
+    model,
+    session: failures.session(dependencies.session),
+    publish: failures.publish(dependencies.publish)
+  })
 
   // At the ceiling the run is cancelled, so it exports and closes as a cancel
   // does. An editor call that hangs never sees a cancel, so a run still going
@@ -129,7 +137,8 @@ export function managedAgentRun(
     handle,
     metrics: () => ({
       cacheHitRate: spend.tokensIn > 0 ? cachedInputTokens / spend.tokensIn : null,
-      stopReason
+      stopReason,
+      ...(stopReason === 'failed' ? { failure: failures.failure(missingNarration) } : {})
     }),
     releaseSecrets() {
       request.apiKey = undefined

@@ -39,4 +39,11 @@ export async function applyMigrations(database: SQL): Promise<void> {
       instruction TEXT NOT NULL
     )
   `
+  // Added once databases already existed, so an existing table gains it too.
+  // SQLite and Postgres both lack a portable IF NOT EXISTS for a column.
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN failure_code TEXT`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
 }
