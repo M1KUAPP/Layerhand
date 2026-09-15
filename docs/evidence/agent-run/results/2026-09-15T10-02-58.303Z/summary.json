@@ -1,0 +1,72 @@
+{
+  "label": "Live run of liveAgentRun: GPT-6 Astra, computer tool, Browserbase, deployed /photopea-host",
+  "image": "input.jpg",
+  "publicUrl": "https://layerhand-732371853772.us-central1.run.app",
+  "stepCap": 40,
+  "budgetUsd": 8,
+  "outcome": "complete",
+  "stopReason": "complete",
+  "steps": 19,
+  "durationMs": 243522,
+  "browserbase": {
+    "createStartedMs": 4,
+    "createdMs": 797,
+    "releasedMs": 243520,
+    "statusAfterRun": "COMPLETED"
+  },
+  "firstFrameMs": 21319,
+  "firstStepMs": 24613,
+  "frames": 30,
+  "cost": {
+    "usd": 0.8487825,
+    "tokensIn": 369211,
+    "tokensOut": 1693
+  },
+  "cacheHitRate": 0.906988144990263,
+  "layers": [
+    {
+      "name": "Original photograph",
+      "kind": "raster",
+      "visible": true,
+      "masks": [],
+      "children": []
+    },
+    {
+      "name": "Brighten photograph",
+      "kind": "adjustment",
+      "visible": true,
+      "masks": [
+        {
+          "kind": "pixel",
+          "enabled": true
+        }
+      ],
+      "children": []
+    },
+    {
+      "name": "Warm colours",
+      "kind": "adjustment",
+      "visible": true,
+      "masks": [
+        {
+          "kind": "pixel",
+          "enabled": true
+        }
+      ],
+      "children": []
+    },
+    {
+      "name": "Darken corners softly",
+      "kind": "raster",
+      "visible": true,
+      "masks": [
+        {
+          "kind": "pixel",
+          "enabled": true
+        }
+      ],
+      "children": []
+    }
+  ],
+  "errors": []
+}
