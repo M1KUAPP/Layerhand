@@ -46,9 +46,11 @@ class RecordingMeter implements MeterStore {
 class RecordingArtifacts implements ArtifactStore {
   readonly calls: string[] = []
   failDelete = false
+  failPut = false
 
   async put(request: ArtifactPutRequest): Promise<StoredArtifact> {
     this.calls.push(`put:${request.kind}:${request.bytes.byteLength}`)
+    if (this.failPut) throw new Error('storage put failed')
     return { key: 'upload/random.png' }
   }
 
@@ -237,6 +239,21 @@ describe('warming an editor before the run', () => {
     expect(started.status).toBe(500)
     expect(target.warmed[0]?.abandoned).toBe(1)
     expect(target.warmSessions?.size).toBe(0)
+    expect(target.meter.calls).toContain('release')
+  })
+
+  test('releases the warm session when the run fails before the factory is reached', async () => {
+    const target = fixture({ warm: true })
+    const upload = await target.app.fetch(uploadRequest())
+    const { uploadId } = (await upload.json()) as { uploadId: string }
+    // Storing the upload fails, so no run is ever created to own the session.
+    target.artifacts.failPut = true
+
+    const started = await target.app.fetch(startRequest({ uploadId, cookie: visitorCookie(upload) }))
+
+    expect(started.status).toBeGreaterThanOrEqual(400)
+    expect(target.claimed).toEqual([])
+    expect(target.warmed[0]?.abandoned).toBe(1)
     expect(target.meter.calls).toContain('release')
   })
 
