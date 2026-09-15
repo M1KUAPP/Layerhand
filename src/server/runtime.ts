@@ -94,16 +94,27 @@ function readAgentConfig(env: Environment, config: ServerConfig | undefined): Ag
   const browserbaseApiKey = config?.browserbaseApiKey ?? env.BROWSERBASE_API_KEY
   if (!browserbaseApiKey) throw new ConfigurationError('RUN_MODE=agent needs BROWSERBASE_API_KEY')
   if (!env.PUBLIC_URL) throw new ConfigurationError('RUN_MODE=agent needs PUBLIC_URL')
+  return { hostUrl: photopeaHostUrl(env.PUBLIC_URL), sessions: new BrowserbaseClient(browserbaseApiKey) }
+}
+
+/**
+ * The host page's address under PUBLIC_URL. Any user name or password in
+ * PUBLIC_URL is dropped, because the address is handed to Browserbase's
+ * browser.
+ */
+export function photopeaHostUrl(publicUrl: string): string {
   let hostUrl: URL | undefined
   try {
-    hostUrl = new URL('/photopea-host', env.PUBLIC_URL)
+    hostUrl = new URL('/photopea-host', publicUrl)
   } catch {
     // Reported below without repeating the value.
   }
   if (hostUrl?.protocol !== 'https:' && hostUrl?.protocol !== 'http:') {
     throw new ConfigurationError('PUBLIC_URL must be an HTTP or HTTPS address')
   }
-  return { hostUrl: hostUrl.href, sessions: new BrowserbaseClient(browserbaseApiKey) }
+  hostUrl.username = ''
+  hostUrl.password = ''
+  return hostUrl.href
 }
 
 function developmentNumber(value: string | undefined, fallback: number): number {
