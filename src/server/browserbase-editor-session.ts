@@ -31,8 +31,11 @@ export interface BrowserbaseEditorSessionOptions {
 
 const VIEWPORT: Viewport = { width: 1440, height: 900 }
 
+/** A CDP connection that has not opened by then never will; the run fails and releases the session. */
+export const CONNECT_TIMEOUT_MS = 30_000
+
 export async function connectOverCdp(connectUrl: string): Promise<RemoteBrowser> {
-  const browser = await chromium.connectOverCDP(connectUrl)
+  const browser = await chromium.connectOverCDP(connectUrl, { timeout: CONNECT_TIMEOUT_MS })
   try {
     const context = browser.contexts()[0]
     if (!context) throw new Error('Browserbase did not create a browser context')
