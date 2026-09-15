@@ -73,8 +73,8 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
 
 type RunMode = 'agent' | 'fake'
 
-// The agent loop runs against the recorded editor and a scripted model until
-// the Responses API adapter lands, so the default stays the scripted run.
+// Agent mode runs the loop against the recorded editor and a scripted model,
+// because nothing wires in a real model or editor yet. The default is fakeRun().
 function readRunMode(value: string | undefined): RunMode {
   if (value === undefined || value === 'fake') return 'fake'
   if (value === 'agent') return 'agent'
