@@ -51,6 +51,14 @@ export {
 export { assertCompleteLayerTree, LayerCompletionError, type LayerCompletionErrorCode } from './layer-tree-policy'
 export { PhotopeaExportError, type PhotopeaExportErrorCode } from './photopea-export-error'
 export {
+  PhotopeaActionRunner,
+  type AuxiliaryButton,
+  type AuxiliaryMouse,
+  type PhotopeaActionPage,
+  type PhotopeaActionRunnerOptions
+} from './photopea-action-runner'
+export { createPlaywrightAuxiliaryMouse } from './playwright-auxiliary-mouse'
+export {
   parsePsdMetadata,
   toLayerInfoTree,
   type AdjustmentType,
