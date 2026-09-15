@@ -6,30 +6,11 @@ Astra drove Photopea through a Responses API WebSocket, in a Browserbase
 browser that loaded `/photopea-host` from the deployed service, and a
 correction was sent into the response being generated.
 
-## Running it
+Contents:
 
-Use Bun 1.4.2, the version production runs; Bun 1.3.14 cannot open
-Playwright's CDP connection. The script needs `OPENAI_API_KEY` and
-`BROWSERBASE_API_KEY`. From the repository root:
-
-```sh
-bun --env-file=.env run docs/evidence/native-steering/live-steer.ts \
-  https://layerhand-732371853772.us-central1.run.app --steer-after 3
-```
-
-It composes the same pieces as `liveAgentRun`, holding the model itself so
-that it can report what the ledger settled. Output goes to
-`output/<timestamp>/`, which Git ignores. The recorded run's files are kept
-in [`results/`](/docs/evidence/native-steering/results/):
-
-- `summary.json`;
-- `steering.ndjson`, one line per event the socket saw;
-- `events.ndjson`, with each frame reduced to a counter;
-- `preview.png` and `last-frame.png`.
-
-The script also writes `result.psd` and `first-frame.png`, which are not
-kept, and the session's live-view URL, which is not kept anywhere because
-it carries a token for that session.
+1.  [Result](#result)
+1.  [Limits](#limits)
+1.  [Running it](#running-it)
 
 ## Result
 
@@ -82,7 +63,7 @@ exported file still has it, alongside the two layers made afterwards:
 The vignette's name, and the 10% opacity the model chose at step 9, are the
 correction landing in the work rather than in a restart.
 
-Limits on what this shows:
+## Limits
 
 - **One run, on one image**, with **one correction**. It is not the
   ten-image measure NFR-1 asks for.
@@ -93,3 +74,28 @@ Limits on what this shows:
 - **The correction came from the script**, not from a person typing into
   the page. The page's own path is the same `handle.steer`.
 - **The PSD was not opened in Photoshop.**
+
+## Running it
+
+Use Bun 1.4.2, the version production runs; Bun 1.3.14 cannot open
+Playwright's CDP connection. The script needs `OPENAI_API_KEY` and
+`BROWSERBASE_API_KEY`. From the repository root:
+
+```sh
+bun --env-file=.env run docs/evidence/native-steering/live-steer.ts \
+  https://layerhand-732371853772.us-central1.run.app --steer-after 3
+```
+
+It composes the same pieces as `liveAgentRun`, holding the model itself so
+that it can report what the ledger settled. Output goes to
+`output/<timestamp>/`, which Git ignores. The recorded run's files are kept
+in [`results/`](/docs/evidence/native-steering/results/):
+
+- `summary.json`;
+- `steering.ndjson`, one line per event the socket saw;
+- `events.ndjson`, with each frame reduced to a counter;
+- `preview.png` and `last-frame.png`.
+
+The script also writes `result.psd` and `first-frame.png`, which are not
+kept, and the session's live-view URL, which is not kept anywhere because
+it carries a token for that session.
