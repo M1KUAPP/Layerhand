@@ -4,6 +4,17 @@ This record explains how a Photopea session returns one coherent result: a
 layered PSD, a PNG preview, and a layer tree parsed from that PSD, with
 every layer given a human name.
 
+Contents:
+
+1.  [Status](#status)
+1.  [Context](#context)
+1.  [Decision](#decision)
+1.  [Errors](#errors)
+1.  [Alternatives considered](#alternatives-considered)
+1.  [Consequences](#consequences)
+1.  [Verification plan](#verification-plan)
+1.  [References](#references)
+
 ## Status
 
 Accepted on September 15, 2026.

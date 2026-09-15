@@ -2,6 +2,14 @@
 
 Released September 3, 2026. Model ID `gpt-6-astra` via the Responses API.
 
+Contents:
+
+1.  [Capability primitives](#capability-primitives)
+1.  [Hard limits](#hard-limits)
+1.  [Cost math](#cost-math)
+1.  [Other benchmark figures](#other-benchmark-figures)
+1.  [Prompting Astra differently](#prompting-astra-differently)
+
 ## Capability primitives
 
 Ideate from these. Each is a thing that was not practical before Astra.

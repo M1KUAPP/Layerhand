@@ -4,7 +4,16 @@ This directory retains evidence from the September 15, 2026 spike B1 rerun.
 
 This is a throwaway probe, not the production editor adapter.
 
-## Contents
+Contents:
+
+1.  [Files](#files)
+1.  [Reproduction](#reproduction)
+1.  [Timing definitions](#timing-definitions)
+1.  [Digests](#digests)
+1.  [Photoshop verification](#photoshop-verification)
+1.  [Evidence limits](#evidence-limits)
+
+## Files
 
 - [`probe.ts`](probe.ts) contains the outer-page message listener, JPEG upload,
   Photopea layer script, sentinel wait, PSD export, and `ag-psd` assertions.

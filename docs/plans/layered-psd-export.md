@@ -22,6 +22,18 @@ Chrome DevTools Protocol, `ag-psd` 30.2.0, Sharp, Bun tests.
 
 **Spec:** `docs/decisions/0003-parser-backed-photopea-export.md`
 
+Contents:
+
+1.  [Global constraints](#global-constraints)
+1.  [Task 1: Migrate the recursive layer contract](#task-1-migrate-the-recursive-layer-contract)
+1.  [Task 2: Parse exported PSD metadata](#task-2-parse-exported-psd-metadata)
+1.  [Task 3: Enforce names and completed-tree policy](#task-3-enforce-names-and-completed-tree-policy)
+1.  [Task 4: Build the correlated Photopea export transaction](#task-4-build-the-correlated-photopea-export-transaction)
+1.  [Task 5: Translate computer actions](#task-5-translate-computer-actions)
+1.  [Task 6: Own the production session lifecycle](#task-6-own-the-production-session-lifecycle)
+1.  [Task 7: Prove masked export in installed Chrome](#task-7-prove-masked-export-in-installed-chrome)
+1.  [Issue #17 parallel boundary](#issue-17-parallel-boundary)
+
 ## Global constraints
 
 - Photopea is the production editor. Do not generate production PSDs with

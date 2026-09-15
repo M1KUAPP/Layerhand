@@ -9,6 +9,14 @@ everywhere they appear — commit subjects, issue titles, and pull request
 titles — so that one glance at any of the three tells you what kind of change
 it is.
 
+Contents:
+
+1.  [The loop](#the-loop)
+1.  [Naming](#naming)
+1.  [What enforces what](#what-enforces-what)
+1.  [Secrets](#secrets)
+1.  [Setting it up](#setting-it-up)
+
 ## The loop
 
 1. **Branch.** `git switch -c <type>/<short-description>` off an up-to-date
