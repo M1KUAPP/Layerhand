@@ -1,0 +1,31 @@
+{
+  "browser": "Google Chrome via Playwright",
+  "consoleMessages": [
+    "1440",
+    "adding"
+  ],
+  "exportMs": 100,
+  "fixtureBytes": 13442,
+  "fixturePath": "output/input.jpg",
+  "fixtureSha256": "cdced3c5f2e0524af39acb80c96ca8a26254c924ea1514774202091e97d13d11",
+  "fixtureUrl": "https://picsum.photos/seed/layerhand/640/480.jpg",
+  "height": 480,
+  "layers": [
+    "Original photograph",
+    "Retouched copy"
+  ],
+  "messageSequence": [
+    "string:done",
+    "binary:1412711",
+    "string:layerhand:export:adfb4f0c-44c6-4830-89cd-fbf5787d3174",
+    "string:done"
+  ],
+  "psdBytes": 1412711,
+  "psdPath": "output/photopea-round-trip.psd",
+  "readyMs": 1309,
+  "roundTripMs": 133,
+  "screenshotPath": "output/photopea-final.png",
+  "totalMs": 2356,
+  "uploadMs": 33,
+  "width": 640
+}
