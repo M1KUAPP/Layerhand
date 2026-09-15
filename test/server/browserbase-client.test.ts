@@ -119,4 +119,18 @@ describe('BrowserbaseClient', () => {
     expect(String(error)).toContain('Browserbase returned an invalid response')
     expect(String(error)).not.toContain(leaked)
   })
+
+  test('gives up on a request that never answers', async () => {
+    // Answers only when the request is aborted, as a stalled connection would.
+    const stalled = async (_input: string | URL | Request, init: RequestInit = {}) =>
+      new Promise<Response>((_resolve, reject) => {
+        init.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true })
+      })
+    const client = new BrowserbaseClient('bb-key', stalled, undefined, 20)
+
+    const startedAt = performance.now()
+    await expect(client.releaseSession('session-1')).rejects.toThrow('Browserbase session request failed')
+
+    expect(performance.now() - startedAt).toBeLessThan(1_000)
+  })
 })
