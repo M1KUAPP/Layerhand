@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test'
-import { buildLayerRenamePlan, normalizeLayerName, type AdjustmentType, type ParsedLayerInfo } from '../../src/editor'
+import {
+  assertLayerNames,
+  buildLayerRenamePlan,
+  normalizeLayerName,
+  PhotopeaExportError,
+  type AdjustmentType,
+  type LayerInfo,
+  type ParsedLayerInfo
+} from '../../src/editor'
 
 function layer(
   name: string,
@@ -34,6 +42,16 @@ function applyRenamePlan(
     })
 
   return apply(layers)
+}
+
+function expectInvalidLayerNames(layers: readonly LayerInfo[]): void {
+  try {
+    assertLayerNames(layers)
+    throw new Error('Expected invalid layer names')
+  } catch (error) {
+    expect(error).toBeInstanceOf(PhotopeaExportError)
+    expect((error as PhotopeaExportError).code).toBe('photopea_invalid_layer_name')
+  }
 }
 
 describe('normalizeLayerName', () => {
@@ -122,5 +140,22 @@ describe('buildLayerRenamePlan', () => {
     expect(plan).toEqual(expected)
     expect(buildLayerRenamePlan(layers)).toEqual(plan)
     expect(buildLayerRenamePlan(applyRenamePlan(layers, plan))).toEqual([])
+  })
+
+  test('renames every duplicate fallback name', () => {
+    expect(buildLayerRenamePlan([layer('Retouched pixels'), layer('Retouched pixels')])).toEqual([
+      { path: [0], from: 'Retouched pixels', to: 'Retouched pixels 2' },
+      { path: [1], from: 'Retouched pixels', to: 'Retouched pixels 3' }
+    ])
+  })
+})
+
+describe('assertLayerNames', () => {
+  test('rejects a generic stored name', () => {
+    expectInvalidLayerNames([layer('Layer')])
+  })
+
+  test('rejects a non-normalized stored name', () => {
+    expectInvalidLayerNames([layer('  Warm   highlights  ')])
   })
 })
