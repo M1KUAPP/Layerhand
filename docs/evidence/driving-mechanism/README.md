@@ -6,9 +6,12 @@ through code execution? It is a throwaway like the
 [B1 probe](/docs/evidence/photopea-round-trip/README.md), not the production
 editor adapter.
 
-**No result is recorded here yet.** The harness needs `OPENAI_API_KEY`, and
-none was available when it was built. The only runs so far are dry runs with
-the scripted model, which check the harness and measure nothing about Astra.
+**Result, September 15, 2026:** both mechanisms completed all three images.
+The `computer` tool was chosen, for the reasons in
+[TRD § How the editor is actually driven](/docs/TRD.md#how-the-editor-is-actually-driven).
+The records, code logs, and final frames are in
+[`results/2026-09-15/`](results/2026-09-15/records.json), without PSDs. The
+sweep, with its two smoke runs, spent $3.47.
 
 ## What a run does
 
@@ -18,9 +21,12 @@ Each mechanism gets the same three-edit instruction, in
 (640x480 PNG).
 
 A run goes through the real pieces: `runAgent()` with `managedAgentRun()`,
-the `ResponsesModel` adapter, and [`PhotopeaPageSession`](photopea-page-session.ts),
-which opens live Photopea in local Chromium through
-`PlaywrightPhotopeaTransport`. The step cap is 40 and the spend cap $8.
+the `ResponsesModel` adapter, and the editor stream's
+`createPhotopeaEditorSession`, which opens live Photopea in local Chromium
+through `PlaywrightPhotopeaTransport`. The measured runs used that
+production session. The throwaway
+[`PhotopeaPageSession`](photopea-page-session.ts) is kept only for the
+Codex proxy run. The step cap is 40 and the spend cap $8.
 
 - **`computer`** sends `{ "type": "computer" }`. The loop carries out the
   returned `actions[]` through Playwright's mouse and keyboard.
