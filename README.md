@@ -93,10 +93,10 @@ but pushes and deploys nothing until the repository variable
 
 - **Plain variables** are set in the workflow:
   - `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, and `TRUST_PROXY_HOPS`;
-  - `RUN_MODE`, which is `fake` for now. `agent` runs the real agent and
-    also needs `PUBLIC_URL`, the service's own address, because
-    Browserbase's browser loads `/photopea-host` from it. `scripted` runs
-    the loop against a recorded editor, for development;
+  - `RUN_MODE`, which is `agent`: the real agent runs. It needs
+    `PUBLIC_URL`, set to the service's own address, because Browserbase's
+    browser loads `/photopea-host` from it. `fake` and `scripted` are for
+    development;
   - `FREE_DAILY_BUDGET_USD`, a placeholder of 10 until the ceiling is
     agreed (#29). It bounds the server's OpenAI key, a personal balance, to
     $10 a day;
