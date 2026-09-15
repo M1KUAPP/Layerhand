@@ -8,6 +8,26 @@ The work is split into independently testable packages. A package may ship
 code before an external checkpoint is available, but an issue is closed only
 when every item in its GitHub acceptance checklist has evidence.
 
+Contents:
+
+1.  [Goals](#goals)
+1.  [Non-goals](#non-goals)
+1.  [Delivery structure](#delivery-structure)
+1.  [Runtime and build](#runtime-and-build)
+1.  [Server composition](#server-composition)
+1.  [Run registry and event delivery](#run-registry-and-event-delivery)
+1.  [Input and admission order](#input-and-admission-order)
+1.  [Metering and waitlist persistence](#metering-and-waitlist-persistence)
+1.  [Artifact storage](#artifact-storage)
+1.  [Browserbase boundary](#browserbase-boundary)
+1.  [Single-page experience](#single-page-experience)
+1.  [Observability](#observability)
+1.  [Security and error handling](#security-and-error-handling)
+1.  [Testing strategy](#testing-strategy)
+1.  [Worker allocation](#worker-allocation)
+1.  [External checkpoints and issue closure](#external-checkpoints-and-issue-closure)
+1.  [References](#references)
+
 ## Goals
 
 - Deliver every P0 repository change before the P1 observability work.

@@ -10,6 +10,12 @@ the driving, not `ResponsesModel`. The `computer` tool is not exercised, and
 the step, token, and credit figures are not what the product's loop would
 record.
 
+Contents:
+
+1.  [How it runs](#how-it-runs)
+1.  [Running it](#running-it)
+1.  [Results](#results)
+
 ## How it runs
 
 - [`helper.ts`](helper.ts) opens one image in live Photopea in local headless

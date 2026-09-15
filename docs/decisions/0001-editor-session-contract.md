@@ -4,6 +4,16 @@ This record explains why the agent loop reaches the editor only through
 `EditorSession`, an interface that names no editor or browser provider, and
 why a fixture-backed fake implements it too.
 
+Contents:
+
+1.  [Status](#status)
+1.  [Context](#context)
+1.  [Decision](#decision)
+1.  [Alternatives considered](#alternatives-considered)
+1.  [Consequences](#consequences)
+1.  [Verification](#verification)
+1.  [References](#references)
+
 ## Status
 
 Accepted on September 14, 2026.

@@ -2,6 +2,16 @@
 
 The Astra Challenge had no winners as of September 12, 2026 — submissions close September 18. The signals below are the best available proxies for what OpenAI rewards.
 
+Contents:
+
+1.  [Official Astra Hackathon winners (Cerebral Valley × OpenAI, SF, Sept 8 2026)](#official-astra-hackathon-winners-cerebral-valley--openai-sf-sept-8-2026)
+1.  [WebMCP Challenge (August 2026) — the rubric source](#webmcp-challenge-august-2026--the-rubric-source)
+1.  [The OpenAI developer showcase](#the-openai-developer-showcase)
+1.  [The taken list](#the-taken-list)
+1.  [What the games collection reveals about Astra](#what-the-games-collection-reveals-about-astra)
+1.  [Product Hunt launch mechanics](#product-hunt-launch-mechanics)
+1.  [Sources](#sources)
+
 ## Official Astra Hackathon winners (Cerebral Valley × OpenAI, SF, Sept 8 2026)
 
 $100K in credits, DevDay tickets, ChatGPT Pro. Run in SF and NYC.
