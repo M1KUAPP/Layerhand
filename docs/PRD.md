@@ -45,12 +45,8 @@ scheduled for Friday and joined to the challenge, before the close.
 | 6 — Friday    | Sep 18 | Launch at 12:01am PT                                |
 
 The 2026 launch playbooks put the optimal slot on a Tuesday or
-Wednesday, and Friday is outside that window — how far outside, we have
-not established. Wednesday the 16th would cost two of six build days;
-Tuesday the 15th would cost three, and since the schedule freezes the
-evening before launch, it would mean freezing on the evening of the
-go/no-go itself — no gap at all between proving the thing works and
-shipping it. We take the build days.
+Wednesday. Friday is outside that window, but the contest fixes the day,
+so there is no better slot to trade build days for.
 
 The contest, not the daily rank, is what is being won. But a launch
 nobody sees gives the judges nothing to look at, so
