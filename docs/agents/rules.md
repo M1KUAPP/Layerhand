@@ -15,7 +15,7 @@ Contents:
 ## Git
 
 The full workflow is in the
-[git workflow reference](/docs/references/git-workflow.md). The parts you must
+[Git workflow reference](/docs/references/git-workflow.md). The parts you must
 not get wrong:
 
 - **Never commit or push to `main`.** Branch first:
@@ -43,7 +43,7 @@ titles that say where the link goes.
 
 ## Tooling
 
-- **bun**, not npm or yarn. `bun install`, `bun run lint`.
+- **Bun**, not npm or Yarn. `bun install`, `bun run lint`.
 - **Prettier** owns syntax, not prose. `bun run lint` checks the whole
   tree and `lint-staged` fixes staged files on commit, so do not
   hand-format around it. But `printWidth` applies to code, and `proseWrap`

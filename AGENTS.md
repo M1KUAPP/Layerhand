@@ -16,7 +16,7 @@ are symlinks to it.
   before reading or searching raw files.
 - @docs/agents/rtk.md — shell output comes back condensed; re-run a command
   with `rtk proxy` only when its result is unusable.
-- @docs/agents/rules.md — the project conventions for git, writing,
+- @docs/agents/rules.md — the project conventions for Git, writing,
   tooling, and layout. They override an agent's own defaults.
 - @docs/agents/skills.md — the installed skill collections, and when to
   reach for each.
