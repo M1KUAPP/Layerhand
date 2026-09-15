@@ -21,14 +21,14 @@ Contents:
   sentinel. [`protocol.test.ts`](protocol.test.ts) covers the valid ordering and
   rejects an absent or wrong sentinel and bytes arriving only after it.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
-  values are in [`output/trap-results.json`](output/trap-results.json).
-- [`output/result.json`](output/result.json) is the retained round-trip output.
-  [`output/input.jpg`](output/input.jpg) is the exact JPEG used by that run.
-  [`output/photopea-round-trip.psd`](output/photopea-round-trip.psd) is the PSD
+  values are in [`output/trap-results.json`](/docs/evidence/photopea-round-trip/output/trap-results.json).
+- [`output/result.json`](/docs/evidence/photopea-round-trip/output/result.json) is the retained round-trip output.
+  [`output/input.jpg`](/docs/evidence/photopea-round-trip/output/input.jpg) is the exact JPEG used by that run.
+  [`output/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/output/photopea-round-trip.psd) is the PSD
   selected from that message stream.
-- [`output/photoshop-verification.json`](output/photoshop-verification.json)
+- [`output/photoshop-verification.json`](/docs/evidence/photopea-round-trip/output/photoshop-verification.json)
   records the manual compatibility observation against the PSD digest.
-- [`output/photopea-final.png`](output/photopea-final.png) is the final Photopea
+- [`output/photopea-final.png`](/docs/evidence/photopea-round-trip/output/photopea-final.png) is the final Photopea
   frame. It shows the opened photograph, but not the Layers panel and therefore
   is not used as layer-structure evidence.
 - [`bun.lock`](bun.lock) resolves `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp
@@ -116,7 +116,7 @@ visible Layers panel showed `Retouched copy` above `Original photograph`.
 The check used the exact PSD whose SHA-256 is listed above. Computer control
 closed the document without a save prompt after the observation. The
 structured record is in
-[`output/photoshop-verification.json`](output/photoshop-verification.json).
+[`output/photoshop-verification.json`](/docs/evidence/photopea-round-trip/output/photoshop-verification.json).
 
 ## Evidence limits
 
