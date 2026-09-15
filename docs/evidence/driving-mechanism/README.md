@@ -31,9 +31,9 @@ A run goes through the real pieces: `runAgent()` with `managedAgentRun()`,
 the `ResponsesModel` adapter, and the editor stream's
 `createPhotopeaEditorSession`, which opens live Photopea in local Chromium
 through `PlaywrightPhotopeaTransport`. The measured runs used that
-production session. The throwaway
-[`PhotopeaPageSession`](photopea-page-session.ts) is kept only for the
-Codex proxy run. The step cap is 40 and the spend cap $8.
+production session. The throwaway `PhotopeaPageSession` belongs to the
+[Codex proxy run](/docs/evidence/codex-proxy/README.md), the only thing that
+uses it. The step cap is 40 and the spend cap $8.
 
 - **`computer`** sends `{ "type": "computer" }`. The loop carries out the
   returned `actions[]` through Playwright's mouse and keyboard.
