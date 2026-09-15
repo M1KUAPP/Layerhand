@@ -29,10 +29,8 @@ export function createPhotopeaHostHtml(): string {
           if (typeof event.data === 'string') {
             messages.push({ type: 'text', value: event.data });
           } else if (event.data instanceof ArrayBuffer) {
-            messages.push({
-              type: 'bytes',
-              value: Array.prototype.slice.call(new Uint8Array(event.data))
-            });
+            // The transport encodes the bytes as it reads them out of the page.
+            messages.push({ type: 'bytes', value: new Uint8Array(event.data) });
           }
         });
 

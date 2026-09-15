@@ -32,6 +32,7 @@ function createPageFake() {
   const host = {
     Uint8Array,
     atob,
+    btoa,
     window: {
       __layerhandPhotopeaMessages: state.messages,
       __layerhandSendToPhotopea: (message: unknown) => state.received.push(message)
@@ -114,24 +115,45 @@ describe('Playwright Photopea transport', () => {
     expect(serializedBytes).toBeLessThan(expected.byteLength * 2 + 128)
   })
 
-  test('decodes copied text and byte messages', () => {
+  test('receives an exported file as compact base64, byte for byte', async () => {
+    const page = createPageFake()
+    // Every byte value, across several of the page's encoding chunks and a partial last one.
+    const exported = Uint8Array.from({ length: 100_000 }, (_, index) => (index * 7) % 256)
+    page.messages.push({ type: 'bytes', value: exported })
+    let returnedBytes = 0
+    const evaluate = page.evaluate
+    page.evaluate = async (callback: Function, argument?: unknown) => {
+      const result = await evaluate(callback, argument)
+      returnedBytes = JSON.stringify(result).length
+      return result
+    }
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    const message = await transport.nextMessage(750)
+
+    expect(message).toEqual({ type: 'bytes', value: exported })
+    expect(returnedBytes).toBeLessThan(exported.byteLength * 1.4 + 128)
+  })
+
+  test('decodes text messages and base64 byte messages', () => {
     expect(decodePhotopeaWireMessage({ type: 'text', value: 'done' })).toEqual({
       type: 'text',
       value: 'done'
     })
-    const wire = { type: 'bytes', value: [1, 2, 3] }
-    const decoded = decodePhotopeaWireMessage(wire)
-    wire.value[0] = 9
-    expect(decoded).toEqual({ type: 'bytes', value: Uint8Array.of(1, 2, 3) })
+    expect(decodePhotopeaWireMessage({ type: 'bytes', value: 'AQID' })).toEqual({
+      type: 'bytes',
+      value: Uint8Array.of(1, 2, 3)
+    })
   })
 
   test('rejects malformed host messages', () => {
-    expect(() => decodePhotopeaWireMessage({ type: 'bytes', value: ['x'] })).toThrow(
-      'Photopea host returned an invalid message.'
-    )
-    expect(() => decodePhotopeaWireMessage({ type: 'bytes', value: new Array(2) })).toThrow(
-      'Photopea host returned an invalid message.'
-    )
+    for (const value of [['x'], new Array(2), [1, 2, 3], 'AQI', 'AQID!', 'AQ=D']) {
+      expect(() => decodePhotopeaWireMessage({ type: 'bytes', value })).toThrow(
+        'Photopea host returned an invalid message.'
+      )
+    }
   })
 
   test('boots the configured non-opaque host URL', async () => {
@@ -224,13 +246,13 @@ describe('Playwright Photopea transport', () => {
 
   test('shifts exactly one queued host message and leaves the next', async () => {
     const page = createPageFake()
-    page.messages.push({ type: 'text', value: 'first' }, { type: 'bytes', value: [4, 5] })
+    page.messages.push({ type: 'text', value: 'first' }, { type: 'bytes', value: Uint8Array.of(4, 5) })
     const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
       hostUrl: 'http://127.0.0.1:4123/editor'
     })
 
     expect(await transport.nextMessage(750)).toEqual({ type: 'text', value: 'first' })
-    expect(page.messages).toEqual([{ type: 'bytes', value: [4, 5] }])
+    expect(page.messages).toEqual([{ type: 'bytes', value: Uint8Array.of(4, 5) }])
     expect(page.waitTimeouts).toEqual([750])
   })
 
