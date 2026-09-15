@@ -250,6 +250,16 @@ describe('ResponsesModel failures', () => {
     expect(String((failure as Error).message)).not.toContain(KEY)
   })
 
+  test('drops an error code that could quote the request, even on a 200', async () => {
+    const { fetch } = scriptedFetch([{ id: 'resp_1', error: { code: `Bad key ${KEY}` } }])
+    const model = new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 1, mechanism: 'computer', fetch })
+
+    const failure = await model.next(observe(), signal()).catch((error: unknown) => error)
+
+    expect(failure).toMatchObject({ status: 200, code: undefined })
+    expect(String((failure as Error).message)).not.toContain(KEY)
+  })
+
   test('passes the abort signal to the request', async () => {
     const { fetch, sent } = scriptedFetch([{ id: 'resp_1', output: [] }])
     const model = new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 1, mechanism: 'computer', fetch })
@@ -263,6 +273,8 @@ describe('ResponsesModel failures', () => {
   test('refuses malformed and unsupported actions', () => {
     expect(() => toComputerAction({ type: 'click', button: 'left', x: '1', y: 2 })).toThrow('malformed')
     expect(() => toComputerAction({ type: 'zoom' })).toThrow('does not support')
+    expect(() => toComputerAction({ type: 'keypress' })).toThrow('malformed')
+    expect(() => toComputerAction({ type: 'keypress', keys: [] })).toThrow('malformed')
     expect(toComputerAction({ type: 'drag', path: [{ x: 1, y: 2 }], keys: ['SHIFT'] })).toEqual({
       type: 'drag',
       path: [{ x: 1, y: 2 }],
