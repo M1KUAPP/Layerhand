@@ -600,7 +600,8 @@ Contents:
 - [ ] **Step 5: Commit the live command**
 
   ```bash
-  git add scripts/run-reliability.ts test/reliability/live-runner.test.ts package.json tsconfig.json README.md
+  git add scripts/run-reliability.ts test/reliability/live-runner.test.ts \
+    package.json tsconfig.json README.md
   git commit -m "feat(reliability): add the live suite command"
   ```
 
@@ -706,7 +707,8 @@ Contents:
 - [ ] **Step 5: Commit the workflow**
 
   ```bash
-  git add .github/workflows/reliability.yml test/reliability/workflow.test.ts docs/references/git-workflow.md
+  git add .github/workflows/reliability.yml test/reliability/workflow.test.ts \
+    docs/references/git-workflow.md
   git commit -m "ci(reliability): publish the nightly result"
   ```
 
