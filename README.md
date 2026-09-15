@@ -125,9 +125,12 @@ and the launch freeze holds from Thursday evening, September 17.
 In production the container refuses to start unless all eleven variables
 that `src/server/config.ts` requires are set.
 
-`STEERING` is not set, so a correction reaches the model with its next
-call. `native` also steers the response in flight, and is set only after a
-live run proves it (#9).
+`STEERING` is `native`: a correction is applied to the response being
+generated, over one Responses API WebSocket per run. Spike A3 proved that
+against this service, and
+[the evidence bundle](docs/evidence/native-steering/README.md) holds the
+run. `boundary`, the default, sends a correction with the next model call
+instead, and is what a run falls back to if its socket fails.
 
 **The database is the Neon project `layerhand`**, in the M1KUAPP
 organisation and region `aws-us-east-2`. It is not paused when it goes
