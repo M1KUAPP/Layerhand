@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { chromium, type Browser } from 'playwright-core'
+import { chromium, type Browser, type Page } from 'playwright-core'
 import sharp from 'sharp'
 import {
   PhotopeaActionRunner,
@@ -45,6 +45,16 @@ async function locateMaskThumbnail(screenshot: Uint8Array) {
       start = undefined
     }
   }
+  return undefined
+}
+
+async function waitForMaskThumbnail(page: Page) {
+  const deadline = Date.now() + 5_000
+  do {
+    const location = await locateMaskThumbnail(await page.screenshot({ fullPage: false, type: 'png' }))
+    if (location) return location
+    await Bun.sleep(100)
+  } while (Date.now() < deadline)
   throw new Error('Could not locate the visible pixel-mask thumbnail.')
 }
 
@@ -124,7 +134,7 @@ describeLive('Photopea editor session in Google Chrome', () => {
       expect(reopened.layers).toEqual(layers)
       expect(await decodePreview(reopened.preview)).toEqual(before)
 
-      const maskThumbnail = await locateMaskThumbnail(await page.screenshot({ fullPage: false, type: 'png' }))
+      const maskThumbnail = await waitForMaskThumbnail(page)
       await session.act([
         { type: 'click', button: 'left', ...maskThumbnail },
         { type: 'wait' },
