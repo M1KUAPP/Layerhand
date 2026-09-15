@@ -37,5 +37,5 @@ are symlinks to it.
   the core flow, and the numbered `FR` and `NFR` items.
 - @docs/TRD.md — the technical design: architecture, the three contracts,
   cost control, testing, and the spikes that settle open questions.
-- @docs/producthunt-ideas.md — the ten rounds of ideation Layerhand was
+- @docs/ideation.md — the ten rounds of ideation Layerhand was
   chosen from, including the ideas it beat.
