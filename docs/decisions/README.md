@@ -9,3 +9,5 @@ chosen and what would justify revisiting them.
   — accepted September 14, 2026.
 - [ADR-0002: Upload images through an injected Photopea transport](0002-photopea-upload-transport.md)
   — accepted September 14, 2026.
+- [ADR-0003: Export a parser-backed Photopea snapshot](0003-parser-backed-photopea-export.md)
+  — accepted September 15, 2026.
