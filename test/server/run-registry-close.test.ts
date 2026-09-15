@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import type { RunEvent, RunHandle } from '../../src/agent/contract'
 import type { ManagedRun } from '../../src/server/managed-run'
-import { RunRegistry, type TerminalRun } from '../../src/server/run-registry'
+import { RunRegistry, RunRegistryError, type TerminalRun } from '../../src/server/run-registry'
 import { createLaunchRuntime } from '../../src/server/runtime'
 
 const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
@@ -19,7 +19,9 @@ const ABANDONED: RunEvent = {
 }
 
 /** A run that goes on until it is cancelled, or, if it ignores that, until it is abandoned. */
-function runInFlight(behaviour: { ignoresCancel?: boolean; ignoresAbandon?: boolean } = {}) {
+function runInFlight(
+  behaviour: { ignoresCancel?: boolean; ignoresAbandon?: boolean; cancelHangs?: boolean; abandonHangs?: boolean } = {}
+) {
   const calls = { cancel: 0, abandon: 0, released: 0 }
   let end: (event: RunEvent) => void = () => undefined
   const ended = new Promise<RunEvent>((resolve) => {
@@ -35,6 +37,7 @@ function runInFlight(behaviour: { ignoresCancel?: boolean; ignoresAbandon?: bool
     async steer() {},
     async cancel() {
       calls.cancel += 1
+      if (behaviour.cancelHangs) await new Promise(() => undefined)
       if (!behaviour.ignoresCancel) end(CANCELLED)
     }
   }
@@ -46,6 +49,8 @@ function runInFlight(behaviour: { ignoresCancel?: boolean; ignoresAbandon?: bool
     },
     async abandon() {
       calls.abandon += 1
+      // As an abandon waiting on a Browserbase request that never answers.
+      if (behaviour.abandonHangs) await new Promise(() => undefined)
       if (!behaviour.ignoresAbandon) end(ABANDONED)
     }
   }
@@ -109,6 +114,44 @@ describe('RunRegistry.close', () => {
     await registry.close(20)
 
     expect(finished.calls).toEqual({ cancel: 1, abandon: 0, released: 1 })
+  })
+})
+
+describe('RunRegistry.close, bounded', () => {
+  test('keeps to its budget when a cancel and an abandon both hang', async () => {
+    const { registry } = registryWithLog()
+    const hung = runInFlight({ cancelHangs: true, abandonHangs: true })
+    registry.register({ runId: 'hung', instruction: 'Warm it', managedRun: hung.managedRun })
+
+    const startedAt = performance.now()
+    await registry.close(30)
+
+    // Two phases of 30 ms, with room for a slow machine, and nowhere near forever.
+    expect(performance.now() - startedAt).toBeLessThan(1_000)
+    expect(hung.calls).toEqual({ cancel: 1, abandon: 1, released: 1 })
+  })
+
+  test('refuses a run registered while it is closing, and after', async () => {
+    const { registry } = registryWithLog()
+    const stuck = runInFlight({ ignoresCancel: true })
+    registry.register({ runId: 'stuck', instruction: 'Warm it', managedRun: stuck.managedRun })
+
+    const closing = registry.close(30)
+    const late = runInFlight()
+    let refusal: unknown
+    try {
+      registry.register({ runId: 'late', instruction: 'Cool it', managedRun: late.managedRun })
+    } catch (error) {
+      refusal = error
+    }
+    await closing
+
+    expect(refusal).toBeInstanceOf(RunRegistryError)
+    expect((refusal as RunRegistryError).code).toBe('shutting_down')
+    expect(await registry.getSnapshot('late')).toBeUndefined()
+    expect(() =>
+      registry.register({ runId: 'later', instruction: 'Cool it', managedRun: runInFlight().managedRun })
+    ).toThrow('The server is shutting down')
   })
 })
 

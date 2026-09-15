@@ -89,7 +89,7 @@ interface StoredRun {
 }
 
 export class RunRegistryError extends Error {
-  readonly code: 'run_not_found' | 'run_ended' | 'run_exists'
+  readonly code: 'run_not_found' | 'run_ended' | 'run_exists' | 'shutting_down'
 
   constructor(code: RunRegistryError['code'], message: string) {
     super(message)
@@ -133,6 +133,7 @@ export class RunRegistry {
   readonly #now: () => number
   readonly #retentionMs: number
   readonly #onTerminal: (run: TerminalRun) => void | Promise<void>
+  #closed = false
 
   constructor({
     now = () => Date.now(),
@@ -145,6 +146,10 @@ export class RunRegistry {
   }
 
   register({ runId, instruction, managedRun, onTerminal }: RegisterRun): RunSnapshot {
+    // A run registered once close() has begun would never be ended by it.
+    if (this.#closed) {
+      throw new RunRegistryError('shutting_down', 'The server is shutting down, so the run was not started.')
+    }
     this.#purgeExpired()
     if (this.#runs.has(runId)) {
       throw new RunRegistryError('run_exists', 'A run with this id already exists.')
@@ -233,24 +238,35 @@ export class RunRegistry {
    * Its secrets are released whether or not it has ended.
    */
   async close(graceMs = SHUTDOWN_GRACE_MS): Promise<void> {
-    const running = [...this.#runs.values()].filter((run) => !run.finalized)
-    await Promise.all(
-      running.map(async (run) => {
-        run.cancelRequested = true
-        try {
-          await run.managedRun.handle.cancel()
-        } catch {
-          // The abandon below still stops the bill.
-        }
-      })
-    )
-    await within(Promise.all(running.map((run) => run.terminal)), graceMs)
+    this.#closed = true
+    const running = () => [...this.#runs.values()].filter((run) => !run.finalized)
 
-    const stuck = running.filter((run) => !run.finalized)
-    await Promise.all(stuck.map((run) => run.managedRun.abandon?.().catch(() => undefined)))
-    await within(Promise.all(stuck.map((run) => run.terminal)), graceMs)
-    for (const run of stuck) {
-      if (run.finalized) continue
+    // Each phase is bounded as a whole, because a cancel or an abandon can
+    // itself wait on a provider that has stopped answering.
+    await within(
+      Promise.all(
+        running().map(async (run) => {
+          run.cancelRequested = true
+          try {
+            await run.managedRun.handle.cancel()
+          } catch {
+            // The abandon below still stops the bill.
+          }
+          await run.terminal
+        })
+      ),
+      graceMs
+    )
+    await within(
+      Promise.all(
+        running().map(async (run) => {
+          await run.managedRun.abandon?.().catch(() => undefined)
+          await run.terminal
+        })
+      ),
+      graceMs
+    )
+    for (const run of running()) {
       try {
         run.managedRun.releaseSecrets()
       } catch {
