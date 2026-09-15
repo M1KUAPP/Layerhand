@@ -3,7 +3,7 @@
 // `computer` tool. Browserbase's browser loads the Photopea host page from a
 // deployed Layerhand, as PUBLIC_URL would give it.
 //
-//   bun --env-file=<path to .env> run live-run.ts <public URL> [image] [--step-cap 40] [--budget 8]
+//   bun --env-file=<path to .env> run docs/evidence/agent-run/live-run.ts <public URL> [image] [--step-cap 40] [--budget 8]
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'

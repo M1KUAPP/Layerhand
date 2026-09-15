@@ -4,7 +4,7 @@
 // does not carry: wall clock, silent steps, safety checks, and whether the
 // exported PSD shows the three edits.
 //
-//   bun run harness.ts [--mechanism computer|code|both] [--step-cap 40] [--dry-run] [image ...]
+//   bun run docs/evidence/driving-mechanism/harness.ts [--mechanism computer|code|both] [--step-cap 40] [--dry-run] [image ...]
 //
 // --dry-run swaps GPT-6 Astra for the scripted model, to check the harness
 // against live Photopea without an API key. It measures nothing.

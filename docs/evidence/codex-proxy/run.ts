@@ -4,7 +4,7 @@
 // day-2 gate, not spike A0 data: Codex's own agent and prompt drive, not
 // ResponsesModel.
 //
-//   bun run run.ts [image] [--cap 150] [--minutes 20] [--effort low]
+//   bun run docs/evidence/codex-proxy/run.ts [image] [--cap 150] [--minutes 20] [--effort low]
 import { appendFileSync } from 'node:fs'
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'

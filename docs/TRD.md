@@ -234,8 +234,7 @@ frames are in the
 To repeat the measurement:
 
 ```sh
-cd docs/evidence/driving-mechanism
-OPENAI_API_KEY=... bun run harness.ts
+OPENAI_API_KEY=... bun run docs/evidence/driving-mechanism/harness.ts
 ```
 
 The two candidates:

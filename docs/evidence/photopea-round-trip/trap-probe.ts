@@ -2,12 +2,12 @@ import { Buffer } from 'node:buffer'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { chromium, type Page } from 'playwright'
+import { chromium, type Page } from 'playwright-core'
 import sharp from 'sharp'
 
 import { photopeaEditorUrl } from './protocol.ts'
 
-const OUTPUT_DIRECTORY = resolve('output')
+const OUTPUT_DIRECTORY = resolve(import.meta.dir, 'output')
 const PHOTO_URL = 'https://picsum.photos/seed/layerhand/640/480.jpg'
 const PHOTOPEA_URL = photopeaEditorUrl()
 const outerHtml = `<!doctype html>
