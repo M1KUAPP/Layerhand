@@ -1097,7 +1097,7 @@ in public Photopea and exported it through the bridge. The 9,071,117-byte
 PSD took 325 ms and the 1,607,543-byte PNG preview 838 ms. The same exports
 took 16,481 ms and 3,779 ms while the host still passed files out as arrays
 of numbers, and the spike A0 harness had measured 62 seconds for that PSD
-in headless Chromium, past the bridge's 60-second default. Exported files
+in headless Chromium, twice the bridge's 30-second default. Exported files
 now cross the page boundary as base64, which the transport encodes inside
 the page. SHA-256 digests taken in the page as each file arrived match the
 bytes the bridge returned.
