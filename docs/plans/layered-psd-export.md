@@ -194,7 +194,11 @@ snapshot before asking for another snapshot.
 - [ ] **Step 4: Run the focused runtime tests and observe RED**
 
 Run:
-`rtk bun test test/editor/fake-editor-session.test.ts test/server/run-registry.test.ts`
+
+```bash
+rtk bun test test/editor/fake-editor-session.test.ts \
+  test/server/run-registry.test.ts
+```
 
 Expected: fail because existing object spreads retain child and mask aliases.
 
@@ -682,8 +686,11 @@ names, and unique lowercase normalized keys. It throws
 
 `assertCompleteLayerTree()` calls `assertLayerNames()` first, then walks with an
 `ancestorsVisible` boolean. It succeeds on an effectively visible adjustment or
-an enabled mask attached to an effectively visible layer. Otherwise throw
-`LayerCompletionError('missing_editable_layer', 'Completed edits require an enabled mask or visible adjustment.')`.
+an enabled mask attached to an effectively visible layer. Otherwise throw:
+
+```ts
+LayerCompletionError('missing_editable_layer', 'Completed edits require an enabled mask or visible adjustment.')
+```
 
 - [ ] **Step 7: Enforce completion in the fake run**
 
@@ -1211,7 +1218,11 @@ changes and that the center-versus-edge transparency relationship reverses.
 - [ ] **Step 3: Run the test and observe RED**
 
 Run:
-`rtk env LAYERHAND_CHROME_INTEGRATION=1 bun test test/editor/photopea-editor-session.integration.test.ts --timeout 120000`
+
+```bash
+rtk env LAYERHAND_CHROME_INTEGRATION=1 bun test \
+  test/editor/photopea-editor-session.integration.test.ts --timeout 120000
+```
 
 Expected: fail at the earliest missing or incorrect production export,
 reopen, mask targeting, or pixel assertion. If the fixed mask-thumbnail point
