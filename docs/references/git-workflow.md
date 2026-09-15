@@ -19,23 +19,23 @@ Contents:
 
 ## The loop
 
-1. **Branch.** `git switch -c <type>/<short-description>` off an up-to-date
-   `main`.
-2. **Commit small.** One reason to change per commit, and every commit builds
-   on its own. A commit that needs the word "and" in its subject is two
-   commits.
-3. **Push the branch.** `git push -u origin HEAD`. Pushing to `main` is
-   refused by the pre-push hook.
-4. **Open a pull request.** `gh pr create --fill-first`, then check the
-   title. Not `--fill`: on a branch with more than one commit that takes
-   the title from the branch name, which the title check rejects.
-   `--fill-first` takes it from the first commit, which may not describe
-   the whole branch, so pass `--title` when it does not.
-5. **Review.** One approval required. Review looks at the diff and at the
-   commit history, because the history is what lands.
-6. **Resolve.** Every review conversation must be marked resolved before
-   merging.
-7. **Merge and delete.** Rebase merge, then the branch deletes itself.
+1.  **Branch.** `git switch -c <type>/<short-description>` off an up-to-date
+    `main`.
+2.  **Commit small.** One reason to change per commit, and every commit builds
+    on its own. A commit that needs the word "and" in its subject is two
+    commits.
+3.  **Push the branch.** `git push -u origin HEAD`. Pushing to `main` is
+    refused by the pre-push hook.
+4.  **Open a pull request.** `gh pr create --fill-first`, then check the
+    title. Not `--fill`: on a branch with more than one commit that takes
+    the title from the branch name, which the title check rejects.
+    `--fill-first` takes it from the first commit, which may not describe
+    the whole branch, so pass `--title` when it does not.
+5.  **Review.** One approval required. Review looks at the diff and at the
+    commit history, because the history is what lands.
+6.  **Resolve.** Every review conversation must be marked resolved before
+    merging.
+7.  **Merge and delete.** Rebase merge, then the branch deletes itself.
 
 ## Naming
 
