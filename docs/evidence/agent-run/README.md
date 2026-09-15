@@ -6,29 +6,11 @@ One live run of the real agent behind `RUN_MODE=agent`
 the `computer` tool. Browserbase's browser loaded `/photopea-host` from the
 deployed service, as `PUBLIC_URL` gives it.
 
-## Running it
+Contents:
 
-Use Bun 1.4.2, the version production runs. The script needs
-`OPENAI_API_KEY` and `BROWSERBASE_API_KEY`. From the repository root:
-
-```sh
-bun --env-file=.env run docs/evidence/agent-run/live-run.ts \
-  https://layerhand-732371853772.us-central1.run.app
-```
-
-Bun 1.3.14 cannot run it. There, Playwright's `connectOverCDP` never opens
-its WebSocket to Browserbase. Under Bun 1.4.2 and under Node it connects in
-about two seconds.
-
-Output goes to `output/<timestamp>/`, which Git ignores. The recorded run's
-files are kept in [`results/`](/docs/evidence/agent-run/results/):
-
-- `summary.json`;
-- `events.ndjson`, with each frame reduced to a counter;
-- `preview.png` and `last-frame.png`.
-
-The script also writes `result.psd` and `first-frame.png`, which are not
-kept.
+1.  [Result](#result)
+1.  [Limits](#limits)
+1.  [Running it](#running-it)
 
 ## Result
 
@@ -56,7 +38,7 @@ The exported layers, in plain words and each with its own purpose:
 
 The run reported no errors, recoverable or otherwise.
 
-Limits on what this shows:
+## Limits
 
 - **One run, on one image.** It is not the ten-image measure NFR-1 asks
   for.
@@ -70,3 +52,27 @@ Limits on what this shows:
   image in the Browserbase browser, which took 1.4 seconds locally in B1.
 - **The PSD was not opened in Photoshop.**
 - **Photopea's advertising panel shows in every frame** (spike B0).
+
+## Running it
+
+Use Bun 1.4.2, the version production runs. The script needs
+`OPENAI_API_KEY` and `BROWSERBASE_API_KEY`. From the repository root:
+
+```sh
+bun --env-file=.env run docs/evidence/agent-run/live-run.ts \
+  https://layerhand-732371853772.us-central1.run.app
+```
+
+Bun 1.3.14 cannot run it. There, Playwright's `connectOverCDP` never opens
+its WebSocket to Browserbase. Under Bun 1.4.2 and under Node it connects in
+about two seconds.
+
+Output goes to `output/<timestamp>/`, which Git ignores. The recorded run's
+files are kept in [`results/`](/docs/evidence/agent-run/results/):
+
+- `summary.json`;
+- `events.ndjson`, with each frame reduced to a counter;
+- `preview.png` and `last-frame.png`.
+
+The script also writes `result.psd` and `first-frame.png`, which are not
+kept.
