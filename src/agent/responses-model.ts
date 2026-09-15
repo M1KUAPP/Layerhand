@@ -308,15 +308,15 @@ export class ResponsesModel implements AgentModel {
       const continuationOf = pending ? this.#previousResponseId : undefined
       const included = offered.map(({ id }) => this.#carries(id, continuationOf))
       const result = await socket.step(this.#body(input(included)), continuationOf, signal)
-      if ('responses' in result) return this.#turn(result.responses, signal)
       if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
+      if (!('lost' in result)) return this.#turn(result.responses, signal)
       // The connection failed before the step ended, so the step is sent again
       // over HTTP with every correction the socket could not vouch for. The
       // editor has not acted on anything the lost responses said.
       const resent = offered.map(
         ({ id }, index) => included[index]! || (id !== undefined && this.#ledger.takeReplay(id))
       )
-      return this.#overHttp(apiKey, input(resent), signal)
+      return this.#overHttp(apiKey, input(resent), signal, result.responses)
     }
     return this.#overHttp(apiKey, input(offered.map(({ id }) => this.#carries(id, undefined))), signal)
   }
@@ -363,7 +363,8 @@ export class ResponsesModel implements AgentModel {
     }
   }
 
-  async #overHttp(apiKey: string, input: object[], signal: AbortSignal): Promise<ModelTurn> {
+  /** `billed` are responses a lost socket had already ended: the step is sent again, but they still count. */
+  async #overHttp(apiKey: string, input: object[], signal: AbortSignal, billed: Json[] = []): Promise<ModelTurn> {
     const response = await this.#options.fetch(this.#options.endpoint, {
       method: 'POST',
       headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
@@ -374,7 +375,7 @@ export class ResponsesModel implements AgentModel {
     const payload: unknown = await response.json()
     if (!isObject(payload) || typeof payload.id !== 'string') throw new ResponsesApiError(response.status)
     if (isObject(payload.error)) throw new ResponsesApiError(response.status, safeCode(payload.error.code))
-    return this.#turn([payload], signal)
+    return this.#turn([...billed, payload], signal)
   }
 
   /**
