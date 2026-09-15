@@ -208,12 +208,29 @@ which does not support function calling with Astra at all.
 
 ### How the editor is actually driven
 
-Code execution is the choice because it is OpenAI's documented
-recommendation for Astra, and it is unmeasured because no OpenAI API key
-was available to run [spike A0](#decisions-deferred-to-spikes). The choice
-is provisional until the
-[driving-mechanism harness](evidence/driving-mechanism/README.md) has run
-both mechanisms on the same three images:
+The `computer` tool drives the editor, and code execution is the fallback.
+[Spike A0](#decisions-deferred-to-spikes) measured both on September 15.
+Each got the same three-edit instruction on the same three images, and both
+completed all three runs. On three images the margins between them are not
+significant, so the decision rests on two things the measurement does not
+change:
+
+- the `computer` tool needs no code sandbox, and nobody can build one in
+  the three days left;
+- it has no scripting path to guard.
+
+| Mechanism       | Completed | Steps per image | Mean time | Tokens in / out | Cost, three runs |
+| --------------- | --------- | --------------- | --------- | --------------- | ---------------- |
+| `computer` tool | 3/3       | 12, 13, 13      | 88 s      | 545,044 / 3,866 | $1.56            |
+| Code execution  | 3/3       | 13, 16, 15      | 97 s      | 674,110 / 3,388 | $1.75            |
+
+Every run exported four layers: the original, a brightness adjustment
+layer and a warming adjustment layer named in plain words, and a vignette
+layer. No run had a silent step, a model error, or a disqualification. Two
+of the three images show the same scene. The records, code logs, and final
+frames are in the
+[A0 results](evidence/driving-mechanism/results/2026-09-15/records.json).
+To repeat the measurement:
 
 ```sh
 cd docs/evidence/driving-mechanism
@@ -236,34 +253,24 @@ The two candidates:
     model rather than to Astra.
 
 `ResponsesModel` in `src/agent/responses-model.ts` implements both, and
-one option selects the mechanism. Code execution is its `run_code` tool,
-whose code runs against the page before the loop takes the next
-screenshot. That reverses what the ideation assumed. It does not weaken
-the premise: the editor still has no usable API, and the competence being
-exercised is still holding a forty-step GUI task together. The prompt
-tells the model to operate the editor through the mouse and keyboard, and
-a spike run whose code reaches Photopea's scripting interface is
-disqualified.
+one option selects the mechanism. Neither weakens the premise: the editor
+still has no usable API, and the competence being exercised is still
+holding a long GUI task together. Both mechanisms' prompts forbid
+Photopea's scripting interface, its script dialog included. A spike run
+that scripts it is disqualified, whether its code reaches the interface
+or, in computer mode, it types `app.`, `echoToOE`, or `saveToOE`.
 
-Model-written code is untrusted input. The harness runs it unsandboxed in
-its own Bun process, which is acceptable for a local spike and never for
-production. In production it runs inside the page, through
-`page.evaluate` with a restricted API surface, or in a separate sandbox.
-It never runs in the server process, which holds our API key and the
-database.
-
-**The `computer` tool is the fallback.** Switching is one option in
-`ResponsesModel`: the model returns `actions[]`, the loop carries them out
-through `EditorSession.act`, and the reply is a screenshot. It needs no
-code sandbox and has no code path to the scripting interface, but OpenAI
-documents it for the previous generation rather than for Astra. It could
-still open Photopea's own script dialog through the menus, so that dialog
-falls under the same prompt prohibition and disqualification rule as
-scripting from code. Both mechanisms' prompts forbid it. In computer mode,
-the harness disqualifies a run that types `app.`, `echoToOE`, or
-`saveToOE`.
-We switch if the measurement shows code execution completing fewer runs,
-or if its sandbox cannot be built in time.
+**Code execution is the fallback.** Switching is one option in
+`ResponsesModel`, and its `run_code` code runs against the page before the
+loop takes the next screenshot. OpenAI's recommendation of it for Astra is
+why the fallback is credible, and it completed all three A0 runs. Its cost
+is the sandbox. Model-written code is untrusted input: the harness ran it
+unsandboxed in its own Bun process, which is acceptable for a local spike
+and never for production. If we switch, production runs it inside the
+page, through `page.evaluate` with a restricted API surface, or in a
+separate sandbox. It never runs in the server process, which holds our API
+key and the database. We switch if the `computer` tool completes fewer
+runs than code execution would on the ten-image set (NFR-1).
 
 Contract 1 is expressed in the `computer` tool's action vocabulary
 either way, because it is a perfectly good description of "what you can
@@ -777,6 +784,13 @@ same input lands near **$2**. Adding roughly 30K of output at $50/M:
 | Caching working | ~$2   | $1.50  | **~$3.50**  |
 | Caching broken  | ~$13  | $1.50  | **~$14.50** |
 
+**A2's first data point** comes from spike A0. A completed three-edit run
+took about 13 steps and cost about **$0.55**, with 86–89% of its input read
+from the cache. The `computer` tool averaged 12.7 steps at $0.52 a run, and
+code execution 14.7 steps at $0.58. That is far below the table above, but
+the table stands: forty-step runs are unmeasured, and the daily ceiling is
+not re-sized from these figures.
+
 Everything below exists to keep us in the first row.
 
 - **The tool array must be byte-stable across the run.** Changing a
@@ -1031,6 +1045,12 @@ the same day, not extended.
 | A1    | Can the agent complete one edit unattended?         | 1 day   | 1   |
 | A2    | What step cap and frame window does the cost allow? | ½ day   | 2   |
 | A3    | Does native mid-turn steering work for us?          | ½ day   | 3   |
+
+A0 is answered in
+[How the editor is actually driven](#how-the-editor-is-actually-driven):
+the `computer` tool, measured on September 15. The
+[Codex proxy run](evidence/driving-mechanism/codex-proxy/README.md) is a
+day-2 feasibility hint for A1, not A0 data.
 
 Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
 opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
