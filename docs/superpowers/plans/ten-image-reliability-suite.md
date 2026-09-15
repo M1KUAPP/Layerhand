@@ -558,15 +558,15 @@ Contents:
 
   `runReliabilityCommand()` must:
 
-  1. load `test/images/manifest.json`;
-  2. create a single `BrowserbaseClient`;
-  3. call `runReliabilitySuite()` with a `startRun` that invokes
-     `liveAgentRun()` using the case image and instruction;
-  4. set `hostUrl` to `/photopea-host` on `PUBLIC_URL`;
-  5. write beneath
-     `artifacts/reliability/<ISO timestamp without colon characters>/`;
-  6. print `formatReliabilityTerminal()`; and
-  7. return 0 only when `summary.meetsNfr1` is true.
+  1.  load `test/images/manifest.json`;
+  2.  create a single `BrowserbaseClient`;
+  3.  call `runReliabilitySuite()` with a `startRun` that invokes
+      `liveAgentRun()` using the case image and instruction;
+  4.  set `hostUrl` to `/photopea-host` on `PUBLIC_URL`;
+  5.  write beneath
+      `artifacts/reliability/<ISO timestamp without colon characters>/`;
+  6.  print `formatReliabilityTerminal()`; and
+  7.  return 0 only when `summary.meetsNfr1` is true.
 
   Register `SIGINT` and `SIGTERM` on one `AbortController`. Remove both
   listeners after the suite settles. Never print the environment or an error's
