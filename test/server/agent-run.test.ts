@@ -7,6 +7,7 @@ import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-se
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
 import type { AgentModel } from '../../src/agent/model'
 import { liveAgentRun, managedAgentRun } from '../../src/server/agent-run'
+import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
 
@@ -521,5 +522,31 @@ describe('managed agent run', () => {
     expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
     expect(abandoned).toBe(1)
     expect(managed.metrics().stopReason).toBe('time_limit')
+  })
+
+  test('a run as long as the live one, nineteen steps, completes under the default step cap', async () => {
+    let calls = 0
+    const nineteenSteps: AgentModel = {
+      async next() {
+        calls += 1
+        const done = calls > 19
+        return {
+          narration: done ? '' : `Step ${calls}`,
+          actions: done ? [] : [{ type: 'wait' }],
+          usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+          done
+        }
+      }
+    }
+    const { managed } = await run(
+      { stepCap: DEFAULT_RUN_LIMITS.stepCap },
+      [{ name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }],
+      nineteenSteps
+    )
+
+    const events = await finish(managed)
+
+    expect(events.filter((event) => event.type === 'step')).toHaveLength(19)
+    expect(managed.metrics().stopReason).toBe('complete')
   })
 })
