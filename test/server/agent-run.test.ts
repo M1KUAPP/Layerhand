@@ -212,7 +212,11 @@ describe('live agent run', () => {
     { name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }
   ]
 
-  async function live(apiKey: string | undefined, responses: (Record<string, unknown> | Response)[]) {
+  async function live(
+    apiKey: string | undefined,
+    responses: (Record<string, unknown> | Response)[],
+    overrides: Partial<RunRequest> = {}
+  ) {
     const recorded = await createRecordedFakeEditorSession()
     const authorizations: (string | null)[] = []
     const browser = { created: [] as string[], released: [] as string[], closed: 0, hostUrls: [] as string[] }
@@ -228,7 +232,8 @@ describe('live agent run', () => {
       instruction: 'Warm the highlights',
       stepCap: 15,
       budgetUsd: 8,
-      apiKey
+      apiKey,
+      ...overrides
     }
     const managed = liveAgentRun(runRequest, {
       hostUrl: 'https://layerhand.test/photopea-host',
@@ -263,9 +268,13 @@ describe('live agent run', () => {
           layers: async () => structuredClone(EDITABLE),
           exportPsd: () => recorded.exportPsd(),
           exportPreview: () => recorded.exportPreview(),
+          // Releases even when closing fails, as the Photopea session does.
           async close() {
-            await recorded.close()
-            await options.release()
+            try {
+              await recorded.close()
+            } finally {
+              await options.release()
+            }
           }
         }
       }
@@ -321,6 +330,34 @@ describe('live agent run', () => {
     expect(run.managed.metrics().stopReason).toBe('failed')
     expect(run.browser.released).toEqual(['bb-1'])
     expect(run.browser.closed).toBe(1)
+  })
+
+  test('a cancelled run exports its partial file, then releases the browser', async () => {
+    const run = await live('sk-user-secret-value', [COMPUTER_TURN, FINAL_TURN])
+
+    await run.managed.handle.cancel()
+    const events = await finish(run.managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false, psdUrl: 'memory://psd' } })
+    expect(run.managed.metrics().stopReason).toBe('cancelled')
+    expect(run.browser).toMatchObject({ released: ['bb-1'], closed: 1 })
+  })
+
+  test('a run stopped by either cap exports its partial file, then releases the browser', async () => {
+    const stepCapped = await live('sk-user-secret-value', [COMPUTER_TURN], { stepCap: 1 })
+    // One call costs about $0.014, so a second would pass $0.02.
+    const spendCapped = await live('sk-user-secret-value', [COMPUTER_TURN], { budgetUsd: 0.02 })
+
+    const [stepEvents, spendEvents] = await Promise.all([finish(stepCapped.managed), finish(spendCapped.managed)])
+
+    for (const [events, capped, reason] of [
+      [stepEvents, stepCapped, 'step_cap'],
+      [spendEvents, spendCapped, 'spend_cap']
+    ] as const) {
+      expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false, psdUrl: 'memory://psd' } })
+      expect(capped.managed.metrics().stopReason).toBe(reason)
+      expect(capped.browser).toMatchObject({ released: ['bb-1'], closed: 1 })
+    }
   })
 })
 
@@ -424,5 +461,65 @@ describe('managed agent run', () => {
     expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false } })
     expect(managed.metrics().stopReason).toBe('cancelled')
     expect(runRequest.apiKey).toBeUndefined()
+  })
+
+  test('ends a run whose model never answers at the ceiling, with its partial file, and closes the editor', async () => {
+    const session = await createRecordedFakeEditorSession()
+    let closed = 0
+    const close = session.close.bind(session)
+    session.close = async () => {
+      closed += 1
+      await close()
+    }
+    const silentModel: AgentModel = { next: () => new Promise(() => undefined) }
+    const managed = managedAgentRun(
+      request(),
+      { session, model: silentModel, publish: async (_bytes, kind) => `memory://${kind}` },
+      { ceilingMs: 50 }
+    )
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false, psdUrl: 'memory://psd' } })
+    expect(managed.metrics().stopReason).toBe('time_limit')
+    expect(closed).toBe(1)
+  })
+
+  test('abandons the browser when an editor call hangs past the ceiling and its grace period', async () => {
+    const session = await createRecordedFakeEditorSession()
+    let failAction: (error: Error) => void = () => undefined
+    session.act = () =>
+      new Promise((_resolve, reject) => {
+        failAction = reject
+      })
+    let abandoned = 0
+    const clickingModel: AgentModel = {
+      async next() {
+        return {
+          narration: 'Clicking the Layers panel',
+          actions: [{ type: 'wait' }],
+          usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+          done: false
+        }
+      }
+    }
+    const managed = managedAgentRun(
+      request(),
+      { session, model: clickingModel, publish: async (_bytes, kind) => `memory://${kind}` },
+      {
+        ceilingMs: 50,
+        exportGraceMs: 50,
+        async abandon() {
+          abandoned += 1
+          failAction(new Error('Target closed'))
+        }
+      }
+    )
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+    expect(abandoned).toBe(1)
+    expect(managed.metrics().stopReason).toBe('time_limit')
   })
 })

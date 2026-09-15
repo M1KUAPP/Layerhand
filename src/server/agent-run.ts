@@ -25,12 +25,34 @@ export function artifactPublisher(store: ArtifactStore): AgentLoopDependencies['
   }
 }
 
-export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDependencies): ManagedRun {
+/** The run ceiling, docs/TRD.md § One ceiling: fifteen minutes. */
+export const RUN_CEILING_MS = 15 * 60_000
+
+/** How long a run stopped at the ceiling may spend exporting before its browser is abandoned. */
+export const EXPORT_GRACE_MS = 60_000
+
+export interface ManagedAgentRunOptions {
+  ceilingMs?: number
+  exportGraceMs?: number
+  /** Releases the run's browser at once. Closing the session unless given. */
+  abandon?: () => Promise<void>
+}
+
+export function managedAgentRun(
+  request: RunRequest,
+  dependencies: AgentLoopDependencies,
+  {
+    ceilingMs = RUN_CEILING_MS,
+    exportGraceMs = EXPORT_GRACE_MS,
+    abandon = () => dependencies.session.close()
+  }: ManagedAgentRunOptions = {}
+): ManagedRun {
   // Mirrors the loop's own limits, so an incomplete run can say which one stopped it.
   const spend = new Spend(dependencies.pricing)
   let calls = 0
   let cachedInputTokens = 0
   let cancelled = false
+  let timedOut = false
   let missingNarration = false
   let stopReason: RunStopReason = 'failed'
 
@@ -50,17 +72,37 @@ export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDepe
     if (cancelled) return 'cancelled'
     if (missingNarration) return 'failed'
     if (complete) return 'complete'
+    if (timedOut) return 'time_limit'
     if (calls >= request.stepCap) return 'step_cap'
     if (spend.wouldPass(request.budgetUsd)) return 'spend_cap'
     return 'failed'
   }
 
   const underlying = runAgent(request, { ...dependencies, model })
+
+  // At the ceiling the run is cancelled, so it exports and closes as a cancel
+  // does. An editor call that hangs never sees a cancel, so a run still going
+  // after the grace period has its browser abandoned, which fails that call.
+  let graceTimer: ReturnType<typeof setTimeout> | undefined
+  const ceilingTimer = setTimeout(() => {
+    timedOut = true
+    void underlying.cancel()
+    graceTimer = setTimeout(() => void abandon().catch(() => undefined), exportGraceMs)
+  }, ceilingMs)
+  void (async () => {
+    for await (const _event of underlying.events) {
+      // Only the end of the run matters here.
+    }
+    clearTimeout(ceilingTimer)
+    clearTimeout(graceTimer)
+  })()
+
   const handle: RunHandle = {
     events: {
       async *[Symbol.asyncIterator](): AsyncIterator<RunEvent> {
         for await (const event of underlying.events) {
           if (event.type === 'done') stopReason = stoppedBy(event.result.complete)
+          if (event.type === 'error' && !event.recoverable && timedOut) stopReason = 'time_limit'
           yield event
         }
       }
@@ -80,7 +122,8 @@ export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDepe
     }),
     releaseSecrets() {
       request.apiKey = undefined
-    }
+    },
+    abandon: () => abandon()
   }
 }
 
@@ -105,15 +148,20 @@ export function liveAgentRun(
   { publish, serverApiKey, fetch, ...editor }: LiveAgentDependencies
 ): ManagedRun {
   if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
-  return managedAgentRun(request, {
-    session: browserbaseEditorSession({ id: crypto.randomUUID(), ...editor }),
-    model: new ResponsesModel({
-      apiKey: () => request.apiKey,
-      instruction: request.instruction,
-      stepCap: request.stepCap,
-      mechanism: 'computer',
-      ...(fetch ? { fetch } : {})
-    }),
-    publish
-  })
+  const session = browserbaseEditorSession({ id: crypto.randomUUID(), ...editor })
+  return managedAgentRun(
+    request,
+    {
+      session,
+      model: new ResponsesModel({
+        apiKey: () => request.apiKey,
+        instruction: request.instruction,
+        stepCap: request.stepCap,
+        mechanism: 'computer',
+        ...(fetch ? { fetch } : {})
+      }),
+      publish
+    },
+    { abandon: () => session.abandon() }
+  )
 }
