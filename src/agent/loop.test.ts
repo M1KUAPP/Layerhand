@@ -702,6 +702,82 @@ describe('runAgent', () => {
     expect(ofType(events, 'done')).toEqual([])
   })
 
+  test('attempts a best-effort PSD export before closing after an unexpected failure', async () => {
+    const run = await fixture([new Error('The model stopped responding')])
+    const order: string[] = []
+    const exportPsd = run.session.exportPsd.bind(run.session)
+    run.session.exportPsd = async () => {
+      order.push('export')
+      return exportPsd()
+    }
+    const close = run.session.close.bind(run.session)
+    run.session.close = async () => {
+      order.push('close')
+      return close()
+    }
+
+    const events = await collect(runAgent(request, run))
+
+    expect(order).toEqual(['export', 'close'])
+    expect(events.at(-1)).toEqual({
+      type: 'error',
+      reason: 'The run stopped because of an unexpected error',
+      recoverable: false
+    })
+    expect([...run.published.keys()].every((url) => url.startsWith('memory://frame/'))).toBe(true)
+  })
+
+  test('closes after a rejected best-effort export', async () => {
+    const run = await fixture([new Error('The model stopped responding')])
+    const order: string[] = []
+    run.session.exportPsd = async () => {
+      order.push('export')
+      throw new Error('The export failed')
+    }
+    const close = run.session.close.bind(run.session)
+    run.session.close = async () => {
+      order.push('close')
+      return close()
+    }
+
+    await collect(runAgent(request, run))
+
+    expect(order).toEqual(['export', 'close'])
+  })
+
+  test('bounds a hanging best-effort export before closing', async () => {
+    const run = await fixture([new Error('The model stopped responding')])
+    let exportStarted = false
+    let closed = false
+    run.session.exportPsd = () => {
+      exportStarted = true
+      return new Promise<Uint8Array>(() => undefined)
+    }
+    const close = run.session.close.bind(run.session)
+    run.session.close = async () => {
+      closed = true
+      return close()
+    }
+
+    await collect(runAgent(request, { ...run, errorExportTimeoutMs: 10 }))
+
+    expect(exportStarted).toBe(true)
+    expect(closed).toBe(true)
+  }, 500)
+
+  test('does not retry an export that caused the failure', async () => {
+    const run = await fixture()
+    let exports = 0
+    run.session.exportPsd = async () => {
+      exports += 1
+      throw new Error('The export failed')
+    }
+
+    await collect(runAgent(request, run))
+
+    expect(exports).toBe(1)
+  })
+
   test('keeps the exported file when the session fails to close', async () => {
     const run = await editableFixture([step('Selecting the product')])
     run.session.close = async () => {

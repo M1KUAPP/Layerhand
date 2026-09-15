@@ -1,7 +1,7 @@
 // The agent loop, as docs/TRD.md § The loop describes it: show the model the
 // editor, carry out the actions it returns, and repeat until it is done or the
-// run is stopped. Every ending but a failure exports the file before the
-// session closes, because the session holds the only copy of the work.
+// run is stopped. Every ending exports before the session closes; a failure's
+// export is bounded and best-effort because teardown must stop browser billing.
 import { startFramePump, type FramePump } from '../browser/frame-pump'
 import type { EditorSession } from '../editor/session'
 import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
@@ -21,10 +21,13 @@ export interface AgentLoopDependencies {
   pricing?: TokenPricing
   /** Milliseconds between frames of the live view; one second unless set (FR-10). */
   frameIntervalMs?: number
+  /** Bounds the best-effort PSD export after an unexpected failure. */
+  errorExportTimeoutMs?: number
 }
 
 // FR-11 asks for narration short enough to read while the editor moves.
 const MAX_NARRATION = 80
+const ERROR_EXPORT_TIMEOUT_MS = 4_000
 
 const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
 
@@ -41,7 +44,7 @@ function cut(narration: string): string {
 
 export function runAgent(
   request: RunRequest,
-  { session, model, publish, pricing, frameIntervalMs }: AgentLoopDependencies
+  { session, model, publish, pricing, frameIntervalMs, errorExportTimeoutMs }: AgentLoopDependencies
 ): RunHandle {
   const log = new EventLog()
   const spend = new Spend(pricing)
@@ -58,6 +61,29 @@ export function runAgent(
   // The page's view of the editor, captured on a cadence of its own rather
   // than once a step, so it keeps moving while the model thinks (FR-10).
   let liveView: FramePump | undefined
+  let psdExportStarted = false
+
+  const exportPsd = () => {
+    psdExportStarted = true
+    return session.exportPsd()
+  }
+
+  const bestEffortErrorExport = async () => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const deadline = new Promise<void>((resolve) => {
+      timer = setTimeout(resolve, errorExportTimeoutMs ?? ERROR_EXPORT_TIMEOUT_MS)
+    })
+    try {
+      await Promise.race([
+        Promise.resolve()
+          .then(exportPsd)
+          .catch(() => undefined),
+        deadline
+      ])
+    } finally {
+      if (timer !== undefined) clearTimeout(timer)
+    }
+  }
 
   // Whether a limit rules out another model call (FR-12, NFR-2).
   const limitReached = () => calls >= request.stepCap || spend.wouldPass(request.budgetUsd)
@@ -141,7 +167,7 @@ export function runAgent(
       await liveView?.stop()
       // A cancel can leave an acknowledged correction unsent, so report that too.
       refuseCorrections()
-      const psd = await session.exportPsd()
+      const psd = await exportPsd()
       const preview = await session.exportPreview()
       const layers = await session.layers()
       if (complete) assertCompleteLayerTree(layers)
@@ -153,7 +179,8 @@ export function runAgent(
       })
     } catch {
       refusing = true
-      await liveView?.stop()
+      await liveView?.stop().catch(() => undefined)
+      if (!psdExportStarted) await bestEffortErrorExport()
       await session.close().catch(() => undefined)
       // Provider messages can quote a key or a request, so none reaches the page.
       log.end({ type: 'error', reason: 'The run stopped because of an unexpected error', recoverable: false })
