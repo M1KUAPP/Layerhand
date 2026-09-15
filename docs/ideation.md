@@ -21,21 +21,21 @@ shaped by what the previous round killed.
 
 Contents:
 
-1. [Round 1 — Computer use, desktop-native](#round-1--computer-use-desktop-native)
-1. [Round 2 — Computer use, hosted browser only](#round-2--computer-use-hosted-browser-only)
-1. [Round 3 — Million-token single-pass context](#round-3--million-token-single-pass-context)
-1. [Round 4 — Async tool calling](#round-4--async-tool-calling)
-1. [Round 5 — Mid-turn steering](#round-5--mid-turn-steering)
-1. [Round 6 — Persisted reasoning and notes](#round-6--persisted-reasoning-and-notes)
-1. [Round 7 — Programmatic tool calling and orchestration](#round-7--programmatic-tool-calling-and-orchestration)
-1. [Round 8 — WebMCP](#round-8--webmcp)
-1. [Round 9 — Computer use × mid-turn steering](#round-9--computer-use--mid-turn-steering)
-1. [Round 10 — The five-day filter, and the text-only inversion](#round-10--the-five-day-filter-and-the-text-only-inversion)
-1. [Shortlist](#shortlist)
-1. [The pick: Layerhand](#the-pick-layerhand)
-1. [Launch artifact](#launch-artifact)
-1. [Before committing](#before-committing)
-1. [See also](#see-also)
+1.  [Round 1 — Computer use, desktop-native](#round-1--computer-use-desktop-native)
+1.  [Round 2 — Computer use, hosted browser only](#round-2--computer-use-hosted-browser-only)
+1.  [Round 3 — Million-token single-pass context](#round-3--million-token-single-pass-context)
+1.  [Round 4 — Async tool calling](#round-4--async-tool-calling)
+1.  [Round 5 — Mid-turn steering](#round-5--mid-turn-steering)
+1.  [Round 6 — Persisted reasoning and notes](#round-6--persisted-reasoning-and-notes)
+1.  [Round 7 — Programmatic tool calling and orchestration](#round-7--programmatic-tool-calling-and-orchestration)
+1.  [Round 8 — WebMCP](#round-8--webmcp)
+1.  [Round 9 — Computer use × mid-turn steering](#round-9--computer-use--mid-turn-steering)
+1.  [Round 10 — The five-day filter, and the text-only inversion](#round-10--the-five-day-filter-and-the-text-only-inversion)
+1.  [Shortlist](#shortlist)
+1.  [The pick: Layerhand](#the-pick-layerhand)
+1.  [Launch artifact](#launch-artifact)
+1.  [Before committing](#before-committing)
+1.  [See also](#see-also)
 
 ## Round 1 — Computer use, desktop-native
 
@@ -310,19 +310,19 @@ Written before any code, because the contest judges a launch.
 
 **Thirty-second demo storyboard**, silent, no narrator:
 
-1. **0–4s** A product photo, plainly unretouched. One typed line: _remove
-   the background, warm the highlights, clean the reflections._
-2. **4–10s** The Photopea window takes over the frame. The toolbar
-   responds on its own — selection, mask, adjustment layer. Nobody is
-   touching the mouse.
-3. **10–16s** Mid-run, a correction is typed: _keep the shadow._ The work
-   does not restart. The next actions bend. This is the beat the whole
-   video exists for — hold it, and let the layer stack stay visible so it
-   is obvious nothing was thrown away.
-4. **16–24s** Finished image. Cut to the layer panel: seven named layers,
-   editable masks.
-5. **24–30s** A mask slider is dragged by hand, and the image changes.
-   Final card: _it's still yours to edit._
+1.  **0–4s** A product photo, plainly unretouched. One typed line: _remove
+    the background, warm the highlights, clean the reflections._
+2.  **4–10s** The Photopea window takes over the frame. The toolbar
+    responds on its own — selection, mask, adjustment layer. Nobody is
+    touching the mouse.
+3.  **10–16s** Mid-run, a correction is typed: _keep the shadow._ The work
+    does not restart. The next actions bend. This is the beat the whole
+    video exists for — hold it, and let the layer stack stay visible so it
+    is obvious nothing was thrown away.
+4.  **16–24s** Finished image. Cut to the layer panel: seven named layers,
+    editable masks.
+5.  **24–30s** A mask slider is dragged by hand, and the image changes.
+    Final card: _it's still yours to edit._
 
 The mid-run correction in beat 3 and the hand-dragged slider in beat 5 are
 the two shots that carry the entire pitch. If either cannot be filmed, the
