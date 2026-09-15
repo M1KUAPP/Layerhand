@@ -54,7 +54,8 @@ const COMMON_PROMPT = [
   'The run is unattended: nobody is available to answer questions or review your work. Carry the task through to completion, checking the result on screen and iterating until the edit is done.',
   'Work non-destructively so the saved file stays editable. Put each edit on its own layer, prefer adjustment layers and masks, and name every layer you create in plain words that say what it does.',
   'The user may send a correction while you work. It applies from then on. Work already done stays in place unless you change it yourself.',
-  'When the edit is finished, reply with a one-sentence summary and no tool call.'
+  'When the edit is finished, reply with a one-sentence summary and no tool call.',
+  "Operate the editor through its interface, as a person would. Do not use Photopea's scripting interface: not its script dialog, and not postMessage."
 ]
 
 const PROMPTS: Readonly<Record<DrivingMechanism, string>> = {
@@ -64,7 +65,7 @@ const PROMPTS: Readonly<Record<DrivingMechanism, string>> = {
   ].join('\n\n'),
   code: [
     ...COMMON_PROMPT,
-    "Each run_code call is one step. Operate the editor through page.mouse and page.keyboard, as a person using its interface would. Do not use Photopea's scripting interface or postMessage."
+    'Each run_code call is one step. Use page.mouse and page.keyboard to operate the editor.'
   ].join('\n\n')
 }
 
