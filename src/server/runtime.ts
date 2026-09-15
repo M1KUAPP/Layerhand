@@ -9,6 +9,7 @@ import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
 import { applyMigrations } from './migrations'
 import { RunRegistry, type RunRegistryOptions } from './run-registry'
+import { createRunLogger, SqlRunLogStore } from './run-log'
 import { RunRoutes } from './run-routes'
 import { createS3Bucket, S3ArtifactStore } from './s3-artifact-store'
 import { SqlWaitlistStore } from './waitlist-store'
@@ -21,7 +22,9 @@ export interface LaunchRuntimeOptions {
   fakeRunIntervalMs?: number
   stepCap?: number
   artifactStore?: ArtifactStore
-  registryOptions?: RunRegistryOptions
+  registryOptions?: Omit<RunRegistryOptions, 'onTerminal'>
+  /** Receives one NDJSON record per finished run. Defaults to standard output. */
+  writeRunLog?: (record: string) => void
 }
 
 export interface LaunchRuntime {
@@ -83,7 +86,13 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       options.artifactStore ??
       (config ? new S3ArtifactStore(createS3Bucket(config.s3)) : new MemoryArtifactStore(() => crypto.randomUUID()))
     const dailyBudgetUsd = config?.freeDailyBudgetUsd ?? developmentNumber(env.FREE_DAILY_BUDGET_USD, 1_000)
-    const registry = new RunRegistry(options.registryOptions)
+    const registry = new RunRegistry({
+      ...options.registryOptions,
+      onTerminal: createRunLogger({
+        write: options.writeRunLog ?? ((record) => process.stdout.write(record)),
+        store: new SqlRunLogStore(database)
+      })
+    })
     const routes = new RunRoutes({
       registry,
       meterStore: new SqlMeterStore(database, usdToMicroUsd(dailyBudgetUsd)),

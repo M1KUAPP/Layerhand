@@ -1,4 +1,8 @@
 import { describe, expect, test } from 'bun:test'
+import { SQL } from 'bun'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 import { createLaunchRuntime } from '../../src/server/runtime'
 
@@ -39,6 +43,37 @@ describe('launch runtime', () => {
       })
     } finally {
       await runtime.close()
+    }
+  })
+
+  test('records one line per finished run to the log and the database', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'layerhand-run-log-'))
+    const databaseUrl = `sqlite://${join(directory, 'layerhand.db')}`
+    const records: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', DATABASE_URL: databaseUrl },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      writeRunLog: (record) => records.push(record)
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      const { runId } = (await response.json()) as { runId: string }
+      await runtime.registry.waitForTerminal(runId)
+
+      expect(records).toHaveLength(1)
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, steps: 5, outcome: 'complete', capHit: false })
+      const database = new SQL(databaseUrl)
+      try {
+        const rows = await database`SELECT run_id, outcome FROM run_log`
+        expect(rows).toEqual([{ run_id: runId, outcome: 'complete' }])
+      } finally {
+        await database.close()
+      }
+    } finally {
+      await runtime.close()
+      await rm(directory, { recursive: true, force: true })
     }
   })
 
