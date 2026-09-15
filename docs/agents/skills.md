@@ -9,18 +9,18 @@ graphify-labs/graphify — builds a knowledge graph of the repository in
 `graphify-out/` and answers questions from it, so agents read a scoped
 subgraph instead of raw files.
 
-- https://github.com/graphify-labs/graphify
+- [graphify on GitHub](https://github.com/graphify-labs/graphify)
 
 leonxlnx/taste-skill — design skills, 13 of the collection's 14, for
 anything a person will look at: landing pages, brand kits, reference
 images, and design specs precise enough to build from.
 
-- https://www.skills.sh/leonxlnx/taste-skill
-- https://github.com/leonxlnx/taste-skill
+- [taste-skill on skills.sh](https://www.skills.sh/leonxlnx/taste-skill)
+- [taste-skill on GitHub](https://github.com/leonxlnx/taste-skill)
 
 obra/superpowers — process skills, all 14: brainstorming, planning,
 test-driven development, debugging, verification, code review, and
 parallel agents.
 
-- https://www.skills.sh/obra/superpowers
-- https://github.com/obra/superpowers
+- [superpowers on skills.sh](https://www.skills.sh/obra/superpowers)
+- [superpowers on GitHub](https://github.com/obra/superpowers)
