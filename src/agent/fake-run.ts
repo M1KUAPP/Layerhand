@@ -1,6 +1,6 @@
 // A scripted run on a timer, so the web application can build every screen,
 // failure, cap, and cancel included, before the agent loop exists.
-import type { LayerInfo } from '../editor/contract'
+import { assertCompleteLayerTree, type LayerInfo } from '../editor'
 import type { RunEvent, RunHandle, RunRequest, RunResult } from './contract'
 
 export interface FakeRunOptions {
@@ -93,12 +93,15 @@ export function fakeRun(
     emit(event)
   }
 
-  const result = (complete: boolean): RunResult => ({
-    psdUrl: PSD_URL,
-    previewUrl: PNG_URL,
-    layers: [...layers],
-    complete
-  })
+  const result = (complete: boolean): RunResult => {
+    if (complete) assertCompleteLayerTree(layers)
+    return {
+      psdUrl: PSD_URL,
+      previewUrl: PNG_URL,
+      layers: [...layers],
+      complete
+    }
+  }
 
   const tick = () => {
     const next = SCRIPT[steps]
