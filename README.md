@@ -62,23 +62,44 @@ non-root `bun` user. It receives no secret while building.
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds the production image on every push to
-`main`. No hosting platform has been chosen yet, so for now it stops after
-the build. To turn deployment on:
+`.github/workflows/deploy.yml` builds the production image on every push
+to `main` and deploys it to Google Cloud Run: service `layerhand` in
+project `layerhand-astra-2026`, region `us-central1`. It builds the image
+but pushes and deploys nothing until the repository variable
+`DEPLOY_PLATFORM` is `cloud-run`.
 
-1.  Set the repository variable `DEPLOY_PLATFORM` to the platform's name.
-    The workflow then pushes the image to
-    `ghcr.io/<owner>/<repository>:<commit>` and runs its deploy job.
-1.  Create a `production` environment that holds the platform's
-    credentials.
-1.  Replace the deploy job's placeholder step with the platform's deploy
-    command. Until then, that job fails on purpose.
+- **Authentication** is Workload Identity Federation, restricted to this
+  repository, so no Google key exists.
+- **The image** goes to
+  `us-central1-docker.pkg.dev/layerhand-astra-2026/layerhand/app:<commit>`.
+- **Instances.** The service runs at most one instance, and scales to zero
+  when idle. CPU stays on while no request is open, because a run continues
+  after its start request returns. Requests may last 60 minutes.
+- **Secrets** come from Secret Manager at deploy time:
+  - `OPENAI_API_KEY`
+  - `BROWSERBASE_API_KEY`
+  - `SESSION_SECRET`
+  - `DATABASE_URL`
+  - `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`, an HMAC key for the
+    bucket
+- **Plain variables** are set in the workflow:
+  - `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, and `TRUST_PROXY_HOPS`;
+  - `RUN_MODE`, which is `fake` until the real agent run lands (#66);
+  - `FREE_DAILY_BUDGET_USD`, a placeholder of 40 until the ceiling is
+    agreed (#29).
+- **Storage** is the GCS bucket `layerhand-artifacts-732371853772`, through
+  its S3 interoperability endpoint, with a 24-hour delete rule (NFR-6).
 
-In production the container needs every variable in `.env.example`, taken
-from the platform's secret store, and it refuses to start without them.
-`RUN_MODE` is optional: `fake`, the default, or `agent`.
+In production the container refuses to start unless all eleven variables
+that `src/server/config.ts` requires are set.
 
-## Architecture
+**The database is a Supabase free project, which pauses after seven days
+without a query.** A paused database fails `/health` and every run. Query it
+at least weekly, for example with a scheduled request to the service's
+`/health`, which runs `SELECT 1`. Restoring a paused project takes about 30
+seconds.
+
+## Architecture## Architecture
 
 One long-lived Bun process serves the single-page application and API. Agent
 runs conform to `src/agent/contract.ts`; image-editor integrations conform to
