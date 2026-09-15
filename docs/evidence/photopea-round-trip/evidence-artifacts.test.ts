@@ -33,7 +33,7 @@ test('records evidence paths without a machine-specific directory', async () => 
 })
 
 test('retains a direct JPEG-post-to-PSD round-trip timing', async () => {
-  const result = JSON.parse(await readFile(join(import.meta.dir, 'output', 'result.json'), 'utf8')) as Record<
+  const result = JSON.parse(await readFile(join(import.meta.dir, 'results', 'result.json'), 'utf8')) as Record<
     string,
     unknown
   >
