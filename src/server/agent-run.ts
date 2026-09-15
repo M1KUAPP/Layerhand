@@ -6,7 +6,11 @@ import type { AgentModel } from '../agent/model'
 import { ResponsesModel } from '../agent/responses-model'
 import { Spend } from '../agent/spend'
 import type { ArtifactStore } from './artifact-store'
-import { browserbaseEditorSession, type BrowserbaseEditorSessionOptions } from './browserbase-editor-session'
+import {
+  browserbaseEditorSession,
+  type BrowserbaseEditorSession,
+  type BrowserbaseEditorSessionOptions
+} from './browserbase-editor-session'
 import type { Steering } from './config'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { FailureRecorder } from './run-failure'
@@ -173,6 +177,8 @@ export interface LiveAgentDependencies extends Pick<
   publish: AgentLoopDependencies['publish']
   /** Pays for the run when the user supplied no key of their own (FR-36). */
   serverApiKey?: string
+  /** An editor warmed while the user typed (#70). A new one is created without it. */
+  session?: BrowserbaseEditorSession
   /** `boundary` unless set. */
   steering?: Steering
   fetch?: typeof fetch
@@ -189,10 +195,18 @@ export interface LiveAgentDependencies extends Pick<
  */
 export function liveAgentRun(
   request: RunRequest,
-  { publish, serverApiKey, steering = 'boundary', fetch, socketEndpoint, ...editor }: LiveAgentDependencies
+  {
+    publish,
+    serverApiKey,
+    steering = 'boundary',
+    fetch,
+    socketEndpoint,
+    session: warmed,
+    ...editor
+  }: LiveAgentDependencies
 ): ManagedRun {
   if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
-  const session = browserbaseEditorSession({ id: crypto.randomUUID(), ...editor })
+  const session = warmed ?? browserbaseEditorSession({ id: crypto.randomUUID(), ...editor })
   const model = new ResponsesModel({
     apiKey: () => request.apiKey,
     instruction: request.instruction,
