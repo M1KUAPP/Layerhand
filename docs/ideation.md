@@ -35,6 +35,7 @@ Contents:
 1. [The pick: Layerhand](#the-pick-layerhand)
 1. [Launch artifact](#launch-artifact)
 1. [Before committing](#before-committing)
+1. [See also](#see-also)
 
 ## Round 1 — Computer use, desktop-native
 
