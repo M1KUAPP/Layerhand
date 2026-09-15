@@ -22,16 +22,16 @@ Contents:
   rejects an absent or wrong sentinel and bytes arriving only after it.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
   values are in
-  [`output/trap-results.json`](/docs/evidence/photopea-round-trip/output/trap-results.json).
-- [`output/result.json`](/docs/evidence/photopea-round-trip/output/result.json)
+  [`results/trap-results.json`](/docs/evidence/photopea-round-trip/results/trap-results.json).
+- [`results/result.json`](/docs/evidence/photopea-round-trip/results/result.json)
   is the retained round-trip output.
-  [`output/input.jpg`](/docs/evidence/photopea-round-trip/output/input.jpg) is
+  [`results/input.jpg`](/docs/evidence/photopea-round-trip/results/input.jpg) is
   the exact JPEG used by that run.
-  [`output/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/output/photopea-round-trip.psd)
+  [`results/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/results/photopea-round-trip.psd)
   is the PSD selected from that message stream.
-- [`output/photoshop-verification.json`](/docs/evidence/photopea-round-trip/output/photoshop-verification.json)
+- [`results/photoshop-verification.json`](/docs/evidence/photopea-round-trip/results/photoshop-verification.json)
   records the manual compatibility observation against the PSD digest.
-- [`output/photopea-final.png`](/docs/evidence/photopea-round-trip/output/photopea-final.png)
+- [`results/photopea-final.png`](/docs/evidence/photopea-round-trip/results/photopea-final.png)
   is the final Photopea frame. It shows the opened photograph, but not the
   Layers panel and therefore is not used as layer-structure evidence.
 - [`bun.lock`](bun.lock) resolves `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp
@@ -49,11 +49,13 @@ bun run trap-probe.ts
 ```
 
 The scripts use live Photopea and the Picsum URL recorded in `probe.ts`. A
-rerun creates or replaces files under `output/`; live-service, network, and
-cache differences can change the image bytes and timings.
+rerun writes to `output/`, which Git ignores, and leaves `results/` as it
+was; live-service, network, and cache differences can change the image bytes
+and timings.
 
-Paths in `result.json` are relative to this directory and point into its
-retained `output/` folder.
+Paths in `results/result.json` are relative to this directory. They name
+`output/`, where the probe wrote each file; the files moved to `results/`
+afterwards.
 
 The retained tests produced eight passes and no failures. The retained
 round-trip run reported a 13,442-byte JPEG, a 1,412,711-byte PSD, the `8BPS`
@@ -102,12 +104,12 @@ spike B2.
 SHA-256 digests identify the retained outputs:
 
 ```text
-cdced3c5f2e0524af39acb80c96ca8a26254c924ea1514774202091e97d13d11  output/input.jpg
-fbf838068cc10c61772907f2147ef9a9cc7afaa9ea17032c410276ca033f8ae7  output/photopea-round-trip.psd
-58aed27873edc925f39489161f762bfda2f57d9fe8c28a74b8fadac315c37eef  output/photopea-final.png
-18b6250db8b941b82331a02051ab8a00fb0d8d991037f8c4e6130d422ae8bc1b  output/result.json
-f86421943cffac4beed618ff1b05f7484c60a23293675ac6aa1d8e843daa1dc2  output/trap-results.json
-f42a44b9f1b76b4275b2757e76539ec2088f5001bc60e5c61ce1ae78f040a7e8  output/photoshop-verification.json
+cdced3c5f2e0524af39acb80c96ca8a26254c924ea1514774202091e97d13d11  results/input.jpg
+fbf838068cc10c61772907f2147ef9a9cc7afaa9ea17032c410276ca033f8ae7  results/photopea-round-trip.psd
+58aed27873edc925f39489161f762bfda2f57d9fe8c28a74b8fadac315c37eef  results/photopea-final.png
+18b6250db8b941b82331a02051ab8a00fb0d8d991037f8c4e6130d422ae8bc1b  results/result.json
+f86421943cffac4beed618ff1b05f7484c60a23293675ac6aa1d8e843daa1dc2  results/trap-results.json
+f42a44b9f1b76b4275b2757e76539ec2088f5001bc60e5c61ce1ae78f040a7e8  results/photoshop-verification.json
 ```
 
 ## Photoshop verification
@@ -120,7 +122,7 @@ Layers panel showed `Retouched copy` above `Original photograph`.
 The check used the exact PSD whose SHA-256 is listed above. Computer control
 closed the document without a save prompt after the observation. The
 structured record is in
-[`output/photoshop-verification.json`](/docs/evidence/photopea-round-trip/output/photoshop-verification.json).
+[`results/photoshop-verification.json`](/docs/evidence/photopea-round-trip/results/photoshop-verification.json).
 
 ## Evidence limits
 

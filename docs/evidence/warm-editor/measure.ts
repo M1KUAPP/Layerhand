@@ -21,7 +21,9 @@ const { values, positionals } = parseArgs({
 const [baseUrl, imageArgument] = positionals
 if (!baseUrl) throw new Error('Usage: measure.ts <base URL> [image] [--type-ms 8000]')
 const typeMs = Number(values['type-ms'])
-const imagePath = resolve(imageArgument ?? new URL('../photopea-round-trip/output/input.jpg', import.meta.url).pathname)
+const imagePath = resolve(
+  imageArgument ?? new URL('../photopea-round-trip/results/input.jpg', import.meta.url).pathname
+)
 const image = new Uint8Array(await readFile(imagePath))
 const filename = basename(imagePath)
 
