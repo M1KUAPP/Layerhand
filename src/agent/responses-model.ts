@@ -22,7 +22,11 @@ export interface CodeRunner {
 }
 
 export interface ResponsesModelOptions {
-  apiKey: string
+  /**
+   * Or a function read at every call, so a run can release its key while
+   * something still holds the model. A call made without a key sends nothing.
+   */
+  apiKey: string | (() => string | undefined)
   /** The user's instruction. Sent as its own user message, never in the system prompt. */
   instruction: string
   stepCap: number
@@ -209,7 +213,9 @@ export class ResponsesModel implements AgentModel {
   }
 
   async next({ screenshot, corrections }: Observation, signal: AbortSignal): Promise<ModelTurn> {
-    const { apiKey, endpoint, mechanism, model, reasoningEffort } = this.#options
+    const { endpoint, mechanism, model, reasoningEffort } = this.#options
+    const apiKey = typeof this.#options.apiKey === 'function' ? this.#options.apiKey() : this.#options.apiKey
+    if (!apiKey) throw new Error('The run has no API key')
     const response = await this.#options.fetch(endpoint, {
       method: 'POST',
       headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },

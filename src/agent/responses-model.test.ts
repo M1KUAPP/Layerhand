@@ -293,6 +293,21 @@ describe('ResponsesModel failures', () => {
     expect(sent[0]!.signal).toBe(aborter.signal)
   })
 
+  test('reads a key given as a function at each call, and sends nothing once it is gone', async () => {
+    let key: string | undefined = KEY
+    const { fetch, sent } = scriptedFetch([{ id: 'resp_1', output: [] }])
+    const model = new ResponsesModel({ apiKey: () => key, instruction: 'x', stepCap: 2, mechanism: 'computer', fetch })
+
+    await model.next(observe(), signal())
+    key = undefined
+    const failure = await model.next(observe(), signal()).catch((error: unknown) => error)
+
+    expect(sent[0]!.headers.get('authorization')).toBe(`Bearer ${KEY}`)
+    expect(failure).toBeInstanceOf(Error)
+    expect((failure as Error).message).toBe('The run has no API key')
+    expect(sent).toHaveLength(1)
+  })
+
   test('refuses malformed and unsupported actions', () => {
     expect(() => toComputerAction({ type: 'click', button: 'left', x: '1', y: 2 })).toThrow('malformed')
     expect(() => toComputerAction({ type: 'zoom' })).toThrow('does not support')
