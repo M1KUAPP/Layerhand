@@ -82,6 +82,12 @@ but pushes and deploys nothing until the repository variable
   - `DATABASE_URL`
   - `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`, an HMAC key for the
     bucket
+
+  All but `OPENAI_API_KEY` are team secrets, whose source is this
+  repository's GitHub secrets. The deploy job copies each one into Secret
+  Manager before deploying, and only when it changed. `OPENAI_API_KEY` is a
+  personal key that lives only in Secret Manager.
+
 - **Plain variables** are set in the workflow:
   - `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, and `TRUST_PROXY_HOPS`;
   - `RUN_MODE`, which is `fake` for now. `agent` runs the real agent and
