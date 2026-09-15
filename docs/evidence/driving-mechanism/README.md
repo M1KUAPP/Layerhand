@@ -75,11 +75,14 @@ locally, with a key you can revoke.
 
 ## Findings from building it
 
-- Exported files are slow to leave the page. `PlaywrightPhotopeaTransport`
-  receives bytes as a JSON array of numbers. That took 7.5 seconds for the
+- Exported files were slow to leave the page. `PlaywrightPhotopeaTransport`
+  received bytes as a JSON array of numbers. That took 7.5 seconds for the
   B1 image's 0.9 MB PSD, and 62 seconds for the sample photo's 9.1 MB PSD.
   The session allows five minutes per command and reuses one export for both
-  the file and its layer list. Uploads already avoid this by sending base64.
+  the file and its layer list. Uploads already avoided this by sending
+  base64, and [issue #50](https://github.com/M1KUAPP/astra/issues/50) made
+  exports do the same: the sample photo's PSD now leaves the page in about
+  a third of a second.
 - A dry run of the sample photo with the default 60-second command timeout
   failed at export for exactly that reason.
 - With five minutes allowed, a dry run on all three images went through the

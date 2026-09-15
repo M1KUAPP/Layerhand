@@ -1091,6 +1091,17 @@ axes. Original bytes and the long-edge limit are unchanged. Malformed
 inspected EXIF fields are rejected before boot; unrelated metadata, PNG
 CRCs, and full pixel decoding remain outside the validation boundary.
 
+Issue #50 export result (2026-09-15, Google Chrome 153.0.8010.37): the
+opt-in installed-Chrome export test opened the 1536x1024 sample photograph
+in public Photopea and exported it through the bridge. The 9,071,117-byte
+PSD took 325 ms and the 1,607,543-byte PNG preview 838 ms. The same exports
+took 16,481 ms and 3,779 ms while the host still passed files out as arrays
+of numbers, and the spike A0 harness had measured 62 seconds for that PSD
+in headless Chromium, past the bridge's 60-second default. Exported files
+now cross the page boundary as base64, which the transport encodes inside
+the page. SHA-256 digests taken in the page as each file arrived match the
+bytes the bridge returned.
+
 B0 no longer gates anything. It was written when the licence question
 was open; it is
 [answered](PRODUCT.md#open-questions), and what is left of B0 is a
