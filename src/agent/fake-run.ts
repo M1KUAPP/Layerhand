@@ -2,6 +2,7 @@
 // failure, cap, and cancel included, before the agent loop exists.
 import { assertCompleteLayerTree, type LayerInfo } from '../editor'
 import type { RunEvent, RunHandle, RunRequest, RunResult } from './contract'
+import { EventLog } from './event-log'
 
 export interface FakeRunOptions {
   /** Milliseconds between steps. */
@@ -73,24 +74,16 @@ export function fakeRun(
   request: RunRequest,
   { intervalMs = 1000, recoverableErrorAtStep, failAtStep }: FakeRunOptions = {}
 ): RunHandle {
-  const events: RunEvent[] = []
-  const waiting: (() => void)[] = []
+  const log = new EventLog()
   const layers = [ORIGINAL]
   let steps = 0
   let tokensIn = 0
   let tokensOut = 0
-  let ended = false
   let timer: ReturnType<typeof setTimeout> | undefined
 
-  const emit = (event: RunEvent) => {
-    events.push(event)
-    for (const wake of waiting.splice(0)) wake()
-  }
-
   const end = (event: RunEvent) => {
-    ended = true
     clearTimeout(timer)
-    emit(event)
+    log.end(event)
   }
 
   const result = (complete: boolean): RunResult => {
@@ -114,39 +107,29 @@ export function fakeRun(
     tokensIn += FRAME_TOKENS * steps
     tokensOut += OUTPUT_TOKENS_PER_STEP
     const usd = tokensIn * USD_PER_CACHED_INPUT_TOKEN + tokensOut * USD_PER_OUTPUT_TOKEN
-    emit({ type: 'step', n: steps, cap: request.stepCap, narration: next.narration })
-    emit({ type: 'frame', pngUrl: PNG_URL })
-    emit({ type: 'cost', usd, tokensIn, tokensOut })
+    log.emit({ type: 'step', n: steps, cap: request.stepCap, narration: next.narration })
+    log.emit({ type: 'frame', pngUrl: PNG_URL })
+    log.emit({ type: 'cost', usd, tokensIn, tokensOut })
     if (steps === recoverableErrorAtStep) {
-      emit({ type: 'error', reason: 'The live view missed a frame', recoverable: true })
+      log.emit({ type: 'error', reason: 'The live view missed a frame', recoverable: true })
     }
     timer = setTimeout(tick, intervalMs)
   }
 
-  emit({ type: 'started', runId: crypto.randomUUID(), viewport: { width: 1440, height: 900 } })
+  log.emit({ type: 'started', runId: crypto.randomUUID(), viewport: { width: 1440, height: 900 } })
   timer = setTimeout(tick, intervalMs)
 
   return {
     // Each iteration replays the run from its first event, then follows it live.
-    events: {
-      async *[Symbol.asyncIterator]() {
-        for (let i = 0; ; i++) {
-          while (i === events.length) {
-            if (ended) return
-            await new Promise<void>((wake) => waiting.push(wake))
-          }
-          yield events[i]!
-        }
-      }
-    },
+    events: log,
 
     async steer(text) {
-      if (ended) throw new Error('The run has already ended, so the correction was not applied')
-      emit({ type: 'correction_ack', text })
+      if (log.ended) throw new Error('The run has already ended, so the correction was not applied')
+      log.emit({ type: 'correction_ack', text })
     },
 
     async cancel() {
-      if (!ended) end({ type: 'done', result: result(false) })
+      if (!log.ended) end({ type: 'done', result: result(false) })
     }
   }
 }

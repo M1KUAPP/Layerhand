@@ -92,7 +92,7 @@ function fixture(overrides: { meter?: RecordingMeter } = {}) {
     now: () => new Date('2026-09-15T12:00:00.000Z'),
     idGenerator: () => `public-run-${++nextId}`,
     runFactory(request) {
-      if (failRunFactory) throw new Error('run factory failed')
+      if (failRunFactory) return Promise.reject(new Error('run factory failed'))
       runRequests.push(request)
       return {
         handle: fakeRun(request, { intervalMs: 1 }),
@@ -193,7 +193,11 @@ describe('run HTTP contract', () => {
 
     const response = await target.app.fetch(startRequest())
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({
+      code: 'run_start_failed',
+      message: 'The run could not be started. Try again in a moment.'
+    })
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
     expect(target.meter.calls).toContain('release')
   })

@@ -162,6 +162,29 @@ describe('RunRegistry', () => {
     await expect(registry.steer('run-1', 'Too late')).rejects.toBeInstanceOf(RunRegistryError)
   })
 
+  test('refuses a correction the run turns away while it is finishing', async () => {
+    const registry = new RunRegistry()
+    const managed = scriptedRun([{ type: 'started', runId: 'private', viewport: { width: 1440, height: 900 } }])
+    managed.handle.events = {
+      async *[Symbol.asyncIterator]() {
+        yield { type: 'started', runId: 'private', viewport: { width: 1440, height: 900 } }
+        await new Promise(() => {})
+      }
+    }
+    managed.handle.steer = async () => {
+      throw new Error('The run is stopping, so the correction was not applied')
+    }
+    registry.register({ runId: 'run-1', instruction: 'Retouch this', managedRun: managed })
+
+    const refusal = registry.steer('run-1', 'Keep the shadow')
+
+    await expect(refusal).rejects.toBeInstanceOf(RunRegistryError)
+    await expect(refusal).rejects.toMatchObject({
+      code: 'run_ended',
+      message: 'The run is finishing, so the correction was not applied.'
+    })
+  })
+
   test('marks cancellation before retaining the partial result', async () => {
     const request = {
       image: Uint8Array.of(1),
