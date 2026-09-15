@@ -1,8 +1,9 @@
 # Photopea round-trip
 
-This directory retains evidence from the September 15, 2026 spike B1 rerun.
-
-This is a throwaway probe, not the production editor adapter.
+Spike B1 from the [TRD](/docs/TRD.md#decisions-deferred-to-spikes): does an
+image posted into Photopea come back out as a layered PSD, end to end? This
+folder retains the September 15, 2026 rerun of that probe, which is a
+throwaway, not the production editor adapter.
 
 Contents:
 
@@ -103,6 +104,10 @@ afterwards.
 - [`protocol.ts`](protocol.ts) selects the last binary message before the exact
   sentinel. [`protocol.test.ts`](protocol.test.ts) covers the valid ordering and
   rejects an absent or wrong sentinel and bytes arriving only after it.
+- [`evidence-artifacts.ts`](evidence-artifacts.ts) keeps the input JPEG with
+  its digest and records file paths relative to this directory.
+  [`evidence-artifacts.test.ts`](evidence-artifacts.test.ts) covers both, and
+  checks the retained round-trip timing.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
   values are in
   [`results/trap-results.json`](/docs/evidence/photopea-round-trip/results/trap-results.json).

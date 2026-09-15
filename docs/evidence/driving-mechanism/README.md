@@ -10,18 +10,27 @@ editor adapter.
 Contents:
 
 1.  [Result](#result)
+1.  [Limits](#limits)
 1.  [What a run does](#what-a-run-does)
 1.  [Running it](#running-it)
 1.  [Findings from building it](#findings-from-building-it)
 
 ## Result
 
-On September 15, 2026, both mechanisms completed all three images. The
-`computer` tool was chosen, for the reasons in
+On September 15, 2026, both mechanisms completed all three images, as
+[What a run does](#what-a-run-does) defines completion. The `computer` tool
+was chosen, for the reasons in
 [TRD § How the editor is actually driven](/docs/TRD.md#how-the-editor-is-actually-driven).
 The records, code logs, and final frames are in
 [`results/`](/docs/evidence/driving-mechanism/results/records.json), without
 PSDs. The sweep, with its two smoke runs, spent $3.47.
+
+## Limits
+
+- **Three images, one run of each mechanism on each.** The TRD does not read
+  the margins between the two mechanisms as significant.
+- **Two of the three images show the same scene.** The B1 input and the
+  editor fixture preview are the same seascape.
 
 ## What a run does
 
@@ -80,8 +89,8 @@ bun run docs/evidence/driving-mechanism/harness.ts \
 
 `--mechanism computer|code|both` and `--step-cap` narrow a run, and image
 paths given as arguments replace the defaults. Output goes to
-`output/<timestamp>/`: `runs.ndjson`, `records.json`, `summary.md`, and each
-run's frames, PSD, preview, and `code.ndjson`.
+`output/<timestamp>/`, which Git ignores: `runs.ndjson`, `records.json`,
+`summary.md`, and each run's frames, PSD, preview, and `code.ndjson`.
 
 Model-written code runs unsandboxed in the harness process, so the harness
 takes the key out of the environment before any run starts. Run it only
@@ -94,7 +103,7 @@ locally, with a key you can revoke.
   B1 image's 0.9 MB PSD, and 62 seconds for the sample photo's 9.1 MB PSD.
   The session allows five minutes per command and reuses one export for both
   the file and its layer list. Uploads already avoid this by sending base64.
-  Fixed on 2026-09-15 by
+  Fixed on September 15, 2026, by
   [issue #50](https://github.com/M1KUAPP/astra/issues/50): exports now cross
   the page as base64, and the editor's export test measured the same PSD at
   307 ms.

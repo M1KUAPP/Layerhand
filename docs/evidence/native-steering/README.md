@@ -82,6 +82,7 @@ Playwright's CDP connection. The script needs `OPENAI_API_KEY` and
 `BROWSERBASE_API_KEY`. From the repository root:
 
 ```sh
+bun install --frozen-lockfile
 bun --env-file=.env run docs/evidence/native-steering/live-steer.ts \
   https://layerhand-732371853772.us-central1.run.app --steer-after 3
 ```

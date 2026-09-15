@@ -47,6 +47,7 @@ The script drives the public API exactly as the page does, so it needs no
 key: production pays for the runs with its own. From the repository root:
 
 ```sh
+bun install --frozen-lockfile
 bun run docs/evidence/warm-editor/measure.ts \
   https://layerhand-732371853772.us-central1.run.app
 ```
