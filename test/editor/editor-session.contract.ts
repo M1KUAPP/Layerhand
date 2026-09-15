@@ -6,7 +6,7 @@ type EditorSessionFactory = () => Promise<EditorSession>
 
 const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
 
-function assertLayerTree(layers: readonly LayerInfo[]): void {
+export function assertLayerTree(layers: readonly LayerInfo[]): void {
   expect(Array.isArray(layers)).toBe(true)
   for (const layer of layers) {
     expect(layer.name.trim().length).toBeGreaterThan(0)
