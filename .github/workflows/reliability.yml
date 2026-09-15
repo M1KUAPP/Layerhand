@@ -1,0 +1,67 @@
+# Scheduled nightly reliability run (#24).
+# Only runs when repository variable RELIABILITY_ENABLED is set to 'true'.
+# Reads OPENAI_API_KEY from Google Secret Manager at runtime and consumes
+# BROWSERBASE_API_KEY from repository secrets without leaking either credential.
+name: Reliability
+
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ID: layerhand-astra-2026
+  WORKLOAD_IDENTITY_PROVIDER: projects/732371853772/locations/global/workloadIdentityPools/github/providers/github
+  DEPLOYER: deployer@layerhand-astra-2026.iam.gserviceaccount.com
+  PUBLIC_URL: https://layerhand-732371853772.us-central1.run.app
+
+jobs:
+  reliability:
+    name: Reliability suite
+    if: vars.RELIABILITY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Run reliability suite
+        id: reliability
+        continue-on-error: true
+        env:
+          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+          PUBLIC_URL: ${{ env.PUBLIC_URL }}
+        run: |
+          OPENAI_API_KEY="$(gcloud secrets versions access latest --secret OPENAI_API_KEY --project "$PROJECT_ID")"
+          export OPENAI_API_KEY
+          bun run reliability
+      - name: Publish step summary
+        if: always()
+        run: |
+          latest_summary="$(find artifacts/reliability -name summary.md | sort | tail -n 1)"
+          if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
+            cat "$latest_summary" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload reliability artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-artifacts
+          path: artifacts/reliability/
+      - name: Propagate reliability outcome
+        if: always() && steps.reliability.outcome == 'failure'
+        run: exit 1
