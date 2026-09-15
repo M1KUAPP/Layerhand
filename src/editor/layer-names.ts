@@ -106,11 +106,11 @@ function fallbackName(layer: ParsedLayerInfo): string {
   return 'Retouched pixels'
 }
 
-function firstFreeName(base: string, used: Set<string>): string {
+function firstFreeName(base: string, used: Set<string>, excludedKey?: string): string {
   for (let suffix = 1; ; suffix += 1) {
     const candidate = suffix === 1 ? base : `${base} ${suffix}`
     const key = nameKey(candidate)
-    if (!used.has(key)) {
+    if (key !== excludedKey && !used.has(key)) {
       used.add(key)
       return candidate
     }
@@ -136,7 +136,7 @@ export function buildLayerRenamePlan(layers: readonly ParsedLayerInfo[]): readon
       continue
     }
 
-    const to = firstFreeName(fallbackName(item.layer), reserved)
+    const to = firstFreeName(fallbackName(item.layer), reserved, counts.get(item.key) === 1 ? undefined : item.key)
     plan.push({ path: item.path, from: item.layer.name, to })
   }
 
