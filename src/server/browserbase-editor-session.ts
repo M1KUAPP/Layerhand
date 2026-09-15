@@ -47,47 +47,82 @@ export async function connectOverCdp(connectUrl: string): Promise<RemoteBrowser>
   }
 }
 
+export interface BrowserbaseEditorSession extends EditorSession {
+  /**
+   * Closes the browser and releases the Browserbase session at once, without
+   * waiting for editor work in progress, which then fails. Nothing can be
+   * exported afterwards.
+   */
+  abandon(): Promise<void>
+}
+
+const closedError = () => new Error('The editor session is closed')
+
 export function browserbaseEditorSession({
   id,
   hostUrl,
   sessions,
   connect = connectOverCdp,
   createEditorSession = createPhotopeaEditorSession
-}: BrowserbaseEditorSessionOptions): EditorSession {
+}: BrowserbaseEditorSessionOptions): BrowserbaseEditorSession {
   let editor: Promise<EditorSession> | undefined
   let closed: Promise<void> | undefined
+  let abandoned = false
+  let creating: Promise<BrowserbaseSession> | undefined
+  let remote: BrowserbaseSession | undefined
+  let browser: RemoteBrowser | undefined
+  let closedBrowser: RemoteBrowser | undefined
+  let released: Promise<void> | undefined
 
-  const start = async (): Promise<EditorSession> => {
-    const remote = await sessions.createSession()
-    let browser: RemoteBrowser | undefined
-    // The browser is closed first, and the session is released even if that fails.
-    const release = async () => {
+  // Once, whichever asks first: the editor closing, a failed start, or abandon.
+  // The browser is closed first, and the session is released even if that fails.
+  const release = (): Promise<void> => {
+    if (!remote) return Promise.resolve()
+    const sessionId = remote.id
+    released ??= (async () => {
+      closedBrowser = browser
       try {
         await browser?.close()
       } finally {
-        await sessions.releaseSession(remote.id)
+        await sessions.releaseSession(sessionId)
       }
-    }
+    })()
+    return released
+  }
+
+  const start = async (): Promise<EditorSession> => {
+    creating = sessions.createSession()
+    remote = await creating
     try {
+      if (abandoned) throw closedError()
       try {
         browser = await connect(remote.connectUrl)
       } catch {
         throw new Error('The editor browser could not be reached')
       }
+      if (abandoned) throw closedError()
       return createEditorSession(browser.page, { id, hostUrl, viewport: VIEWPORT, release })
     } catch (error) {
       await release().catch(() => undefined)
+      // An abandon while connecting released the session before this browser existed.
+      if (browser !== closedBrowser) await browser?.close().catch(() => undefined)
       throw error
     }
   }
 
   const started = (): Promise<EditorSession> => {
-    if (closed) return Promise.reject(new Error('The editor session is closed'))
+    if (closed || abandoned) return Promise.reject(closedError())
     editor ??= start()
     return editor
   }
 
   return {
+    async abandon() {
+      abandoned = true
+      // A session being created is released as soon as it exists; connecting is not waited for.
+      await creating?.catch(() => undefined)
+      await release()
+    },
     id,
     viewport: { ...VIEWPORT },
     open: async (image, filename) => (await started()).open(image, filename),
