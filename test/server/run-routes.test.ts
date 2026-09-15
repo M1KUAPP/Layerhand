@@ -319,6 +319,45 @@ describe('run HTTP contract', () => {
     expect(target.artifacts.calls).toEqual([])
   })
 
+  test('refuses a chunked body past the limit before it is buffered', async () => {
+    const target = fixture()
+    // A body with no declared length, which only counting its bytes can refuse.
+    const chunked = (path: string) => {
+      let sent = 0
+      const body = new ReadableStream<Uint8Array>({
+        pull(controller) {
+          sent += 1
+          controller.enqueue(new Uint8Array(1024 * 1024))
+          if (sent >= 64) controller.close()
+        }
+      })
+      const request = new Request(`https://layerhand.test${path}`, {
+        method: 'POST',
+        headers: { 'content-type': 'multipart/form-data; boundary=layerhand' },
+        body,
+        duplex: 'half'
+      } as RequestInit)
+      return { request, sent: () => sent }
+    }
+
+    const upload = chunked('/api/uploads')
+    const start = chunked('/api/runs')
+    const uploadResponse = await target.app.fetch(upload.request)
+    const startResponse = await target.app.fetch(start.request)
+
+    for (const response of [uploadResponse, startResponse]) {
+      expect(response.status).toBe(413)
+      expect(await response.json()).toEqual({
+        code: 'request_too_large',
+        message: 'The upload exceeds the 20 MB request limit.'
+      })
+    }
+    // Both reads stopped just past the 20 MB limit rather than taking all 64.
+    expect(upload.sent()).toBeLessThan(24)
+    expect(start.sent()).toBeLessThan(24)
+    expect(target.meter.calls).toEqual([])
+  })
+
   test('returns a stated limit response without starting paid work', async () => {
     const meter = new RecordingMeter()
     meter.refuse = {
