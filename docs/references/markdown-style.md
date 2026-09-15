@@ -459,12 +459,12 @@ An example query might be: `https://www.google.com/search?q=$TERM`
 
 For code quotations longer than a single line, use a fenced code block:
 
-<pre>
+````markdown
 ```python
 def Foo(self, bar):
   self.bar = bar
 ```
-</pre>
+````
 
 #### Declare the language
 
@@ -504,12 +504,12 @@ Because most command-line snippets are intended to be copied and pasted directly
 into a terminal, it's best practice to escape any newlines. Use a single
 backslash at the end of the line:
 
-<pre>
+````markdown
 ```shell
 $ bazel run :target -- --flag --foo=longlonglonglonglongvalue \
   --bar=anotherlonglonglonglonglonglonglonglonglonglongvalue
 ```
-</pre>
+````
 
 #### Nest codeblocks within lists
 
@@ -606,14 +606,11 @@ Check out a
 For long links or image URLs, you may want to split the link use from the link
 definition, like this:
 
-<!-- Known bug: We use a zero-width non-breaking space (U+FEFF) here to prevent -->
-<!-- reference links from rendering within code blocks. -->
-
 ```markdown
 See the [Markdown style guide][style], which has suggestions for making docs more
 readable.
 
-﻿[style]: http://Markdown/corp/Markdown/docs/reference/style.md
+[style]: http://Markdown/corp/Markdown/docs/reference/style.md
 ```
 
 #### Use reference links for long links
@@ -632,7 +629,7 @@ DO NOT DO THIS.
 The [style guide][style_guide] says not to use reference links unless you have
 to.
 
-﻿[style_guide]: https://google.com/Markdown-style
+[style_guide]: https://google.com/Markdown-style
 ```
 
 Just inline it instead:
@@ -647,7 +644,7 @@ a reference link:
 ```markdown
 The [style guide] says not to use reference links unless you have to.
 
-﻿[style guide]: https://docs.google.com/document/d/13HQBxfhCwx8lVRuN2Wf6poqvAfVeEXmFVcawP5I6B3c/edit
+[style guide]: https://docs.google.com/document/d/13HQBxfhCwx8lVRuN2Wf6poqvAfVeEXmFVcawP5I6B3c/edit
 ```
 
 Use reference links more often in tables. It is particularly important to keep
@@ -673,8 +670,8 @@ Instead, use reference links to keep the line length manageable:
 | [site 1] | This is example site 1. |
 | [site 2] | This is example site 2. |
 
-﻿[site 1]: http://google.com/excessively/long/path/example_site_1
-﻿[site 2]: http://google.com/excessively/long/path/example_site_2
+[site 1]: http://google.com/excessively/long/path/example_site_1
+[site 2]: http://google.com/excessively/long/path/example_site_2
 ```
 
 #### Use reference links to reduce duplication
@@ -718,8 +715,8 @@ Some more text with the same [link][link_def].
 
 Some more text using a [different_link][different_link_def].
 
-﻿[link_def]: http://reallyreallyreallylonglink.com
-﻿[different_link_def]: http://differentreallyreallylonglink.com
+[link_def]: http://reallyreallyreallylonglink.com
+[different_link_def]: http://differentreallyreallylonglink.com
 ```
 
 Instead, put it just before the header following its first use:
@@ -731,7 +728,7 @@ Some text with a [link][link_def].
 
 Some more text with the same [link][link_def].
 
-﻿[link_def]: http://reallyreallyreallylonglink.com
+[link_def]: http://reallyreallyreallylonglink.com
 
 ## Header 2
 
@@ -741,7 +738,7 @@ Some more text with the same [link][link_def].
 
 Some more text using a [different_link][different_link_def].
 
-﻿[different_link_def]: http://differentreallyreallylonglink.com
+[different_link_def]: http://differentreallyreallylonglink.com
 ```
 
 ## Images
@@ -836,9 +833,9 @@ improve readability:
 | Bicycle          | Miss Gulch     | [Weatherproof][tornado_proofing]                 |
 | X-34 landspeeder | Whiny farmboys | [Cheap][tosche_station] since the XP-38 came out |
 
-﻿[airspeed]: http://google3/airspeed.h
-﻿[tornado_proofing]: http://google3/kansas/
-﻿[tosche_station]: http://google3/power_converter.h
+[airspeed]: http://google3/airspeed.h
+[tornado_proofing]: http://google3/kansas/
+[tosche_station]: http://google3/power_converter.h
 ```
 
 Note that [reference links](#reference-links) are used to keep the table cells
