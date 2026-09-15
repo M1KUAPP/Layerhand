@@ -1,10 +1,25 @@
 import { describe, expect, test } from 'bun:test'
 import { readFile } from 'node:fs/promises'
-import type { EditorSession } from '../../src/editor/session'
+import type { EditorSession, LayerInfo } from '../../src/editor/session'
 
 type EditorSessionFactory = () => Promise<EditorSession>
 
 const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+
+export function assertLayerTree(layers: readonly LayerInfo[]): void {
+  expect(Array.isArray(layers)).toBe(true)
+  for (const layer of layers) {
+    expect(layer.name.trim().length).toBeGreaterThan(0)
+    expect(['raster', 'adjustment', 'group']).toContain(layer.kind)
+    expect(typeof layer.visible).toBe('boolean')
+    expect(Array.isArray(layer.masks)).toBe(true)
+    for (const mask of layer.masks) {
+      expect(['pixel', 'vector']).toContain(mask.kind)
+      expect(typeof mask.enabled).toBe('boolean')
+    }
+    assertLayerTree(layer.children)
+  }
+}
 
 export function defineEditorSessionContract(name: string, createSession: EditorSessionFactory): void {
   describe(`${name} EditorSession contract`, () => {
@@ -27,7 +42,7 @@ export function defineEditorSessionContract(name: string, createSession: EditorS
 
         const layers = await session.layers()
         expect(layers.length).toBeGreaterThanOrEqual(1)
-        expect(layers.every((layer) => layer.name.trim().length > 0)).toBe(true)
+        assertLayerTree(layers)
 
         const psd = await session.exportPsd()
         expect(new TextDecoder().decode(psd.slice(0, 4))).toBe('8BPS')

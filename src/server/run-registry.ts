@@ -1,4 +1,5 @@
 import type { RunEvent, RunResult } from '../agent/contract'
+import { cloneLayerTree } from '../editor/layer-tree'
 import type { ManagedRun, ManagedRunMetrics } from './managed-run'
 
 const DEFAULT_RETENTION_MS = 60 * 60 * 1000
@@ -99,7 +100,7 @@ function initialSnapshot(runId: string): RunSnapshot {
 }
 
 function copyResult(result: RunResult): RunResult {
-  return { ...result, layers: result.layers.map((layer) => ({ ...layer })) }
+  return { ...result, layers: cloneLayerTree(result.layers) }
 }
 
 function copySnapshot(snapshot: RunSnapshot): RunSnapshot {

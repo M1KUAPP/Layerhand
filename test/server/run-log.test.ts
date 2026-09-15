@@ -11,7 +11,7 @@ import { createRunLogger, runLogLine, SqlRunLogStore, type RunLogLine } from '..
 const RESULT: RunResult = {
   psdUrl: 'https://artifacts.example/result.psd',
   previewUrl: 'https://artifacts.example/preview.png',
-  layers: [{ name: 'Original photograph', kind: 'raster', visible: true }],
+  layers: [{ name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }],
   complete: true
 }
 const FRAME_URL = 'https://artifacts.example/frame-secret-pixels.png'

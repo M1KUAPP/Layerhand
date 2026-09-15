@@ -79,6 +79,16 @@ describeBrowser('launch application in Chromium', () => {
       ).toBe(true)
       await page.getByText('Warm highlights', { exact: true }).waitFor()
       await page.getByText('adjustment', { exact: true }).waitFor()
+      const layerList = page.locator('.layer-list > ol')
+      const layerText = await layerList.textContent()
+      expect(layerText).toContain('Retouching group')
+      expect(layerText).toContain('Background isolation')
+      expect(layerText).toContain('group')
+      expect(layerText).toContain('raster')
+      expect(layerText).toContain('pixel mask')
+      expect(
+        await layerList.locator(':scope > li', { hasText: 'Retouching group' }).locator(':scope > ol').count()
+      ).toBe(1)
 
       const pendingDownload = page.waitForEvent('download')
       await page.getByRole('link', { name: 'Download layered PSD' }).click()

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
 import { RunApi, RunApiError, decodeRunEvent, decodeRunSnapshot } from '../../src/web/api'
+import type { LayerInfo } from '../../src/editor'
 import type { RunSnapshot } from '../../src/server/run-registry'
 
 const snapshot = {
@@ -18,6 +19,37 @@ const snapshot = {
   recoverableErrors: []
 } satisfies RunSnapshot
 
+const nestedLayers: LayerInfo[] = [
+  {
+    name: 'Retouching group',
+    kind: 'group',
+    visible: true,
+    masks: [],
+    children: [
+      {
+        name: 'Background isolation',
+        kind: 'raster',
+        visible: true,
+        masks: [{ kind: 'pixel', enabled: true }],
+        children: []
+      }
+    ]
+  }
+]
+
+function completeSnapshot(layers: unknown) {
+  return {
+    ...snapshot,
+    status: 'complete',
+    result: {
+      psdUrl: '/result.psd',
+      previewUrl: '/result.png',
+      layers,
+      complete: true
+    }
+  }
+}
+
 describe('browser API validation', () => {
   test('accepts complete snapshot and event payloads', () => {
     expect(decodeRunSnapshot(snapshot)).toEqual(snapshot)
@@ -31,6 +63,55 @@ describe('browser API validation', () => {
     expect(() => decodeRunSnapshot({ ...snapshot, costUsd: 'secret' })).toThrow(RunApiError)
     expect(() => decodeRunEvent({ type: 'done', result: { previewUrl: 4 } })).toThrow(RunApiError)
     expect(() => decodeRunEvent({ type: 'unknown', apiKey: 'sk-secret' })).toThrow(RunApiError)
+  })
+
+  test('decodes recursive layer trees', () => {
+    expect(decodeRunSnapshot(completeSnapshot(nestedLayers)).result?.layers).toEqual(nestedLayers)
+  })
+
+  test('rejects invalid recursive layer values', () => {
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([{ name: 'Mask layer', kind: 'mask', visible: true, masks: [], children: [] }])
+      )
+    ).toThrow(RunApiError)
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([
+          { name: 'Original', kind: 'raster', visible: true, masks: [{ kind: 'unknown', enabled: true }], children: [] }
+        ])
+      )
+    ).toThrow(RunApiError)
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([
+          { name: 'Original', kind: 'raster', visible: true, masks: [{ kind: 'pixel', enabled: 'yes' }], children: [] }
+        ])
+      )
+    ).toThrow(RunApiError)
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([{ name: 'Original', kind: 'raster', visible: true, masks: {}, children: [] }])
+      )
+    ).toThrow(RunApiError)
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([{ name: 'Original', kind: 'raster', visible: true, masks: [], children: {} }])
+      )
+    ).toThrow(RunApiError)
+    expect(() =>
+      decodeRunSnapshot(
+        completeSnapshot([
+          {
+            name: 'Retouching group',
+            kind: 'group',
+            visible: true,
+            masks: [],
+            children: [{ name: 'Broken', kind: 'raster', visible: true, masks: [], children: [{}] }]
+          }
+        ])
+      )
+    ).toThrow(RunApiError)
   })
 
   test('starts, restores, steers, cancels, and joins through stable routes', async () => {

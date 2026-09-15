@@ -2,13 +2,14 @@ import { describe, expect, test } from 'bun:test'
 
 import { fakeRun } from '../../src/agent/fake-run'
 import type { RunEvent, RunHandle, RunResult } from '../../src/agent/contract'
+import type { LayerInfo } from '../../src/editor/session'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { RunRegistry, RunRegistryError } from '../../src/server/run-registry'
 
 const RESULT: RunResult = {
   psdUrl: 'https://artifacts.example/result.psd',
   previewUrl: 'https://artifacts.example/preview.png',
-  layers: [{ name: 'Original photograph', kind: 'raster', visible: true }],
+  layers: [{ name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }],
   complete: true
 }
 
@@ -228,5 +229,52 @@ describe('RunRegistry', () => {
     expect(await registry.getSnapshot('run-1')).toBeDefined()
     now += 2
     expect(await registry.getSnapshot('run-1')).toBeUndefined()
+  })
+
+  test('returns recursively defensive result layers', async () => {
+    const nestedLayers: LayerInfo[] = [
+      {
+        name: 'Retouching group',
+        kind: 'group',
+        visible: true,
+        masks: [],
+        children: [
+          {
+            name: 'Background isolation',
+            kind: 'raster',
+            visible: true,
+            masks: [{ kind: 'pixel', enabled: true }],
+            children: []
+          }
+        ]
+      }
+    ]
+    const result: RunResult = {
+      psdUrl: 'https://artifacts.example/result.psd',
+      previewUrl: 'https://artifacts.example/preview.png',
+      layers: nestedLayers,
+      complete: true
+    }
+    const expected = structuredClone(nestedLayers)
+    const registry = new RunRegistry()
+    registry.register({
+      runId: 'run-1',
+      instruction: 'Retouch this',
+      managedRun: scriptedRun([{ type: 'done', result }])
+    })
+    await registry.waitForTerminal('run-1')
+
+    const snapshot = await registry.getSnapshot('run-1')
+    const callerChild = result.layers[0]!.children[0]! as unknown as { name: string; masks: { enabled: boolean }[] }
+    const returnedChild = snapshot!.result!.layers[0]!.children[0]! as unknown as {
+      name: string
+      masks: { enabled: boolean }[]
+    }
+    callerChild.name = 'Changed by caller'
+    callerChild.masks[0]!.enabled = false
+    returnedChild.name = 'Changed by reader'
+    returnedChild.masks[0]!.enabled = false
+
+    expect((await registry.getSnapshot('run-1'))?.result?.layers).toEqual(expected)
   })
 })
