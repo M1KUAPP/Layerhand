@@ -198,8 +198,19 @@ which does not support function calling with Astra at all.
 
 ### How the editor is actually driven
 
-Two candidate mechanisms, and this is the first thing to settle because
-everything else hangs off it.
+Code execution is the choice because it is OpenAI's documented
+recommendation for Astra, and it is unmeasured because no OpenAI API key
+was available to run [spike A0](#decisions-deferred-to-spikes). The choice
+is provisional until the
+[driving-mechanism harness](evidence/driving-mechanism/README.md) has run
+both mechanisms on the same three images:
+
+```sh
+cd docs/evidence/driving-mechanism
+OPENAI_API_KEY=... bun run harness.ts
+```
+
+The two candidates:
 
 1.  **The `computer` tool.** The GA tool definition is exactly
     `{ "type": "computer" }` — no `display_width`, no `display_height`,
@@ -214,13 +225,30 @@ everything else hangs off it.
     computer-tool example in it is pinned to the previous-generation
     model rather than to Astra.
 
-We plan on code execution and keep the `computer` tool as the fallback
-— the reverse of what the ideation assumed. It is likely to be more
-reliable and it is the documented recommendation, and it does not
-weaken the premise: the editor still has no usable API, and the
-competence being exercised is still holding a forty-step GUI task
-together. [Spike A0](#decisions-deferred-to-spikes) picks one on day 0
-by running both against the same three-edit sequence.
+`ResponsesModel` in `src/agent/responses-model.ts` implements both, and
+one option selects the mechanism. Code execution is its `run_code` tool,
+whose code runs against the page before the loop takes the next
+screenshot. That reverses what the ideation assumed. It does not weaken
+the premise: the editor still has no usable API, and the competence being
+exercised is still holding a forty-step GUI task together. The prompt
+tells the model to operate the editor through the mouse and keyboard, and
+a spike run whose code reaches Photopea's scripting interface is
+disqualified.
+
+Model-written code is untrusted input. The harness runs it unsandboxed in
+its own Bun process, which is acceptable for a local spike and never for
+production. In production it runs inside the page, through
+`page.evaluate` with a restricted API surface, or in a separate sandbox.
+It never runs in the server process, which holds our API key and the
+database.
+
+**The `computer` tool is the fallback.** Switching is one option in
+`ResponsesModel`: the model returns `actions[]`, the loop carries them out
+through `EditorSession.act`, and the reply is a screenshot. It needs no
+code sandbox, and nothing it does can reach the scripting interface, but
+OpenAI documents it for the previous generation rather than for Astra. We
+switch if the measurement shows code execution completing fewer runs, or
+if its sandbox cannot be built in time.
 
 Contract 1 is expressed in the `computer` tool's action vocabulary
 either way, because it is a perfectly good description of "what you can
