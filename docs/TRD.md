@@ -416,6 +416,37 @@ caps allow it, and otherwise leaves the run incomplete. Once no call can
 follow, a correction is refused, and one acknowledged but not yet sent,
 including one a cancel strands, is reported as a recoverable error.
 
+`ResponsesModel` implements native steering when `STEERING` is `native`.
+The default, `boundary`, stays until a live run proves native steering
+works (A3). The loop is unchanged. `managedAgentRun` acknowledges a
+correction through the loop, then offers it to the model's optional
+`steer()`. The model sends every step as `response.create` over one
+WebSocket per run, with `store: true` and one lane, and steers the response
+being generated with the correction. A steer exists only while a response
+is being generated, so a correction typed while the editor carries out
+actions still waits for the next call. The loop passes every correction
+with its next call either way, and the model leaves out any that native
+steering applied, or that the server holds for the continuation.
+
+`SteerLedger` alone decides what happens to each correction. Each one ends
+either applied or replayed, never both and never neither:
+
+- A steered response is followed to its successor, whose
+  `response.created` applies the steers it carries.
+- A response that needs tool output keeps its accepted steers for the
+  continuation, which applies them, because the server prepends them.
+- A refused steer is replayed. `steering_not_supported` also turns native
+  steering off for the run.
+- The ledger settles steers only after every event through the step's last
+  response has been read, so a steer still unanswered when its response
+  completed is replayed. A late acceptance can then land the correction
+  twice, which is the harmless direction.
+- A dropped connection, a successor that never comes, or a response
+  nobody asked for leaves steers the connection cannot vouch for. Each is
+  replayed and counted as indeterminate. The step is sent again over HTTP,
+  and the run stays on HTTP. Replay is the default because a correction
+  applied twice does no harm, while a lost one breaks FR-20.
+
 The server runs `fakeRun()` when `RUN_MODE` is `fake` or unset. When it is
 `agent`, the server runs the real agent: `ResponsesModel` on the `computer` tool
 drives Photopea in a Browserbase browser created when the run opens its image.
