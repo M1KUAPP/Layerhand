@@ -5,7 +5,9 @@ import packageJson from '../../package.json'
 describe('application scaffold', () => {
   test('defines one Bun development, build, and start surface', () => {
     expect(packageJson.scripts.dev).toBe('bun --hot src/server/index.ts')
-    expect(packageJson.scripts.build).toBe('bun build --target=bun src/server/index.ts --outdir dist')
+    expect(packageJson.scripts.build).toBe(
+      'bun build --target=bun src/server/index.ts --outdir dist --external playwright-core'
+    )
     expect(packageJson.scripts.start).toBe('cd dist && bun index.js')
   })
 
