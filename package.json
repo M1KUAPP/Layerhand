@@ -6,6 +6,7 @@
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky",
+    "reliability": "bun scripts/run-reliability.ts",
     "start": "cd dist && bun index.js",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
