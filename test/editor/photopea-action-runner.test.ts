@@ -64,6 +64,48 @@ function createRecordingAuxiliaryMouse(calls: string[]): AuxiliaryMouse {
 }
 
 describe('Photopea action runner', () => {
+  test.each([
+    ['SHIFT', 'Shift'],
+    ['CTRL', 'Control'],
+    ['CONTROL', 'Control'],
+    ['ALT', 'Alt'],
+    ['CMD', 'Meta'],
+    ['COMMAND', 'Meta'],
+    ['META', 'Meta'],
+    ['ENTER', 'Enter'],
+    ['ESC', 'Escape'],
+    ['ESCAPE', 'Escape'],
+    ['BACKSPACE', 'Backspace'],
+    ['DELETE', 'Delete'],
+    ['ARROWUP', 'ArrowUp'],
+    ['ARROWDOWN', 'ArrowDown'],
+    ['ARROWLEFT', 'ArrowLeft'],
+    ['ARROWRIGHT', 'ArrowRight'],
+    ['HOME', 'Home'],
+    ['END', 'End'],
+    ['PAGEUP', 'PageUp'],
+    ['PAGEDOWN', 'PageDown'],
+    ['TAB', 'Tab'],
+    ['SPACE', 'Space']
+  ])('normalizes keypress alias %s in uppercase and lowercase', async (alias, expected) => {
+    const page = createRecordingPage()
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls))
+
+    await runner.act([
+      { type: 'keypress', keys: [alias] },
+      { type: 'keypress', keys: [alias.toLowerCase()] }
+    ])
+
+    expect(page.calls).toEqual([`keyboard.press:${expected}`, `keyboard.press:${expected}`])
+  })
+
+  test('passes an unchanged printable key through the keypress action', async () => {
+    const page = createRecordingPage()
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls))
+    await runner.act([{ type: 'keypress', keys: ['z'] }])
+    expect(page.calls).toEqual(['keyboard.press:z'])
+  })
+
   test('executes every computer action in semantic order', async () => {
     const page = createRecordingPage()
     const delays: number[] = []
@@ -160,6 +202,41 @@ describe('Photopea action runner', () => {
       'keyboard.up:Shift'
     ])
   })
+
+  for (const operationFails of [false, true]) {
+    test(`exhausts modifier releases after a ${operationFails ? 'failed' : 'successful'} operation and preserves the first failure`, async () => {
+      const page = createRecordingPage()
+      const operationFailure = new Error('operation failed')
+      const cleanupFailure = new Error('first release failed')
+      page.mouse.click = async () => {
+        page.calls.push('mouse.click')
+        if (operationFails) throw operationFailure
+      }
+      page.keyboard.up = async (key) => {
+        page.calls.push(`keyboard.up:${key}`)
+        if (key === 'Alt') throw cleanupFailure
+      }
+      const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls))
+
+      const failure = await runner
+        .act([{ type: 'click', button: 'left', x: 10, y: 11, keys: ['ctrl', 'shift', 'alt'] }])
+        .then(
+          () => undefined,
+          (error: unknown) => error
+        )
+
+      expect(page.calls).toEqual([
+        'keyboard.down:Control',
+        'keyboard.down:Shift',
+        'keyboard.down:Alt',
+        'mouse.click',
+        'keyboard.up:Alt',
+        'keyboard.up:Shift',
+        'keyboard.up:Control'
+      ])
+      expect(failure).toBe(operationFails ? operationFailure : cleanupFailure)
+    })
+  }
 
   test('releases the mouse button when drag movement fails after pressing it', async () => {
     const page = createRecordingPage()

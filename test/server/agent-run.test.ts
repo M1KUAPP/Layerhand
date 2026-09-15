@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
+import type { LayerInfo } from '../../src/editor/session'
 import { managedAgentRun } from '../../src/server/agent-run'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
@@ -79,7 +80,10 @@ describe('steering the agent loop through the HTTP surface', () => {
     expect(events[ack]).toEqual({ type: 'correction_ack', text: 'Keep the shadow' })
     expect(narrationsAfter(events, ack)).toContain('Applying the correction: Keep the shadow')
     expect(narrationsAfter(untouched, 0)).not.toContain('Applying the correction: Keep the shadow')
-    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+    // This runtime uses the historical raster-only PSD, so finishing the
+    // scripted turns cannot satisfy the editable-output completion policy.
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+    expect(events.filter((event) => event.type === 'done')).toEqual([])
   })
 
   test('the page receives the acknowledgement within three seconds', async () => {
@@ -161,10 +165,18 @@ describe('managed agent run', () => {
     return events
   }
 
-  async function run(overrides: Partial<RunRequest> = {}) {
+  async function run(overrides: Partial<RunRequest> = {}, layers?: readonly LayerInfo[]) {
     const runRequest = request(overrides)
+    const session = await createRecordedFakeEditorSession()
+    if (layers) {
+      const recordedLayers = session.layers.bind(session)
+      session.layers = async () => {
+        await recordedLayers()
+        return structuredClone([...layers])
+      }
+    }
     const managed = managedAgentRun(runRequest, {
-      session: await createRecordedFakeEditorSession(),
+      session,
       model: new ScriptedModel({ delayMs: 1 }),
       publish: async (_bytes, kind) => `memory://${kind}`
     })
@@ -172,7 +184,10 @@ describe('managed agent run', () => {
   }
 
   test('reports a finished edit as complete, with the share of input read from cache', async () => {
-    const { managed } = await run()
+    // Test-only editable metadata; this is not a claim about the recorded PSD.
+    const { managed } = await run({}, [
+      { name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }
+    ])
 
     await finish(managed)
 

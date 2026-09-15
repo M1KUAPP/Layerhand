@@ -3,6 +3,7 @@
 // run is stopped. Every ending but a failure exports the file before the
 // session closes, because the session holds the only copy of the work.
 import type { EditorSession } from '../editor/session'
+import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
 import type { AgentModel, ModelTurn } from './model'
@@ -133,6 +134,7 @@ export function runAgent(request: RunRequest, { session, model, publish, pricing
       const psd = await session.exportPsd()
       const preview = await session.exportPreview()
       const layers = await session.layers()
+      if (complete) assertCompleteLayerTree(layers)
       // The file is already in hand, so a session that fails to close does not cost the user their result.
       await session.close().catch(() => undefined)
       log.end({

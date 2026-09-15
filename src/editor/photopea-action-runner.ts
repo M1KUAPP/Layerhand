@@ -143,6 +143,8 @@ export class PhotopeaActionRunner {
     operation: (modifiers: readonly string[]) => Promise<void>
   ): Promise<void> {
     const pressed: string[] = []
+    let failed = false
+    let failure: unknown
     try {
       for (const key of keys ?? []) {
         const modifier = normalizeKey(key)
@@ -150,10 +152,21 @@ export class PhotopeaActionRunner {
         pressed.push(modifier)
       }
       await operation(pressed)
+    } catch (error) {
+      failed = true
+      failure = error
     } finally {
       for (const modifier of pressed.reverse()) {
-        await this.#page.keyboard.up(modifier)
+        try {
+          await this.#page.keyboard.up(modifier)
+        } catch (error) {
+          if (!failed) {
+            failed = true
+            failure = error
+          }
+        }
       }
     }
+    if (failed) throw failure
   }
 }
