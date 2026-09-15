@@ -6,25 +6,18 @@ const DEFAULT_VIEWPORT: Viewport = { width: 1440, height: 900 }
 const INVALID_MESSAGE = 'Photopea host returned an invalid message.'
 const INVALID_HOST_URL = 'Photopea host URL must use HTTP or HTTPS.'
 
+// A message as the host page holds it, on either side of Photopea.
+type PhotopeaPageMessage =
+  { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: Uint8Array }
+
+// Files cross the page boundary as base64 in both directions, because Playwright
+// serializes an array of bytes as one protocol object per byte.
 type PhotopeaWireMessage =
-  { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: readonly number[] }
+  { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: string }
 
 interface LayerhandWindow extends Window {
-  readonly __layerhandPhotopeaMessages: PhotopeaWireMessage[]
-  readonly __layerhandSendToPhotopea: (
-    message: { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: Uint8Array }
-  ) => void
-}
-
-function isByteArray(value: unknown): value is number[] {
-  if (!Array.isArray(value)) return false
-
-  for (let index = 0; index < value.length; index += 1) {
-    const byte = value[index]
-    if (typeof byte !== 'number' || !Number.isInteger(byte) || byte < 0 || byte > 255) return false
-  }
-
-  return true
+  readonly __layerhandPhotopeaMessages: PhotopeaPageMessage[]
+  readonly __layerhandSendToPhotopea: (message: PhotopeaPageMessage) => void
 }
 
 export interface PlaywrightPhotopeaTransportOptions {
@@ -41,8 +34,10 @@ export function decodePhotopeaWireMessage(value: unknown): PhotopeaMessage {
     return { type: 'text', value: message.value }
   }
 
-  if (message.type === 'bytes' && isByteArray(message.value)) {
-    return { type: 'bytes', value: Uint8Array.from(message.value) }
+  if (message.type === 'bytes' && typeof message.value === 'string') {
+    const bytes = Buffer.from(message.value, 'base64')
+    // Buffer skips what is not base64, so only a value that encodes back to itself arrived whole.
+    if (bytes.toString('base64') === message.value) return { type: 'bytes', value: new Uint8Array(bytes) }
   }
 
   throw new Error(INVALID_MESSAGE)
@@ -80,11 +75,10 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
   }
 
   async send(message: string | Uint8Array): Promise<void> {
-    // Base64 avoids Playwright serializing one protocol object per byte.
-    const wireMessage =
+    const wireMessage: PhotopeaWireMessage =
       typeof message === 'string'
-        ? { type: 'text' as const, value: message }
-        : { type: 'bytes' as const, value: Buffer.from(message).toString('base64') }
+        ? { type: 'text', value: message }
+        : { type: 'bytes', value: Buffer.from(message).toString('base64') }
 
     await this.#page.evaluate((value) => {
       const layerhandWindow = window as unknown as LayerhandWindow
@@ -112,9 +106,18 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
       { timeout: timeoutMs }
     )
     await ready.dispose()
-    const wireMessage = await this.#page.evaluate(() => {
+    const wireMessage = await this.#page.evaluate((): PhotopeaWireMessage | undefined => {
       const layerhandWindow = window as unknown as LayerhandWindow
-      return layerhandWindow.__layerhandPhotopeaMessages.shift()
+      const message = layerhandWindow.__layerhandPhotopeaMessages.shift()
+      if (message?.type !== 'bytes') return message
+
+      // In chunks, because String.fromCharCode takes each byte as its own argument.
+      let binary = ''
+      for (let offset = 0; offset < message.value.length; offset += 0x8000) {
+        const chunk = message.value.subarray(offset, offset + 0x8000)
+        binary += String.fromCharCode.apply(null, chunk as unknown as number[])
+      }
+      return { type: 'bytes', value: btoa(binary) }
     })
     return decodePhotopeaWireMessage(wireMessage)
   }
