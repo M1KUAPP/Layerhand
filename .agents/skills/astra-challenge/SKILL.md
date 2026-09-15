@@ -33,17 +33,17 @@ Before ideating, **count the days remaining** against the September 18 deadline.
 
 No criteria were published. Use the criteria from the WebMCP Challenge — OpenAI's nearest comparable build contest, run weeks earlier — which are **equally weighted**:
 
-1. **Model leverage** — "How thoroughly and skillfully does the project use [the model]? Does the code reflect genuine effort and a working, non-trivial implementation?"
-2. **Execution** — "a complete, coherent product experience — not just a technical proof of concept"
-3. **Potential impact** — "a credible, specific case for solving a real problem for a real audience"
-4. **Creativity & ambition** — "How creative and novel is the concept and does the project differ from existing concepts?"
+1.  **Model leverage** — "How thoroughly and skillfully does the project use [the model]? Does the code reflect genuine effort and a working, non-trivial implementation?"
+2.  **Execution** — "a complete, coherent product experience — not just a technical proof of concept"
+3.  **Potential impact** — "a credible, specific case for solving a real problem for a real audience"
+4.  **Creativity & ambition** — "How creative and novel is the concept and does the project differ from existing concepts?"
 
 Treat this as a strong prior, not as fact. State the inference when you present scores.
 
 Two Astra-specific additions, because this contest is a Product Hunt launch judged by a company that runs a public showcase:
 
-5. **Launch legibility** — the hook reads in five seconds on a PH card and demos in a silent GIF.
-6. **Showcase-ability** — "promotion by OpenAI" means the winners become marketing. Projects OpenAI features are visually polished and screenshot well. See `references/prior-art.md`.
+5.  **Launch legibility** — the hook reads in five seconds on a PH card and demos in a silent GIF.
+6.  **Showcase-ability** — "promotion by OpenAI" means the winners become marketing. Projects OpenAI features are visually polished and screenshot well. See `references/prior-art.md`.
 
 ## Process
 
@@ -70,10 +70,10 @@ Most ideas die here. That is the point — the first judging criterion is model 
 
 Run in order. Stop at the first failure.
 
-1. **Crowding** — is it on the taken list in `references/prior-art.md`? A hackathon winner already did Blender interiors, Fusion 360 CAD, and travel atlases. The showcase is saturated with Three.js toys and browser games.
-2. **Scope** — can a *launchable* version exist in the days remaining? Not a demo. A thing strangers can use.
-3. **Demo** — can you show the wow in a 30-second silent GIF? If it needs a narrator to be impressive, it will not survive a PH feed.
-4. **Unit economics** — at $10/M input and $50/M output, what does one user session cost? Who pays? A free consumer tool with an unbounded agent loop bleeds money on launch day. See the cost math in `references/astra-leverage.md`.
+1.  **Crowding** — is it on the taken list in `references/prior-art.md`? A hackathon winner already did Blender interiors, Fusion 360 CAD, and travel atlases. The showcase is saturated with Three.js toys and browser games.
+2.  **Scope** — can a *launchable* version exist in the days remaining? Not a demo. A thing strangers can use.
+3.  **Demo** — can you show the wow in a 30-second silent GIF? If it needs a narrator to be impressive, it will not survive a PH feed.
+4.  **Unit economics** — at $10/M input and $50/M output, what does one user session cost? Who pays? A free consumer tool with an unbounded agent loop bleeds money on launch day. See the cost math in `references/astra-leverage.md`.
 
 ### 4. Score survivors
 

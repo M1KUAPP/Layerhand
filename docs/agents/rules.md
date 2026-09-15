@@ -6,11 +6,11 @@ long-form reasoning lives in the documents this page links to.
 
 Contents:
 
-1. [Git](#git)
-1. [Writing](#writing)
-1. [Tooling](#tooling)
-1. [Layout](#layout)
-1. [See also](#see-also)
+1.  [Git](#git)
+1.  [Writing](#writing)
+1.  [Tooling](#tooling)
+1.  [Layout](#layout)
+1.  [See also](#see-also)
 
 ## Git
 
