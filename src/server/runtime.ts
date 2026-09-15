@@ -7,7 +7,7 @@ import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
 import { BrowserbaseClient } from './browserbase-client'
-import { ConfigurationError, readConfig, readRunLimits, type ServerConfig } from './config'
+import { ConfigurationError, readConfig, readRunLimits, readSteering, type ServerConfig, type Steering } from './config'
 import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
@@ -88,6 +88,7 @@ function readRunMode(value: string | undefined): RunMode {
 interface AgentConfig {
   hostUrl: string
   sessions: BrowserbaseClient
+  steering: Steering
 }
 
 // Browserbase's browser loads the Photopea host page from this service, so
@@ -96,7 +97,11 @@ function readAgentConfig(env: Environment, config: ServerConfig | undefined): Ag
   const browserbaseApiKey = config?.browserbaseApiKey ?? env.BROWSERBASE_API_KEY
   if (!browserbaseApiKey) throw new ConfigurationError('RUN_MODE=agent needs BROWSERBASE_API_KEY')
   if (!env.PUBLIC_URL) throw new ConfigurationError('RUN_MODE=agent needs PUBLIC_URL')
-  return { hostUrl: photopeaHostUrl(env.PUBLIC_URL), sessions: new BrowserbaseClient(browserbaseApiKey) }
+  return {
+    hostUrl: photopeaHostUrl(env.PUBLIC_URL),
+    sessions: new BrowserbaseClient(browserbaseApiKey),
+    steering: readSteering(env)
+  }
 }
 
 /**

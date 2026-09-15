@@ -89,6 +89,19 @@ export function readRunLimits(env: Environment): RunLimits {
   }
 }
 
+/**
+ * How a correction reaches the model (#9). `boundary`, the default, sends it
+ * with the next call. `native` also steers the response in flight over a
+ * WebSocket, and stays off until a live run has proved it.
+ */
+export type Steering = 'native' | 'boundary'
+
+export function readSteering(env: Environment): Steering {
+  if (env.STEERING === undefined || env.STEERING === 'boundary') return 'boundary'
+  if (env.STEERING === 'native') return 'native'
+  throw new ConfigurationError('STEERING must be native or boundary')
+}
+
 function parseTrustedProxyHops(value: string): number {
   if (!/^(?:0|[1-9]\d*)$/.test(value)) {
     throw new ConfigurationError('TRUST_PROXY_HOPS must be a non-negative integer')

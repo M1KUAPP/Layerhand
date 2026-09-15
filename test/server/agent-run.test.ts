@@ -6,7 +6,7 @@ import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
 import type { AgentModel } from '../../src/agent/model'
-import { liveAgentRun, managedAgentRun } from '../../src/server/agent-run'
+import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../src/server/agent-run'
 import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
@@ -172,6 +172,21 @@ describe('steering the agent loop through the HTTP surface', () => {
     ).rejects.toThrow('PUBLIC_URL must be an HTTP or HTTPS address')
   })
 
+  test('refuses a steering mode it does not know', async () => {
+    await expect(
+      createLaunchRuntime({
+        env: {
+          NODE_ENV: 'development',
+          RUN_MODE: 'agent',
+          BROWSERBASE_API_KEY: 'bb-key',
+          PUBLIC_URL: 'https://layerhand.test',
+          STEERING: 'sideways'
+        },
+        clientAddress: () => '203.0.113.30'
+      })
+    ).rejects.toThrow('STEERING must be native or boundary')
+  })
+
   test('composes agent mode without reaching Browserbase before a run starts', async () => {
     const runtime = await createLaunchRuntime({
       env: {
@@ -216,7 +231,8 @@ describe('live agent run', () => {
   async function live(
     apiKey: string | undefined,
     responses: (Record<string, unknown> | Response)[],
-    overrides: Partial<RunRequest> = {}
+    overrides: Partial<RunRequest> = {},
+    steering: Pick<LiveAgentDependencies, 'steering' | 'socketEndpoint'> = {}
   ) {
     const recorded = await createRecordedFakeEditorSession()
     const authorizations: (string | null)[] = []
@@ -241,6 +257,7 @@ describe('live agent run', () => {
       serverApiKey: 'sk-server-secret-value',
       publish: async (_bytes, kind) => `memory://${kind}`,
       fetch,
+      ...steering,
       sessions: {
         async createSession() {
           browser.created.push('bb-1')
@@ -318,6 +335,44 @@ describe('live agent run', () => {
     await finish(run.managed)
 
     expect(run.authorizations).toEqual(['Bearer sk-server-secret-value'])
+  })
+
+  test('with native steering, sends each step over one WebSocket, and closes it once the run releases its secrets', async () => {
+    const creates: Record<string, unknown>[] = []
+    let socketClosed!: () => void
+    const closed = new Promise<void>((resolve) => (socketClosed = resolve))
+    const server = Bun.serve({
+      port: 0,
+      hostname: '127.0.0.1',
+      fetch: (request, server) =>
+        server.upgrade(request) ? undefined : new Response('Upgrade required', { status: 426 }),
+      websocket: {
+        message(ws, message) {
+          creates.push(JSON.parse(String(message)))
+          ws.send(JSON.stringify({ type: 'response.created', response: { id: 'resp_ws', output: [] } }))
+          ws.send(JSON.stringify({ type: 'response.completed', response: { ...FINAL_TURN, id: 'resp_ws' } }))
+        },
+        close: () => socketClosed()
+      }
+    })
+    try {
+      const run = await live(
+        'sk-user-secret-value',
+        [],
+        {},
+        { steering: 'native', socketEndpoint: `ws://127.0.0.1:${server.port}/v1/responses` }
+      )
+
+      const events = await finish(run.managed)
+      run.managed.releaseSecrets()
+      await closed
+
+      expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+      expect(creates).toEqual([expect.objectContaining({ type: 'response.create', store: true })])
+      expect(run.authorizations).toEqual([])
+    } finally {
+      void server.stop(true)
+    }
   })
 
   test('releases the browser when the model fails', async () => {
