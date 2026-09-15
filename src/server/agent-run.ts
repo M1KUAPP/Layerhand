@@ -117,6 +117,12 @@ export function managedAgentRun(
       endedAfterCeiling = timedOut
       clearTimeout(ceilingTimer)
       clearTimeout(graceTimer)
+      // The run is over, so whatever the model holds, such as a socket, goes with it.
+      try {
+        inner.close?.()
+      } catch {
+        // The run has ended either way.
+      }
     }
     return endedAfterCeiling
   }
@@ -178,8 +184,8 @@ export interface LiveAgentDependencies extends Pick<
  * driving Photopea in a Browserbase browser of the run's own. The model reads
  * the key from the request at every call, so releasing the run's secrets
  * leaves no copy of the key behind. With native steering the model holds one
- * WebSocket, which closes when the run's secrets are released, because
- * queued steers do not outlive their connection.
+ * WebSocket, which the managed run closes when the run ends, because queued
+ * steers do not outlive their connection.
  */
 export function liveAgentRun(
   request: RunRequest,
@@ -196,12 +202,5 @@ export function liveAgentRun(
     ...(fetch ? { fetch } : {}),
     ...(socketEndpoint ? { socketEndpoint } : {})
   })
-  const run = managedAgentRun(request, { session, model, publish }, { abandon: () => session.abandon() })
-  return {
-    ...run,
-    releaseSecrets() {
-      run.releaseSecrets()
-      model.close()
-    }
-  }
+  return managedAgentRun(request, { session, model, publish }, { abandon: () => session.abandon() })
 }

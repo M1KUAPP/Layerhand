@@ -42,4 +42,6 @@ export interface AgentModel {
    * one natively must not deliver it twice.
    */
   steer?(text: string): boolean
+  /** Releases whatever the model holds, such as a socket. Called once, when the run ends. */
+  close?(): void
 }
