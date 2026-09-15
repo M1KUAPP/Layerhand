@@ -326,8 +326,8 @@ scripted model. How the loop applies the rules above:
   best-effort export that [Disposal](#disposal) asks of the error path
   waits on a contract change. A failure's reason is fixed, because a
   provider's error message can quote a key.
-- Each step's screenshot is also published as the page's frame. That is
-  one frame per step, so the frame pump FR-10 needs is still owed.
+- The page sees the editor through a frame pump of its own rather than
+  the model's screenshots, as [Frames](#frames) describes.
 
 ### Screenshots
 
@@ -646,6 +646,43 @@ strictly better and replaces this.
 These are _not_ the frames sent to the model. The model gets 1440x900
 captures on its own cadence; the user gets whatever bandwidth allows.
 Conflating the two couples the demo's smoothness to the token bill.
+
+`startFramePump()` in `src/browser/frame-pump.ts` keeps that cadence. The
+agent loop starts it once the upload is open, and stops it before the
+export, waiting up to a second for a frame in progress, so no frame
+follows the end of a run. It captures the editor once a second, timed from
+the start of one capture to the start of the next, and never starts a
+capture before the previous frame is finished. Its captures overlap the
+loop's actions and screenshots, so a session must allow `screenshot()`
+during any other call, and under Playwright the model's screenshot can
+wait behind a frame's. The pump sends nothing when a frame is identical to
+the one on the page. A frame that cannot be captured or published leaves
+the last one on the page and is reported once, and the run carries on.
+
+Bandwidth was measured on September 15, 2026, against live Photopea in
+Google Chrome 153.0.8010.37, with the sample photograph open at 1440x900:
+
+| Editor                    | Frames sent | Mean frame | Slowest capture | One viewer | Twenty viewers |
+| ------------------------- | ----------- | ---------- | --------------- | ---------- | -------------- |
+| Idle, 20 s                | 4 of 20     | 840 KB     | 263 ms          | 168 KB/s   | 27 Mbit/s      |
+| Holding a selection, 20 s | 12 of 20    | 606 KB     | 174 ms          | 363 KB/s   | 58 Mbit/s      |
+| Worked, 41.3 s            | 33 of 42    | 612 KB     | 200 ms          | 490 KB/s   | 78 Mbit/s      |
+
+Skipping identical frames pays off only while nothing on screen moves: the
+animated outline of a held selection still sends most frames. Plan capacity
+on the worked row, at which a run lasting the whole fifteen-minute ceiling
+sends each viewer about 440 MB. Sending every capture, even an idle editor
+would cost 840 KB a second. The numbers come from
+`test/browser/frame-bandwidth.integration.test.ts` on a local browser; a
+hosted session shows the same pixels, but its capture time and upload path
+are unmeasured.
+
+The server's agent mode sends each frame inside its event as a `data:`
+URL, and the registry keeps every event to replay. Against the recorded
+editor that is one frame a run. A real session worked for fifteen minutes
+would put about 590 MB of base64 into that history, so its frames need a
+home in object storage first, and the artifact store has no kind for a
+frame yet.
 
 ### One ceiling: fifteen minutes
 

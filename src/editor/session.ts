@@ -3,7 +3,7 @@ export interface EditorSession {
   readonly viewport: Viewport
 
   open(image: Uint8Array, filename: string): Promise<void>
-  screenshot(): Promise<Uint8Array> // PNG of the viewport.
+  screenshot(): Promise<Uint8Array> // PNG of the viewport. The live view may call it during any other call.
   act(actions: ComputerAction[]): Promise<void>
   layers(): Promise<LayerInfo[]>
   exportPsd(): Promise<Uint8Array>

@@ -53,5 +53,25 @@ export function defineEditorSessionContract(name: string, createSession: EditorS
         await session.close()
       }
     })
+
+    // The live view captures the editor on a cadence of its own, so its
+    // screenshot can overlap an action or the model's own screenshot.
+    test('takes a screenshot while an action and another screenshot are in progress', async () => {
+      const session = await createSession()
+      try {
+        const image = await readFile(new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url))
+        await session.open(image, 'photopea-frame.png')
+
+        const [frame, , overlapping] = await Promise.all([
+          session.screenshot(),
+          session.act([{ type: 'move', x: 40, y: 50 }]),
+          session.screenshot()
+        ])
+        expect(Array.from(frame.slice(0, 8))).toEqual(pngSignature)
+        expect(Array.from(overlapping.slice(0, 8))).toEqual(pngSignature)
+      } finally {
+        await session.close()
+      }
+    })
   })
 }
