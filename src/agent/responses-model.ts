@@ -147,8 +147,11 @@ export function toComputerAction(source: unknown): ComputerAction {
         { type: 'scroll', ...point(source), scroll_x: number(source.scroll_x), scroll_y: number(source.scroll_y) },
         source
       )
-    case 'keypress':
-      return { type: 'keypress', keys: keys(source.keys) ?? [] }
+    case 'keypress': {
+      const pressed = keys(source.keys)
+      if (!pressed || pressed.length === 0) throw new Error('The model returned a malformed action')
+      return { type: 'keypress', keys: pressed }
+    }
     case 'type':
       if (typeof source.text !== 'string') throw new Error('The model returned a malformed action')
       return { type: 'type', text: source.text }
@@ -166,11 +169,15 @@ function describeCodeResult({ logs, error }: CodeResult): string {
   return parts.join('\n\n')
 }
 
+// A short machine code is safe to report; anything longer could quote the request.
+function safeCode(code: unknown): string | undefined {
+  return typeof code === 'string' && /^[a-z0-9_.-]{1,64}$/.test(code) ? code : undefined
+}
+
 async function errorCode(response: Response): Promise<string | undefined> {
   try {
     const body: unknown = await response.json()
-    const code = isObject(body) && isObject(body.error) ? body.error.code : undefined
-    return typeof code === 'string' && /^[a-z0-9_.-]{1,64}$/.test(code) ? code : undefined
+    return safeCode(isObject(body) && isObject(body.error) ? body.error.code : undefined)
   } catch {
     return undefined
   }
@@ -219,10 +226,7 @@ export class ResponsesModel implements AgentModel {
     if (!response.ok) throw new ResponsesApiError(response.status, await errorCode(response))
     const payload: unknown = await response.json()
     if (!isObject(payload) || typeof payload.id !== 'string') throw new ResponsesApiError(response.status)
-    if (isObject(payload.error)) {
-      const code = payload.error.code
-      throw new ResponsesApiError(response.status, typeof code === 'string' ? code : undefined)
-    }
+    if (isObject(payload.error)) throw new ResponsesApiError(response.status, safeCode(payload.error.code))
 
     let narration = ''
     let actions: ComputerAction[] = []
