@@ -95,13 +95,20 @@ the part that cannot be skipped with `--no-verify`.
 
 ## Secrets
 
+Always store secrets as
+[GitHub secrets](https://docs.github.com/en/actions/concepts/security/secrets),
+never in the repository: not in a commit, a pull request, an issue, or a
+workflow file. `.env` stays untracked, and only `.env.example`, which holds
+placeholders, is committed. A workflow reads a secret as
+`${{ secrets.NAME }}`.
+
 Team secrets live in this repository's GitHub secrets, and nowhere else is
 their source: `DATABASE_URL`, `SESSION_SECRET`, `S3_ACCESS_KEY_ID`,
 `S3_SECRET_ACCESS_KEY`, and `BROWSERBASE_API_KEY`. The deploy workflow
 copies each one into Google Secret Manager before it deploys, adding a
 version only when the value changed, so a secret is rotated by changing it
-in GitHub and deploying. `OPENAI_API_KEY` is the exception: it is a personal
-key, and it lives only in Secret Manager.
+in GitHub and deploying. `OPENAI_API_KEY` is the one exception to storing
+secrets in GitHub: it is a personal key, and it lives only in Secret Manager.
 
 ## Setting it up
 
