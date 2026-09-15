@@ -1058,6 +1058,25 @@ the `computer` tool, measured on September 15. The
 [Codex proxy run](evidence/driving-mechanism/codex-proxy/README.md) is a
 day-2 feasibility hint for A1, not A0 data.
 
+**B2 result, September 15:** it was measured in a live run of the real agent,
+not in a separate probe. The run is in the
+[agent run evidence](evidence/agent-run/README.md).
+
+- **Session.** Browserbase created one in 0.8 seconds.
+- **First frame.** The first frame of the opened image reached the page 21.3
+  seconds after the run started. A separate probe put the CDP connection at
+  about two seconds, so Photopea's start and the image open take most of the
+  rest. Locally, in B1, they took 1.4 seconds.
+- **NFR-3.** The run's `started` event is immediate, but a live view that
+  takes 21 seconds misses NFR-3's intent. Warm sessions, or something shown
+  before the first frame, are needed before launch.
+- **Release.** The session was released when the run ended, and Browserbase
+  reported it `COMPLETED`.
+- **Bun version.** Playwright's `connectOverCDP` never connects under Bun
+  1.3.14. It works under Bun 1.4.2, the version production runs.
+- **Not yet confirmed:** the read-only live view. The run publishes its own
+  frames and does not use Browserbase's live view.
+
 Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
 opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
 resolution, including an exact 20 MiB JPEG padded with valid APP15
