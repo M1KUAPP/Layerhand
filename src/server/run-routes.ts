@@ -174,13 +174,13 @@ export class RunRoutes {
     }
 
     // A session warmed for this visitor and this image starts the run with the
-    // editor already open. Anything else leaves the run to start cold.
+    // editor already open. Anything else leaves the run to start cold. The
+    // image is hashed only when there is an upload that could match it.
     const uploadIdValue = form.get('uploadId')
-    const warmSession = this.#dependencies.warmSessions?.claim(
-      typeof uploadIdValue === 'string' ? uploadIdValue : undefined,
-      identity.visitorKey,
-      await imageDigest(upload.bytes)
-    )
+    const uploadId = typeof uploadIdValue === 'string' ? uploadIdValue : undefined
+    const pool = this.#dependencies.warmSessions
+    const warmSession =
+      pool && uploadId ? pool.claim(uploadId, identity.visitorKey, await imageDigest(upload.bytes)) : undefined
 
     let artifactKey: string | undefined
     let managedRun: ManagedRun | undefined
