@@ -691,6 +691,92 @@ describe('managed agent run', () => {
     expect(late.metrics().failure?.code).toBe('model_call_failed')
   })
 
+  test('abandons a browser whose recovery export cannot finish', async () => {
+    const session = await createRecordedFakeEditorSession()
+    session.exportPsd = () => new Promise<Uint8Array>(() => undefined)
+    session.close = () => new Promise<void>(() => undefined)
+    const failingModel: AgentModel = {
+      async next() {
+        throw new Error('The model is unavailable')
+      }
+    }
+    let abandoned = 0
+    const managed = managedAgentRun(
+      request(),
+      {
+        session,
+        model: failingModel,
+        publish: async (_bytes, kind) => `memory://${kind}`,
+        errorExportTimeoutMs: 10
+      },
+      {
+        async abandon() {
+          abandoned += 1
+        }
+      }
+    )
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+    expect(abandoned).toBe(1)
+  }, 500)
+
+  test('keeps the model failure in metrics when its recovery export also fails', async () => {
+    const session = await createRecordedFakeEditorSession()
+    session.exportPsd = async () => {
+      throw new Error('The recovery export failed')
+    }
+    const failingModel: AgentModel = {
+      async next() {
+        throw new Error('The model is unavailable')
+      }
+    }
+    const managed = managedAgentRun(request(), {
+      session,
+      model: failingModel,
+      publish: async (_bytes, kind) => `memory://${kind}`
+    })
+
+    await finish(managed)
+
+    expect(managed.metrics().failure).toMatchObject({
+      code: 'model_call_failed',
+      message: 'The model is unavailable'
+    })
+  })
+
+  test('keeps a fatal model failure after an earlier live-frame publish failure', async () => {
+    const session = await createRecordedFakeEditorSession()
+    let framePublishFailed = false
+    const failingModel: AgentModel = {
+      async next() {
+        await Bun.sleep(20)
+        throw new Error('The model is unavailable')
+      }
+    }
+    const managed = managedAgentRun(request(), {
+      session,
+      model: failingModel,
+      frameIntervalMs: 1,
+      publish: async (_bytes, kind) => {
+        if (kind === 'frame') {
+          framePublishFailed = true
+          throw new Error('The live frame store is unavailable')
+        }
+        return `memory://${kind}`
+      }
+    })
+
+    await finish(managed)
+
+    expect(framePublishFailed).toBe(true)
+    expect(managed.metrics().failure).toMatchObject({
+      code: 'model_call_failed',
+      message: 'The model is unavailable'
+    })
+  })
+
   test('records which editor call a failed run failed on, redacted, while the page keeps the fixed reason', async () => {
     const session = await createRecordedFakeEditorSession()
     session.act = async () => {

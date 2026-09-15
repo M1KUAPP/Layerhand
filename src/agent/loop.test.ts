@@ -748,21 +748,26 @@ describe('runAgent', () => {
   test('bounds a hanging best-effort export before closing', async () => {
     const run = await fixture([new Error('The model stopped responding')])
     let exportStarted = false
-    let closed = false
+    let abandoned = false
     run.session.exportPsd = () => {
       exportStarted = true
       return new Promise<Uint8Array>(() => undefined)
     }
-    const close = run.session.close.bind(run.session)
-    run.session.close = async () => {
-      closed = true
-      return close()
-    }
+    run.session.close = () => new Promise<void>(() => undefined)
 
-    await collect(runAgent(request, { ...run, errorExportTimeoutMs: 10 }))
+    const events = await collect(
+      runAgent(request, {
+        ...run,
+        errorExportTimeoutMs: 10,
+        async abandon() {
+          abandoned = true
+        }
+      })
+    )
 
     expect(exportStarted).toBe(true)
-    expect(closed).toBe(true)
+    expect(abandoned).toBe(true)
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
   }, 500)
 
   test('does not retry an export that caused the failure', async () => {
