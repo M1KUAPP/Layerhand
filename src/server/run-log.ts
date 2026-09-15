@@ -40,6 +40,14 @@ function truncate(text: string): string {
   return `${characters.slice(0, MAX_INSTRUCTION - 1).join('')}…`
 }
 
+// A run can fail without an unrecoverable error: the loop ends a run whose
+// model took a step without narrating it through a recoverable error and an
+// incomplete result. Its last recoverable error is then the reason.
+function failureReason(snapshot: TerminalRun['snapshot'], outcome: RunStopReason): string | null {
+  const reason = snapshot.failureReason ?? (outcome === 'failed' ? snapshot.recoverableErrors.at(-1) : undefined)
+  return reason === undefined ? null : redact(reason)
+}
+
 export function runLogLine({ runId, instruction, startedAt, completedAt, snapshot, metrics }: TerminalRun): RunLogLine {
   return {
     runId,
@@ -52,7 +60,7 @@ export function runLogLine({ runId, instruction, startedAt, completedAt, snapsho
     cacheHitRate: metrics.cacheHitRate,
     durationMs: Math.max(0, completedAt - startedAt),
     outcome: metrics.stopReason,
-    failureReason: snapshot.failureReason === undefined ? null : redact(snapshot.failureReason),
+    failureReason: failureReason(snapshot, metrics.stopReason),
     instruction: truncate(instruction)
   }
 }

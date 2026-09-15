@@ -127,6 +127,18 @@ describe('run log', () => {
     expect(record).toContain('[redacted]')
   })
 
+  test('gives a failed run without an unrecoverable error its last recoverable error as the reason', () => {
+    const run = terminalRun({ metrics: { cacheHitRate: null, stopReason: 'failed' } })
+    run.snapshot.status = 'incomplete'
+    run.snapshot.recoverableErrors = [
+      'The live view missed a frame',
+      'The agent took a step without describing it, so the run stopped'
+    ]
+
+    expect(runLogLine(run).failureReason).toBe('The agent took a step without describing it, so the run stopped')
+    expect(runLogLine({ ...run, metrics: { cacheHitRate: null, stopReason: 'step_cap' } }).failureReason).toBeNull()
+  })
+
   test('still stores the line when writing it fails, then reports the failure', async () => {
     const stored: RunLogLine[] = []
     const logger = createRunLogger({
