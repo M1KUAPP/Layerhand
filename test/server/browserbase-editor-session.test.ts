@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test'
-import type { Page } from 'playwright-core'
+import type { BrowserContext, Page, Route, WebSocketRoute } from 'playwright-core'
 
 import type { CreatePhotopeaEditorSessionOptions } from '../../src/editor/photopea-editor-session'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
+import { PHOTOPEA_ORIGIN } from '../../src/editor/photopea-transport'
 import {
   browserbaseEditorSession,
   type BrowserbaseEditorSession,
@@ -19,6 +20,9 @@ interface Harness {
   released: string[]
   browserClosed: number
   editorOptions: CreatePhotopeaEditorSessionOptions[]
+  networkInstalledBeforeEditor: boolean
+  httpRoute?: (route: Route) => Promise<unknown> | unknown
+  webSocketRoute?: (route: WebSocketRoute) => Promise<unknown> | unknown
 }
 
 interface Behaviour {
@@ -35,7 +39,13 @@ interface Behaviour {
 
 async function harness(behaviour: Behaviour = {}): Promise<Harness> {
   const recorded = await createRecordedFakeEditorSession()
-  const state: Omit<Harness, 'session'> = { created: [], released: [], browserClosed: 0, editorOptions: [] }
+  const state: Omit<Harness, 'session'> = {
+    created: [],
+    released: [],
+    browserClosed: 0,
+    editorOptions: [],
+    networkInstalledBeforeEditor: false
+  }
   const onBrowserClose: (() => void)[] = []
   let browserOpen = true
   const sessions: BrowserbaseSessions = {
@@ -48,6 +58,15 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
       state.released.push(id)
     }
   }
+  const context = {
+    async route(_url: string | RegExp | ((url: URL) => boolean), handler: Harness['httpRoute']) {
+      state.httpRoute = handler
+    },
+    async routeWebSocket(_url: string | RegExp | ((url: URL) => boolean), handler: Harness['webSocketRoute']) {
+      state.webSocketRoute = handler
+    }
+  } as BrowserContext
+  const page = { context: () => context } as Page
   const session = browserbaseEditorSession({
     id: 'run-editor',
     hostUrl: HOST_URL,
@@ -57,7 +76,7 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
       await behaviour.connectGate
       if (behaviour.connect) throw new Error(`Could not connect to ${connectUrl}`)
       return {
-        page: {} as Page,
+        page,
         async close() {
           state.browserClosed += 1
           browserOpen = false
@@ -67,6 +86,7 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
       }
     },
     createEditorSession(_page, options) {
+      state.networkInstalledBeforeEditor = state.httpRoute !== undefined && state.webSocketRoute !== undefined
       state.editorOptions.push(options)
       if (behaviour.editor) throw new Error('Photopea host URL must use HTTP or HTTPS.')
       // The recorded editor, releasing its browser on close even when closing fails, as the Photopea session does.
@@ -98,6 +118,39 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
   return Object.assign(state, { session })
 }
 
+async function httpOutcome(h: Harness, url: string): Promise<'continued' | 'aborted'> {
+  let outcome: 'continued' | 'aborted' | undefined
+  const route = {
+    request: () => ({ url: () => url }),
+    continue: async () => {
+      outcome = 'continued'
+    },
+    abort: async () => {
+      outcome = 'aborted'
+    }
+  } as unknown as Route
+  await h.httpRoute?.(route)
+  if (!outcome) throw new Error('The HTTP route did not decide the request')
+  return outcome
+}
+
+async function webSocketOutcome(h: Harness, url: string): Promise<'connected' | 'closed'> {
+  let outcome: 'connected' | 'closed' | undefined
+  const route = {
+    url: () => url,
+    connectToServer: () => {
+      outcome = 'connected'
+      return {} as WebSocketRoute
+    },
+    close: async () => {
+      outcome = 'closed'
+    }
+  } as unknown as WebSocketRoute
+  await h.webSocketRoute?.(route)
+  if (!outcome) throw new Error('The WebSocket route did not decide the connection')
+  return outcome
+}
+
 describe('Browserbase editor session', () => {
   test('creates no browser until the run opens its image, then opens Photopea in one', async () => {
     const h = await harness()
@@ -114,6 +167,33 @@ describe('Browserbase editor session', () => {
       hostUrl: HOST_URL,
       viewport: { width: 1440, height: 900 }
     })
+    expect(h.networkInstalledBeforeEditor).toBe(true)
+  })
+
+  test('allows HTTP traffic only to the Layerhand host and Photopea origins', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    const cases = [
+      [`${HOST_URL}?run=one`, 'continued'],
+      [`${PHOTOPEA_ORIGIN}/#editor`, 'continued'],
+      ['https://www.photopea.com.evil.test/collect', 'aborted'],
+      ['https://tracker.test/collect', 'aborted']
+    ] as const
+    for (const [url, expected] of cases) expect(await httpOutcome(h, url)).toBe(expected)
+  })
+
+  test('allows WebSockets only on the Layerhand host and Photopea origins', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    const cases = [
+      ['wss://layerhand.test/live', 'connected'],
+      ['wss://www.photopea.com/socket', 'connected'],
+      ['wss://www.photopea.com.evil.test/socket', 'closed'],
+      ['wss://tracker.test/socket', 'closed']
+    ] as const
+    for (const [url, expected] of cases) expect(await webSocketOutcome(h, url)).toBe(expected)
   })
 
   test('closing the editor closes the browser and releases the session, once', async () => {
