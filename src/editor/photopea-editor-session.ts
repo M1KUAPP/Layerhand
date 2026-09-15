@@ -5,6 +5,7 @@ import { PhotopeaBridge } from './photopea-bridge'
 import { PhotopeaDocumentExporter, type PhotopeaExportSnapshot } from './photopea-document-exporter'
 import { PhotopeaDocumentLoader } from './photopea-document-loader'
 import { PhotopeaExportError } from './photopea-export-error'
+import { PhotopeaSessionWork } from './photopea-session-work'
 import { createPlaywrightAuxiliaryMouse } from './playwright-auxiliary-mouse'
 import { PlaywrightPhotopeaTransport } from './playwright-photopea-transport'
 import type { ComputerAction, EditorSession, LayerInfo, Viewport } from './session'
@@ -22,11 +23,10 @@ export class PhotopeaEditorSession implements EditorSession {
   readonly id: string
   readonly viewport: Viewport
   readonly #dependencies: PhotopeaEditorSessionDependencies
-  #tail: Promise<unknown> = Promise.resolve()
+  readonly #work = new PhotopeaSessionWork()
   #state: 'idle' | 'open' = 'idle'
   #closing = false
   #poison: PhotopeaExportError | undefined
-  #snapshot: Promise<PhotopeaExportSnapshot> | undefined
   #closePromise: Promise<void> | undefined
 
   constructor(dependencies: PhotopeaEditorSessionDependencies) {
@@ -37,7 +37,7 @@ export class PhotopeaEditorSession implements EditorSession {
 
   open(image: Uint8Array, filename: string): Promise<void> {
     const bytes = new Uint8Array(image)
-    this.#snapshot = undefined
+    this.#work.invalidateSnapshot()
     return this.#enqueue(async () => {
       this.#state = 'idle'
       await this.#dependencies.loader.open(bytes, filename)
@@ -48,7 +48,7 @@ export class PhotopeaEditorSession implements EditorSession {
 
   act(actions: ComputerAction[]): Promise<void> {
     const copy = structuredClone(actions)
-    this.#snapshot = undefined
+    this.#work.invalidateSnapshot()
     return this.#enqueue(() => {
       this.#assertOpen()
       return this.#dependencies.actions.act(copy)
@@ -77,7 +77,7 @@ export class PhotopeaEditorSession implements EditorSession {
   close(): Promise<void> {
     if (this.#closePromise) return this.#closePromise
     this.#closing = true
-    const tail = this.#tail
+    const tail = this.#work.drain()
     this.#closePromise = (async () => {
       let failed = false
       let failure: unknown
@@ -95,6 +95,7 @@ export class PhotopeaEditorSession implements EditorSession {
         await attempt(() => tail)
         await attempt(() => this.#dependencies.actions.close())
       } finally {
+        this.#work.clear()
         await attempt(() => this.#dependencies.release())
       }
       if (failed) throw failure
@@ -105,10 +106,12 @@ export class PhotopeaEditorSession implements EditorSession {
   #getSnapshot(): Promise<PhotopeaExportSnapshot> {
     const rejection = this.#admissionError()
     if (rejection) return Promise.reject(rejection)
-    return (this.#snapshot ??= this.#enqueue(async () => {
-      this.#assertOpen()
-      return this.#dependencies.exporter.exportSnapshot()
-    }))
+    return this.#work.getSnapshot(() =>
+      this.#enqueue(async () => {
+        this.#assertOpen()
+        return this.#dependencies.exporter.exportSnapshot()
+      })
+    )
   }
 
   #assertOpen(): void {
@@ -139,9 +142,7 @@ export class PhotopeaEditorSession implements EditorSession {
         throw error
       }
     }
-    const result = this.#tail.then(run, run)
-    this.#tail = result
-    return result
+    return this.#work.enqueue(run)
   }
 }
 

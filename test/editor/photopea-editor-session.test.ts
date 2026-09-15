@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, spyOn, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import {
   PhotopeaEditorSession,
@@ -6,6 +6,7 @@ import {
   type PhotopeaEditorSessionDependencies
 } from '../../src/editor/photopea-editor-session'
 import { PhotopeaExportError } from '../../src/editor/photopea-export-error'
+import { PhotopeaSessionWork } from '../../src/editor/photopea-session-work'
 import type { PhotopeaExportSnapshot } from '../../src/editor/photopea-document-exporter'
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
 import type { Page } from 'playwright-core'
@@ -93,7 +94,79 @@ async function expectAllRejected(promises: Promise<unknown>[], error?: unknown) 
   }
 }
 
+// Capture the internal owner through its real drain operation, keeping the
+// session's private fields and public dependency contract intact.
+function closeWithWork(session: PhotopeaEditorSession) {
+  let work: PhotopeaSessionWork | undefined
+  const drain = PhotopeaSessionWork.prototype.drain
+  const capture = spyOn(PhotopeaSessionWork.prototype, 'drain').mockImplementation(function (
+    this: PhotopeaSessionWork
+  ) {
+    work = this
+    return drain.call(this)
+  })
+  try {
+    const closed = session.close()
+    if (!work) throw new Error('Close did not drain admitted work')
+    return { work, closed }
+  } finally {
+    capture.mockRestore()
+  }
+}
+
 describe('PhotopeaEditorSession', () => {
+  test('keeps typed screenshot results out of the stored queue tail before close finishes', async () => {
+    const { session, dependencies } = fixture()
+    const cleanup = deferred()
+    dependencies.actions.close = () => cleanup.promise
+    await session.open(new Uint8Array([1]), 'a.png')
+    const screenshot = await session.screenshot()
+    const { work, closed } = closeWithWork(session)
+    try {
+      expect(screenshot).toEqual(new Uint8Array([1, 2]))
+      expect(await work.drain()).toBeUndefined()
+    } finally {
+      cleanup.resolve()
+      await closed
+    }
+  })
+
+  for (const failing of ['none', 'drain', 'cleanup', 'release'] as const) {
+    test(`close releases its cached snapshot and settles its tail after ${failing === 'none' ? 'success' : `${failing} failure`}`, async () => {
+      const { dependencies, snapshot } = fixture()
+      const failure = new Error(failing)
+      const gate = deferred<Uint8Array>()
+      dependencies.actions.screenshot = () => gate.promise
+      dependencies.actions.close = async () => {
+        if (failing === 'cleanup') throw failure
+      }
+      const session = new PhotopeaEditorSession({
+        ...dependencies,
+        async release() {
+          if (failing === 'release') throw failure
+        }
+      })
+      await session.open(new Uint8Array([1]), 'a.png')
+      await session.layers()
+      const admitted = session.screenshot()
+      const admittedResult = Promise.allSettled([admitted])
+      const { work, closed } = closeWithWork(session)
+      const closeResult = closed.then(
+        () => undefined,
+        (error: unknown) => error
+      )
+      if (failing === 'drain') gate.reject(failure)
+      else gate.resolve(new Uint8Array([3, 4]))
+      await admittedResult
+      expect(await closeResult).toBe(failing === 'none' ? undefined : failure)
+
+      const replacement = { ...snapshot, psd: new Uint8Array([9]) }
+      expect(await work.getSnapshot(() => Promise.resolve(replacement))).toBe(replacement)
+      expect(await work.drain()).toBeUndefined()
+      expect(session.close()).toBe(closed)
+    })
+  }
+
   test('rejects document operations before open without invoking dependencies', async () => {
     const { session, events } = fixture()
     await expectAllRejected(documentCalls(session))
