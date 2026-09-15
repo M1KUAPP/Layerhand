@@ -366,6 +366,13 @@ caps allow it, and otherwise leaves the run incomplete. Once no call can
 follow, a correction is refused, and one acknowledged but not yet sent,
 including one a cancel strands, is reported as a recoverable error.
 
+The server runs `runAgent()` when `RUN_MODE=agent`, and `fakeRun()` when
+it is `fake` or unset. Until the Responses API adapter exists, agent mode
+drives the recorded `FakeEditorSession` with a scripted model that spends
+one step on each correction it is sent, so a correction visibly changes
+the narration that follows. A correction refused because the run is
+finishing gets the same HTTP 409 `run_ended` as one sent after it ended.
+
 ## The editor adapter
 
 The editor is **Photopea**, and the adapter is the only component that
