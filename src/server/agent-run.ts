@@ -3,8 +3,10 @@
 import type { RunEvent, RunHandle, RunRequest } from '../agent/contract'
 import { runAgent, type AgentLoopDependencies, type PublishedKind } from '../agent/loop'
 import type { AgentModel } from '../agent/model'
+import { ResponsesModel } from '../agent/responses-model'
 import { Spend } from '../agent/spend'
 import type { ArtifactStore } from './artifact-store'
+import { browserbaseEditorSession, type BrowserbaseEditorSessionOptions } from './browserbase-editor-session'
 import type { ManagedRun, RunStopReason } from './managed-run'
 
 /**
@@ -80,4 +82,38 @@ export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDepe
       request.apiKey = undefined
     }
   }
+}
+
+export interface LiveAgentDependencies extends Pick<
+  BrowserbaseEditorSessionOptions,
+  'hostUrl' | 'sessions' | 'connect' | 'createEditorSession'
+> {
+  publish: AgentLoopDependencies['publish']
+  /** Pays for the run when the user supplied no key of their own (FR-36). */
+  serverApiKey?: string
+  fetch?: typeof fetch
+}
+
+/**
+ * A real run: GPT-6 Astra on the `computer` tool, which spike A0 chose,
+ * driving Photopea in a Browserbase browser of the run's own. The model reads
+ * the key from the request at every call, so releasing the run's secrets
+ * leaves no copy of the key behind.
+ */
+export function liveAgentRun(
+  request: RunRequest,
+  { publish, serverApiKey, fetch, ...editor }: LiveAgentDependencies
+): ManagedRun {
+  if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
+  return managedAgentRun(request, {
+    session: browserbaseEditorSession({ id: crypto.randomUUID(), ...editor }),
+    model: new ResponsesModel({
+      apiKey: () => request.apiKey,
+      instruction: request.instruction,
+      stepCap: request.stepCap,
+      mechanism: 'computer',
+      ...(fetch ? { fetch } : {})
+    }),
+    publish
+  })
 }

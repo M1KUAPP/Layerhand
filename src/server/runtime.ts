@@ -2,11 +2,12 @@ import type { RunEvent, RunHandle, RunRequest } from '../agent/contract'
 import { fakeRun } from '../agent/fake-run'
 import { ScriptedModel } from '../agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../editor/fake-editor-session'
-import { artifactPublisher, managedAgentRun } from './agent-run'
+import { artifactPublisher, liveAgentRun, managedAgentRun } from './agent-run'
 import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
-import { ConfigurationError, readConfig } from './config'
+import { BrowserbaseClient } from './browserbase-client'
+import { ConfigurationError, readConfig, type ServerConfig } from './config'
 import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
@@ -71,15 +72,38 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
   }
 }
 
-type RunMode = 'scripted' | 'fake'
+type RunMode = 'agent' | 'scripted' | 'fake'
 
-// Scripted mode runs the loop against the recorded editor and a scripted
-// model, so the loop can be worked on without a key or a browser. The default
-// is fakeRun().
+// Agent mode runs the real agent. Scripted mode runs the loop against the
+// recorded editor and a scripted model, so the loop can be worked on without
+// a key or a browser. The default is fakeRun().
 function readRunMode(value: string | undefined): RunMode {
   if (value === undefined || value === 'fake') return 'fake'
-  if (value === 'scripted') return 'scripted'
-  throw new ConfigurationError('RUN_MODE must be scripted or fake')
+  if (value === 'agent' || value === 'scripted') return value
+  throw new ConfigurationError('RUN_MODE must be agent, scripted, or fake')
+}
+
+interface AgentConfig {
+  hostUrl: string
+  sessions: BrowserbaseClient
+}
+
+// Browserbase's browser loads the Photopea host page from this service, so
+// agent mode needs the public address the service is reached at.
+function readAgentConfig(env: Environment, config: ServerConfig | undefined): AgentConfig {
+  const browserbaseApiKey = config?.browserbaseApiKey ?? env.BROWSERBASE_API_KEY
+  if (!browserbaseApiKey) throw new ConfigurationError('RUN_MODE=agent needs BROWSERBASE_API_KEY')
+  if (!env.PUBLIC_URL) throw new ConfigurationError('RUN_MODE=agent needs PUBLIC_URL')
+  let hostUrl: URL | undefined
+  try {
+    hostUrl = new URL('/photopea-host', env.PUBLIC_URL)
+  } catch {
+    // Reported below without repeating the value.
+  }
+  if (hostUrl?.protocol !== 'https:' && hostUrl?.protocol !== 'http:') {
+    throw new ConfigurationError('PUBLIC_URL must be an HTTP or HTTPS address')
+  }
+  return { hostUrl: hostUrl.href, sessions: new BrowserbaseClient(browserbaseApiKey) }
 }
 
 function developmentNumber(value: string | undefined, fallback: number): number {
@@ -93,6 +117,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
   const production = env.NODE_ENV === 'production'
   const runMode = readRunMode(env.RUN_MODE)
   const config = production ? readConfig(env) : undefined
+  const agent = runMode === 'agent' ? readAgentConfig(env, config) : undefined
   const database = createDatabase(config?.databaseUrl ?? env.DATABASE_URL ?? ':memory:')
 
   try {
@@ -122,8 +147,9 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       clientAddress: options.clientAddress,
       now: () => new Date(),
       idGenerator: () => crypto.randomUUID(),
-      runFactory:
-        runMode === 'scripted'
+      runFactory: agent
+        ? (request) => liveAgentRun(request, { ...agent, publish, serverApiKey })
+        : runMode === 'scripted'
           ? async (request) => {
               if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
               return managedAgentRun(request, {
