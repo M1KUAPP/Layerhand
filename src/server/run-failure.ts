@@ -76,7 +76,8 @@ export class FailureRecorder {
   model(model: AgentModel): AgentModel {
     return {
       next: (observation, signal) => this.#track('model', () => model.next(observation, signal)),
-      ...(model.steer ? { steer: (text: string) => model.steer!(text) } : {})
+      ...(model.steer ? { steer: (text: string) => model.steer!(text) } : {}),
+      ...(model.close ? { close: () => model.close!() } : {})
     }
   }
 
