@@ -782,7 +782,9 @@ the race.
 So disposal is always two steps in order: export, then destroy. It
 applies to the cancel, ceiling, and error paths as much as to normal
 completion, and on the error path it is best-effort — an export that
-itself fails must not prevent the teardown that stops the bill.
+itself fails must not prevent the teardown that stops the bill. The error
+export gets four seconds; if it is still pending, the browser is abandoned
+instead of waiting for the editor's normal close queue to drain.
 
 **Shutdown ends runs too.** On SIGTERM the server:
 
@@ -1021,9 +1023,11 @@ So the controls are structural:
 
 - **The browser session reaches only Layerhand's public Photopea host and
   Photopea's origin.** Context-wide HTTP and WebSocket routes install
-  before editor navigation and abort every other origin. This is the
-  single most valuable control we have, and it is cheap because the
-  product genuinely needs one site.
+  before editor navigation and abort every other origin. HTTP redirects
+  are rejected too: Chromium can follow a fulfilled redirect without
+  routing its later hop, so only final responses are returned to it. This
+  is the single most valuable control we have, and it is cheap because
+  the product genuinely needs one site.
 - **The session holds no credentials** — no logged-in accounts, no
   payment methods, no cookies worth stealing. There is nothing to
   exfiltrate and nothing to spend.
