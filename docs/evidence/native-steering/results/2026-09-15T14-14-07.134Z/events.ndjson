@@ -1,0 +1,61 @@
+{"ms":15,"type":"started","runId":"b8209169-1b09-467d-8d47-6b5c87f0fd52","viewport":{"width":1440,"height":900}}
+{"ms":21248,"type":"frame","pngUrl":"frame:1"}
+{"ms":25243,"type":"cost","usd":0.0352625,"tokensIn":2677,"tokensOut":36}
+{"ms":25243,"type":"step","n":1,"cap":40,"narration":"I’ll inspect the editor and create the brightness adjustment."}
+{"ms":33135,"type":"cost","usd":0.061224,"tokensIn":6966,"tokensOut":98}
+{"ms":33135,"type":"step","n":2,"cap":40,"narration":"I’ll add Brightness/Contrast as an editable adjustment layer."}
+{"ms":35679,"type":"frame","pngUrl":"frame:2"}
+{"ms":41185,"type":"cost","usd":0.07964750000000001,"tokensIn":11751,"tokensOut":256}
+{"ms":41185,"type":"step","n":3,"cap":40,"narration":"I’ll gently brighten the scene while retaining its soft highlights."}
+{"ms":47217,"type":"frame","pngUrl":"frame:3"}
+{"ms":49495,"type":"correction_ack","text":"Keep the vignette very subtle, and leave the middle of the photograph untouched."}
+{"ms":54789,"type":"cost","usd":0.11514500000000001,"tokensIn":23570,"tokensOut":394}
+{"ms":54789,"type":"step","n":4,"cap":40,"narration":"I’ll use restrained warmth and keep the vignette off the middle."}
+{"ms":59615,"type":"frame","pngUrl":"frame:4"}
+{"ms":62016,"type":"frame","pngUrl":"frame:5"}
+{"ms":63589,"type":"cost","usd":0.14531550000000001,"tokensIn":31194,"tokensOut":456}
+{"ms":63589,"type":"step","n":5,"cap":40,"narration":"I’ll name the warming layer clearly."}
+{"ms":65798,"type":"frame","pngUrl":"frame:6"}
+{"ms":71347,"type":"cost","usd":0.16063650000000002,"tokensIn":38903,"tokensOut":588}
+{"ms":71347,"type":"step","n":6,"cap":40,"narration":"I’ll label both adjustments and add a separate vignette layer."}
+{"ms":76291,"type":"frame","pngUrl":"frame:7"}
+{"ms":79042,"type":"frame","pngUrl":"frame:8"}
+{"ms":83768,"type":"cost","usd":0.1773925,"tokensIn":46809,"tokensOut":719}
+{"ms":83768,"type":"step","n":7,"cap":40,"narration":"I’ll prepare a very soft corner-darkening layer."}
+{"ms":86469,"type":"frame","pngUrl":"frame:9"}
+{"ms":88875,"type":"frame","pngUrl":"frame:10"}
+{"ms":90751,"type":"cost","usd":0.2101705,"tokensIn":56422,"tokensOut":789}
+{"ms":90751,"type":"step","n":8,"cap":40,"narration":"I’ll choose a large feathered brush for seamless corner shading."}
+{"ms":92756,"type":"frame","pngUrl":"frame:11"}
+{"ms":95153,"type":"frame","pngUrl":"frame:12"}
+{"ms":101070,"type":"cost","usd":0.23314300000000002,"tokensIn":66249,"tokensOut":1002}
+{"ms":101070,"type":"step","n":9,"cap":40,"narration":"I’ll set a soft brush and limit the vignette to 10 percent opacity."}
+{"ms":108349,"type":"frame","pngUrl":"frame:13"}
+{"ms":110743,"type":"frame","pngUrl":"frame:14"}
+{"ms":114499,"type":"cost","usd":0.26524200000000003,"tokensIn":77347,"tokensOut":1129}
+{"ms":114499,"type":"step","n":10,"cap":40,"narration":"I’ll clear the test mark and verify the brush softness."}
+{"ms":120790,"type":"frame","pngUrl":"frame:15"}
+{"ms":123282,"type":"frame","pngUrl":"frame:16"}
+{"ms":128045,"type":"cost","usd":0.304862,"tokensIn":90148,"tokensOut":1273}
+{"ms":128045,"type":"step","n":11,"cap":40,"narration":"I’ll shade only the four corners, leaving the centre transparent."}
+{"ms":132186,"type":"frame","pngUrl":"frame:17"}
+{"ms":134626,"type":"frame","pngUrl":"frame:18"}
+{"ms":136698,"type":"cost","usd":0.3373225,"tokensIn":104227,"tokensOut":1346}
+{"ms":136698,"type":"step","n":12,"cap":40,"narration":"I’ll finish naming the brightness adjustment."}
+{"ms":138693,"type":"frame","pngUrl":"frame:19"}
+{"ms":143490,"type":"cost","usd":0.35609850000000004,"tokensIn":118403,"tokensOut":1415}
+{"ms":143490,"type":"step","n":13,"cap":40,"narration":"I’ll confirm the brightness setting before saving."}
+{"ms":145790,"type":"frame","pngUrl":"frame:20"}
+{"ms":151378,"type":"cost","usd":0.39632150000000005,"tokensIn":134224,"tokensOut":1524}
+{"ms":151378,"type":"step","n":14,"cap":40,"narration":"I’ll save the completed edit as a layered PSD."}
+{"ms":157271,"type":"frame","pngUrl":"frame:21"}
+{"ms":160109,"type":"frame","pngUrl":"frame:22"}
+{"ms":170660,"type":"cost","usd":0.43422700000000003,"tokensIn":151097,"tokensOut":1702}
+{"ms":170661,"type":"step","n":15,"cap":40,"narration":"I’ll use the PSD save command to preserve all editable layers."}
+{"ms":173336,"type":"frame","pngUrl":"frame:23"}
+{"ms":176137,"type":"frame","pngUrl":"frame:24"}
+{"ms":177876,"type":"cost","usd":0.46517200000000003,"tokensIn":168861,"tokensOut":1760}
+{"ms":177877,"type":"step","n":16,"cap":40,"narration":"I’ll close the menu and check the final layered result."}
+{"ms":180281,"type":"frame","pngUrl":"frame:25"}
+{"ms":184137,"type":"cost","usd":0.5048455000000001,"tokensIn":188259,"tokensOut":1789}
+{"ms":192660,"type":"done","result":{"psdUrl":"result.psd","previewUrl":"preview.png","layers":[{"name":"Original photograph","kind":"raster","visible":true,"masks":[],"children":[]},{"name":"Brighten the photograph","kind":"adjustment","visible":true,"masks":[{"kind":"pixel","enabled":true}],"children":[]},{"name":"Warm the colours","kind":"adjustment","visible":true,"masks":[{"kind":"pixel","enabled":true}],"children":[]},{"name":"Very subtle corner vignette","kind":"raster","visible":true,"masks":[],"children":[]}],"complete":true}}

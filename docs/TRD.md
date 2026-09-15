@@ -416,9 +416,10 @@ caps allow it, and otherwise leaves the run incomplete. Once no call can
 follow, a correction is refused, and one acknowledged but not yet sent,
 including one a cancel strands, is reported as a recoverable error.
 
-`ResponsesModel` implements native steering when `STEERING` is `native`.
-The default, `boundary`, stays until a live run proves native steering
-works (A3). The loop is unchanged. `managedAgentRun` acknowledges a
+`ResponsesModel` implements native steering when `STEERING` is `native`,
+which is what production sets, because spike A3 proved it there. The
+default is `boundary`, the step-boundary path, which is also what a run
+falls back to. The loop is unchanged. `managedAgentRun` acknowledges a
 correction through the loop, then offers it to the model's optional
 `steer()`. The model sends every step as `response.create` over one
 WebSocket per run, with `store: true` and one lane, and steers the response
@@ -446,6 +447,20 @@ either applied or replayed, never both and never neither:
   replayed and counted as indeterminate. The step is sent again over HTTP,
   and the run stays on HTTP. Replay is the default because a correction
   applied twice does no harm, while a lost one breaks FR-20.
+
+**A3 result, September 15:** passed, on the deployed service. A correction
+sent into a response being generated was accepted 194 ms later, that
+response ended `response.incomplete` with reason `steered`, its successor
+was created 293 ms after that, and the successor's step said "I'll use
+restrained warmth and keep the vignette off the middle." The ledger settled
+the correction as applied, and nothing was replayed at the step boundary.
+The adjustment made before the correction was still in the exported file,
+next to the two layers made after it, and the run finished complete in 16
+steps and 192.7 s for $0.50. The
+[A3 evidence bundle](evidence/native-steering/README.md) retains the event
+sequence, the narrations either side of the correction, the layers, and
+what the run cost. Native steering is therefore model leverage the launch
+copy can claim: the previous generation has no equivalent.
 
 The server runs `fakeRun()` when `RUN_MODE` is `fake` or unset. When it is
 `agent`, the server runs the real agent: `ResponsesModel` on the `computer` tool
