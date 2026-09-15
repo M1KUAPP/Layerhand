@@ -33,4 +33,15 @@ export {
   decodePhotopeaWireMessage,
   type PlaywrightPhotopeaTransportOptions
 } from './playwright-photopea-transport'
-export type { Button, ComputerAction, EditorSession, LayerInfo, Pt, Viewport } from './session'
+export { cloneLayerInfo, cloneLayerTree } from './layer-tree'
+export type {
+  Button,
+  ComputerAction,
+  EditorSession,
+  LayerInfo,
+  LayerKind,
+  LayerMaskInfo,
+  LayerMaskKind,
+  Pt,
+  Viewport
+} from './session'
