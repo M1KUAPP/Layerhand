@@ -13,27 +13,57 @@ describeChrome('Browserbase network boundary in Google Chrome', () => {
   let blockedServer: ReturnType<typeof Bun.serve>
   let allowedHits = 0
   let blockedHits = 0
+  let allowedSocketOpens = 0
+  let blockedSocketOpens = 0
 
   beforeAll(async () => {
-    browser = await chromium.launch({ channel: 'chrome', headless: true })
+    browser = await chromium.launch({
+      channel: 'chrome',
+      headless: true,
+      // Fulfilled loopback responses have no address-space metadata, so
+      // Chrome would otherwise reject this local-only WebSocket fixture.
+      args: ['--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessRespectPreflightResults']
+    })
     blockedServer = Bun.serve({
       hostname: '127.0.0.1',
       port: 0,
-      fetch() {
+      fetch(request, server) {
+        if (request.headers.get('upgrade') === 'websocket') {
+          return server.upgrade(request, { data: undefined })
+            ? undefined
+            : new Response('Upgrade required', { status: 426 })
+        }
         blockedHits += 1
         return new Response('should not be reached')
+      },
+      websocket: {
+        open() {
+          blockedSocketOpens += 1
+        },
+        message() {}
       }
     })
     redirectServer = Bun.serve({
       hostname: '127.0.0.1',
       port: 0,
-      fetch(request) {
+      fetch(request, server) {
+        if (request.headers.get('upgrade') === 'websocket') {
+          return server.upgrade(request, { data: undefined })
+            ? undefined
+            : new Response('Upgrade required', { status: 426 })
+        }
         allowedHits += 1
         if (new URL(request.url).pathname !== '/redirect') return new Response('<h1>allowed</h1>')
         return new Response(null, {
           status: 302,
           headers: { location: `http://127.0.0.1:${blockedServer.port}/blocked` }
         })
+      },
+      websocket: {
+        open() {
+          allowedSocketOpens += 1
+        },
+        message() {}
       }
     })
   })
@@ -80,6 +110,34 @@ describeChrome('Browserbase network boundary in Google Chrome', () => {
     try {
       await session.open(Uint8Array.of(1), 'source.png')
       expect(allowedHits).toBe(1)
+
+      const openSocket = (url: string) =>
+        page!.evaluate(
+          (address) =>
+            new Promise<'opened' | 'blocked' | 'timed_out'>((resolve) => {
+              const socket = new WebSocket(address)
+              let settled = false
+              const finish = (outcome: 'opened' | 'blocked' | 'timed_out') => {
+                if (settled) return
+                settled = true
+                clearTimeout(timer)
+                resolve(outcome)
+              }
+              const timer = setTimeout(() => finish('timed_out'), 2_000)
+              socket.onopen = () => {
+                finish('opened')
+                socket.close()
+              }
+              socket.onerror = () => finish('blocked')
+              socket.onclose = () => finish('blocked')
+            }),
+          url
+        )
+
+      expect(await openSocket(`ws://127.0.0.1:${redirectServer.port}/socket`)).toBe('opened')
+      expect(await openSocket(`ws://127.0.0.1:${blockedServer.port}/socket`)).toBe('blocked')
+      expect(allowedSocketOpens).toBe(1)
+      expect(blockedSocketOpens).toBe(0)
 
       await expect(page!.goto(`http://127.0.0.1:${redirectServer.port}/redirect`, { timeout: 3_000 })).rejects.toThrow(
         'ERR_BLOCKED_BY_CLIENT'
