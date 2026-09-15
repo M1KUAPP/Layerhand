@@ -1,4 +1,4 @@
-# Prior Art: What Already Won, What Is Taken
+# Prior art: What already won, what is taken
 
 The Astra Challenge had no winners as of September 12, 2026 — submissions close September 18. The signals below are the best available proxies for what OpenAI rewards.
 

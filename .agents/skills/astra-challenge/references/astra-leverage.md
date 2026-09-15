@@ -1,4 +1,4 @@
-# GPT-6 Astra: Leverage Primitives, Limits, Cost
+# GPT-6 Astra: Leverage primitives, limits, cost
 
 Released September 3, 2026. Model ID `gpt-6-astra` via the Responses API.
 
