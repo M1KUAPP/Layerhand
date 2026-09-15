@@ -18,8 +18,7 @@ guarded GitHub Actions workflow publishes nightly reports.
 **Tech Stack:** Bun 1.4.2, TypeScript 7, `bun:test`, `ag-psd`, Open Images V7,
 GitHub Actions.
 
-**Spec:**
-`docs/superpowers/specs/2026-09-15-ten-image-reliability-suite-design.md`
+**Spec:** `docs/superpowers/specs/ten-image-reliability-suite-design.md`
 
 ## Global constraints
 
