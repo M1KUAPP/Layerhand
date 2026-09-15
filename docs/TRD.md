@@ -208,8 +208,19 @@ which does not support function calling with Astra at all.
 
 ### How the editor is actually driven
 
-Two candidate mechanisms, and this is the first thing to settle because
-everything else hangs off it.
+Code execution is the choice because it is OpenAI's documented
+recommendation for Astra, and it is unmeasured because no OpenAI API key
+was available to run [spike A0](#decisions-deferred-to-spikes). The choice
+is provisional until the
+[driving-mechanism harness](evidence/driving-mechanism/README.md) has run
+both mechanisms on the same three images:
+
+```sh
+cd docs/evidence/driving-mechanism
+OPENAI_API_KEY=... bun run harness.ts
+```
+
+The two candidates:
 
 1.  **The `computer` tool.** The GA tool definition is exactly
     `{ "type": "computer" }` — no `display_width`, no `display_height`,
@@ -224,13 +235,35 @@ everything else hangs off it.
     computer-tool example in it is pinned to the previous-generation
     model rather than to Astra.
 
-We plan on code execution and keep the `computer` tool as the fallback
-— the reverse of what the ideation assumed. It is likely to be more
-reliable and it is the documented recommendation, and it does not
-weaken the premise: the editor still has no usable API, and the
-competence being exercised is still holding a forty-step GUI task
-together. [Spike A0](#decisions-deferred-to-spikes) picks one on day 0
-by running both against the same three-edit sequence.
+`ResponsesModel` in `src/agent/responses-model.ts` implements both, and
+one option selects the mechanism. Code execution is its `run_code` tool,
+whose code runs against the page before the loop takes the next
+screenshot. That reverses what the ideation assumed. It does not weaken
+the premise: the editor still has no usable API, and the competence being
+exercised is still holding a forty-step GUI task together. The prompt
+tells the model to operate the editor through the mouse and keyboard, and
+a spike run whose code reaches Photopea's scripting interface is
+disqualified.
+
+Model-written code is untrusted input. The harness runs it unsandboxed in
+its own Bun process, which is acceptable for a local spike and never for
+production. In production it runs inside the page, through
+`page.evaluate` with a restricted API surface, or in a separate sandbox.
+It never runs in the server process, which holds our API key and the
+database.
+
+**The `computer` tool is the fallback.** Switching is one option in
+`ResponsesModel`: the model returns `actions[]`, the loop carries them out
+through `EditorSession.act`, and the reply is a screenshot. It needs no
+code sandbox and has no code path to the scripting interface, but OpenAI
+documents it for the previous generation rather than for Astra. It could
+still open Photopea's own script dialog through the menus, so that dialog
+falls under the same prompt prohibition and disqualification rule as
+scripting from code. Both mechanisms' prompts forbid it. In computer mode,
+the harness disqualifies a run that types `app.`, `echoToOE`, or
+`saveToOE`.
+We switch if the measurement shows code execution completing fewer runs,
+or if its sandbox cannot be built in time.
 
 Contract 1 is expressed in the `computer` tool's action vocabulary
 either way, because it is a perfectly good description of "what you can
@@ -779,7 +812,34 @@ The two limits protect against different things:
   so the concurrency is still there for anyone paying their own way.
 
 Setting the number is a day-4 decision with an owner, informed by the
-measured cost per run from spike A2 rather than by this estimate.
+measured cost per run from spike A2 rather than by this estimate. The
+arithmetic below is what that owner redoes.
+
+Each free run reserves NFR-2's $8 spend cap when it is admitted, and gives
+back the difference when it ends. A run is admitted only while the day's
+spend, plus what is still reserved, plus its own $8, stays within the
+ceiling. So wave _k_ of twenty concurrent free runs fits only when:
+
+```text
+ceiling ≥ (k − 1) × spend per wave + 20 × $8 reservation
+```
+
+Spend per wave is twenty times the cost per run that A2 measures.
+
+| Ceiling | At $3.50 a run, caching working | At $14.50 a run, caching broken   |
+| ------- | ------------------------------- | --------------------------------- |
+| $150    | 18 concurrent free runs, not 20 | 18 concurrent free runs, not 20   |
+| $230    | Two full waves: $70 + $160      | One wave, then 8 runs of a second |
+
+With caching broken, the $8 spend cap stops each run at $8, so a wave
+spends at most $160, and $230 leaves $70: eight more runs.
+
+**Proposed: $230 a day**, for kymil04 to confirm on day 4 from A2's
+measurement. It is not yet agreed. The reservation stays at $8, because
+reserving less would undercount a run heading for its spend cap.
+`test/server/limits.test.ts` pins the first column: at $150 the nineteenth
+concurrent free run is refused, and at $230 a full wave of twenty is
+admitted.
 
 ### The concurrency ceiling is a rate limit, not a server
 
