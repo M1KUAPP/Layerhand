@@ -12,7 +12,7 @@ Contents:
 1.  [Who it is for](#who-it-is-for)
 1.  [What Layerhand is](#what-layerhand-is)
 1.  [Why this is only possible now](#why-this-is-only-possible-now)
-1.  [The wedge: the artifact, not the pixels](#the-wedge-the-artifact-not-the-pixels)
+1.  [The wedge: The artifact, not the pixels](#the-wedge-the-artifact-not-the-pixels)
 1.  [Competition](#competition)
 1.  [Business model](#business-model)
 1.  [Non-goals](#non-goals)
@@ -98,7 +98,7 @@ of the idea: **Astra cannot generate an image.** It is text-output only.
 It makes one by operating an image editor — and that constraint is
 exactly why the output is a document rather than a picture.
 
-## The wedge: the artifact, not the pixels
+## The wedge: The artifact, not the pixels
 
 Nearly every competing product in this space emits pixels. A diffusion model
 cannot emit a layer stack at any quality, because a layer stack is not
