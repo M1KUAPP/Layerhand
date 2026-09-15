@@ -7,8 +7,8 @@ test('exposes the two named raster layers in the recorded PSD', async () => {
     await session.open(Uint8Array.of(1), 'portrait.jpg')
 
     expect(await session.layers()).toEqual([
-      { name: 'Original photograph', kind: 'raster', visible: true },
-      { name: 'Retouched copy', kind: 'raster', visible: true }
+      { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+      { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
     ])
   } finally {
     await session.close()

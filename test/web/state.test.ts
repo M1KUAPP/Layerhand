@@ -8,8 +8,8 @@ const result = {
   previewUrl: '/preview.png',
   complete: true,
   layers: [
-    { name: 'Original photograph', kind: 'raster' as const, visible: true },
-    { name: 'Warm highlights', kind: 'adjustment' as const, visible: true }
+    { name: 'Original photograph', kind: 'raster' as const, visible: true, masks: [], children: [] },
+    { name: 'Warm highlights', kind: 'adjustment' as const, visible: true, masks: [], children: [] }
   ]
 }
 

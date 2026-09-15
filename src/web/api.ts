@@ -1,5 +1,5 @@
 import type { RunEvent, RunResult } from '../agent/contract'
-import type { LayerInfo } from '../editor/contract'
+import type { LayerInfo, LayerMaskInfo } from '../editor/contract'
 import type { RunSnapshot, RunStatus } from '../server/run-registry'
 
 type Fetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -23,15 +23,19 @@ export class RunApiError extends Error {
   }
 }
 
+function invalidResponse(): never {
+  throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+}
+
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+    invalidResponse()
   }
   return value as Record<string, unknown>
 }
 
 function string(value: unknown): string {
-  if (typeof value !== 'string') throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+  if (typeof value !== 'string') invalidResponse()
   return value
 }
 
@@ -42,7 +46,7 @@ function nullableString(value: unknown): string | null {
 
 function number(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+    invalidResponse()
   }
   return value
 }
@@ -50,7 +54,7 @@ function number(value: unknown): number {
 function integer(value: unknown): number {
   const parsed = number(value)
   if (!Number.isSafeInteger(parsed) || parsed < 0) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+    invalidResponse()
   }
   return parsed
 }
@@ -58,39 +62,45 @@ function integer(value: unknown): number {
 function eventId(value: unknown): number {
   const parsed = number(value)
   if (!Number.isSafeInteger(parsed) || parsed < -1) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+    invalidResponse()
   }
   return parsed
 }
 
 function boolean(value: unknown): boolean {
-  if (typeof value !== 'boolean') throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+  if (typeof value !== 'boolean') invalidResponse()
   return value
 }
 
 function stringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) throw new RunApiError('invalid_response', 'The server returned an invalid response.')
+  if (!Array.isArray(value)) invalidResponse()
   return value.map(string)
+}
+
+function layerMask(value: unknown): LayerMaskInfo {
+  const source = record(value)
+  const kind = string(source.kind)
+  if (kind !== 'pixel' && kind !== 'vector') invalidResponse()
+  return { kind, enabled: boolean(source.enabled) }
 }
 
 function layer(value: unknown): LayerInfo {
   const source = record(value)
   const kind = string(source.kind)
-  if (!['raster', 'mask', 'adjustment', 'group'].includes(kind)) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
-  }
+  if (kind !== 'raster' && kind !== 'adjustment' && kind !== 'group') invalidResponse()
+  if (!Array.isArray(source.masks) || !Array.isArray(source.children)) invalidResponse()
   return {
     name: string(source.name),
-    kind: kind as LayerInfo['kind'],
-    visible: boolean(source.visible)
+    kind,
+    visible: boolean(source.visible),
+    masks: source.masks.map(layerMask),
+    children: source.children.map(layer)
   }
 }
 
 function runResult(value: unknown): RunResult {
   const source = record(value)
-  if (!Array.isArray(source.layers)) {
-    throw new RunApiError('invalid_response', 'The server returned an invalid response.')
-  }
+  if (!Array.isArray(source.layers)) invalidResponse()
   return {
     psdUrl: string(source.psdUrl),
     previewUrl: string(source.previewUrl),

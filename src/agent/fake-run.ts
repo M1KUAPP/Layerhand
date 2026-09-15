@@ -22,16 +22,42 @@ const PNG_URL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAIAAAAy3EnLAAAAEklEQVR42mO4SSJgGNUwNDUAAH0VlvD5ZoSnAAAAAElFTkSuQmCC'
 const PSD_URL = 'data:image/vnd.adobe.photoshop;base64,OEJQUwABAAAAAAAAAAMAAAABAAAAAQAIAAMAAAAAAAAAAAAAAAAAANnZ2Q=='
 
-const ORIGINAL: LayerInfo = { name: 'Original photograph', kind: 'raster', visible: true }
+const ORIGINAL: LayerInfo = {
+  name: 'Original photograph',
+  kind: 'raster',
+  visible: true,
+  masks: [],
+  children: []
+}
 
 const SCRIPT: { narration: string; layer?: LayerInfo }[] = [
   { narration: 'Selecting the product' },
-  { narration: 'Masking out the background', layer: { name: 'Background removed', kind: 'mask', visible: true } },
+  {
+    narration: 'Masking out the background',
+    layer: {
+      name: 'Retouching group',
+      kind: 'group',
+      visible: true,
+      masks: [],
+      children: [
+        {
+          name: 'Background isolation',
+          kind: 'raster',
+          visible: true,
+          masks: [{ kind: 'pixel', enabled: true }],
+          children: []
+        }
+      ]
+    }
+  },
   {
     narration: 'Warming the highlights with a curves layer',
-    layer: { name: 'Warm highlights', kind: 'adjustment', visible: true }
+    layer: { name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }
   },
-  { narration: 'Painting out the reflections', layer: { name: 'Reflections removed', kind: 'raster', visible: true } },
+  {
+    narration: 'Painting out the reflections',
+    layer: { name: 'Reflections removed', kind: 'raster', visible: true, masks: [], children: [] }
+  },
   { narration: 'Checking the result against the instruction' }
 ]
 
