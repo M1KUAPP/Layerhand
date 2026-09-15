@@ -709,6 +709,15 @@ Spike A2 sizes the step cap so that a run finishes inside fifteen
 minutes. Sizing it against sixty would produce a cap four times too
 large and every long run would be torn down mid-edit.
 
+`managedAgentRun` enforces the ceiling:
+
+- **At fifteen minutes** it cancels the run. The run exports and closes as
+  a cancel does, and the run log records `time_limit`.
+- **An editor call that hangs** never sees the cancel. A run still going a
+  minute later has its browser abandoned: the Browserbase session is
+  released at once, and the hung call fails.
+- **Connecting to Browserbase over CDP** gives up after thirty seconds.
+
 ### Disposal
 
 Sessions are destroyed on completion, cancellation, error, or the
