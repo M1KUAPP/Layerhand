@@ -59,6 +59,12 @@ export {
 } from './photopea-action-runner'
 export { createPlaywrightAuxiliaryMouse } from './playwright-auxiliary-mouse'
 export {
+  PhotopeaEditorSession,
+  createPhotopeaEditorSession,
+  type PhotopeaEditorSessionDependencies,
+  type CreatePhotopeaEditorSessionOptions
+} from './photopea-editor-session'
+export {
   parsePsdMetadata,
   toLayerInfoTree,
   type AdjustmentType,
