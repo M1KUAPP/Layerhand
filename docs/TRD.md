@@ -1288,4 +1288,6 @@ structured Photoshop observation.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
 - [Architecture decisions](/docs/decisions/README.md) — why durable boundaries
   were chosen.
+- [Evidence](/docs/evidence/README.md) — the measurements and live runs
+  behind the spikes.
 - [Git workflow](/docs/references/git-workflow.md) — how changes land.
