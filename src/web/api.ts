@@ -214,6 +214,16 @@ export class RunApi {
     return { runId: string(value.runId) }
   }
 
+  /**
+   * Warms an editor for a chosen image, so the run starts with it already
+   * open (#70). A server with no browser to warm answers with no id, and the
+   * run starts cold.
+   */
+  async warmUpload(form: FormData): Promise<{ uploadId: string | null }> {
+    const value = await accepted(await this.#fetch('/api/uploads', { method: 'POST', body: form }))
+    return { uploadId: typeof value.uploadId === 'string' ? value.uploadId : null }
+  }
+
   async snapshot(runId: string): Promise<RunSnapshot> {
     const response = await this.#fetch(`/api/runs/${encodeURIComponent(runId)}`)
     if (!response.ok) await accepted(response)
