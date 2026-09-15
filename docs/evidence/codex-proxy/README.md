@@ -19,8 +19,8 @@ Contents:
 ## How it runs
 
 - [`helper.ts`](helper.ts) opens one image in live Photopea in local headless
-  Chromium, using `PhotopeaPageSession`. It exposes three endpoints on
-  `127.0.0.1`:
+  Chromium, using [`PhotopeaPageSession`](photopea-page-session.ts). It
+  exposes three endpoints on `127.0.0.1`:
   - `POST /run` takes a JavaScript body. It runs through the harness's
     `pageCodeRunner`, which refuses page calls once a step ends, and returns
     the logs and a screenshot path.
