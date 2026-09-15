@@ -7,6 +7,7 @@ import { ResponsesModel } from '../agent/responses-model'
 import { Spend } from '../agent/spend'
 import type { ArtifactStore } from './artifact-store'
 import { browserbaseEditorSession, type BrowserbaseEditorSessionOptions } from './browserbase-editor-session'
+import type { Steering } from './config'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { FailureRecorder } from './run-failure'
 
@@ -166,34 +167,41 @@ export interface LiveAgentDependencies extends Pick<
   publish: AgentLoopDependencies['publish']
   /** Pays for the run when the user supplied no key of their own (FR-36). */
   serverApiKey?: string
+  /** `boundary` unless set. */
+  steering?: Steering
   fetch?: typeof fetch
+  socketEndpoint?: string
 }
 
 /**
  * A real run: GPT-6 Astra on the `computer` tool, which spike A0 chose,
  * driving Photopea in a Browserbase browser of the run's own. The model reads
  * the key from the request at every call, so releasing the run's secrets
- * leaves no copy of the key behind.
+ * leaves no copy of the key behind. With native steering the model holds one
+ * WebSocket, which closes when the run's secrets are released, because
+ * queued steers do not outlive their connection.
  */
 export function liveAgentRun(
   request: RunRequest,
-  { publish, serverApiKey, fetch, ...editor }: LiveAgentDependencies
+  { publish, serverApiKey, steering = 'boundary', fetch, socketEndpoint, ...editor }: LiveAgentDependencies
 ): ManagedRun {
   if (!request.apiKey && serverApiKey) request.apiKey = serverApiKey
   const session = browserbaseEditorSession({ id: crypto.randomUUID(), ...editor })
-  return managedAgentRun(
-    request,
-    {
-      session,
-      model: new ResponsesModel({
-        apiKey: () => request.apiKey,
-        instruction: request.instruction,
-        stepCap: request.stepCap,
-        mechanism: 'computer',
-        ...(fetch ? { fetch } : {})
-      }),
-      publish
-    },
-    { abandon: () => session.abandon() }
-  )
+  const model = new ResponsesModel({
+    apiKey: () => request.apiKey,
+    instruction: request.instruction,
+    stepCap: request.stepCap,
+    mechanism: 'computer',
+    transport: steering === 'native' ? 'websocket' : 'http',
+    ...(fetch ? { fetch } : {}),
+    ...(socketEndpoint ? { socketEndpoint } : {})
+  })
+  const run = managedAgentRun(request, { session, model, publish }, { abandon: () => session.abandon() })
+  return {
+    ...run,
+    releaseSecrets() {
+      run.releaseSecrets()
+      model.close()
+    }
+  }
 }

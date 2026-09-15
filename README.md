@@ -109,6 +109,10 @@ but pushes and deploys nothing until the repository variable
 In production the container refuses to start unless all eleven variables
 that `src/server/config.ts` requires are set.
 
+`STEERING` is not set, so a correction reaches the model with its next
+call. `native` also steers the response in flight, and is set only after a
+live run proves it (#9).
+
 **The database is the Neon project `layerhand`**, in the M1KUAPP
 organisation and region `aws-us-east-2`. It is not paused when it goes
 without queries, so it needs no keep-alive request.
