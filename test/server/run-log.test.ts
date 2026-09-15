@@ -127,6 +127,19 @@ describe('run log', () => {
     expect(record).toContain('[redacted]')
   })
 
+  test('still stores the line when writing it fails, then reports the failure', async () => {
+    const stored: RunLogLine[] = []
+    const logger = createRunLogger({
+      write: () => {
+        throw new Error('stdout closed')
+      },
+      store: { append: async (line) => void stored.push(line) }
+    })
+
+    await expect(logger(terminalRun())).rejects.toThrow('stdout closed')
+    expect(stored.map((line) => line.runId)).toEqual(['run-1'])
+  })
+
   test('writes one line when a run completes, fails, or is cancelled, and none while it runs', async () => {
     const { registry, lines } = recordingRegistry()
     const completing = controlledRun('complete')
