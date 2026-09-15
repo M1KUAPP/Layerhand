@@ -910,12 +910,16 @@ Spend per wave is twenty times the cost per run that A2 measures.
 With caching broken, the $8 spend cap stops each run at $8, so a wave
 spends at most $160, and $230 leaves $70: eight more runs.
 
+The deployed service reserves `FREE_RUN_SPEND_CAP_USD`, $3, so its $10
+placeholder ceiling admits three concurrent free runs, and one full wave
+would need 20 × $3 = $60.
+
 **Proposed: $230 a day**, for kymil04 to confirm on day 4 from A2's
-measurement. It is not yet agreed. The reservation stays at $8, because
-reserving less would undercount a run heading for its spend cap.
-`test/server/limits.test.ts` pins the first column: at $150 the nineteenth
-concurrent free run is refused, and at $230 a full wave of twenty is
-admitted.
+measurement. It is not yet agreed. The reservation always equals the spend
+cap, because reserving less would undercount a run heading for it.
+`test/server/limits.test.ts` pins the arithmetic at the $3 and the $8
+reservation: nineteen reservations refuse the twentieth concurrent free run,
+and twenty admit a full wave.
 
 ### The concurrency ceiling is a rate limit, not a server
 
