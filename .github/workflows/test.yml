@@ -1,0 +1,22 @@
+# Runs the deterministic TypeScript suite. Live Chrome and Photopea tests are
+# opt-in through LAYERHAND_CHROME_INTEGRATION, so they cannot block a pull
+# request on third-party UI or network availability.
+name: Test
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - run: bun run typecheck
