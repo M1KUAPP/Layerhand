@@ -19,7 +19,8 @@ bun --env-file=.env run docs/evidence/native-steering/live-steer.ts \
 
 It composes the same pieces as `liveAgentRun`, holding the model itself so
 that it can report what the ledger settled. Output goes to
-`results/<timestamp>/`:
+`output/<timestamp>/`, which Git ignores. The recorded run's files are kept
+in [`results/`](/docs/evidence/native-steering/results/):
 
 - `summary.json`;
 - `steering.ndjson`, one line per event the socket saw;
@@ -27,8 +28,8 @@ that it can report what the ledger settled. Output goes to
 - `preview.png` and `last-frame.png`.
 
 The script also writes `result.psd` and `first-frame.png`, which are not
-kept here, and the session's live-view URL, which is not kept anywhere
-because it carries a token for that session.
+kept, and the session's live-view URL, which is not kept anywhere because
+it carries a token for that session.
 
 ## Result
 
