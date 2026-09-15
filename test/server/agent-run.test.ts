@@ -116,7 +116,8 @@ describe('steering the agent loop through the HTTP surface', () => {
 
     const acks = events.flatMap((event, index) => (event.type === 'correction_ack' ? [index] : []))
     expect(acks).toHaveLength(2)
-    const narrations = narrationsAfter(events, acks[1]!)
+    // The first correction can reach the model before the second is acknowledged.
+    const narrations = narrationsAfter(events, acks[0]!)
     expect(narrations.indexOf('Applying the correction: Keep the shadow')).toBeGreaterThanOrEqual(0)
     expect(narrations.indexOf('Applying the correction: Leave the label alone')).toBeGreaterThan(
       narrations.indexOf('Applying the correction: Keep the shadow')
