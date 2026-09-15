@@ -51,6 +51,7 @@ Temporary Items
 node_modules/
 dist/
 /web/
+/artifacts/reliability/
 
 # Environment
 .env*
