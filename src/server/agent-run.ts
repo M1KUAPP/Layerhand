@@ -70,6 +70,15 @@ export function managedAgentRun(
       return turn
     }
   }
+  // The loop is unchanged, so a model that can steer the call in flight gets
+  // each correction here, after the loop has acknowledged and queued it.
+  const offer = (text: string) => {
+    try {
+      inner.steer?.(text)
+    } catch {
+      // The step boundary still delivers it.
+    }
+  }
 
   const stoppedBy = (complete: boolean, endedAfterCeiling: boolean): RunStopReason => {
     if (cancelled) return 'cancelled'
@@ -126,7 +135,10 @@ export function managedAgentRun(
         }
       }
     },
-    steer: (text) => underlying.steer(text),
+    async steer(text) {
+      await underlying.steer(text)
+      offer(text)
+    },
     async cancel() {
       cancelled = true
       await underlying.cancel()
