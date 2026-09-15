@@ -10,7 +10,7 @@ editor adapter.
 The `computer` tool was chosen, for the reasons in
 [TRD § How the editor is actually driven](/docs/TRD.md#how-the-editor-is-actually-driven).
 The records, code logs, and final frames are in
-[`results/2026-09-15/`](results/2026-09-15/records.json), without PSDs. The
+[`results/`](results/records.json), without PSDs. The
 sweep, with its two smoke runs, spent $3.47.
 
 ## What a run does
