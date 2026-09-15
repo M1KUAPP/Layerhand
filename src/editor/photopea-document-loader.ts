@@ -1,5 +1,6 @@
 import { validateImageUpload, type ImageFormat, type ValidatedImageUpload } from './image-upload'
 import type { PhotopeaMessage } from './photopea-transport'
+import { photopeaScriptString } from './photopea-script'
 
 export interface PhotopeaDocumentBridge {
   boot(): Promise<void>
@@ -23,12 +24,6 @@ export class PhotopeaDocumentError extends Error {
     super(message)
     this.name = 'PhotopeaDocumentError'
   }
-}
-
-function scriptString(value: string): string {
-  return JSON.stringify(value)
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
 }
 
 function readDocumentCount(messages: readonly PhotopeaMessage[]): number {
@@ -104,8 +99,8 @@ export class PhotopeaDocumentLoader {
     )
     const startedAt = this.#now()
     await this.#bridge.openFile(upload.bytes)
-    const escapedFilename = scriptString(upload.filename)
-    const escapedDisplayName = scriptString(upload.filename.replace(/\.(?:png|jpe?g)$/i, ''))
+    const escapedFilename = photopeaScriptString(upload.filename)
+    const escapedDisplayName = photopeaScriptString(upload.filename.replace(/\.(?:png|jpe?g)$/i, ''))
     // Photopea truncates display names at the first period; source preserves identity.
     const messages = await this.#bridge.runScript(
       `if (app.documents.length === ${documentCount + 1}) {\n` +

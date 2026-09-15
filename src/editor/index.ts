@@ -9,6 +9,13 @@ export {
   type ValidatedImageUpload
 } from './image-upload'
 export { createPhotopeaHostHtml } from './photopea-host'
+export { photopeaScriptString } from './photopea-script'
+export { selectPngExport, selectPsdExport } from './export-binary'
+export {
+  PhotopeaDocumentExporter,
+  type PhotopeaDocumentExporterOptions,
+  type PhotopeaExportSnapshot
+} from './photopea-document-exporter'
 export {
   PhotopeaDocumentError,
   PhotopeaDocumentLoader,
