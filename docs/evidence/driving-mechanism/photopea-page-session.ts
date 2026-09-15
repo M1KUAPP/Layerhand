@@ -72,7 +72,7 @@ export class PhotopeaPageSession implements EditorSession {
   constructor(page: Page, hostUrl: string) {
     this.#page = page
     const transport = new PlaywrightPhotopeaTransport(page, { hostUrl, viewport: this.viewport })
-    // An exported file crosses the page boundary as an array of numbers, at seconds per megabyte.
+    // Until #50, an exported file crossed the page boundary as an array of numbers, at seconds per megabyte.
     this.#bridge = new PhotopeaBridge(transport, { commandTimeoutMs: 300_000 })
   }
 
