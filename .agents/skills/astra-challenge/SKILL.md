@@ -9,6 +9,14 @@ The GPT-6 Astra Challenge is a **launch** contest, not a hackathon. You win by s
 
 **Core principle:** Generate from a capability only Astra has, then find a domain for it. Never start from a product category and bolt an LLM onto it. Category-first thinking produces wrappers, and wrappers lose on the first judging criterion.
 
+Contents:
+
+1.  [Contest facts](#contest-facts)
+1.  [Inferred rubric](#inferred-rubric)
+1.  [Process](#process)
+1.  [Common mistakes](#common-mistakes)
+1.  [References](#references)
+
 ## Contest facts
 
 | Field | Value |

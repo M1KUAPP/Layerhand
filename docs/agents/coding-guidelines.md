@@ -4,6 +4,13 @@ Behavioral guidelines to reduce common LLM coding mistakes, from [andrej-karpath
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+Contents:
+
+1.  [Think before coding](#1-think-before-coding)
+1.  [Simplicity first](#2-simplicity-first)
+1.  [Surgical changes](#3-surgical-changes)
+1.  [Goal-driven execution](#4-goal-driven-execution)
+
 ## 1. Think before coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
