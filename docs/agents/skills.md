@@ -3,7 +3,7 @@
 Skills are packaged instructions an agent loads when a task calls for them.
 They are installed in `.agents/skills/`, which `.claude/skills/` symlinks
 to. All but one come from the collections below; `astra-challenge`, which
-ran the [ideation](/docs/producthunt-ideas.md), was written here.
+ran the [ideation](/docs/ideation.md), was written here.
 
 graphify-labs/graphify — builds a knowledge graph of the repository in
 `graphify-out/` and answers questions from it, so agents read a scoped
