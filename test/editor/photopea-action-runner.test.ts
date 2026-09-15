@@ -106,6 +106,95 @@ describe('Photopea action runner', () => {
     expect(page.calls).toEqual(['keyboard.press:z'])
   })
 
+  // Names the computer tool sends that Playwright rejects, checked against Chromium on September 15.
+  test.each([
+    ['Return', 'Enter'],
+    ['KP_Enter', 'Enter'],
+    ['Up', 'ArrowUp'],
+    ['Down', 'ArrowDown'],
+    ['Left', 'ArrowLeft'],
+    ['Right', 'ArrowRight'],
+    ['Page_Up', 'PageUp'],
+    ['Page_Down', 'PageDown'],
+    ['PgUp', 'PageUp'],
+    ['PgDn', 'PageDown'],
+    ['Prior', 'PageUp'],
+    ['Next', 'PageDown'],
+    ['super', 'Meta'],
+    ['Super_L', 'Meta'],
+    ['Control_L', 'Control'],
+    ['Alt_R', 'Alt'],
+    ['Shift_L', 'Shift'],
+    ['option', 'Alt'],
+    ['Del', 'Delete'],
+    ['Insert', 'Insert'],
+    ['Caps_Lock', 'CapsLock'],
+    ['minus', 'Minus'],
+    ['equal', 'Equal'],
+    ['plus', '+']
+  ])('maps the computer tool key %s to %s', async (name, expected) => {
+    const page = createRecordingPage()
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls))
+
+    await runner.act([{ type: 'keypress', keys: [name] }])
+
+    expect(page.calls).toEqual([`keyboard.press:${expected}`])
+  })
+
+  test('skips an action whose key Playwright does not know, reports it, and carries on', async () => {
+    const page = createRecordingPage()
+    page.keyboard.press = async (key) => {
+      page.calls.push(`keyboard.press:${key}`)
+      if (key === 'Hyper_L') throw new Error('keyboard.press: Unknown key: "Hyper_L"')
+    }
+    const skipped: [string, string][] = []
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls), {
+      onSkippedAction: (action, reason) => skipped.push([action.type, reason])
+    })
+
+    await runner.act([
+      { type: 'keypress', keys: ['ctrl', 'Hyper_L'] },
+      { type: 'type', text: 'after' }
+    ])
+
+    expect(page.calls).toEqual([
+      'keyboard.down:Control',
+      'keyboard.press:Hyper_L',
+      'keyboard.up:Control',
+      'keyboard.insertText:after'
+    ])
+    expect(skipped).toEqual([['keypress', 'Unknown key: "Hyper_L"']])
+  })
+
+  test('skips a click whose modifier Playwright does not know, releasing the modifiers it held', async () => {
+    const page = createRecordingPage()
+    page.keyboard.down = async (key) => {
+      page.calls.push(`keyboard.down:${key}`)
+      if (key === 'Hyper_L') throw new Error('keyboard.down: Unknown key: "Hyper_L"')
+    }
+    const skipped: string[] = []
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls), {
+      onSkippedAction: (action) => skipped.push(action.type)
+    })
+
+    await runner.act([{ type: 'click', button: 'left', x: 1, y: 2, keys: ['shift', 'Hyper_L'] }])
+
+    expect(page.calls).toEqual(['keyboard.down:Shift', 'keyboard.down:Hyper_L', 'keyboard.up:Shift'])
+    expect(skipped).toEqual(['click'])
+  })
+
+  test('still fails the batch for any other keyboard error', async () => {
+    const page = createRecordingPage()
+    page.keyboard.press = async () => {
+      throw new Error('Target page, context or browser has been closed')
+    }
+    const runner = new PhotopeaActionRunner(page, createRecordingAuxiliaryMouse(page.calls), {
+      onSkippedAction: () => undefined
+    })
+
+    await expect(runner.act([{ type: 'keypress', keys: ['Return'] }])).rejects.toThrow('has been closed')
+  })
+
   test('executes every computer action in semantic order', async () => {
     const page = createRecordingPage()
     const delays: number[] = []
@@ -171,7 +260,11 @@ describe('Photopea action runner', () => {
       'mouse.move:28,29',
       'mouse.wheel:30,31',
       'keyboard.up:Control',
-      'keyboard.press:Control+Shift+a',
+      'keyboard.down:Control',
+      'keyboard.down:Shift',
+      'keyboard.press:a',
+      'keyboard.up:Shift',
+      'keyboard.up:Control',
       'keyboard.insertText:Layerhand',
       'page.screenshot:png:false'
     ])
