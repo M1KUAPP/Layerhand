@@ -60,6 +60,24 @@ docker run --rm -p 3000:3000 layerhand
 The image uses Bun 1.4.2 in separate build and runtime stages and runs as the
 non-root `bun` user. It receives no secret while building.
 
+## Deploy
+
+`.github/workflows/deploy.yml` builds the production image on every push to
+`main`. No hosting platform has been chosen yet, so for now it stops after
+the build. To turn deployment on:
+
+1.  Set the repository variable `DEPLOY_PLATFORM` to the platform's name.
+    The workflow then pushes the image to
+    `ghcr.io/<owner>/<repository>:<commit>` and runs its deploy job.
+1.  Create a `production` environment that holds the platform's
+    credentials.
+1.  Replace the deploy job's placeholder step with the platform's deploy
+    command. Until then, that job fails on purpose.
+
+In production the container needs every variable in `.env.example`, taken
+from the platform's secret store, and it refuses to start without them.
+`RUN_MODE` is optional: `fake`, the default, or `agent`.
+
 ## Architecture
 
 One long-lived Bun process serves the single-page application and API. Agent

@@ -1,0 +1,59 @@
+# Builds the production image on every push to main and deploys it (#24).
+# No platform is chosen yet, so this stays dormant: the image is only built,
+# and nothing is pushed or deployed, until the repository variable
+# DEPLOY_PLATFORM is set. The deploy step below is the one place to fill in
+# once a platform is chosen. Its secrets belong in the production environment,
+# never in the repository.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  image:
+    name: Build image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.name.outputs.image }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: name
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - run: docker build --tag "$IMAGE" .
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+      - name: Push to GitHub Container Registry
+        if: vars.DEPLOY_PLATFORM != ''
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printenv TOKEN | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE"
+
+  deploy:
+    name: Deploy
+    needs: image
+    if: vars.DEPLOY_PLATFORM != ''
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy the image to the chosen platform
+        env:
+          IMAGE: ${{ needs.image.outputs.image }}
+          PLATFORM: ${{ vars.DEPLOY_PLATFORM }}
+        run: |
+          echo "::error::There is no deploy step for $PLATFORM yet. Replace this step with that platform's command to deploy $IMAGE."
+          exit 1
