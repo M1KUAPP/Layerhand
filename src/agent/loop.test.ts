@@ -23,8 +23,8 @@ const USAGE: TokenUsage = { inputTokens: 40_000, cachedInputTokens: 38_430, outp
 
 // The layers createRecordedFakeEditorSession() reports, and its PSD contains.
 const RECORDED_LAYERS: RunResult['layers'] = [
-  { name: 'Original photograph', kind: 'raster', visible: true },
-  { name: 'Retouched copy', kind: 'raster', visible: true }
+  { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
+  { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
 ]
 
 const step = (narration: string, actions: ComputerAction[] = [CLICK]): ModelTurn => ({
