@@ -83,7 +83,7 @@ locally, with a key you can revoke.
   base64, and [issue #50](https://github.com/M1KUAPP/astra/issues/50) made
   exports do the same: the sample photo's PSD now leaves the page in about
   a third of a second.
-- A dry run of the sample photo with the default 60-second command timeout
+- A dry run of the sample photo with the default 30-second command timeout
   failed at export for exactly that reason.
 - With five minutes allowed, a dry run on all three images went through the
   loop, the live editor, export, and the run-log line. Each run finished its

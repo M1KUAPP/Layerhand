@@ -13,7 +13,8 @@ const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip
 
 // The sample photograph exports as a PSD of about 9 MB. As an array of numbers
-// that took 62 seconds and overran the bridge's 60-second default (#50).
+// that took 62 seconds in the spike A0 harness, twice the bridge's 30-second
+// default (#50).
 const WELL_INSIDE_THE_DEFAULT_MS = 10_000
 
 type FileMessage = Extract<PhotopeaMessage, { type: 'bytes' }>
