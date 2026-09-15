@@ -1,5 +1,8 @@
 # Layered PSD export implementation plan
 
+The task-by-task plan for issue #16: a Photopea editor session that exports a
+layered PSD, a PNG preview, and the PSD's own layer tree.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use

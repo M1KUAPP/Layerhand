@@ -1,5 +1,9 @@
 # ADR-0003: Export a parser-backed Photopea snapshot
 
+This record explains how a Photopea session returns one coherent result: a
+layered PSD, a PNG preview, and a layer tree parsed from that PSD, with
+every layer given a human name.
+
 ## Status
 
 Accepted on September 15, 2026.
