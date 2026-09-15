@@ -41,6 +41,9 @@ export const INSTRUCTION = [
 // Code that mentions any of these reached Photopea's scripting interface
 // rather than its GUI, which is not what the spike measures.
 const SCRIPTING_PATTERN = /postMessage|__layerhand|echoToOE/
+// Text typed into the editor that looks like a script: the computer tool's
+// only route to Photopea scripting is its own script dialog.
+const TYPED_SCRIPT_PATTERN = /app\.|echoToOE|saveToOE/
 
 const DEFAULT_IMAGES = [
   '../../../src/web/assets/sample-photo.png',
@@ -165,11 +168,18 @@ async function measure(mechanism: DrivingMechanism, imagePath: string, index: nu
   // A step without narration would stop the loop. Filling it in keeps the
   // run going, so the spike measures driving ability and counts the gap.
   let silentSteps = 0
+  let typedScripts = 0
   let modelError: string | null = null
   const model: AgentModel = {
     async next(observation, signal) {
       try {
         const turn = await inner.next(observation, signal)
+        for (const action of turn.actions) {
+          if (action.type === 'type' && TYPED_SCRIPT_PATTERN.test(action.text)) {
+            typedScripts += 1
+            appendFileSync(codePath, `${JSON.stringify({ typed: action.text })}\n`)
+          }
+        }
         if (!turn.narration.trim() && (!turn.done || turn.actions.length > 0)) {
           silentSteps += 1
           return { ...turn, narration: '(no narration)' }
@@ -209,7 +219,7 @@ async function measure(mechanism: DrivingMechanism, imagePath: string, index: nu
   const layers = (snapshot.result?.layers ?? []).map(({ name, kind }) => ({ name, kind }))
   const adjustmentLayers = layers.filter((layer) => layer.kind === 'adjustment').length
   const threeEditsVisible = adjustmentLayers >= 2 && layers.length >= 4
-  const disqualified = codes.some((code) => SCRIPTING_PATTERN.test(code))
+  const disqualified = codes.some((code) => SCRIPTING_PATTERN.test(code)) || typedScripts > 0
   const record: RunRecord = {
     ...line,
     mechanism,
@@ -253,7 +263,7 @@ function summarize(runs: RunRecord[]): string {
       (run) =>
         `- ${run.runId}: ${run.outcome}, ${run.steps} steps, ${run.adjustmentLayers} adjustment layers of ` +
         `${run.layers.length}${run.modelError ? `, model error ${run.modelError}` : ''}` +
-        (run.disqualified ? ', DISQUALIFIED: its code reached Photopea scripting (see code.ndjson)' : '')
+        (run.disqualified ? ', DISQUALIFIED: it scripted Photopea (see code.ndjson)' : '')
     ),
     ''
   ].join('\n')
