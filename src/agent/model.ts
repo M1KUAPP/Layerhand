@@ -34,4 +34,12 @@ export interface ModelTurn {
 export interface AgentModel {
   /** Asks for the next step. Should reject once `signal` aborts; the run stops waiting either way. */
   next(observation: Observation, signal: AbortSignal): Promise<ModelTurn>
+  /**
+   * Offers a correction the loop has already acknowledged and queued, so a
+   * model that can steer the call in flight applies it at once (#9). Returns
+   * true only if it sent the correction natively. Every correction offered is
+   * still passed with a later call, in the same order, and a model that took
+   * one natively must not deliver it twice.
+   */
+  steer?(text: string): boolean
 }
