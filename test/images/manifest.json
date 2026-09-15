@@ -1,0 +1,152 @@
+[
+  {
+    "id": "product-eye-shadow",
+    "category": "product",
+    "image": "product-eye-shadow.jpg",
+    "sha256": "dfb9b7f6983b5a89f0aa75daa794a8134e473adc9fc7c88fffd4d02db0ba6791",
+    "instruction": "Clean dust and small marks from the compact, lift the product detail, and keep the pink colour believable. Put every edit on a clearly named editable layer.",
+    "expectation": "The compact is clean and crisp, the pink remains natural, and the background is not visibly clipped.",
+    "source": {
+      "openImagesId": "0049980696be0a34",
+      "author": "Ⅿeagan",
+      "landingUrl": "https://www.flickr.com/photos/meaganjean/3363560333",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/0049980696be0a34.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "product-face-cream",
+    "category": "product",
+    "image": "product-face-cream.jpg",
+    "sha256": "b4a6d3e127db9b405f3dbd3ce72a1cf65a3d3f31494c42392c9454c42d5d02f7",
+    "instruction": "Brighten the face-cream jar, recover the dark red glass, and reduce uneven background tone. Put every edit on a clearly named editable layer.",
+    "expectation": "The jar separates from the background, its highlights retain detail, and the red glass remains rich rather than black.",
+    "source": {
+      "openImagesId": "008ed2884d0fab85",
+      "author": "Héctor Esteban Menéndez",
+      "landingUrl": "https://www.flickr.com/photos/mirwav/7090973067",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/008ed2884d0fab85.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "product-perfume",
+    "category": "product",
+    "image": "product-perfume.jpg",
+    "sha256": "81ac1185c67c6a221638d07c53ed38d147935e081408284029a20b5286e71a76",
+    "instruction": "Neutralize the white background, brighten the perfume bottle, and remove visible dust or small distractions. Put every edit on a clearly named editable layer.",
+    "expectation": "The background reads neutral white, the bottle edge stays defined, and label detail remains legible.",
+    "source": {
+      "openImagesId": "1064b8242aeda1d6",
+      "author": "AlmegaAB",
+      "landingUrl": "https://www.flickr.com/photos/almega/12519716475",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/1064b8242aeda1d6.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "product-blue-sneakers",
+    "category": "product",
+    "image": "product-blue-sneakers.jpg",
+    "sha256": "a4a052c4a4911f417b30c73a40a7d964f658e7e90ffb34f8d879f7a1201650f8",
+    "instruction": "Clean the white background, correct the colour cast, and add gentle contrast to the blue canvas shoes. Put every edit on a clearly named editable layer.",
+    "expectation": "The shoes remain blue, the rubber keeps texture, and the background is even without losing the shoe edges.",
+    "source": {
+      "openImagesId": "00848eefdb280a47",
+      "author": "SPERA.de Designerschuhe, Taschen und Accessoires",
+      "landingUrl": "https://www.flickr.com/photos/spera-designerschuhe/16528471507",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/00848eefdb280a47.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "product-red-heel",
+    "category": "product",
+    "image": "product-red-heel.jpg",
+    "sha256": "ccc079403a26df840725d9a485df5e84ebd1fdf75a8ce9dba221c1749812529a",
+    "instruction": "Remove background specks, deepen the red shoe without crushing shadows, and soften the hard floor shadow. Put every edit on a clearly named editable layer.",
+    "expectation": "The red stays saturated with visible material detail, and the shadow looks softer while the shoe remains grounded.",
+    "source": {
+      "openImagesId": "008cc24080b8e215",
+      "author": "Haydn Curtis",
+      "landingUrl": "https://www.flickr.com/photos/fotosbyflick/2810192714",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/008cc24080b8e215.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "interior-bedroom",
+    "category": "interior",
+    "image": "interior-bedroom.jpg",
+    "sha256": "03cd2f8a3324376b6e9eee1ce27635958d09936cefccfc54ae9fa3281906a132",
+    "instruction": "Balance the bright window against the room, lift dark furniture detail, and neutralize the room colour cast. Put every edit on a clearly named editable layer.",
+    "expectation": "Window detail improves, the furniture is readable, and the bedding remains neutral without a flat HDR look.",
+    "source": {
+      "openImagesId": "040f7caee109ab4b",
+      "author": "Cláudio Franco",
+      "landingUrl": "https://www.flickr.com/photos/claudiof/3942882452/",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/040f7caee109ab4b.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "interior-kitchen",
+    "category": "interior",
+    "image": "interior-kitchen.jpg",
+    "sha256": "5b187728ddf4806437bf3189d6828f087955ba763fca1a11b715541cc80bf484",
+    "instruction": "Brighten the kitchen evenly, recover window and counter detail, and neutralize the cabinet colour. Put every edit on a clearly named editable layer.",
+    "expectation": "Cabinets remain white, the counters retain texture, and the window no longer dominates the room.",
+    "source": {
+      "openImagesId": "00abaabafe892423",
+      "author": "jjkadaba69",
+      "landingUrl": "https://www.flickr.com/photos/7853799@N03/4793138843",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/00abaabafe892423.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "interior-living-room-bright",
+    "category": "interior",
+    "image": "interior-living-room-bright.jpg",
+    "sha256": "c650e10859df4df5e12f4e88bd265bcfd8a9dddeb9c0891a78ee64372132abdd",
+    "instruction": "Recover bright window detail, warm the room gently, and lift the darker sofa and floor areas. Put every edit on a clearly named editable layer.",
+    "expectation": "The window is controlled, the room stays natural, and the sofa is clearer without washed-out blacks.",
+    "source": {
+      "openImagesId": "00d480139b4eff48",
+      "author": "jinkazamah",
+      "landingUrl": "https://www.flickr.com/photos/jinkazamah/2925764125",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/00d480139b4eff48.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "interior-living-room-dark",
+    "category": "interior",
+    "image": "interior-living-room-dark.jpg",
+    "sha256": "6c24311a2abdac88bf55c461168c0cbd5f0f4c44e13d73f26090db71d4d344db",
+    "instruction": "Lift the dim room, correct the mixed colour cast, and balance the television wall with the seating area. Put every edit on a clearly named editable layer.",
+    "expectation": "The seating and wall are readable, neutral surfaces remain neutral, and noise or halos are not exaggerated.",
+    "source": {
+      "openImagesId": "0056ffa38a8489b6",
+      "author": "Scott Woods-Fehr",
+      "landingUrl": "https://www.flickr.com/photos/woodsfehr/3221956035",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/0056ffa38a8489b6.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  },
+  {
+    "id": "interior-office",
+    "category": "interior",
+    "image": "interior-office.jpg",
+    "sha256": "d76879216d35f2b06c6934d3c37c98704bcd5b35da9635ebf6b1fa24bbccd0c2",
+    "instruction": "Correct the office white balance, recover the bright ceiling, and open the darker desk areas. Put every edit on a clearly named editable layer.",
+    "expectation": "The office looks evenly lit, ceiling highlights retain detail, and desk areas remain natural.",
+    "source": {
+      "openImagesId": "f24d04be72d3fa6d",
+      "author": "Herry Lawford",
+      "landingUrl": "https://www.flickr.com/photos/herry/5592542282",
+      "downloadUrl": "https://open-images-dataset.s3.amazonaws.com/test/f24d04be72d3fa6d.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+    }
+  }
+]
