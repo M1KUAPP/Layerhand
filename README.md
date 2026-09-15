@@ -84,7 +84,10 @@ but pushes and deploys nothing until the repository variable
     bucket
 - **Plain variables** are set in the workflow:
   - `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, and `TRUST_PROXY_HOPS`;
-  - `RUN_MODE`, which is `fake` until the real agent run lands (#66);
+  - `RUN_MODE`, which is `fake` for now. `agent` runs the real agent and
+    also needs `PUBLIC_URL`, the service's own address, because
+    Browserbase's browser loads `/photopea-host` from it. `scripted` runs
+    the loop against a recorded editor, for development;
   - `FREE_DAILY_BUDGET_USD`, a placeholder of 40 until the ceiling is
     agreed (#29).
 - **Storage** is the GCS bucket `layerhand-artifacts-732371853772`, through
