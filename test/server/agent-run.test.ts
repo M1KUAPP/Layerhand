@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test'
+import type { Page } from 'playwright-core'
 
 import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import type { LayerInfo } from '../../src/editor/session'
+import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
 import type { AgentModel } from '../../src/agent/model'
-import { managedAgentRun } from '../../src/server/agent-run'
+import { liveAgentRun, managedAgentRun } from '../../src/server/agent-run'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
 
@@ -145,7 +146,181 @@ describe('steering the agent loop through the HTTP surface', () => {
   test('refuses an unknown run mode', async () => {
     await expect(
       createLaunchRuntime({ env: { NODE_ENV: 'development', RUN_MODE: 'real' }, clientAddress: () => '203.0.113.30' })
-    ).rejects.toThrow('RUN_MODE must be scripted or fake')
+    ).rejects.toThrow('RUN_MODE must be agent, scripted, or fake')
+  })
+
+  test('refuses agent mode without a Browserbase key or a public address', async () => {
+    const clientAddress = () => '203.0.113.30'
+    await expect(
+      createLaunchRuntime({
+        env: { NODE_ENV: 'development', RUN_MODE: 'agent', PUBLIC_URL: 'https://layerhand.test' },
+        clientAddress
+      })
+    ).rejects.toThrow('RUN_MODE=agent needs BROWSERBASE_API_KEY')
+    await expect(
+      createLaunchRuntime({
+        env: { NODE_ENV: 'development', RUN_MODE: 'agent', BROWSERBASE_API_KEY: 'bb-key' },
+        clientAddress
+      })
+    ).rejects.toThrow('RUN_MODE=agent needs PUBLIC_URL')
+    await expect(
+      createLaunchRuntime({
+        env: { NODE_ENV: 'development', RUN_MODE: 'agent', BROWSERBASE_API_KEY: 'bb-key', PUBLIC_URL: 'ftp://x' },
+        clientAddress
+      })
+    ).rejects.toThrow('PUBLIC_URL must be an HTTP or HTTPS address')
+  })
+
+  test('composes agent mode without reaching Browserbase before a run starts', async () => {
+    const runtime = await createLaunchRuntime({
+      env: {
+        NODE_ENV: 'development',
+        RUN_MODE: 'agent',
+        BROWSERBASE_API_KEY: 'bb-key',
+        PUBLIC_URL: 'https://layerhand.test'
+      },
+      clientAddress: () => '203.0.113.30',
+      writeRunLog: () => undefined
+    })
+    runtimes.push(runtime)
+
+    const health = await runtime.application.fetch(new Request('http://layerhand.test/health'))
+    expect(health.status).toBe(200)
+  })
+})
+
+describe('live agent run', () => {
+  const CONNECT_URL = 'wss://connect.browserbase.test/?signingKey=secret-signing-key'
+  const USAGE = { input_tokens: 2_000, input_tokens_details: { cached_tokens: 1_500 }, output_tokens: 120 }
+  const CLICK = { type: 'click', button: 'left', x: 1300, y: 120 }
+  const COMPUTER_TURN = {
+    id: 'resp_1',
+    output: [
+      {
+        type: 'message',
+        role: 'assistant',
+        phase: 'commentary',
+        content: [{ type: 'output_text', text: 'Opening the Adjustments panel' }]
+      },
+      { type: 'computer_call', call_id: 'call_1', actions: [CLICK], pending_safety_checks: [] }
+    ],
+    usage: USAGE
+  }
+  const FINAL_TURN = { id: 'resp_2', output: [], usage: USAGE }
+  // Test-only editable metadata, so a finished edit passes the completion policy.
+  const EDITABLE: LayerInfo[] = [
+    { name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }
+  ]
+
+  async function live(apiKey: string | undefined, responses: (Record<string, unknown> | Response)[]) {
+    const recorded = await createRecordedFakeEditorSession()
+    const authorizations: (string | null)[] = []
+    const browser = { created: [] as string[], released: [] as string[], closed: 0, hostUrls: [] as string[] }
+    const fetch = (async (_url: string, init: RequestInit) => {
+      authorizations.push(new Headers(init.headers).get('authorization'))
+      const next = responses[authorizations.length - 1]
+      if (!next) throw new Error('No scripted response left')
+      return next instanceof Response ? next : Response.json(next)
+    }) as unknown as typeof globalThis.fetch
+    const runRequest: RunRequest = {
+      image: Uint8Array.of(0x89, 0x50, 0x4e, 0x47),
+      filename: 'source.png',
+      instruction: 'Warm the highlights',
+      stepCap: 15,
+      budgetUsd: 8,
+      apiKey
+    }
+    const managed = liveAgentRun(runRequest, {
+      hostUrl: 'https://layerhand.test/photopea-host',
+      serverApiKey: 'sk-server-secret-value',
+      publish: async (_bytes, kind) => `memory://${kind}`,
+      fetch,
+      sessions: {
+        async createSession() {
+          browser.created.push('bb-1')
+          return { id: 'bb-1', projectId: 'project', connectUrl: CONNECT_URL }
+        },
+        async releaseSession(id) {
+          browser.released.push(id)
+        }
+      },
+      async connect() {
+        return {
+          page: {} as Page,
+          async close() {
+            browser.closed += 1
+          }
+        }
+      },
+      createEditorSession(_page, options): EditorSession {
+        browser.hostUrls.push(options.hostUrl)
+        return {
+          id: options.id,
+          viewport: recorded.viewport,
+          open: (image, filename) => recorded.open(image, filename),
+          screenshot: () => recorded.screenshot(),
+          act: (actions) => recorded.act(actions),
+          layers: async () => structuredClone(EDITABLE),
+          exportPsd: () => recorded.exportPsd(),
+          exportPreview: () => recorded.exportPreview(),
+          async close() {
+            await recorded.close()
+            await options.release()
+          }
+        }
+      }
+    })
+    return { managed, runRequest, recorded, authorizations, browser }
+  }
+
+  async function finish(managed: ManagedRun): Promise<RunEvent[]> {
+    const events: RunEvent[] = []
+    for await (const event of managed.handle.events) events.push(event)
+    return events
+  }
+
+  test("drives Photopea with the computer tool on the user's key, then releases the browser and the key", async () => {
+    const run = await live('sk-user-secret-value', [COMPUTER_TURN, FINAL_TURN])
+
+    const events = await finish(run.managed)
+    run.managed.releaseSecrets()
+
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+    expect(events).toContainEqual({ type: 'step', n: 1, cap: 15, narration: 'Opening the Adjustments panel' })
+    expect(run.recorded.actionBatches).toEqual([[CLICK as ComputerAction]])
+    expect(run.authorizations).toEqual(['Bearer sk-user-secret-value', 'Bearer sk-user-secret-value'])
+    expect(run.browser).toEqual({
+      created: ['bb-1'],
+      released: ['bb-1'],
+      closed: 1,
+      hostUrls: ['https://layerhand.test/photopea-host']
+    })
+    expect(run.managed.metrics().stopReason).toBe('complete')
+    const streamed = JSON.stringify(events)
+    expect(streamed).not.toContain('signingKey')
+    expect(streamed).not.toContain('sk-user')
+    expect(run.runRequest.apiKey).toBeUndefined()
+  })
+
+  test('pays with the server key when the user supplied none', async () => {
+    const run = await live(undefined, [FINAL_TURN])
+
+    await finish(run.managed)
+
+    expect(run.authorizations).toEqual(['Bearer sk-server-secret-value'])
+  })
+
+  test('releases the browser when the model fails', async () => {
+    const run = await live('sk-user-secret-value', [
+      Response.json({ error: { code: 'server_error' } }, { status: 500 })
+    ])
+
+    const events = await finish(run.managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+    expect(run.managed.metrics().stopReason).toBe('failed')
+    expect(run.browser.released).toEqual(['bb-1'])
+    expect(run.browser.closed).toBe(1)
   })
 })
 
