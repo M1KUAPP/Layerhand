@@ -21,9 +21,18 @@ Contents:
 
 ## Schedule
 
-Launch is **Friday, September 18, 2026 at 12:01am PT**, which is the
-contest deadline and gives the full twenty-four-hour ranking window.
-Everything must be frozen the evening of Thursday the 17th.
+Launch is **Friday, September 18, 2026 at 12:01am PT**, which gives the
+full twenty-four-hour ranking window. The contest runs on that day alone.
+A launch scheduled for the 18th is entered only if it also joins the challenge,
+a separate yes or no when scheduling. The
+[contest page](https://www.producthunt.com/contests/gpt-6-astra-challenge)
+is the documented way in, and its countdown shows submissions closing as
+the day starts: 12:00am PT, which is 07:00 UTC, or 3:00pm on Friday at
+UTC+8.
+
+Everything must be frozen the evening of Thursday the 17th. Once
+[launch acceptance](#launch-acceptance) holds that evening, the launch is
+scheduled for Friday and joined to the challenge, before the close.
 
 | Day           | Date   | What must be true at the end of it                  |
 | ------------- | ------ | --------------------------------------------------- |
@@ -32,7 +41,7 @@ Everything must be frozen the evening of Thursday the 17th.
 | 2 — Monday    | Sep 14 | **Go/no-go.** Three-edit sequence, layered file out |
 | 3 — Tuesday   | Sep 15 | End-to-end through the web app                      |
 | 4 — Wednesday | Sep 16 | Steering works; metering works; deployed            |
-| 5 — Thursday  | Sep 17 | Frozen. Demo recorded, launch assets done           |
+| 5 — Thursday  | Sep 17 | Frozen. Demo recorded, assets done, contest joined  |
 | 6 — Friday    | Sep 18 | Launch at 12:01am PT                                |
 
 The 2026 launch playbooks put the optimal slot on a Tuesday or
