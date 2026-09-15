@@ -1,4 +1,4 @@
-# Scheduled nightly reliability run (#24).
+# Scheduled nightly reliability run (#10).
 # Only runs when repository variable RELIABILITY_ENABLED is set to 'true'.
 # Reads OPENAI_API_KEY from Google Secret Manager at runtime and consumes
 # BROWSERBASE_API_KEY from repository secrets without leaking either credential.
@@ -52,9 +52,11 @@ jobs:
       - name: Publish step summary
         if: always()
         run: |
-          latest_summary="$(find artifacts/reliability -name summary.md | sort | tail -n 1)"
-          if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
-            cat "$latest_summary" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d "artifacts/reliability" ]; then
+            latest_summary="$(find artifacts/reliability -name summary.md | sort | tail -n 1)"
+            if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
+              cat "$latest_summary" >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
       - name: Upload reliability artifacts
         if: always()

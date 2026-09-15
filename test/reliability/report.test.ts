@@ -193,7 +193,7 @@ describe('reliability reporting', () => {
     }
   })
 
-  test('rejects unsafe case ids to prevent path traversal', async () => {
+  test('rejects unsafe case ids to prevent path traversal and writes no report output', async () => {
     const summary = createSampleSummary()
     const targetResult = summary.results[0]
     expect(targetResult).toBeDefined()
@@ -204,6 +204,29 @@ describe('reliability reporting', () => {
     const outputUrl = pathToFileURL(tempDir + '/')
 
     await expect(writeReliabilityReport(outputUrl, summary)).rejects.toThrow('Invalid case id')
+    const summaryJsonExists = await Bun.file(join(tempDir, 'summary.json')).exists()
+    const summaryMdExists = await Bun.file(join(tempDir, 'summary.md')).exists()
+    expect(summaryJsonExists).toBe(false)
+    expect(summaryMdExists).toBe(false)
+  })
+
+  test('rejects unsafe case ids on cases without binary artifacts before writing report output', async () => {
+    const summary = createSampleSummary()
+    const targetResult = summary.results[1]
+    expect(targetResult).toBeDefined()
+    if (!targetResult) {
+      throw new Error('Expected at least one result')
+    }
+    expect(targetResult.psd).toBeUndefined()
+    expect(targetResult.preview).toBeUndefined()
+    targetResult.id = '../evil-no-artifacts'
+    const outputUrl = pathToFileURL(tempDir + '/')
+
+    await expect(writeReliabilityReport(outputUrl, summary)).rejects.toThrow('Invalid case id')
+    const summaryJsonExists = await Bun.file(join(tempDir, 'summary.json')).exists()
+    const summaryMdExists = await Bun.file(join(tempDir, 'summary.md')).exists()
+    expect(summaryJsonExists).toBe(false)
+    expect(summaryMdExists).toBe(false)
   })
 
   test('rejects non-file output directory URLs', async () => {

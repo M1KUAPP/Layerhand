@@ -126,6 +126,10 @@ export async function writeReliabilityReport(outputDirectory: URL, summary: Reli
     throw new Error(`outputDirectory must have file: protocol, got ${outputDirectory.protocol}`)
   }
 
+  for (const result of summary.results) {
+    validateCaseId(result.id)
+  }
+
   const dirPath = fileURLToPath(outputDirectory)
   await mkdir(dirPath, { recursive: true })
 

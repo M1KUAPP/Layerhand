@@ -125,10 +125,10 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
 
       if (options.signal) {
         if (options.signal.aborted) {
-          void managed.handle.cancel()
+          void managed.handle.cancel().catch(() => {})
         } else {
           abortListener = () => {
-            void managed?.handle.cancel()
+            void managed?.handle.cancel().catch(() => {})
           }
           options.signal.addEventListener('abort', abortListener, { once: true })
         }
@@ -145,7 +145,7 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
       }
 
       const metrics = managed.metrics()
-      outcome = metrics.stopReason
+      outcome = options.signal?.aborted ? 'cancelled' : metrics.stopReason
       cacheHitRate = metrics.cacheHitRate
     } catch {
       if (options.signal?.aborted) {
