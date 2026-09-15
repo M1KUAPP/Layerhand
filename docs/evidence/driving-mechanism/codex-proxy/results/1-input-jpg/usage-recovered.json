@@ -1,0 +1,8 @@
+{
+  "note": "run.ts read usage from `codex exec --json`, which carries none, so summary.json shows zero tokens for this run. These figures come from the Codex session log for the same run (rollout-2026-09-15T16-30-18-01a0a430-3817-7920-810a-1cc1918c428a.jsonl). Later runs read that log live.",
+  "tokens": { "input": 672131, "cached": 628864, "output": 2249 },
+  "estimatedCreditsAtListRates": 29.35,
+  "creditBalance": { "start": 1805.106298, "end": 1805.106298 },
+  "fiveHourPercent": { "start": 5, "end": 17 },
+  "weeklyPercent": { "start": 44, "end": 45 }
+}
