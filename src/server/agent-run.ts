@@ -29,6 +29,7 @@ export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDepe
   let calls = 0
   let cachedInputTokens = 0
   let cancelled = false
+  let missingNarration = false
   let stopReason: RunStopReason = 'failed'
 
   const inner = dependencies.model
@@ -38,12 +39,14 @@ export function managedAgentRun(request: RunRequest, dependencies: AgentLoopDepe
       const turn = await inner.next(observation, signal)
       spend.add(turn.usage)
       cachedInputTokens += turn.usage.cachedInputTokens
+      if ((!turn.done || turn.actions.length > 0) && !turn.narration.trim()) missingNarration = true
       return turn
     }
   }
 
   const stoppedBy = (complete: boolean): RunStopReason => {
     if (cancelled) return 'cancelled'
+    if (missingNarration) return 'failed'
     if (complete) return 'complete'
     if (calls >= request.stepCap) return 'step_cap'
     if (spend.wouldPass(request.budgetUsd)) return 'spend_cap'
