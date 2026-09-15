@@ -2,6 +2,7 @@
 // server that plays each event sequence from OpenAI's steering guide.
 import { afterEach, describe, expect, test } from 'bun:test'
 import { ResponsesApiError, ResponsesModel, type ResponsesModelOptions } from './responses-model'
+import type { SteeringEvent } from './responses-socket'
 
 const KEY = 'sk-test-key-that-must-not-leak'
 const SCREENSHOT = Uint8Array.of(0x89, 0x50, 0x4e, 0x47)
@@ -482,6 +483,45 @@ describe('ResponsesModel over a WebSocket', () => {
 
     await expect(turn).rejects.toThrow('cancelled')
     await connection.closed
+  })
+
+  test('reports each steering event, with its ids, reason and code and nothing else', async () => {
+    const server = scriptedSocketServer()
+    const seen: SteeringEvent[] = []
+    const { model } = socketModel(server.url, { onSteeringEvent: (event) => void seen.push(event) })
+
+    const { turn, connection } = await steerFirstResponse(model, server)
+    connection.send(accepted('steer_1', 'resp_1'))
+    connection.send(steeredAway('resp_1'))
+    connection.send(created('resp_2'))
+    connection.send(completed('resp_2', [computerCall('call_2')]))
+    await turn
+
+    expect(seen).toEqual([
+      { type: 'response.created', responseId: 'resp_1' },
+      { type: 'response.steer.accepted', responseId: 'resp_1', steerId: 'steer_1' },
+      { type: 'response.incomplete', responseId: 'resp_1', reason: 'steered' },
+      { type: 'response.created', responseId: 'resp_2' },
+      { type: 'response.completed', responseId: 'resp_2' }
+    ])
+  })
+
+  test('reports a refused steer with its code, and never the provider message', async () => {
+    const server = scriptedSocketServer()
+    const seen: SteeringEvent[] = []
+    const { model } = socketModel(server.url, { onSteeringEvent: (event) => void seen.push(event) })
+
+    const { turn, connection } = await steerFirstResponse(model, server)
+    connection.send(steerFailed('resp_1', 'too_many_pending_steers'))
+    connection.send(completed('resp_1', [computerCall('call_1')]))
+    await turn
+
+    expect(seen).toContainEqual({
+      type: 'response.steer.failed',
+      responseId: 'resp_1',
+      code: 'too_many_pending_steers'
+    })
+    expect(JSON.stringify(seen)).not.toContain(KEY)
   })
 
   test('closing the model closes its socket', async () => {
