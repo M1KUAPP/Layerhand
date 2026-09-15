@@ -156,6 +156,40 @@ describe('WarmSessionPool', () => {
     expect(await pool.warm('visitor-3', IMAGE, 'source.png')).toBe('upload-3')
   })
 
+  test('never exceeds its bound when uploads arrive together', async () => {
+    const { pool, sessions } = pooled({ maxWarm: 2 })
+
+    // Four visitors at once, which is what a rotating cookie looks like.
+    const ids = await Promise.all([
+      pool.warm('visitor-1', IMAGE, 'one.png'),
+      pool.warm('visitor-2', IMAGE, 'two.png'),
+      pool.warm('visitor-3', IMAGE, 'three.png'),
+      pool.warm('visitor-4', IMAGE, 'four.png')
+    ])
+
+    expect(sessions).toHaveLength(2)
+    expect(ids.filter((id) => id !== undefined)).toHaveLength(2)
+    expect(pool.size).toBe(2)
+  })
+
+  test('gives its slot back when the session cannot be created', async () => {
+    let refuse = true
+    const pool = new WarmSessionPool({
+      maxWarm: 1,
+      idGenerator: () => 'upload-1',
+      create: () => {
+        if (refuse) throw new Error('Browserbase refused the session')
+        return fakeSession('session-1').session
+      }
+    })
+
+    await expect(pool.warm('visitor-1', IMAGE, 'source.png')).rejects.toThrow('refused')
+    refuse = false
+
+    // The bound of one is free again, rather than spent on a session that never existed.
+    expect(await pool.warm('visitor-1', IMAGE, 'source.png')).toBe('upload-1')
+  })
+
   test('does not release a session after a run has claimed it', async () => {
     const { pool, sessions, fireTimers } = pooled()
     const uploadId = await pool.warm('visitor-1', IMAGE, 'source.png')

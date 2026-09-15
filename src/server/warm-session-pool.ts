@@ -86,6 +86,8 @@ export class WarmSessionPool {
   readonly #options: Required<Omit<WarmSessionPoolOptions, 'create'>> & { create(): WarmEditorSession }
   readonly #byUpload = new Map<string, Entry>()
   readonly #byVisitor = new Map<string, Entry>()
+  /** Slots in use: the entries held, plus the uploads still creating one. */
+  #reserved = 0
   #closed = false
 
   constructor(options: WarmSessionPoolOptions) {
@@ -110,33 +112,53 @@ export class WarmSessionPool {
    */
   async warm(visitorKey: string, image: Uint8Array, filename: string): Promise<string | undefined> {
     if (this.#closed) return undefined
-    const digest = await imageDigest(image)
-    // One visitor, one billed session: a second upload replaces the first.
-    await this.release(this.#byVisitor.get(visitorKey))
+    // Everything that decides whether to warm happens before the first await,
+    // so uploads that arrive together cannot all pass the bound and then each
+    // create a session. The slot is held from here until the entry is in the
+    // pool, or given back if it never gets there.
+    const previous = this.#byVisitor.get(visitorKey)
+    // One visitor, one billed session: a second upload replaces the first, and
+    // frees its slot now. Its browser is released in the background.
+    if (previous) {
+      this.#forget(previous)
+      void previous.session.abandon().catch(() => undefined)
+    }
     // The bound is global because a visitor is only a cookie and an address.
     // Past it nothing is warmed, and those runs start cold rather than queue.
-    if (this.#byUpload.size >= this.#options.maxWarm) return undefined
-    const uploadId = this.#options.idGenerator()
-    const session = this.#options.create()
-    const entry: Entry = {
-      uploadId,
-      visitorKey,
-      digest,
-      session,
-      opened: Promise.resolve(),
-      openFailed: false,
-      timer: this.#options.setTimer(() => void this.release(entry), this.#options.releaseAfterMs)
+    if (this.#reserved >= this.#options.maxWarm) return undefined
+    this.#reserved += 1
+
+    let held = false
+    try {
+      const digest = await imageDigest(image)
+      // A shutdown may have happened while that was computed.
+      if (this.#closed) return undefined
+      const uploadId = this.#options.idGenerator()
+      const session = this.#options.create()
+      const entry: Entry = {
+        uploadId,
+        visitorKey,
+        digest,
+        session,
+        opened: Promise.resolve(),
+        openFailed: false,
+        timer: this.#options.setTimer(() => void this.release(entry), this.#options.releaseAfterMs)
+      }
+      entry.opened = session.open(image, filename).catch((error: unknown) => {
+        // A warm session that could not open its image is not handed to a run.
+        entry.openFailed = true
+        throw error
+      })
+      // Nothing awaits it until a run claims it, and an unclaimed rejection must not be unhandled.
+      entry.opened.catch(() => undefined)
+      this.#byUpload.set(uploadId, entry)
+      this.#byVisitor.set(visitorKey, entry)
+      held = true
+      return uploadId
+    } finally {
+      // The slot goes back unless an entry now holds it.
+      if (!held) this.#reserved -= 1
     }
-    entry.opened = session.open(image, filename).catch((error: unknown) => {
-      // A warm session that could not open its image is not handed to a run.
-      entry.openFailed = true
-      throw error
-    })
-    // Nothing awaits it until a run claims it, and an unclaimed rejection must not be unhandled.
-    entry.opened.catch(() => undefined)
-    this.#byUpload.set(uploadId, entry)
-    this.#byVisitor.set(visitorKey, entry)
-    return uploadId
   }
 
   /**
@@ -166,7 +188,8 @@ export class WarmSessionPool {
 
   #forget(entry: Entry): void {
     this.#options.clearTimer(entry.timer)
-    this.#byUpload.delete(entry.uploadId)
+    // An entry holds its slot until it is forgotten, whether it was claimed or released.
+    if (this.#byUpload.delete(entry.uploadId)) this.#reserved -= 1
     if (this.#byVisitor.get(entry.visitorKey) === entry) this.#byVisitor.delete(entry.visitorKey)
   }
 }
