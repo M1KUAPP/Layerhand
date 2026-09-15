@@ -1,0 +1,17 @@
+{
+  "application": "Adobe Photoshop 2026",
+  "applicationVersion": "27.10.0",
+  "date": "2026-09-15",
+  "document": {
+    "colorMode": "RGB/8",
+    "height": 480,
+    "layers": [
+      "Retouched copy",
+      "Original photograph"
+    ],
+    "width": 640
+  },
+  "openedWithoutWarning": true,
+  "psdSha256": "fbf838068cc10c61772907f2147ef9a9cc7afaa9ea17032c410276ca033f8ae7",
+  "verificationMethod": "Codex computer use accessibility state and screenshot"
+}
