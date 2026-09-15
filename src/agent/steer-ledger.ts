@@ -43,9 +43,20 @@ export class SteerLedger {
     return this.#indeterminate
   }
 
-  /** A `response.steer` was sent for the response in flight. */
-  sent(text: string, parentResponseId: string): void {
-    this.#entries.push({ text, parentResponseId, state: 'sent' })
+  /** A `response.steer` was sent for the response in flight. Returns the entry's id. */
+  sent(text: string, parentResponseId: string): number {
+    return this.#entries.push({ text, parentResponseId, state: 'sent' }) - 1
+  }
+
+  /** One entry, by the id `sent` returned. */
+  entry(id: number): SteerEntry {
+    const { text, parentResponseId, state } = this.#entries[id]!
+    return { text, parentResponseId, state }
+  }
+
+  /** Whether a steer on this parent was accepted and not yet applied or refused. */
+  awaitingSuccessor(parentResponseId: string): boolean {
+    return this.#entries.some((e) => e.parentResponseId === parentResponseId && e.state === 'accepted')
   }
 
   /** `response.steer.accepted`: steers are acknowledged in the order they were sent. */
@@ -78,10 +89,15 @@ export class SteerLedger {
     }
   }
 
-  /** The `response.create` carrying the parent's tool output: the server prepends its pending steers. */
+  /**
+   * The `response.create` carrying the parent's tool output: the server
+   * prepends the steers it still holds for that parent, whether or not it has
+   * reported them pending yet.
+   */
   continuationSent(parentResponseId: string): void {
     for (const entry of this.#entries) {
-      if (entry.parentResponseId === parentResponseId && entry.state === 'pending') entry.state = 'applied'
+      if (entry.parentResponseId !== parentResponseId) continue
+      if (entry.state === 'accepted' || entry.state === 'pending') entry.state = 'applied'
     }
   }
 
@@ -104,6 +120,14 @@ export class SteerLedger {
       if (settlement === 'indeterminate') this.#indeterminate += 1
       entry.state = settlement === 'applied' ? 'applied' : 'replay'
     }
+  }
+
+  /** Hands back one steer for replay: true only the first time it is asked for after being settled for replay. */
+  takeReplay(id: number): boolean {
+    const entry = this.#entries[id]
+    if (entry?.state !== 'replay') return false
+    entry.state = 'replayed'
+    return true
   }
 
   /** Hands back, once and in order, the steers the next call must carry as user messages. */
