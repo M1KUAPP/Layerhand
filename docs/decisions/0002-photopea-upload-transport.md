@@ -4,6 +4,16 @@ This record explains how an upload reaches Photopea: validated from its
 bytes before any browser starts, posted through an injected Playwright page,
 and matched to its reply by a unique sentinel.
 
+Contents:
+
+1.  [Status](#status)
+1.  [Context](#context)
+1.  [Decision](#decision)
+1.  [Alternatives considered](#alternatives-considered)
+1.  [Consequences](#consequences)
+1.  [Verification](#verification)
+1.  [References](#references)
+
 ## Status
 
 Accepted on September 14, 2026.

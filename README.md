@@ -5,6 +5,16 @@ GPT-6 Astra Challenge. It works inside a real image editor, streams visible
 progress, accepts corrections during a run, and returns a layered PSD rather
 than only a flattened image.
 
+Contents:
+
+1.  [Requirements](#requirements)
+1.  [Run locally](#run-locally)
+1.  [Verify](#verify)
+1.  [Browserbase probe](#browserbase-probe)
+1.  [Container](#container)
+1.  [Deploy](#deploy)
+1.  [Architecture](#architecture)
+
 ## Requirements
 
 - [Bun 1.4.2](https://bun.sh/)

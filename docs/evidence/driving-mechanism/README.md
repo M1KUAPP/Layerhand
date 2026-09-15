@@ -13,6 +13,12 @@ The records, code logs, and final frames are in
 [`results/`](results/records.json), without PSDs. The
 sweep, with its two smoke runs, spent $3.47.
 
+Contents:
+
+1.  [What a run does](#what-a-run-does)
+1.  [Running it](#running-it)
+1.  [Findings from building it](#findings-from-building-it)
+
 ## What a run does
 
 Each mechanism gets the same three-edit instruction, in
