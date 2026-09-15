@@ -41,9 +41,15 @@ For each run the harness records:
 A run counts as completed when it finished its edit and the PSD holds at
 least four layers, two of them adjustment layers. The model's code has the
 Playwright `page`, so it could reach Photopea's scripting interface through
-`page.evaluate` despite the prompt. A run whose code mentions `postMessage`,
-`__layerhand`, or `echoToOE` is marked disqualified in `summary.md` and never
-counts as completed, because it did not drive the GUI.
+`page.evaluate` despite the prompt, and a computer-tool run could type a
+script into Photopea's own script dialog. Both mechanisms' prompts forbid
+either. A run is marked disqualified in `summary.md` and never counts as
+completed, because it did not drive the GUI, when:
+
+- its code mentions `postMessage`, `__layerhand`, or `echoToOE`;
+- a `type` action it sends contains `app.`, `echoToOE`, or `saveToOE`.
+
+Both kinds of evidence are kept in `code.ndjson`.
 
 ## Running it
 
