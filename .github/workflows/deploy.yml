@@ -1,9 +1,9 @@
-# Builds the production image on every push to main and deploys it (#24).
-# No platform is chosen yet, so this stays dormant: the image is only built,
-# and nothing is pushed or deployed, until the repository variable
-# DEPLOY_PLATFORM is set. The deploy step below is the one place to fill in
-# once a platform is chosen. Its secrets belong in the production environment,
-# never in the repository.
+# Builds the production image on every push to main and deploys it to Google
+# Cloud Run (#24). Nothing is pushed or deployed until the repository variable
+# DEPLOY_PLATFORM is set to cloud-run; until then the image is only built.
+# Authentication is Workload Identity Federation, restricted to this
+# repository, so no Google key exists anywhere. Every secret comes from
+# Secret Manager at deploy time and never passes through this workflow.
 name: Deploy
 
 on:
@@ -18,42 +18,83 @@ concurrency:
   group: deploy
   cancel-in-progress: false
 
+env:
+  PROJECT_ID: layerhand-astra-2026
+  REGION: us-central1
+  SERVICE: layerhand
+  IMAGE: us-central1-docker.pkg.dev/layerhand-astra-2026/layerhand/app:${{ github.sha }}
+  WORKLOAD_IDENTITY_PROVIDER: projects/732371853772/locations/global/workloadIdentityPools/github/providers/github
+  DEPLOYER: deployer@layerhand-astra-2026.iam.gserviceaccount.com
+  RUNTIME_SERVICE_ACCOUNT: layerhand-run@layerhand-astra-2026.iam.gserviceaccount.com
+
 jobs:
   image:
     name: Build image
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-    outputs:
-      image: ${{ steps.name.outputs.image }}
+      id-token: write
     steps:
       - uses: actions/checkout@v7
-      - id: name
-        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
       - run: docker build --tag "$IMAGE" .
-        env:
-          IMAGE: ${{ steps.name.outputs.image }}
-      - name: Push to GitHub Container Registry
-        if: vars.DEPLOY_PLATFORM != ''
-        env:
-          IMAGE: ${{ steps.name.outputs.image }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Authenticate to Google Cloud
+        if: vars.DEPLOY_PLATFORM == 'cloud-run'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - name: Set up gcloud
+        if: vars.DEPLOY_PLATFORM == 'cloud-run'
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Push to Artifact Registry
+        if: vars.DEPLOY_PLATFORM == 'cloud-run'
         run: |
-          printenv TOKEN | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
           docker push "$IMAGE"
 
   deploy:
-    name: Deploy
+    name: Deploy to Cloud Run
     needs: image
-    if: vars.DEPLOY_PLATFORM != ''
+    if: vars.DEPLOY_PLATFORM == 'cloud-run'
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Deploy the image to the chosen platform
-        env:
-          IMAGE: ${{ needs.image.outputs.image }}
-          PLATFORM: ${{ vars.DEPLOY_PLATFORM }}
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      # --no-cpu-throttling keeps CPU while no request is open, because a run
+      # continues in the background after POST /api/runs returns. One instance
+      # at most, because run state lives in that process's memory.
+      #
+      # FREE_DAILY_BUDGET_USD=40 is a deploy-time placeholder, not the agreed
+      # ceiling: $230 is unaffordable for the human paying, and $40 admits five
+      # concurrent free runs at the $8 reservation. docs/TRD.md keeps the number
+      # "proposed, not agreed" until kymil4 decides (#29).
+      #
+      # TRUST_PROXY_HOPS=1 assumes Google's front end appends the client address
+      # to X-Forwarded-For. Verify it against a real request after the first
+      # deploy.
+      - name: Deploy
         run: |
-          echo "::error::There is no deploy step for $PLATFORM yet. Replace this step with that platform's command to deploy $IMAGE."
-          exit 1
+          gcloud run deploy "$SERVICE" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$RUNTIME_SERVICE_ACCOUNT" \
+            --no-cpu-throttling \
+            --min-instances 0 \
+            --max-instances 1 \
+            --timeout 3600 \
+            --allow-unauthenticated \
+            --set-env-vars "S3_ENDPOINT=https://storage.googleapis.com,S3_REGION=us-central1,S3_BUCKET=layerhand-artifacts-732371853772,TRUST_PROXY_HOPS=1,RUN_MODE=fake,FREE_DAILY_BUDGET_USD=40" \
+            --set-secrets "OPENAI_API_KEY=OPENAI_API_KEY:latest,BROWSERBASE_API_KEY=BROWSERBASE_API_KEY:latest,S3_ACCESS_KEY_ID=S3_ACCESS_KEY_ID:latest,S3_SECRET_ACCESS_KEY=S3_SECRET_ACCESS_KEY:latest,SESSION_SECRET=SESSION_SECRET:latest,DATABASE_URL=DATABASE_URL:latest"
+      - name: Check the deployed service
+        run: |
+          url="$(gcloud run services describe "$SERVICE" --project "$PROJECT_ID" --region "$REGION" --format 'value(status.url)')"
+          echo "Deployed to $url"
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --retry-all-errors "$url/health"
