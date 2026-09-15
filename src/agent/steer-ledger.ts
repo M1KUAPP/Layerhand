@@ -85,6 +85,17 @@ export class SteerLedger {
     }
   }
 
+  /**
+   * The parent response completed normally. A steer on it that was neither
+   * accepted nor refused never will be, so it is replayed. Accepted and
+   * pending steers are left to their successor or continuation.
+   */
+  parentCompleted(parentResponseId: string): void {
+    for (const entry of this.#entries) {
+      if (entry.parentResponseId === parentResponseId && entry.state === 'sent') entry.state = 'replay'
+    }
+  }
+
   /** The socket dropped: `settle` decides every unsettled steer from stored responses. */
   disconnected(settle: (entry: SteerEntry) => Settlement): void {
     for (const entry of this.#entries) {
