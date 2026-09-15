@@ -102,7 +102,7 @@ async function startApplication() {
           frames: [looks[0]!],
           psd,
           preview,
-          layers: [{ name: 'Original photograph', kind: 'raster', visible: true }]
+          layers: [{ name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }]
         }
       })
       let look = 0
