@@ -24,12 +24,13 @@ import {
   type DrivingMechanism
 } from '../../../src/agent/responses-model'
 import { ScriptedModel } from '../../../src/agent/scripted-model'
+import { createPhotopeaEditorSession } from '../../../src/editor/photopea-editor-session'
 import { createPhotopeaHostHtml } from '../../../src/editor/photopea-host'
+import type { LayerInfo } from '../../../src/editor/session'
 import { managedAgentRun } from '../../../src/server/agent-run'
 import { RunRegistry } from '../../../src/server/run-registry'
 import { createRunLogger, type RunLogLine } from '../../../src/server/run-log'
 import { pageCodeRunner } from './code-runner'
-import { PhotopeaPageSession } from './photopea-page-session'
 
 export const INSTRUCTION = [
   'Make three edits to this photograph, each on its own layer with a name that says what it does:',
@@ -133,7 +134,13 @@ async function measure(mechanism: DrivingMechanism, imagePath: string, index: nu
   await mkdir(runDirectory, { recursive: true })
 
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
-  const session = new PhotopeaPageSession(page, `${server.url.href}photopea-host`)
+  // The editor stream's production session: base64 export and nested layer trees.
+  const session = createPhotopeaEditorSession(page, {
+    id: runId,
+    hostUrl: `${server.url.href}photopea-host`,
+    commandTimeoutMs: 300_000,
+    release: () => page.close()
+  })
   const request: RunRequest = {
     image: new Uint8Array(await readFile(imagePath)),
     filename: image,
@@ -216,7 +223,9 @@ async function measure(mechanism: DrivingMechanism, imagePath: string, index: nu
     .find((logged) => logged.runId === runId)
   if (!line) throw new Error(`${runId} finished without a run-log line`)
 
-  const layers = (snapshot.result?.layers ?? []).map(({ name, kind }) => ({ name, kind }))
+  const flatten = (tree: readonly LayerInfo[]): LayerInfo[] =>
+    tree.flatMap((layer) => [layer, ...flatten(layer.children)])
+  const layers = flatten(snapshot.result?.layers ?? []).map(({ name, kind }) => ({ name, kind }))
   const adjustmentLayers = layers.filter((layer) => layer.kind === 'adjustment').length
   const threeEditsVisible = adjustmentLayers >= 2 && layers.length >= 4
   const disqualified = codes.some((code) => SCRIPTING_PATTERN.test(code)) || typedScripts > 0
