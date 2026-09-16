@@ -343,8 +343,8 @@ export class ResponsesModel implements AgentModel {
       if (socket) {
         const continuationOf = pending ? this.#previousResponseId : undefined
         const result = await socket.step(this.#body(input(continuationOf)), continuationOf, signal)
-        if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
         responses.push(...result.responses)
+        if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
         if (!('lost' in result)) return
         // The connection failed before the step ended, so the step is sent
         // again over HTTP with every correction the socket could not vouch
