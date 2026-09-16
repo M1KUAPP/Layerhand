@@ -235,11 +235,16 @@ scroll, from the
 The clip is produced by the
 [video pipeline](/docs/research/design/video-pipeline.md).
 
-- Three layers fixed at `inset: 0` with pointer events off: a poster, a
-  `<video>`, and a `<canvas>`. The poster fades out once a frame exists
-  and the canvas fades in once its cache is ready, each over 500ms.
-- Progress is `scrollY / (scrollHeight - innerHeight)` clamped to 0–1,
-  smoothed with `smoothed += (target - smoothed) * 0.12` each frame.
+- Three layers at `inset: 0` inside a frame that sticks while the section
+  scrolls, with pointer events off: a poster, a `<video>`, and a
+  `<canvas>`. The poster fades out once a frame exists and the canvas
+  fades in once its cache is ready, each over 500ms.
+- Progress belongs to the section, not the page:
+  `(scrollY - sectionTop) / (sectionHeight - innerHeight)` clamped to
+  0–1, smoothed with `smoothed += (target - smoothed) * 0.12` each frame.
+  The lesson's `scrollY / (scrollHeight - innerHeight)` measures a page
+  that is nothing but the scrub; on ours it would play only part of the
+  clip while the section is on screen.
 - The frame cache extracts up to 90 frames, or `duration * 12` with a
   minimum of 24, at up to 960px wide as `ImageBitmap`s, starting 300ms
   after `loadeddata`. Device pixel ratio is capped at 2.
