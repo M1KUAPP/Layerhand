@@ -31,6 +31,13 @@ function later(ms: number): Date {
   return new Date(NOW.getTime() + ms)
 }
 
+// Budget runs in flight hold comes back as they end, so a run held back by it waits (NFR-4).
+const BUDGET_RESERVED: AdmissionResult = {
+  accepted: false,
+  code: 'budget_reserved',
+  message: 'Free runs in progress have reserved the rest of the budget, so this run waits for one to finish.'
+}
+
 function accepted(result: AdmissionResult): MeterReservation {
   if (!result.accepted) throw new Error(`Expected admission, received ${result.code}`)
   return result.reservation
@@ -61,7 +68,7 @@ describe('SqlMeterStore', () => {
     })
   })
 
-  test('refuses a reservation that would cross the UTC daily ceiling', async () => {
+  test('holds back a reservation that crosses the UTC daily ceiling only because of other reservations', async () => {
     const { store: meter } = await store(3)
     accepted(
       await meter.admit({
@@ -70,6 +77,22 @@ describe('SqlMeterStore', () => {
         byok: false
       })
     )
+
+    const result = await meter.admit({
+      visitorKey: 'visitor-b',
+      reservationMicroUsd: usdToMicroUsd(2),
+      byok: false
+    })
+
+    expect(result).toEqual(BUDGET_RESERVED)
+  })
+
+  test("refuses a reservation that the UTC day's spending leaves no room for", async () => {
+    const { store: meter } = await store(3)
+    const reservation = accepted(
+      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(2), byok: false })
+    )
+    await meter.reconcile(reservation, usdToMicroUsd(2))
 
     const result = await meter.admit({
       visitorKey: 'visitor-b',
@@ -188,13 +211,7 @@ describe('SqlMeterStore', () => {
     ])
 
     expect(results.filter((result) => result.accepted)).toHaveLength(1)
-    expect(results.filter((result) => !result.accepted)).toEqual([
-      {
-        accepted: false,
-        code: 'daily_budget_reached',
-        message: "Today's free-run budget is used up. Add your own OpenAI API key to continue."
-      }
-    ])
+    expect(results.filter((result) => !result.accepted)).toEqual([BUDGET_RESERVED])
   })
 
   test('stops counting a reservation once no run could still be spending it', async () => {
@@ -211,7 +228,7 @@ describe('SqlMeterStore', () => {
       byok: false
     })
 
-    expect(whileHeld).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+    expect(whileHeld).toEqual(BUDGET_RESERVED)
     expect(onceExpired.accepted).toBe(true)
   })
 
@@ -246,7 +263,7 @@ describe('SqlMeterStore', () => {
         byok: false
       })
 
-      expect(soonAfter).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+      expect(soonAfter).toEqual(BUDGET_RESERVED)
       expect(onceExpired.accepted).toBe(true)
     } finally {
       await restarted.close()
@@ -264,9 +281,12 @@ describe('SqlMeterStore', () => {
 
     const tooLarge = await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(2), byok: false })
     const fits = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(1), byok: false })
+    const pastSpend = await meter.admit({ visitorKey: 'visitor-c', reservationMicroUsd: usdToMicroUsd(3), byok: false })
 
-    expect(tooLarge).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+    // The $1 it holds comes back when its run ends, so a run it holds back waits.
+    expect(tooLarge).toEqual(BUDGET_RESERVED)
     expect(fits.accepted).toBe(true)
+    expect(pastSpend).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
   })
 })
 

@@ -21,6 +21,8 @@ beforeAll(async () => {
 class RecordingMeter implements MeterStore {
   readonly calls: string[] = []
   refuse?: Exclude<AdmissionResult, { accepted: true }>
+  /** How many admissions are held back by budget other runs have reserved, before the rest answer as usual. */
+  heldBack = 0
   readonly reservation: MeterReservation = {
     visitorKey: 'opaque-visitor',
     dayUtc: '2026-09-15',
@@ -30,6 +32,10 @@ class RecordingMeter implements MeterStore {
 
   async admit(request: AdmissionRequest): Promise<AdmissionResult> {
     this.calls.push(`admit:${request.byok}`)
+    if (this.heldBack > 0) {
+      this.heldBack -= 1
+      return { accepted: false, code: 'budget_reserved', message: 'Free runs in progress have reserved the budget.' }
+    }
     return this.refuse ?? { accepted: true, reservation: this.reservation }
   }
 
@@ -157,14 +163,16 @@ function fixture(
     managedRun?: ManagedRun
     paused?: boolean
     maxConcurrentRuns?: number
+    retryWaitingMs?: number
     runIntervalMs?: number
   } = {}
 ) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
-  const registry = new RunRegistry(
-    overrides.maxConcurrentRuns === undefined ? {} : { maxConcurrentRuns: overrides.maxConcurrentRuns }
-  )
+  const registry = new RunRegistry({
+    ...(overrides.maxConcurrentRuns === undefined ? {} : { maxConcurrentRuns: overrides.maxConcurrentRuns }),
+    ...(overrides.retryWaitingMs === undefined ? {} : { retryWaitingMs: overrides.retryWaitingMs })
+  })
   const runRequests: RunRequest[] = []
   const warmed: ReturnType<typeof warmSessionStub>[] = []
   const claimed: (WarmEditorSession | undefined)[] = []
@@ -522,6 +530,51 @@ describe('run HTTP contract', () => {
     expect((await target.registry.getSnapshot(runId))?.status).toBe('failed')
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
     expect(target.meter.calls).toContain('release')
+  })
+
+  test('queues a free run held back only by reserved budget, and starts it once that budget comes back', async () => {
+    const meter = new RecordingMeter()
+    // Held back when it is submitted, and again when the queue first tries it.
+    meter.heldBack = 2
+    const target = fixture({ meter, retryWaitingMs: 5 })
+
+    const response = await target.app.fetch(startRequest())
+    const { runId } = (await response.json()) as { runId: string }
+
+    expect(response.status).toBe(201)
+    expect(await target.registry.getSnapshot(runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
+    expect(target.runRequests).toEqual([])
+
+    await target.registry.waitForTerminal(runId)
+
+    expect((await target.registry.getSnapshot(runId))?.status).toBe('complete')
+    expect(target.runRequests).toHaveLength(1)
+    expect(meter.calls).toEqual(['admit:false', 'admit:false', 'admit:false', 'reconcile:211050'])
+  })
+
+  test("ends a waiting free run with the stated message once the day's spending leaves no room for it", async () => {
+    const meter = new RecordingMeter()
+    meter.heldBack = 1
+    meter.refuse = {
+      accepted: false,
+      code: 'daily_budget_reached',
+      message: "Today's free-run budget is used up. Add your own OpenAI API key to continue."
+    }
+    const target = fixture({ meter })
+
+    const response = await target.app.fetch(startRequest())
+    const { runId } = (await response.json()) as { runId: string }
+    await target.registry.waitForTerminal(runId)
+
+    expect(response.status).toBe(201)
+    expect(await target.registry.getSnapshot(runId)).toMatchObject({
+      status: 'failed',
+      failureReason: meter.refuse.message
+    })
+    expect(target.runRequests).toEqual([])
+    // It never held a reservation, so there is nothing to give back.
+    expect(meter.calls).toEqual(['admit:false', 'admit:false'])
+    expect(target.artifacts.calls).toContain('delete:upload/random.png')
   })
 
   test('gives back the free run and the upload of a run that leaves the queue', async () => {

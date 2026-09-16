@@ -4,7 +4,7 @@ import type { ArtifactStore } from './artifact-store'
 import type { ManagedRun } from './managed-run'
 import type { MeterStore } from './meter-store'
 import { usdToMicroUsd } from './meter-store'
-import { RunRegistry, RunRegistryError } from './run-registry'
+import { RunRegistry, RunRegistryError, RunStartRefused } from './run-registry'
 import { VisitorIdentityError, establishVisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
 import { imageDigest, type WarmEditorSession, type WarmSessionPool } from './warm-session-pool'
@@ -199,15 +199,18 @@ export class RunRoutes {
     const identity = await this.#visitor(request)
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
-    const admission = await this.#dependencies.meterStore.admit({
+    const admissionRequest = {
       visitorKey: identity.visitorKey,
       reservationMicroUsd: this.#dependencies.freeRunReservationMicroUsd,
       byok: apiKey !== undefined
-    })
-    if (!admission.accepted) {
+    }
+    const admission = await this.#dependencies.meterStore.admit(admissionRequest)
+    // A free run held back only by budget that runs in flight reserved waits
+    // in line for it, and is admitted when its turn comes (NFR-4).
+    if (!admission.accepted && admission.code !== 'budget_reserved') {
       return json(admission, 429, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
     }
-    const { reservation } = admission
+    let reservation = admission.accepted ? admission.reservation : undefined
     const uploadIdValue = form.get('uploadId')
     const uploadId = typeof uploadIdValue === 'string' ? uploadIdValue : undefined
 
@@ -235,12 +238,22 @@ export class RunRoutes {
         runId,
         instruction,
         start: async () => {
+          if (!reservation) {
+            const retry = await this.#dependencies.meterStore.admit(admissionRequest)
+            if (!retry.accepted) {
+              if (retry.code === 'budget_reserved') return undefined
+              throw new RunStartRefused(retry.message)
+            }
+            reservation = retry.reservation
+          }
           const managedRun = await this.#startRun(runRequest, uploadId, identity.visitorKey)
           started = true
           return managedRun
         },
         onTerminal: async ({ snapshot, metrics }) => {
           try {
+            // A run that never got its budget holds nothing to give back.
+            if (!reservation) return
             // A run that never started, or failed without spending anything,
             // never used its free run, so it is given back rather than
             // reconciled at $0 (#116). The manager's stopReason, not the
@@ -268,7 +281,7 @@ export class RunRoutes {
           // The provider lifecycle remains a backstop; quota still must be released.
         }
       }
-      await this.#dependencies.meterStore.release(reservation)
+      if (reservation) await this.#dependencies.meterStore.release(reservation)
       throw error
     }
   }
