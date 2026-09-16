@@ -156,7 +156,9 @@ alike:
 
 - A run carries on whether or not anyone reads `events`. Each iteration
   replays the run from its first event and then follows it live, so a
-  reload can simply subscribe again (FR-14).
+  reload can simply subscribe again (FR-14). Of the run's frames, a replay
+  holds only the latest, the one the page shows, and an iteration skips a
+  frame it has not reached once a newer one arrives.
 - `cost` carries the run's totals so far, and they never fall (FR-15).
 - A run ends exactly once, with `done` or with an `error` whose
   `recoverable` is false, and nothing follows. A recoverable error is
@@ -778,11 +780,14 @@ hosted session shows the same pixels, but its capture time and upload path
 are unmeasured.
 
 The server's agent mode sends each frame inside its event as a `data:`
-URL, and the registry keeps every event to replay. Against the recorded
-editor that is one frame a run. A real session worked for fifteen minutes
-would put about 590 MB of base64 into that history, so its frames need a
-home in object storage first, and the artifact store has no kind for a
-frame yet.
+URL, so every frame kept in memory is up to a megabyte kept. Neither the
+loop's event log nor the registry keeps more than the latest frame (#101).
+A new frame leaves a gap at the old one's id, so ids still only rise: a
+reconnect that sends `Last-Event-ID` resumes after its last event, and a
+reload replays one frame rather than every frame of the run. A finished run
+stays in the registry for an hour, but the registry lets go of the run
+itself once it has ended, so what stays is its events, its latest frame,
+and its snapshot, not its upload, editor session, or model.
 
 ### One ceiling: Fifteen minutes
 
@@ -1175,6 +1180,22 @@ persistent connections. Serverless is ruled out by the shape of a run.
 Deploying from day 0 is deliberate: the first deployment is the one
 most likely to eat an afternoon, and finding that out on day 5 is how
 launches get missed.
+
+The service has **2 GiB** of memory, set by `--memory` in
+`.github/workflows/deploy.yml`, and its one instance holds every run. On
+September 17, twenty runs at once against a local server in scripted mode,
+the recorded editor and a scripted model, with an 840 KB frame every second
+and every page reloading once, peaked at **679 MiB** resident. Before only
+the latest frame was kept, the same load peaked at 1,863 MiB. 2 GiB is
+three times the peak, because the figure leaves out what only real runs do
+in this process. Their browsers run at Browserbase, but each screenshot and
+export arrives here over CDP as base64 to be decoded, each model call
+carries a screenshot, and an upload can be 20 MB rather than the 1.7 MB
+sample photograph the runs sent. Nor does it cover a viewer on a slow
+connection: the event stream does not wait for one, so the frames it has not
+sent yet queue in this process. The
+[run memory evidence](/docs/evidence/run-memory/README.md) has the method
+and its limits.
 
 ## Repository layout
 
