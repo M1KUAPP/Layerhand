@@ -1,5 +1,5 @@
-import type { RunEvent, RunResult, RunStopReason } from '../agent/contract'
-import type { RunSnapshot } from '../server/run-registry'
+import type { RunResult, RunStopReason } from '../agent/contract'
+import type { RunSnapshot, RunStreamEvent } from '../server/run-registry'
 
 // The first step event reports the configured cap; until it arrives the
 // rail falls back to the server's default (DEFAULT_RUN_LIMITS.stepCap).
@@ -19,6 +19,8 @@ export interface RunProgress {
   recoverableErrors: string[]
   lastEventId: number
   cancelRequested: boolean
+  /** While the run waits for a slot, its place in line (NFR-4). */
+  queuePosition: number | null
 }
 
 export type ClientState =
@@ -39,7 +41,7 @@ export type ClientAction =
   | { type: 'started'; runId: string; instruction: string }
   | { type: 'restoring'; runId: string }
   | { type: 'snapshot'; snapshot: RunSnapshot; instruction?: string | null }
-  | { type: 'event'; id: number; event: RunEvent }
+  | { type: 'event'; id: number; event: RunStreamEvent }
   | { type: 'cancel_requested' }
   | { type: 'connection_failed'; message: string }
   | { type: 'reset' }
@@ -58,7 +60,8 @@ function emptyProgress(runId: string, instruction: string): RunProgress {
     corrections: [],
     recoverableErrors: [],
     lastEventId: -1,
-    cancelRequested: false
+    cancelRequested: false,
+    queuePosition: null
   }
 }
 
@@ -76,7 +79,8 @@ function progressFromSnapshot(snapshot: RunSnapshot, instruction: string | null)
     corrections: [...snapshot.corrections],
     recoverableErrors: [...snapshot.recoverableErrors],
     lastEventId: snapshot.lastEventId,
-    cancelRequested: snapshot.status === 'cancelled'
+    cancelRequested: snapshot.status === 'cancelled',
+    queuePosition: snapshot.queuePosition ?? null
   }
 }
 
@@ -105,16 +109,21 @@ function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): Client
   }
 }
 
-function reduceEvent(state: Extract<ClientState, { view: 'running' }>, id: number, event: RunEvent): ClientState {
+function reduceEvent(state: Extract<ClientState, { view: 'running' }>, id: number, event: RunStreamEvent): ClientState {
   if (!Number.isSafeInteger(id) || id <= state.progress.lastEventId) return state
   const progress: RunProgress = {
     ...state.progress,
     corrections: [...state.progress.corrections],
     recoverableErrors: [...state.progress.recoverableErrors],
-    lastEventId: id
+    lastEventId: id,
+    // Any event but a new place in line means the run has left the queue.
+    queuePosition: null
   }
 
   switch (event.type) {
+    case 'queued':
+      progress.queuePosition = event.position
+      break
     case 'started':
       break
     case 'step':
@@ -134,6 +143,10 @@ function reduceEvent(state: Extract<ClientState, { view: 'running' }>, id: numbe
       progress.tokensOut = event.tokensOut
       break
     case 'error':
+      // A run that left the queue has nothing to show, so the form comes back.
+      if (!event.recoverable && state.progress.queuePosition !== null && state.progress.cancelRequested) {
+        return { view: 'input' }
+      }
       if (!event.recoverable) {
         return { view: 'error', message: event.reason, runId: progress.runId }
       }
