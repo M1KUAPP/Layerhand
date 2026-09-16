@@ -420,7 +420,8 @@ legend,
   padding: 1.1rem 2.25rem;
 }
 
-.correction-form label {
+.correction-form label,
+.correction-form .field-hint {
   grid-column: 1 / -1;
 }
 
