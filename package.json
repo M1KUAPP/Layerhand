@@ -3,6 +3,7 @@
     "browserbase:probe": "bun src/server/browserbase-probe.ts",
     "build": "bun build --target=bun src/server/index.ts --outdir dist --external playwright-core",
     "dev": "bun --hot src/server/index.ts",
+    "graph": "graphify update . && prettier --write --log-level=warn graphify-out",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky",
