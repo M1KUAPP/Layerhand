@@ -36,7 +36,19 @@ function startEntranceGate(): void {
   window.setTimeout(run, ENTER_FONT_TIMEOUT_MS)
 }
 
+const ICON_FONT_URL = 'https://use.hugeicons.com/font/icons.css'
+
+// Appended after parse so a slow CDN never blocks first paint.
+function loadIconFont(): void {
+  if (document.querySelector(`link[href="${ICON_FONT_URL}"]`)) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = ICON_FONT_URL
+  document.head.append(link)
+}
+
 export function renderLanding(context: LandingContext): DocumentFragment {
+  loadIconFont()
   startEntranceGate()
   const fragment = document.createDocumentFragment()
   const sections = [
