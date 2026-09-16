@@ -258,8 +258,11 @@ function renderInput(): DocumentFragment {
   instruction.required = true
   instruction.placeholder = 'Describe the finished photograph and what must stay unchanged.'
   instruction.value = draftInstruction
+  const instructionCount = node('p', 'field-hint instruction-count', `${draftInstruction.length} / 500`)
+  instructionCount.id = 'instruction-count'
   instruction.addEventListener('input', () => {
     draftInstruction = instruction.value
+    instructionCount.textContent = `${instruction.value.length} / 500`
     if (instructionError) {
       instructionError = undefined
       instruction.removeAttribute('aria-invalid')
@@ -267,12 +270,14 @@ function renderInput(): DocumentFragment {
       if (status) status.textContent = ''
     }
   })
+  const instructionMeta = node('div', 'instruction-meta')
   const instructionHint = node('p', 'field-hint', 'Try a precise direction')
   instructionHint.id = 'instruction-hint'
+  instructionMeta.append(instructionHint, instructionCount)
   const instructionStatus = node('p', 'field-error', instructionError)
   instructionStatus.id = 'instruction-error'
   instructionStatus.setAttribute('role', 'alert')
-  instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionStatus.id}`)
+  instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionCount.id} ${instructionStatus.id}`)
   if (instructionError) instruction.setAttribute('aria-invalid', 'true')
   const examples = node('div', 'examples')
   for (const example of EXAMPLES) {
@@ -280,6 +285,7 @@ function renderInput(): DocumentFragment {
     exampleButton.addEventListener('click', () => {
       instruction.value = example
       draftInstruction = example
+      instructionCount.textContent = `${example.length} / 500`
       instructionError = undefined
       instruction.removeAttribute('aria-invalid')
       instructionStatus.textContent = ''
@@ -310,7 +316,7 @@ function renderInput(): DocumentFragment {
     fileField,
     instructionLabel,
     instruction,
-    instructionHint,
+    instructionMeta,
     instructionStatus,
     examples,
     keyLabel,
@@ -327,19 +333,21 @@ function renderInput(): DocumentFragment {
       render()
       return
     }
-    if (!instruction.value.trim()) {
+    const submittedInstruction = instruction.value.trim()
+    if (!submittedInstruction) {
       instructionError = 'Enter a retouching instruction.'
       render()
       return
     }
     submit.disabled = true
+    submit.textContent = 'Starting…'
     root.ariaBusy = 'true'
     const submittedFile = selectedFile
     try {
       const body = new FormData()
       body.set('image', submittedFile, submittedFile.name)
       body.set('filename', submittedFile.name)
-      body.set('instruction', instruction.value.trim())
+      body.set('instruction', submittedInstruction)
       if (keyInput.value) body.set('apiKey', keyInput.value)
       // The editor warmed while the instruction was typed, if it is still ours.
       if (warmUploadId) body.set('uploadId', warmUploadId)
