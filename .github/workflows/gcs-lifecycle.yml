@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: gcs-lifecycle
+  cancel-in-progress: false
+
 env:
   PROJECT_ID: layerhand-astra-2026
   WORKLOAD_IDENTITY_PROVIDER: projects/732371853772/locations/global/workloadIdentityPools/github/providers/github

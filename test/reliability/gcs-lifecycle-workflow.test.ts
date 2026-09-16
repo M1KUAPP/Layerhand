@@ -18,6 +18,7 @@ interface WorkflowDefinition {
   on: Record<string, any>
   env?: Record<string, string>
   permissions?: Record<string, string>
+  concurrency?: { group: string; 'cancel-in-progress'?: boolean }
   jobs: Record<string, WorkflowJob>
 }
 
@@ -44,6 +45,10 @@ describe('bucket lifecycle workflow contract', () => {
     expect(workflow.on).not.toHaveProperty('push')
     expect(workflow.on).not.toHaveProperty('schedule')
     expect(workflow.on).not.toHaveProperty('pull_request')
+
+    // Two dispatches must not interleave: one queues behind the other.
+    expect(workflow.concurrency?.group).toBe('gcs-lifecycle')
+    expect(workflow.concurrency?.['cancel-in-progress']).toBe(false)
 
     const deploySource = await Bun.file(new URL('../../.github/workflows/deploy.yml', import.meta.url)).text()
     const deployWorkflow = Bun.YAML.parse(deploySource) as { env: Record<string, string> }
