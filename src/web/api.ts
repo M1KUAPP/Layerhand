@@ -1,4 +1,4 @@
-import type { RunEvent, RunResult } from '../agent/contract'
+import type { RunEvent, RunResult, RunStopReason } from '../agent/contract'
 import type { LayerInfo, LayerMaskInfo } from '../editor/contract'
 import type { RunSnapshot, RunStatus } from '../server/run-registry'
 
@@ -98,15 +98,25 @@ function layer(value: unknown): LayerInfo {
   }
 }
 
+const RUN_STOP_REASONS = ['complete', 'step_cap', 'spend_cap', 'time_limit', 'shutdown', 'cancelled', 'failed']
+
+function stopReason(value: unknown): RunStopReason {
+  const parsed = string(value)
+  if (!RUN_STOP_REASONS.includes(parsed)) invalidResponse()
+  return parsed as RunStopReason
+}
+
 function runResult(value: unknown): RunResult {
   const source = record(value)
   if (!Array.isArray(source.layers)) invalidResponse()
-  return {
+  const result: RunResult = {
     psdUrl: string(source.psdUrl),
     previewUrl: string(source.previewUrl),
     layers: source.layers.map(layer),
     complete: boolean(source.complete)
   }
+  if (source.stopReason !== undefined) result.stopReason = stopReason(source.stopReason)
+  return result
 }
 
 function status(value: unknown): RunStatus {
@@ -135,6 +145,7 @@ export function decodeRunSnapshot(value: unknown): RunSnapshot {
   }
   if (source.result !== undefined) parsed.result = runResult(source.result)
   if (source.failureReason !== undefined) parsed.failureReason = string(source.failureReason)
+  if (source.stopReason !== undefined) parsed.stopReason = stopReason(source.stopReason)
   if (parsed.status !== 'running' && parsed.status !== 'failed' && !parsed.result) {
     throw new RunApiError('invalid_response', 'The server returned an invalid response.')
   }
