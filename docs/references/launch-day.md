@@ -161,23 +161,25 @@ Photopea, and `editor_action_failed` is the editor itself.
   `model_call_failed`. A call OpenAI refuses outright, including one for
   an exhausted quota, fails its run at once, and the page shows its fixed
   reason. The daily ceiling is untouched by failures, because a
-  reservation is released when the run ends. If it is sustained, stop
-  spending with `RUN_MODE=fake`, which answers every run from a scripted
-  event sequence — no browser, no model, nothing spent — and say so on
-  the launch post:
+  reservation is released when the run ends. If it is sustained, stop new
+  runs with `RUNS_PAUSED=1`: `POST /api/runs` is refused before it
+  reserves a free run, uploads stop warming an editor, and the page shows
+  the refusal — unlike `RUN_MODE=fake`, which still spends a visitor's
+  free run on a placeholder result. Say so on the launch post:
 
   ```sh
   gcloud run services update layerhand \
     --project layerhand-astra-2026 --region us-central1 \
-    --update-env-vars RUN_MODE=fake
+    --update-env-vars RUNS_PAUSED=1
   ```
 
 - **Browserbase errors, or sessions that will not start.** The same lever
-  applies. A leaked session is the expensive failure, so check the
-  Browserbase dashboard for sessions with no run: the service releases each
-  one when its run ends, releases warm sessions after two minutes, and
-  releases everything on shutdown, but a crash between those can leave one
-  until the provider's own timeout.
+  applies, and it also stops uploads from warming a browser. A leaked
+  session is the expensive failure, so check the Browserbase dashboard for
+  sessions with no run: the service releases each one when its run ends,
+  releases warm sessions after two minutes, and releases everything on
+  shutdown, but a crash between those can leave one until the provider's
+  own timeout.
 
 - **Native steering misbehaving.** Set `STEERING=boundary`. Corrections then
   reach the model with its next call, which is the path the loop has always
