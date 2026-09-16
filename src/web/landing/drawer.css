@@ -51,6 +51,31 @@
   font-size: 1.25em;
 }
 
+.drawer__inline {
+  align-self: center;
+  grid-column: 7 / 13;
+  grid-row: 1 / -1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drawer__inline-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 14px;
+  font: var(--text-ui-body);
+}
+
+.drawer__inline-item + .drawer__inline-item {
+  border-top: 1px solid var(--rule);
+}
+
+.drawer__inline-icon {
+  font-size: 20px;
+}
+
 .drawer__scrim {
   position: fixed;
   inset: -100px 0;
@@ -216,8 +241,14 @@
   .drawer__eyebrow,
   .drawer__title,
   .drawer__body,
-  .drawer__open {
+  .drawer__open,
+  .drawer__inline {
     grid-column: 1 / -1;
+  }
+
+  .drawer__inline {
+    grid-row: auto;
+    margin-top: 40px;
   }
 }
 
