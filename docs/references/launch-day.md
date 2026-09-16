@@ -165,12 +165,22 @@ Photopea, and `editor_action_failed` is the editor itself.
   runs with `RUNS_PAUSED=1`: `POST /api/runs` is refused before it
   reserves a free run, uploads stop warming an editor, and the page shows
   the refusal — unlike `RUN_MODE=fake`, which still spends a visitor's
-  free run on a placeholder result. Say so on the launch post:
+  free run on a placeholder result. Say so on the launch post. Like any
+  `--update-env-vars` command, this makes a new revision and restarts the
+  container, ending the runs in flight:
 
   ```sh
   gcloud run services update layerhand \
     --project layerhand-astra-2026 --region us-central1 \
     --update-env-vars RUNS_PAUSED=1
+  ```
+
+  Clear it the same way, which also restarts the container:
+
+  ```sh
+  gcloud run services update layerhand \
+    --project layerhand-astra-2026 --region us-central1 \
+    --update-env-vars RUNS_PAUSED=0
   ```
 
 - **Browserbase errors, or sessions that will not start.** The same lever
