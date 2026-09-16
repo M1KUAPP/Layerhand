@@ -112,16 +112,20 @@ export class WarmSessionPool {
    */
   async warm(visitorKey: string, image: Uint8Array, filename: string): Promise<string | undefined> {
     if (this.#closed) return undefined
-    // Everything that decides whether to warm happens before the first await,
-    // so uploads that arrive together cannot all pass the bound and then each
-    // create a session. The slot is held from here until the entry is in the
-    // pool, or given back if it never gets there.
+    const digest = await imageDigest(image)
+    // A shutdown may have happened while that was computed.
+    if (this.#closed) return undefined
+
+    // One visitor, one billed session (#70). The decision from here to the
+    // reservation below happens with no further await in between, so
+    // uploads that arrive together cannot all pass the bound and then each
+    // create a session.
     const previous = this.#byVisitor.get(visitorKey)
-    // One visitor, one billed session: a second upload replaces the first, and
-    // frees its slot now. Its browser is released in the background.
     if (previous) {
-      this.#forget(previous)
-      void previous.session.abandon().catch(() => undefined)
+      // The same image already warm is handed back rather than opened
+      // twice, and a different one is refused rather than releasing
+      // paid work already under way to replace it (#115).
+      return previous.digest === digest ? previous.uploadId : undefined
     }
     // The bound is global because a visitor is only a cookie and an address.
     // Past it nothing is warmed, and those runs start cold rather than queue.
@@ -130,9 +134,6 @@ export class WarmSessionPool {
 
     let held = false
     try {
-      const digest = await imageDigest(image)
-      // A shutdown may have happened while that was computed.
-      if (this.#closed) return undefined
       const uploadId = this.#options.idGenerator()
       const session = this.#options.create()
       const entry: Entry = {
