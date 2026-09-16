@@ -23,31 +23,38 @@ afterEach(async () => {
  * held. Each free run reserves the spend cap.
  */
 async function runtimeWithBudget(dailyBudgetUsd: number, spendCapUsd: number, fakeRunIntervalMs = 60_000) {
+  // The test names the address a request should appear from with a header
+  // of its own, so a call meant to be "the same visitor" as an earlier one
+  // can share its address deliberately, and a call meant to be a different
+  // visitor gets a fresh one by default. Without that, a wave of many
+  // different visitors below would also trip the per-address free-run count
+  // meant for one of them, rather than testing the daily ceiling on its own
+  // (#115); a real wave does arrive from many different addresses.
+  let nextAddress = 0
   const runtime = await createLaunchRuntime({
     env: {
       NODE_ENV: 'development',
       FREE_DAILY_BUDGET_USD: String(dailyBudgetUsd),
       FREE_RUN_SPEND_CAP_USD: String(spendCapUsd)
     },
-    clientAddress: () => '203.0.113.40',
+    clientAddress: (request) => request.headers.get('x-test-address') ?? `203.0.113.${(nextAddress += 1)}`,
     fakeRunIntervalMs,
     writeRunLog: () => undefined
   })
   const runIds: string[] = []
   opened.push({ runtime, runIds })
 
-  const start = async (options: { cookie?: string; apiKey?: string } = {}) => {
+  const start = async (options: { cookie?: string; apiKey?: string; address?: string } = {}) => {
     const form = new FormData()
     form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
     form.set('filename', 'source.png')
     form.set('instruction', 'Remove the background')
     if (options.apiKey) form.set('apiKey', options.apiKey)
+    const headers: Record<string, string> = {}
+    if (options.cookie) headers.cookie = options.cookie
+    if (options.address) headers['x-test-address'] = options.address
     const response = await runtime.application.fetch(
-      new Request('http://layerhand.test/api/runs', {
-        method: 'POST',
-        body: form,
-        headers: options.cookie ? { cookie: options.cookie } : undefined
-      })
+      new Request('http://layerhand.test/api/runs', { method: 'POST', body: form, headers })
     )
     const body = (await response.json()) as { runId?: string; code?: string; message?: string }
     if (body.runId) runIds.push(body.runId)
@@ -66,16 +73,34 @@ const SPEND_CAPS = [3, 8]
 describe('metering limits, hit through HTTP', () => {
   test('a visitor gets three free runs, and the fourth is refused with a stated message', async () => {
     const { start } = await runtimeWithBudget(1_000, 3)
+    const address = 'address-one-visitor'
 
-    const first = await start()
-    const second = await start({ cookie: first.cookie })
-    const third = await start({ cookie: first.cookie })
-    const fourth = await start({ cookie: first.cookie })
+    const first = await start({ address })
+    const second = await start({ cookie: first.cookie, address })
+    const third = await start({ cookie: first.cookie, address })
+    const fourth = await start({ cookie: first.cookie, address })
 
     expect([first.status, second.status, third.status]).toEqual([201, 201, 201])
     expect(fourth.status).toBe(429)
     expect(fourth.body.code).toBe('free_limit_reached')
     expect(fourth.body.message).toBeString()
+  })
+
+  test('the free allowance is also capped per address, behind a fresh cookie each time (#115)', async () => {
+    // #29 intended the cookie and the address to each be their own limit.
+    // No `cookie` is sent back here, so each call is a different visitor —
+    // the address alone is what refuses the fourth.
+    const { start } = await runtimeWithBudget(1_000, 3)
+    const address = 'address-shared'
+
+    const first = await start({ address })
+    const second = await start({ address })
+    const third = await start({ address })
+    const fourth = await start({ address })
+
+    expect([first.status, second.status, third.status]).toEqual([201, 201, 201])
+    expect(fourth.status).toBe(429)
+    expect(fourth.body.code).toBe('free_limit_reached')
   })
 
   // docs/TRD.md § Size the daily ceiling: each free run reserves the spend
@@ -138,14 +163,16 @@ describe('metering limits, hit through HTTP', () => {
     async (spendCapUsd) => {
       // Three reservations fill the ceiling exactly.
       const { start, snapshot } = await runtimeWithBudget(3 * spendCapUsd, spendCapUsd)
+      const address = 'address-one-visitor'
 
-      const first = await start()
-      await start({ cookie: first.cookie })
-      await start({ cookie: first.cookie })
-      const ceilingHit = await start()
-      const freeRunsSpent = await start({ cookie: first.cookie })
+      const first = await start({ address })
+      await start({ cookie: first.cookie, address })
+      await start({ cookie: first.cookie, address })
+      // A different visitor, at a different address, hits the ceiling the three above filled.
+      const ceilingHit = await start({ address: 'address-another-visitor' })
+      const freeRunsSpent = await start({ cookie: first.cookie, address })
       const withKeyAtCeiling = await start({ apiKey: 'sk-visitor-own-key-000000' })
-      const withKeyAfterAllowance = await start({ cookie: first.cookie, apiKey: 'sk-visitor-own-key-000000' })
+      const withKeyAfterAllowance = await start({ cookie: first.cookie, address, apiKey: 'sk-visitor-own-key-000000' })
 
       expect(await snapshot(ceilingHit.body.runId)).toMatchObject({ status: 'queued' })
       expect(freeRunsSpent.body.code).toBe('free_limit_reached')
