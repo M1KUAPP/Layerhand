@@ -97,11 +97,13 @@ jobs:
       # continues in the background after POST /api/runs returns. One instance
       # at most, because run state lives in that process's memory.
       #
-      # --memory 4Gi, because the service holds each run's exported files. One
-      # export of the largest upload FR-1 allows, a 312 MiB PSD, raised a
-      # process's resident memory by about 1.1 GiB (#100). The default 512 MiB
-      # cannot hold that file even once, and runs can end together. 4 GiB is
-      # the most Cloud Run allows one CPU.
+      # --memory 4Gi, because the service holds every run and each run's
+      # exported files. Twenty scripted runs at once peaked at 679 MiB,
+      # measured locally (docs/evidence/run-memory/README.md), and one export
+      # of the largest upload FR-1 allows, a 312 MiB PSD, raised a process's
+      # resident memory by about 1.1 GiB (#100). The default 512 MiB cannot
+      # hold that file even once, and runs can end together. 4 GiB is the most
+      # Cloud Run allows one CPU.
       #
       # FREE_DAILY_BUDGET_USD=10 is a deploy-time placeholder, not the agreed
       # ceiling. The server's OpenAI key is the human's personal balance, so $10
@@ -122,11 +124,6 @@ jobs:
       # this service; docs/evidence/native-steering/README.md holds that run.
       # boundary, the default, sends a correction with the next model call, and
       # is what a run falls back to if its socket fails.
-      #
-      # --memory 2Gi is three times the 679 MiB peak of twenty scripted runs at
-      # once, measured locally (docs/evidence/run-memory/README.md). Real runs
-      # also decode their screenshots and exports here, and uploads can be
-      # larger than the one measured; the rest is headroom for those.
       - name: Deploy
         run: |
           gcloud run deploy "$SERVICE" \
@@ -139,7 +136,6 @@ jobs:
             --min-instances 0 \
             --max-instances 1 \
             --timeout 3600 \
-            --memory 2Gi \
             --allow-unauthenticated \
             --set-env-vars "S3_ENDPOINT=https://storage.googleapis.com,S3_REGION=us-central1,S3_BUCKET=layerhand-artifacts-732371853772,TRUST_PROXY_HOPS=1,RUN_MODE=agent,PUBLIC_URL=https://layerhand-732371853772.us-central1.run.app,FREE_DAILY_BUDGET_USD=10,RUN_STEP_CAP=40,FREE_RUN_SPEND_CAP_USD=3,STEERING=native" \
             --set-secrets "OPENAI_API_KEY=OPENAI_API_KEY:latest,BROWSERBASE_API_KEY=BROWSERBASE_API_KEY:latest,S3_ACCESS_KEY_ID=S3_ACCESS_KEY_ID:latest,S3_SECRET_ACCESS_KEY=S3_SECRET_ACCESS_KEY:latest,SESSION_SECRET=SESSION_SECRET:latest,DATABASE_URL=DATABASE_URL:latest"
