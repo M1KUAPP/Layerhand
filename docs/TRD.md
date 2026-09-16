@@ -1237,6 +1237,11 @@ revision, and the gap between the two cold figures was not chased. The
 [warm editor evidence](/docs/evidence/warm-editor/README.md) has the method, the
 summary, and what the pair does not show.
 
+**Re-measured September 16** against commit `28470e5`, the first pair run
+through the network allow-list (#111, #147) rather than before it: warm
+reached the page in **2.3 seconds** and cold in **8.9 seconds**, the same
+pattern as September 15 and still inside NFR-3's budget only when warm.
+
 Issue #15 upload result (2026-09-14, Google Chrome 153.0.8010.36): the
 opt-in installed-Chrome test opened PNG and JPEG at their full 6000x1
 resolution, including an exact 20 MiB JPEG padded with valid APP15
