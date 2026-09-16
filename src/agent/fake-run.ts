@@ -14,6 +14,11 @@ export interface FakeRunOptions {
    * Never reached if the script or the step cap ends the run first.
    */
   failAtStep?: number
+  /**
+   * End the run as the loop does when its model stops answering, once this
+   * many steps have run: a recoverable error, then the partial result.
+   */
+  stopAnsweringAtStep?: number
 }
 
 // Placeholders that render and open without a server: a grey PNG in the
@@ -72,7 +77,7 @@ const USD_PER_OUTPUT_TOKEN = 50 / 1_000_000
 
 export function fakeRun(
   request: RunRequest,
-  { intervalMs = 1000, recoverableErrorAtStep, failAtStep }: FakeRunOptions = {}
+  { intervalMs = 1000, recoverableErrorAtStep, failAtStep, stopAnsweringAtStep }: FakeRunOptions = {}
 ): RunHandle {
   const log = new EventLog()
   const layers = [ORIGINAL]
@@ -99,6 +104,10 @@ export function fakeRun(
   const tick = () => {
     const next = SCRIPT[steps]
     if (steps === failAtStep) return end({ type: 'error', reason: 'The editor stopped responding', recoverable: false })
+    if (steps === stopAnsweringAtStep) {
+      log.emit({ type: 'error', reason: 'The model stopped answering, so the run stopped', recoverable: true })
+      return end({ type: 'done', result: result(false) })
+    }
     if (!next) return end({ type: 'done', result: result(true) })
     if (steps >= request.stepCap) return end({ type: 'done', result: result(false) })
 

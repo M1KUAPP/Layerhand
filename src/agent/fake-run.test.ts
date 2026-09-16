@@ -15,7 +15,8 @@ testRunContract({
   name: 'fakeRun',
   request,
   start: (request) => fakeRun(request, { intervalMs: 0 }),
-  startFailing: (request) => fakeRun(request, { intervalMs: 0, failAtStep: 2 })
+  startFailing: (request) => fakeRun(request, { intervalMs: 0, failAtStep: 2 }),
+  startUnanswered: (request) => fakeRun(request, { intervalMs: 0, stopAnsweringAtStep: 2 })
 })
 
 const layersOf = (events: RunEvent[]) => {
@@ -61,6 +62,15 @@ describe('fakeRun', () => {
     const events = await collect(fakeRun(request, { intervalMs: 0, failAtStep: 2 }))
     expect(events.filter((event) => event.type === 'step').map((step) => step.n)).toEqual([1, 2])
     expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
+  })
+
+  test('stops answering once the requested number of steps has run, keeping its partial result', async () => {
+    const events = await collect(fakeRun(request, { intervalMs: 0, stopAnsweringAtStep: 2 }))
+    expect(events.filter((event) => event.type === 'step').map((step) => step.n)).toEqual([1, 2])
+    expect(events.slice(-2)).toMatchObject([
+      { type: 'error', reason: 'The model stopped answering, so the run stopped', recoverable: true },
+      { type: 'done', result: { complete: false } }
+    ])
   })
 
   test('waits the interval between steps', async () => {
