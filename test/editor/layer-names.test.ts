@@ -77,7 +77,11 @@ describe('buildLayerRenamePlan', () => {
     ['Hue/Saturation 7', true],
     ['Curves adjustment', false],
     ['Portrait copy', true],
-    ['Portrait COPY 2', true]
+    ['Portrait COPY 2', true],
+    ['Color Fill 1', true],
+    ['Gradient Fill 2', true],
+    ['Pattern Fill 3', true],
+    ['Shape 4', true]
   ])('recognizes whether %j is generic', (name, generic) => {
     const plan = buildLayerRenamePlan([layer(name)])
     expect(plan.length > 0).toBe(generic)
