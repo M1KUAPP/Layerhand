@@ -4,6 +4,7 @@ import { PhotopeaBridge } from '../editor/photopea-bridge'
 import { PhotopeaDocumentLoader } from '../editor/photopea-document-loader'
 import { PlaywrightPhotopeaTransport } from '../editor/playwright-photopea-transport'
 import { BrowserbaseClient, type BrowserbaseLiveView, type BrowserbaseSession } from './browserbase-client'
+import { browserbaseEditorSession } from './browserbase-editor-session'
 
 const SAMPLE_PNG = Uint8Array.from(
   Buffer.from(
@@ -84,12 +85,36 @@ async function main(): Promise<void> {
   const apiKey = process.env.BROWSERBASE_API_KEY
   const hostUrl = process.argv[2]
   if (!hostUrl) throw new Error('Usage: bun run browserbase:probe -- https://<app>/photopea-host')
+  if (!apiKey) throw new Error('BROWSERBASE_API_KEY is required')
   const client = new BrowserbaseClient(apiKey ?? '')
-  await runBrowserbaseProbe({
-    apiKey,
-    client,
-    openPhotopea: (connectUrl) => probePhotopeaOverCdp(connectUrl, hostUrl)
+  let sessionId: string | undefined
+  const editor = browserbaseEditorSession({
+    id: crypto.randomUUID(),
+    hostUrl,
+    sessions: {
+      async createSession() {
+        const session = await client.createSession()
+        sessionId = session.id
+        return session
+      },
+      releaseSession: (id) => client.releaseSession(id)
+    }
   })
+  const startedAt = performance.now()
+  try {
+    await editor.open(SAMPLE_PNG, 'layerhand-probe.png')
+    const screenshot = await editor.screenshot()
+    console.log(
+      JSON.stringify({
+        sessionId,
+        coldStartMs: Math.round(performance.now() - startedAt),
+        viewport: editor.viewport,
+        screenshotBytes: screenshot.byteLength
+      })
+    )
+  } finally {
+    await editor.close().catch(() => undefined)
+  }
 }
 
 if (import.meta.main) {
