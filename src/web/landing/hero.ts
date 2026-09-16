@@ -78,11 +78,15 @@ export function renderHero(context: LandingContext): HTMLElement {
   cta.type = 'button'
   cta.append(icon('hgi-arrow-right-01'))
   cta.addEventListener('click', () => context.startRun())
-  const updates = node('a', 'hero__updates', 'Get launch updates by email')
+  const updates = node('a', 'hero__updates', '')
   updates.href = '#updates'
-  updates.append(icon('hgi-arrow-down-01'))
-  actions.append(cta, updates, node('p', 'hero__note', 'Three free runs. No account needed.'))
-  actions.append(node('p', 'hero__retention', 'Uploads are deleted within 24 hours.'))
+  const updatesText = node('span', 'hero__updates-text', 'Get launch updates by email')
+  updates.append(updatesText, icon('hgi-arrow-down-01'))
+  actions.append(
+    cta,
+    updates,
+    node('p', 'hero__note', 'Three free runs. No account needed. Uploads are deleted within 24 hours.')
+  )
   copy.append(actions)
 
   const media = enter(node('div', 'hero__media'), 2)
