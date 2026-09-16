@@ -93,17 +93,28 @@ describe('WarmSessionPool', () => {
     expect(sessions[0]!.opened).toEqual(['source.png', 'other.jpg'])
   })
 
-  test('gives one visitor one billed session: a second upload releases the first', async () => {
+  test('gives one visitor one billed session: a repeat of the same image reuses it (#115)', async () => {
+    const { pool, sessions } = pooled()
+    const first = await pool.warm('visitor-1', IMAGE, 'source.png')
+
+    const second = await pool.warm('visitor-1', IMAGE, 'source.png')
+
+    expect(second).toBe(first)
+    expect(sessions).toHaveLength(1)
+    expect(sessions[0]!.abandoned).toBe(0)
+    expect(pool.claim(first, 'visitor-1', await imageDigest(IMAGE))).toBeDefined()
+  })
+
+  test('refuses a second upload of a different image, rather than releasing the first to replace it (#115)', async () => {
     const { pool, sessions } = pooled()
     const first = await pool.warm('visitor-1', IMAGE, 'source.png')
 
     const second = await pool.warm('visitor-1', OTHER_IMAGE, 'other.jpg')
 
-    expect(sessions[0]!.abandoned).toBe(1)
-    expect(sessions[1]!.abandoned).toBe(0)
-    expect(pool.claim(first, 'visitor-1', await imageDigest(IMAGE))).toBeUndefined()
-    expect(pool.claim(second, 'visitor-1', await imageDigest(OTHER_IMAGE))).toBeDefined()
-    expect(pool.size).toBe(0)
+    expect(second).toBeUndefined()
+    expect(sessions).toHaveLength(1)
+    expect(sessions[0]!.abandoned).toBe(0)
+    expect(pool.claim(first, 'visitor-1', await imageDigest(IMAGE))).toBeDefined()
   })
 
   test('releases a session no run claimed', async () => {
