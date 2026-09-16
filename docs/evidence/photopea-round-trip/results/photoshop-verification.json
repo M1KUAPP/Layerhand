@@ -5,10 +5,7 @@
   "document": {
     "colorMode": "RGB/8",
     "height": 480,
-    "layers": [
-      "Retouched copy",
-      "Original photograph"
-    ],
+    "layers": ["Retouched copy", "Original photograph"],
     "width": 640
   },
   "openedWithoutWarning": true,
