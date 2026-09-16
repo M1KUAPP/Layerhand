@@ -14,13 +14,13 @@ async function openInput(page: Page, origin: string): Promise<void> {
   await page.getByAltText('Selected source: layerhand-sample.png').waitFor()
 }
 
-describeBrowser('launch application in Chromium', () => {
+describeBrowser('launch application in Google Chrome', () => {
   let browser: Browser
   let application: Awaited<ReturnType<typeof startTestApplication>>
 
   beforeAll(async () => {
     application = await startTestApplication({ fakeRunIntervalMs: 1_000 })
-    browser = await chromium.launch({ headless: true })
+    browser = await chromium.launch({ channel: 'chrome', headless: true })
   })
 
   afterAll(async () => {
