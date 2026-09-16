@@ -426,10 +426,17 @@ legend,
   text-align: left;
 }
 
+.running-shell {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 72px);
+}
+
 .running-layout {
   display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
   grid-template-columns: minmax(0, 1fr) 260px;
-  min-height: calc(100dvh - 260px);
   border-bottom: 1px solid var(--ink);
 }
 
@@ -485,6 +492,7 @@ legend,
 
 .correction-form {
   display: grid;
+  flex: none;
   grid-template-columns: minmax(200px, 1fr) auto;
   align-items: end;
   gap: 0 1rem;
@@ -497,8 +505,11 @@ legend,
 }
 
 .run-notices {
+  flex: none;
   min-height: 2rem;
+  max-height: 8rem;
   padding: 0 2.25rem 1rem;
+  overflow-y: auto;
   color: var(--color-text-secondary);
   font: var(--text-ui-small);
 }
@@ -506,6 +517,16 @@ legend,
 .notice,
 .correction-ack {
   margin-top: 0.4rem;
+}
+
+.correction-ack {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--ink);
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+  font-weight: 700;
 }
 
 .result-layout {

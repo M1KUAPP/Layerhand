@@ -6,12 +6,24 @@ import { startTestApplication } from './support/test-server'
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
 const EXAMPLE = 'Clean the reflections without changing the label.'
+const REAL_FRAME_URL = new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url)
 
 async function openInput(page: Page, origin: string): Promise<void> {
   await page.goto(origin)
   await page.getByRole('button', { name: 'Retouch a photo' }).click()
   await page.getByRole('button', { name: 'Use the sample photograph' }).click()
   await page.getByAltText('Selected source: layerhand-sample.png').waitFor()
+}
+
+interface ViewportBox {
+  y: number
+  height: number
+}
+
+function expectBoxInViewport(box: ViewportBox | null, viewportHeight: number): void {
+  expect(box).not.toBeNull()
+  expect(box!.y).toBeGreaterThanOrEqual(0)
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewportHeight)
 }
 
 describeBrowser('launch application in Google Chrome', () => {
@@ -170,6 +182,60 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
     }
   }, 30_000)
+
+  test('keeps the correction field and its acknowledgements in the viewport at 1280x800', async () => {
+    const viewport = { width: 1280, height: 800 }
+    const page = await browser.newPage({ viewport })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+      await page.locator('#live-frame img').waitFor({ timeout: 5_000 })
+
+      const field = page.getByRole('textbox', { name: 'Correct the next action' })
+      const send = page.getByRole('button', { name: 'Send correction' })
+      for (const correction of ['Keep the label unchanged', 'Warm the shadow slightly']) {
+        await field.fill(correction)
+        await send.click()
+        await page.getByText(`Correction applied: ${correction}`).waitFor({ timeout: 3_000 })
+      }
+
+      // fakeRun's placeholder frame is a few pixels across, too small to
+      // reproduce the layout bug; swap in a real, photograph-sized frame
+      // and measure in the same page.evaluate call, before the next
+      // scripted tick can revert it.
+      const realFrame = await Bun.file(REAL_FRAME_URL).bytes()
+      const realFrameDataUrl = `data:image/png;base64,${Buffer.from(realFrame).toString('base64')}`
+      const boxes = await page.evaluate(async (src) => {
+        const img = document.querySelector<HTMLImageElement>('#live-frame img')
+        if (img) {
+          img.src = src
+          await img.decode()
+        }
+        const rect = (el: Element | null) => {
+          if (!el) return null
+          const box = el.getBoundingClientRect()
+          return { y: box.y, height: box.height }
+        }
+        const acks = document.querySelectorAll('.correction-ack')
+        return {
+          field: rect(document.querySelector('#correction')),
+          notices: rect(document.querySelector('#run-notices')),
+          lastAck: rect(acks[acks.length - 1] ?? null)
+        }
+      }, realFrameDataUrl)
+
+      expectBoxInViewport(boxes.field, viewport.height)
+      expectBoxInViewport(boxes.notices, viewport.height)
+      expectBoxInViewport(boxes.lastAck, viewport.height)
+
+      await page.getByRole('button', { name: 'Cancel and keep work' }).click()
+      await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
+    } finally {
+      await page.close()
+    }
+  }, 10_000)
 
   test('captures waitlist email and enforces the exact desktop boundary', async () => {
     const page = await browser.newPage({ viewport: { width: 1279, height: 800 } })
