@@ -1,3 +1,4 @@
+import endUrl from '../assets/landing/scrub-end.jpg'
 import posterUrl from '../assets/landing/scrub-poster.jpg'
 import clipUrl from '../assets/landing/scrub.mp4'
 
@@ -48,10 +49,18 @@ export function renderScrub(): HTMLElement {
   const frame = node('div', 'scrub__frame')
   frame.setAttribute('role', 'img')
   frame.setAttribute('aria-label', 'Illustration of a photograph coming apart into separate layers')
+  // The poster is frame zero, the plain photograph, so the swap to the
+  // video does not jump. Under reduced motion there is no video, so the
+  // still is the clip's last frame, with the sheets over the photograph.
+  const picture = node('picture', 'scrub__picture')
+  const still = node('source')
+  still.media = '(prefers-reduced-motion: reduce)'
+  still.srcset = endUrl
   const poster = node('img', 'scrub__poster')
   poster.alt = ''
   poster.src = posterUrl
-  frame.append(poster)
+  picture.append(still, poster)
+  frame.append(picture)
   const figure = node('figure', 'scrub__figure')
   figure.append(frame, node('figcaption', 'scrub__caption', 'An illustration. The layers from a real run come next.'))
 
