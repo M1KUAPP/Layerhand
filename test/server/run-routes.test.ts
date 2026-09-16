@@ -814,3 +814,91 @@ describe('event stream keep-alive', () => {
     }
   }, 20_000)
 })
+
+/**
+ * A routes instance for the checks below, which do not need warming,
+ * failure injection, or any of `fixture()`'s other knobs — just a working
+ * HTTP surface with a controllable clock (#115).
+ */
+function testRoutes(overrides: { now?: () => Date } = {}) {
+  const registry = new RunRegistry()
+  const meter = new RecordingMeter()
+  const artifacts = new RecordingArtifacts()
+  let nextId = 0
+  const routes = new RunRoutes({
+    registry,
+    meterStore: meter,
+    artifactStore: artifacts,
+    waitlistStore: new MemoryWaitlistStore(),
+    sessionSecret: 'session-secret',
+    trustProxyHops: 0,
+    freeRunReservationMicroUsd: usdToMicroUsd(10),
+    clientAddress: () => '203.0.113.10',
+    now: overrides.now ?? (() => new Date('2026-09-15T12:00:00.000Z')),
+    idGenerator: () => `public-run-${++nextId}`,
+    runFactory: (request) => ({
+      handle: fakeRun(request, { intervalMs: 1 }),
+      metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
+      releaseSecrets() {}
+    })
+  })
+  return { app: createApplication({ databaseReady: async () => true, routes }), registry, meter }
+}
+
+function waitlistRequest(headers: HeadersInit = {}): Request {
+  return new Request('https://layerhand.test/api/waitlist', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...headers },
+    body: JSON.stringify({ email: 'ada@example.com' })
+  })
+}
+
+describe('cross-origin protection (#115)', () => {
+  test('refuses a state-changing request whose Origin names another site', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(waitlistRequest({ origin: 'https://evil.example' }))
+
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
+      code: 'origin_refused',
+      message: 'This request did not come from the Layerhand page.'
+    })
+  })
+
+  test('refuses a state-changing request whose Sec-Fetch-Site is not same-origin', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(waitlistRequest({ 'sec-fetch-site': 'cross-site' }))
+
+    expect(response.status).toBe(403)
+  })
+
+  test('allows a same-origin request naming its own origin and Sec-Fetch-Site', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(
+      waitlistRequest({ origin: 'https://layerhand.test', 'sec-fetch-site': 'same-origin' })
+    )
+
+    expect(response.status).toBe(201)
+  })
+
+  test('allows a request carrying neither header, a non-browser client', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(waitlistRequest())
+
+    expect(response.status).toBe(201)
+  })
+
+  test('leaves a GET request unaffected', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(
+      new Request('https://layerhand.test/api/runs/missing', { headers: { origin: 'https://evil.example' } })
+    )
+
+    expect(response.status).toBe(404)
+  })
+})
