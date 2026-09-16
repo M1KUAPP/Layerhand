@@ -421,14 +421,18 @@ function progressRail(progress: Extract<ClientState, { view: 'running' }>['progr
 }
 
 function replaceNotices(container: HTMLElement, progress: Extract<ClientState, { view: 'running' }>['progress']): void {
+  const previousCount = container.childElementCount
   container.replaceChildren()
   for (const message of progress.recoverableErrors) container.append(node('p', 'notice', message))
   for (const message of progress.corrections) {
     container.append(node('p', 'correction-ack', `Correction applied: ${message}`))
   }
   // The container has a bounded height (styles.css); keep the newest
-  // acknowledgement in view rather than the oldest.
-  container.scrollTop = container.scrollHeight
+  // acknowledgement in view rather than the oldest, but only when the list
+  // actually grew. Every progress tick calls this, and pulling a visitor
+  // back to the bottom on ticks that add nothing would undo a manual
+  // scroll to reread an earlier one.
+  if (container.childElementCount > previousCount) container.scrollTop = container.scrollHeight
 }
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
