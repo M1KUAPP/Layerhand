@@ -5,8 +5,9 @@ import type { ManagedRun } from './managed-run'
 import type { MeterStore } from './meter-store'
 import { usdToMicroUsd } from './meter-store'
 import type { OpenAiKeyCheck } from './openai-key'
+import { RateLimiter } from './rate-limiter'
 import { RunRegistry, RunRegistryError, RunStartRefused } from './run-registry'
-import { VisitorIdentityError, establishVisitorIdentity } from './visitor-identity'
+import { VisitorIdentityError, establishVisitorIdentity, type VisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
 import { imageDigest, type WarmEditorSession, type WarmSessionPool } from './warm-session-pool'
 
@@ -23,6 +24,13 @@ const QUEUE_FULL = {
 }
 // A steer or waitlist body has no reason to be more than a fraction of this (#115).
 export const MAX_JSON_BODY_BYTES = 4 * 1024
+// Requests one visitor, or one address, may make of uploads, runs, or
+// waitlist sign-ups in one rolling window, before launch traffic gets a
+// chance to hammer an endpoint that costs money (#115). Each endpoint keeps
+// its own count, so a burst on one does not spend another's budget.
+export const RATE_LIMIT_WINDOW_MS = 60_000
+export const PER_VISITOR_RATE_LIMIT = 10
+export const PER_ADDRESS_RATE_LIMIT = 30
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -151,6 +159,27 @@ function fromAllowedOrigin(request: Request, url: URL): boolean {
   }
 }
 
+function rateLimitResponse(identity: VisitorIdentity): Response {
+  return json(
+    { code: 'rate_limited', message: 'Too many requests. Try again in a moment.' },
+    429,
+    identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+  )
+}
+
+/** One endpoint's rate limiting, checked independently by visitor and by address (#115). */
+interface EndpointLimiter {
+  readonly perVisitor: RateLimiter
+  readonly perAddress: RateLimiter
+}
+
+function createEndpointLimiter(now: () => number): EndpointLimiter {
+  return {
+    perVisitor: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: PER_VISITOR_RATE_LIMIT, now }),
+    perAddress: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: PER_ADDRESS_RATE_LIMIT, now })
+  }
+}
+
 function registryError(error: RunRegistryError): Response {
   const status = error.code === 'run_not_found' ? 404 : error.code === 'shutting_down' ? 503 : 409
   return apiError(error.code, error.message, status)
@@ -158,9 +187,16 @@ function registryError(error: RunRegistryError): Response {
 
 export class RunRoutes {
   readonly #dependencies: RunRouteDependencies
+  readonly #uploadLimiter: EndpointLimiter
+  readonly #runLimiter: EndpointLimiter
+  readonly #waitlistLimiter: EndpointLimiter
 
   constructor(dependencies: RunRouteDependencies) {
     this.#dependencies = dependencies
+    const now = () => dependencies.now().getTime()
+    this.#uploadLimiter = createEndpointLimiter(now)
+    this.#runLimiter = createEndpointLimiter(now)
+    this.#waitlistLimiter = createEndpointLimiter(now)
   }
 
   async handle(request: Request): Promise<Response | undefined> {
@@ -209,6 +245,9 @@ export class RunRoutes {
    * nothing on the model.
    */
   async #upload(request: Request): Promise<Response> {
+    const identity = await this.#visitor(request)
+    const limited = this.#checkRateLimit(this.#uploadLimiter, identity)
+    if (limited) return limited
     const form = await boundedFormData(request, MAX_RUN_REQUEST_BODY_BYTES)
     const image = form.get('image')
     const filenameValue = form.get('filename')
@@ -216,7 +255,6 @@ export class RunRoutes {
       return apiError('image_required', 'Choose a JPEG or PNG image.', 400)
     }
     const upload = validateImageUpload(new Uint8Array(await image.arrayBuffer()), filenameValue)
-    const identity = await this.#visitor(request)
     const uploadId = this.#dependencies.runsPaused
       ? undefined
       : await this.#dependencies.warmSessions?.warm(identity.visitorKey, upload.bytes, upload.filename)
@@ -237,10 +275,20 @@ export class RunRoutes {
     })
   }
 
+  /** A refusal when either the visitor or the address is over its limit, or `undefined` to proceed (#115). */
+  #checkRateLimit(limiter: EndpointLimiter, identity: VisitorIdentity): Response | undefined {
+    const visitorOk = limiter.perVisitor.allow(identity.visitorKey)
+    const addressOk = limiter.perAddress.allow(identity.addressKey)
+    return visitorOk && addressOk ? undefined : rateLimitResponse(identity)
+  }
+
   async #start(request: Request): Promise<Response> {
     if (this.#dependencies.runsPaused) {
       return apiError('runs_paused', 'New runs are paused right now. Try again shortly.', 503)
     }
+    const identity = await this.#visitor(request)
+    const limited = this.#checkRateLimit(this.#runLimiter, identity)
+    if (limited) return limited
     const form = await boundedFormData(request, MAX_RUN_REQUEST_BODY_BYTES)
     const instructionValue = form.get('instruction')
     if (typeof instructionValue !== 'string' || instructionValue.trim().length === 0) {
@@ -259,7 +307,6 @@ export class RunRoutes {
     const bytes = new Uint8Array(await image.arrayBuffer())
     const upload = validateImageUpload(bytes, filenameValue)
 
-    const identity = await this.#visitor(request)
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
     const cookie = identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
@@ -457,11 +504,18 @@ export class RunRoutes {
   }
 
   async #waitlist(request: Request): Promise<Response> {
+    const identity = await this.#visitor(request)
+    const limited = this.#checkRateLimit(this.#waitlistLimiter, identity)
+    if (limited) return limited
     const body = await boundedJson(request, MAX_JSON_BODY_BYTES)
     if (typeof body.email !== 'string') {
       return apiError('invalid_email', 'Enter a valid email address.', 400)
     }
     const result = await this.#dependencies.waitlistStore.add(body.email, this.#dependencies.now().toISOString())
-    return json(result, result.created ? 201 : 200)
+    return json(
+      result,
+      result.created ? 201 : 200,
+      identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+    )
   }
 }

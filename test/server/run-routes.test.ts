@@ -8,7 +8,12 @@ import type { ManagedRun } from '../../src/server/managed-run'
 import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
-import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
+import {
+  MAX_JSON_BODY_BYTES,
+  PER_ADDRESS_RATE_LIMIT,
+  PER_VISITOR_RATE_LIMIT,
+  RunRoutes
+} from '../../src/server/run-routes'
 import type { OpenAiKeyCheck } from '../../src/server/openai-key'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
 import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
@@ -900,6 +905,68 @@ describe('cross-origin protection (#115)', () => {
     )
 
     expect(response.status).toBe(404)
+  })
+})
+
+describe('rate limiting (#115)', () => {
+  test('refuses more than the per-visitor limit, and admits again once the window passes', async () => {
+    let now = new Date('2026-09-15T12:00:00.000Z')
+    const { app } = testRoutes({ now: () => now })
+    let cookie: string | undefined
+    const statuses: number[] = []
+
+    for (let call = 0; call < PER_VISITOR_RATE_LIMIT + 1; call += 1) {
+      const response = await app.fetch(waitlistRequest(cookie ? { cookie } : {}))
+      cookie ??= visitorCookie(response)
+      statuses.push(response.status)
+    }
+    now = new Date(now.getTime() + 60_000)
+    const afterWindow = await app.fetch(waitlistRequest(cookie ? { cookie } : {}))
+
+    expect(statuses.slice(0, PER_VISITOR_RATE_LIMIT)).not.toContain(429)
+    expect(statuses.at(-1)).toBe(429)
+    expect(afterWindow.status).not.toBe(429)
+  })
+
+  test('refuses more than the per-address limit even behind a fresh visitor each time', async () => {
+    const { app } = testRoutes()
+    const statuses: number[] = []
+
+    // No cookie sent back, so each call is a different visitor at the one
+    // stubbed address (#115).
+    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+      statuses.push((await app.fetch(waitlistRequest())).status)
+    }
+
+    expect(statuses.slice(0, PER_ADDRESS_RATE_LIMIT)).not.toContain(429)
+    expect(statuses.at(-1)).toBe(429)
+  })
+
+  test('states the reason and carries the visitor cookie on a refusal', async () => {
+    const { app } = testRoutes()
+    let last: Response | undefined
+    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) last = await app.fetch(waitlistRequest())
+
+    expect(await last!.json()).toEqual({ code: 'rate_limited', message: 'Too many requests. Try again in a moment.' })
+    expect(last!.headers.get('set-cookie')).toContain('HttpOnly')
+  })
+
+  test('also limits uploads and runs, independently of the waitlist', async () => {
+    const { app } = testRoutes()
+    const uploadStatuses: number[] = []
+    const runStatuses: number[] = []
+
+    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+      uploadStatuses.push(
+        (await app.fetch(new Request('https://layerhand.test/api/uploads', { method: 'POST' }))).status
+      )
+    }
+    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+      runStatuses.push((await app.fetch(new Request('https://layerhand.test/api/runs', { method: 'POST' }))).status)
+    }
+
+    expect(uploadStatuses.at(-1)).toBe(429)
+    expect(runStatuses.at(-1)).toBe(429)
   })
 })
 
