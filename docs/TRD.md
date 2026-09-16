@@ -205,6 +205,31 @@ Server-sent events rather than WebSockets for the browser leg: the
 stream is one-directional, corrections go over a normal `POST`, and SSE
 reconnects by itself, which is most of [FR-14](PRD.md#the-run).
 
+At most `MAX_CONCURRENT_RUNS` runs are in flight at once, 20 unless set,
+free runs and runs on a user's own key alike (NFR-4). A run past the cap is
+answered like any other, with its `runId`, and the page follows it the same
+way. While it waits, its snapshot has the status `queued` and a
+`queuePosition` that counts from 1, and its stream sends an event each time
+that place changes:
+
+```ts
+type QueuedEvent = { type: 'queued'; position: number }
+```
+
+Waiting runs start by themselves, first in, first out, and a run that
+starts sends `started` next. A free run held back only by budget that runs
+in flight have reserved waits the same way, and is admitted when its turn
+comes; if the day's spending has left no room for it by then, it ends with
+the daily ceiling's message. While a run waits for budget, the runs behind
+it that need none still start, because otherwise it could hold up the very
+run whose reservation it waits for.
+
+A waiting run refuses a correction with 409 `run_queued`. A cancel takes it
+out of the line and ends it with an unrecoverable error, because it has no
+work to keep, and its free run is given back. A run whose start fails ends
+the same way, with a stated reason, rather than failing the request that
+queued it.
+
 ## Fakes first
 
 The first thing each stream produces is a fake of its own contract, not
@@ -1049,7 +1074,10 @@ counting twenty minutes after it was made: the fifteen-minute run ceiling,
 plus five minutes for a run stopped there to export and be reconciled, by
 which time no run can still be spending it. A run is admitted only while
 the day's spend, plus what is still reserved, plus its own $8, stays within
-the ceiling. So wave _k_ of twenty concurrent free runs fits only when:
+the ceiling. A run that fits the day's spend and is held back only by what
+is reserved waits in line for it, as
+[Contract 3](#contract-3-the-http-surface) describes. So wave _k_ of twenty
+concurrent free runs fits only when:
 
 ```text
 ceiling ≥ (k − 1) × spend per wave + 20 × $8 reservation
@@ -1066,17 +1094,25 @@ With caching broken, the $8 spend cap stops each run at $8, so a wave
 spends at most $160, and $230 leaves $70: eight more runs.
 
 The deployed service reserves `FREE_RUN_SPEND_CAP_USD`, $3, so its $10
-placeholder ceiling admits three concurrent free runs, and one full wave
-would need 20 × $3 = $60.
+placeholder ceiling admits three concurrent free runs while a fourth waits,
+and one full wave would need 20 × $3 = $60.
 
 **Proposed: $230 a day**, for kymil04 to confirm on day 4 from A2's
 measurement. It is not yet agreed. The reservation always equals the spend
 cap, because reserving less would undercount a run heading for it.
 `test/server/limits.test.ts` pins the arithmetic at the $3 and the $8
-reservation: nineteen reservations refuse the twentieth concurrent free run,
-and twenty admit a full wave.
+reservation: nineteen reservations hold the twentieth concurrent free run in
+line, and twenty admit a full wave.
 
 ### The concurrency ceiling is a rate limit, not a server
+
+The server holds runs in flight to one cap, `MAX_CONCURRENT_RUNS`, and
+queues the rest. Its default of 20 is NFR-4's figure, sized against each
+bound that could bind first: Browserbase's entry tier allows 25 browsers,
+of which warm sessions take up to four; twenty runs at once peaked at
+679 MiB of the service's 4 GiB, as [Deployment](#deployment) records; and
+the OpenAI tier is unconfirmed (#3). If rate limits bind before the other
+two, lower the cap rather than let runs fail at the provider.
 
 NFR-4 asks for twenty simultaneous runs. Whether we can serve them is
 decided by our OpenAI tier, not by our hardware: tier 1 allows 500
