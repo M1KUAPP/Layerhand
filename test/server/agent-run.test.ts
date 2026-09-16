@@ -84,10 +84,10 @@ describe('steering the agent loop through the HTTP surface', () => {
     expect(events[ack]).toEqual({ type: 'correction_ack', text: 'Keep the shadow' })
     expect(narrationsAfter(events, ack)).toContain('Applying the correction: Keep the shadow')
     expect(narrationsAfter(untouched, 0)).not.toContain('Applying the correction: Keep the shadow')
-    // This runtime uses the historical raster-only PSD, so finishing the
-    // scripted turns cannot satisfy the editable-output completion policy.
-    expect(events.at(-1)).toMatchObject({ type: 'error', recoverable: false })
-    expect(events.filter((event) => event.type === 'done')).toEqual([])
+    // The recorded session's retouched layer carries an enabled mask (#133),
+    // so finishing the scripted turns satisfies the editable-output policy.
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+    expect(events.filter((event) => event.type === 'error')).toEqual([])
   })
 
   test('the page receives the acknowledgement within three seconds', async () => {

@@ -8,7 +8,13 @@ test('exposes the two named raster layers in the recorded PSD', async () => {
 
     expect(await session.layers()).toEqual([
       { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
-      { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
+      {
+        name: 'Retouched photograph',
+        kind: 'raster',
+        visible: true,
+        masks: [{ kind: 'pixel', enabled: true }],
+        children: []
+      }
     ])
   } finally {
     await session.close()

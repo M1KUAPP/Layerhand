@@ -21,10 +21,16 @@ const CLICK: ComputerAction = { type: 'click', button: 'left', x: 720, y: 450 }
 // $1, $12.50, and $50 per million, that is $0.095555 a call.
 const USAGE: TokenUsage = { inputTokens: 40_000, cachedInputTokens: 38_430, outputTokens: 750 }
 
-// The layers createRecordedFakeEditorSession() reports, and its PSD contains.
+// The layers createRecordedFakeEditorSession() reports.
 const RECORDED_LAYERS: RunResult['layers'] = [
   { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
-  { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
+  {
+    name: 'Retouched photograph',
+    kind: 'raster',
+    visible: true,
+    masks: [{ kind: 'pixel', enabled: true }],
+    children: []
+  }
 ]
 
 // Explicit loop-test metadata; the historical PSD above has no adjustment.
