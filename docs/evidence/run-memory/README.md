@@ -42,8 +42,9 @@ frame, and its snapshot.
   script makes every look a new frame of random bytes, so none is skipped and
   none compresses, as a PNG does not.
 - **Every viewer read at local speed.** The event stream does not wait for a
-  viewer's connection, so on a slow one the frames not yet sent queue in this
-  process. No slow viewer is in the figures.
+  viewer's connection, but a slow one now holds at most one unsent frame in
+  this process rather than every frame behind it (#101). No slow viewer is
+  in the figures.
 - **One upload size.** Every run sent the 1.7 MB sample photograph. FR-1
   allows 20 MB, and a large upload is copied several times on its way in.
 - **Every run failed at the layer check.** The recorded PSD has no adjustment

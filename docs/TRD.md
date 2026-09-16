@@ -1192,8 +1192,9 @@ in this process. Their browsers run at Browserbase, but each screenshot and
 export arrives here over CDP as base64 to be decoded, each model call
 carries a screenshot, and an upload can be 20 MB rather than the 1.7 MB
 sample photograph the runs sent. Nor does it cover a viewer on a slow
-connection: the event stream does not wait for one, so the frames it has not
-sent yet queue in this process. The
+connection: the event stream does not wait for one, but a slow viewer now
+holds at most one unsent frame in this process rather than every frame
+behind it (#101). The
 [run memory evidence](/docs/evidence/run-memory/README.md) has the method
 and its limits.
 
