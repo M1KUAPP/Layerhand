@@ -120,11 +120,13 @@ Three places, in the order worth trying:
     ```
 
     `outcome` is how it ended: `complete`, `step_cap`, `spend_cap`,
-    `time_limit`, `cancelled`, or `failed`. `failure_code` says what a
-    failed run failed on: `model_call_failed`, `editor_open_failed`,
-    `editor_action_failed`, `editor_screenshot_failed`, `export_failed`,
-    `publish_failed`, `layer_policy_failed`, `missing_narration`, or
-    `run_failed` when nothing else explains it.
+    `time_limit`, `shutdown`, `cancelled`, or `failed`. `shutdown` is a
+    deploy or a scale-down, not a visitor's own cancel. `failure_code`
+    says what a failed run failed on: `model_call_failed`,
+    `editor_open_failed`, `editor_action_failed`,
+    `editor_screenshot_failed`, `export_failed`, `publish_failed`,
+    `layer_policy_failed`, `missing_narration`, or `run_failed` when
+    nothing else explains it.
 
 2.  **The service's own records**, in Cloud Run's logs. A failed run writes
     one `run_failed` line to standard error carrying its `runId`, `step`,
