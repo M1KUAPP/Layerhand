@@ -8,7 +8,7 @@ import type { ManagedRun } from '../../src/server/managed-run'
 import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
-import { RunRoutes } from '../../src/server/run-routes'
+import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
 import type { OpenAiKeyCheck } from '../../src/server/openai-key'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
 import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
@@ -900,5 +900,46 @@ describe('cross-origin protection (#115)', () => {
     )
 
     expect(response.status).toBe(404)
+  })
+})
+
+describe('JSON body size cap (#115)', () => {
+  test('refuses an oversized waitlist body before parsing it', async () => {
+    const { app } = testRoutes()
+    const oversized = new Request('https://layerhand.test/api/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: 'x'.repeat(MAX_JSON_BODY_BYTES + 1)
+    })
+
+    const response = await app.fetch(oversized)
+
+    expect(response.status).toBe(413)
+    expect((await response.json()) as { code: string }).toMatchObject({ code: 'request_too_large' })
+  })
+
+  test('refuses an oversized steer body before parsing it', async () => {
+    const { app, registry } = testRoutes()
+    const start = await app.fetch(startRequest())
+    const { runId } = (await start.json()) as { runId: string }
+
+    const response = await app.fetch(
+      new Request(`https://layerhand.test/api/runs/${runId}/steer`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: 'x'.repeat(MAX_JSON_BODY_BYTES + 1)
+      })
+    )
+
+    expect(response.status).toBe(413)
+    await registry.cancel(runId).catch(() => undefined)
+  })
+
+  test('still accepts a waitlist body within the cap', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(waitlistRequest())
+
+    expect(response.status).toBe(201)
   })
 })
