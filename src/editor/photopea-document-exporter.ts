@@ -173,10 +173,12 @@ export class PhotopeaDocumentExporter {
   }
 
   async exportSnapshot(): Promise<PhotopeaExportSnapshot> {
-    let psd = await this.#export('psd')
+    let psd: Uint8Array | undefined = await this.#export('psd')
     let metadata = parsePsdMetadata(psd)
     const plan = buildLayerRenamePlan(metadata.layers)
     if (plan.length) {
+      // The renamed export replaces this one, so a large file is not held twice while it is read (#100).
+      psd = undefined
       const messages = await this.#bridge.runScript(renameScript(metadata.layers, plan))
       verifyResult(messages, 'layerhand:layers-renamed', RENAMED, TREE_CHANGED)
       psd = await this.#export('psd')

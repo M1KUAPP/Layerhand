@@ -142,7 +142,7 @@ describe('parsePsdMetadata', () => {
     expect(metadata.layers[0]?.masks).toEqual([{ kind: 'vector', enabled: true }])
   })
 
-  test('reads an exact copy of a non-zero-offset byte view', () => {
+  test('reads a non-zero-offset byte view', () => {
     const bytes = psdBytes(psd([{ name: 'Raster', imageData: rgba(2, 1, [0, 0, 0, 255, 0, 0, 0, 255]) }]))
     const padded = new Uint8Array(bytes.length + 2)
     padded.set(bytes, 1)

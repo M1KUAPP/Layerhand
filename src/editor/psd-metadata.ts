@@ -65,7 +65,8 @@ function parsedLayer(layer: Layer): ParsedLayerInfo {
 
 export function parsePsdMetadata(bytes: Uint8Array): ParsedPsdMetadata {
   try {
-    const psd = readPsd(Uint8Array.from(bytes), READ_OPTIONS)
+    // Read in place: ag-psd only reads, and a large export is not worth copying (#100).
+    const psd = readPsd(bytes, READ_OPTIONS)
 
     return {
       width: psd.width,
