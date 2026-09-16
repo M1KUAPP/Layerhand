@@ -30,6 +30,7 @@ let selectedFile: File | undefined
 let selectedPreviewUrl: string | undefined
 let fileError: string | undefined
 let instructionError: string | undefined
+let keyError: string | undefined
 let formError: string | undefined
 let draftInstruction = ''
 let draftApiKey = ''
@@ -309,6 +310,13 @@ function renderInput(): DocumentFragment {
   keyInput.addEventListener('input', () => {
     draftApiKey = keyInput.value
   })
+  // FR-36: the key pays for this run and is released with it.
+  const keyHint = node('p', 'field-hint', 'Used for this run only and never stored.')
+  keyHint.id = 'api-key-hint'
+  const keyStatus = node('p', 'field-error', keyError)
+  keyStatus.id = 'api-key-error'
+  keyStatus.setAttribute('role', 'alert')
+  keyInput.setAttribute('aria-describedby', `${keyHint.id} ${keyStatus.id}`)
 
   const error = node('p', 'form-error', formError)
   error.setAttribute('role', 'alert')
@@ -323,12 +331,15 @@ function renderInput(): DocumentFragment {
     examples,
     keyLabel,
     keyInput,
+    keyHint,
+    keyStatus,
     error,
     submit
   )
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     formError = undefined
+    keyError = undefined
     instructionError = undefined
     if (!selectedFile) {
       fileError = 'Choose a JPEG or PNG image.'
@@ -369,7 +380,14 @@ function renderInput(): DocumentFragment {
         return
       }
       formError = publicMessage(error)
+      // A free-run refusal is answered by the key field, so it is pointed
+      // out there and focus moves to it.
+      keyError =
+        error instanceof RunApiError && (error.code === 'free_limit_reached' || error.code === 'daily_budget_reached')
+          ? 'Add your OpenAI API key in this field to continue.'
+          : undefined
       render()
+      if (keyError) root.querySelector<HTMLElement>('#api-key')?.focus()
     } finally {
       root.ariaBusy = 'false'
     }
