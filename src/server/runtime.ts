@@ -9,7 +9,15 @@ import type { ArtifactStore } from './artifact-store'
 import { MemoryArtifactStore } from './artifact-store'
 import { createApplication, type Application } from './application'
 import { BrowserbaseClient } from './browserbase-client'
-import { ConfigurationError, readConfig, readRunLimits, readSteering, type ServerConfig, type Steering } from './config'
+import {
+  ConfigurationError,
+  readConfig,
+  readRunLimits,
+  readRunsPaused,
+  readSteering,
+  type ServerConfig,
+  type Steering
+} from './config'
 import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
@@ -140,6 +148,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
   const runMode = readRunMode(env.RUN_MODE)
   const config = production ? readConfig(env) : undefined
   const limits = readRunLimits(env)
+  const runsPaused = readRunsPaused(env)
   const agent = runMode === 'agent' ? readAgentConfig(env, config) : undefined
   const database = createDatabase(config?.databaseUrl ?? env.DATABASE_URL ?? ':memory:')
 
@@ -195,7 +204,8 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
               })
             }
           : (request) => managedFakeRun(request, intervalMs, serverApiKey),
-      stepCap: options.stepCap ?? limits.stepCap
+      stepCap: options.stepCap ?? limits.stepCap,
+      runsPaused
     })
     return {
       application: createApplication({
