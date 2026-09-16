@@ -7,7 +7,7 @@ import type { EditorSession } from '../editor/session'
 import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
-import { ModelUnavailableError, type AgentModel, type ModelTurn } from './model'
+import { ModelUnavailableError, type AgentModel, type ModelTurn, type NativeSteer } from './model'
 import { Spend, type TokenPricing } from './spend'
 
 export type PublishedKind = 'frame' | 'psd' | 'preview'
@@ -28,6 +28,15 @@ export interface AgentLoopDependencies {
   /** Captures the failure that triggered fatal cleanup before cleanup can fail too. */
   captureFailure?: () => void
 }
+
+/** A correction acknowledged and not yet passed with a call. */
+interface QueuedCorrection {
+  text: string
+  /** The steer the model sent for it into the call in flight, if it sent one (#9). */
+  native?: NativeSteer
+}
+
+const appliedNatively = ({ native }: QueuedCorrection) => native?.applied === true
 
 // FR-11 asks for narration short enough to read while the editor moves.
 const MAX_NARRATION = 80
@@ -67,7 +76,7 @@ export function runAgent(
     aborter.signal.addEventListener('abort', () => reject(aborter.signal.reason), { once: true })
   })
   cancelled.catch(() => undefined)
-  const corrections: string[] = []
+  const corrections: QueuedCorrection[] = []
   // Set once no further model call can carry a correction.
   let refusing = false
   let calls = 0
@@ -102,11 +111,22 @@ export function runAgent(
   // Whether a limit rules out another model call (FR-12, NFR-2).
   const limitReached = () => calls >= request.stepCap || spend.wouldPass(request.budgetUsd)
 
-  // Stops taking corrections. One acknowledged but not yet sent is reported rather than dropped.
+  // Stops taking corrections. One acknowledged but not yet sent is reported
+  // rather than dropped, unless native steering has already applied it.
   const refuseCorrections = () => {
     refusing = true
-    if (corrections.splice(0).length > 0) {
+    if (!corrections.splice(0).every(appliedNatively)) {
       log.emit({ type: 'error', reason: 'The run stopped before a correction reached the agent', recoverable: true })
+    }
+  }
+
+  // A model that can steer the call in flight gets each correction at once. The
+  // loop passes it with the next call either way, so a model that fails to take it loses nothing.
+  const offer = (text: string): NativeSteer | undefined => {
+    try {
+      return model.steer?.(text)
+    } catch {
+      return undefined
     }
   }
 
@@ -131,7 +151,7 @@ export function runAgent(
       calls += 1
       let turn: ModelTurn
       try {
-        const observation = { screenshot, corrections: corrections.splice(0) }
+        const observation = { screenshot, corrections: corrections.splice(0).map(({ text }) => text) }
         turn = await Promise.race([model.next(observation, aborter.signal), cancelled])
       } catch (error) {
         if (aborter.signal.aborted) return false
@@ -160,7 +180,8 @@ export function runAgent(
         return false
       }
       // The edit is finished only if no correction is waiting for the model.
-      const finished = turn.done && corrections.length === 0
+      // One native steering applied was seen by the answer that finished it.
+      const finished = turn.done && corrections.every(appliedNatively)
       // Decide now whether another call can follow, so that no correction is
       // acknowledged that no call will carry.
       if (limitReached() || finished) refuseCorrections()
@@ -218,8 +239,10 @@ export function runAgent(
 
     async steer(text) {
       if (refusing) throw new Error('The run is stopping, so the correction was not applied')
-      corrections.push(text)
+      const correction: QueuedCorrection = { text }
+      corrections.push(correction)
       log.emit({ type: 'correction_ack', text })
+      correction.native = offer(text)
     },
 
     async cancel() {
