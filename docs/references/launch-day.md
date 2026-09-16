@@ -12,6 +12,7 @@ Contents:
 1.  [Rolling back to the previous revision](#rolling-back-to-the-previous-revision)
 1.  [Where to look when something is wrong](#where-to-look-when-something-is-wrong)
 1.  [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
+1.  [Request limits](#request-limits)
 1.  [Rotating the server key](#rotating-the-server-key)
 1.  [When the providers misbehave](#when-the-providers-misbehave)
 1.  [See also](#see-also)
@@ -216,6 +217,40 @@ Lower it when a provider binds first: OpenAI rate limits, or Browserbase
 refusing sessions. Raise it only within Browserbase's 25 browsers, of which
 warm sessions take up to four, and with memory in mind: twenty runs peaked
 at 679 MiB of the service's 4 GiB.
+
+## Request limits
+
+Four checks refuse a request to `POST /api/uploads`, `/api/runs`, or
+`/api/waitlist` before it can spend anything (TRD
+[§ Request limits, origin, and body size](/docs/TRD.md#request-limits-origin-and-body-size)):
+
+| Check                  | Applies to                                  | Refusal                       |
+| ---------------------- | ------------------------------------------- | ----------------------------- |
+| Per-visitor rate limit | Uploads, runs, waitlist, each its own count | HTTP 429, `rate_limited`      |
+| Per-address rate limit | Uploads, runs, waitlist, each its own count | HTTP 429, `rate_limited`      |
+| Origin check           | Every state-changing (`POST`) request       | HTTP 403, `origin_refused`    |
+| JSON body cap          | The steer and waitlist bodies               | HTTP 413, `request_too_large` |
+
+None of the four writes a `run_log` row: a refusal here means no run was
+ever created, so there is nothing to record. They show up in Cloud Run's
+own request log instead, by status code:
+
+```sh
+gcloud logging read \
+  'resource.type=cloud_run_revision AND httpRequest.status=429' \
+  --project layerhand-astra-2026 --limit 20 --freshness 2h
+```
+
+Swap `429` for `403` or `413` to find the other two, and the response
+body's `code` field tells the checks apart without opening a payload.
+None is configurable by environment variable; each is a constant in
+`src/server/run-routes.ts`, so lowering one is a code change and a
+deploy, not a hand-edit to the running service.
+
+The free-run allowance (FR-35, three runs) is unrelated to these four but
+worth knowing alongside them: it is now checked against the address as
+well as the signed cookie, each in its own table, so a visitor who clears
+their cookie no longer also resets what their address has already used.
 
 ## Rotating the server key
 
