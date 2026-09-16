@@ -45,7 +45,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
-.drop-zone:focus-visible {
+.drop-zone:has(.file-input:focus-visible) {
   outline-color: var(--ink);
 }
 
