@@ -186,9 +186,10 @@ async function steerFirstResponse(model: ResponsesModel, server: ReturnType<type
   await connection.received.next()
   connection.send(created('resp_1'))
   await until(() => model.steerable)
-  expect(model.steer('Keep the shadow')).toBe(true)
+  const native = model.steer('Keep the shadow')
+  expect(native).toBeDefined()
   const steer = await connection.received.next()
-  return { turn, connection, steer }
+  return { turn, connection, steer, native: native! }
 }
 
 describe('ResponsesModel over a WebSocket', () => {
@@ -239,12 +240,14 @@ describe('ResponsesModel over a WebSocket', () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
 
-    const { turn, connection, steer } = await steerFirstResponse(model, server)
+    const { turn, connection, steer, native } = await steerFirstResponse(model, server)
     connection.send(accepted('steer_1', 'resp_1'))
     connection.send(steeredAway('resp_1'))
     connection.send(created('resp_2'))
     connection.send(completed('resp_2', [said('Masking around the shadow'), computerCall('call_2')]))
     const first = await turn
+    // The answer that ended the step saw the correction.
+    expect(native.applied).toBe(true)
     const next = model.next(observe(['Keep the shadow']), signal())
     const continuation = await connection.received.next()
     connection.send(created('resp_3'))
@@ -294,17 +297,20 @@ describe('ResponsesModel over a WebSocket', () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
 
-    const { turn, connection } = await steerFirstResponse(model, server)
+    const { turn, connection, native } = await steerFirstResponse(model, server)
     connection.send(accepted('steer_1', 'resp_1'))
     connection.send(completed('resp_1', [said('Opening the Adjustments panel'), computerCall('call_1')]))
     connection.send(pending('steer_1', 'resp_1', 'call_1'))
     expect(await turn).toMatchObject({ done: false })
+    // The server holds it until the continuation, which a stopped run never sends.
+    expect(native.applied).toBe(false)
     const next = model.next(observe(['Keep the shadow']), signal())
     const continuation = await connection.received.next()
     connection.send(created('resp_2'))
     connection.send(completed('resp_2'))
     await next
 
+    expect(native.applied).toBe(true)
     expect(continuation.previous_response_id).toBe('resp_1')
     expect(continuation.input).toHaveLength(1)
     expect(continuation.input[0]).toMatchObject({ type: 'computer_call_output', call_id: 'call_1' })
@@ -322,7 +328,7 @@ describe('ResponsesModel over a WebSocket', () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
 
-    const { turn, connection } = await steerFirstResponse(model, server)
+    const { turn, connection, native } = await steerFirstResponse(model, server)
     connection.send(steerFailed('resp_1', code))
     connection.send(completed('resp_1', [said('Opening the Adjustments panel'), computerCall('call_1')]))
     await turn
@@ -333,6 +339,7 @@ describe('ResponsesModel over a WebSocket', () => {
     await next
 
     expect(correctionsIn(continuation.input)).toEqual(['Correction from the user: Keep the shadow'])
+    expect(native.applied).toBe(false)
     expect(model.steering).toEqual({ available: true, applied: 0, indeterminate: 0 })
   })
 
@@ -350,7 +357,7 @@ describe('ResponsesModel over a WebSocket', () => {
 
     expect(correctionsIn(continuation.input)).toEqual(['Correction from the user: Keep the shadow'])
     expect(model.steering.available).toBe(false)
-    expect(model.steer('Leave the label')).toBe(false)
+    expect(model.steer('Leave the label')).toBeUndefined()
     connection.send(completed('resp_2'))
     await next
   })
@@ -359,9 +366,10 @@ describe('ResponsesModel over a WebSocket', () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
 
-    const { turn, connection } = await steerFirstResponse(model, server)
+    const { turn, connection, native } = await steerFirstResponse(model, server)
     connection.send(completed('resp_1', [said('Opening the Adjustments panel'), computerCall('call_1')]))
     await turn
+    expect(native.applied).toBe(false)
     const next = model.next(observe(['Keep the shadow']), signal())
     const continuation = await connection.received.next()
     connection.send(created('resp_2'))
@@ -419,7 +427,7 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(resent.input[0]).toMatchObject({ type: 'computer_call_output', call_id: 'call_1' })
     expect(correctionsIn(resent.input)).toEqual(['Correction from the user: Keep the shadow'])
     expect(model.steering).toEqual({ available: false, applied: 0, indeterminate: 1 })
-    expect(model.steer('Leave the label')).toBe(false)
+    expect(model.steer('Leave the label')).toBeUndefined()
   })
 
   test('bills the responses that ended before the connection failed', async () => {
@@ -448,8 +456,8 @@ describe('ResponsesModel over a WebSocket', () => {
     connection.send(created('resp_1'))
     await until(() => model.steerable)
 
-    expect(model.steer('Keep the shadow')).toBe(false)
-    expect(model.steer('Leave the label')).toBe(true)
+    expect(model.steer('Keep the shadow')).toBeUndefined()
+    expect(model.steer('Leave the label')).toBeDefined()
     connection.send(completed('resp_1'))
     await turn
   })
@@ -460,13 +468,15 @@ describe('ResponsesModel over a WebSocket', () => {
       { id: 'resp_http', output: [said('Opening the Adjustments panel'), computerCall('call_1')], usage: USAGE }
     ])
 
-    const { turn, connection } = await steerFirstResponse(model, server)
+    const { turn, connection, native } = await steerFirstResponse(model, server)
     connection.send(accepted('steer_1', 'resp_1'))
     connection.send(completed('resp_1', [said('The highlights are warmer.')]))
 
     expect(await turn).toMatchObject({ narration: 'Opening the Adjustments panel', done: false })
     await connection.closed
     expect(http.sent[0]!.body.previous_response_id).toBeUndefined()
+    // The answer sent again over HTTP never saw it, so the next call must carry it.
+    expect(native.applied).toBe(false)
     expect(model.steering).toEqual({ available: false, applied: 0, indeterminate: 1 })
   })
 
@@ -496,7 +506,7 @@ describe('ResponsesModel over a WebSocket', () => {
 
     expect(await model.next(observe(), signal())).toMatchObject({ done: true })
     expect(http.sent).toHaveLength(1)
-    expect(model.steer('Keep the shadow')).toBe(false)
+    expect(model.steer('Keep the shadow')).toBeUndefined()
     expect(model.steering.available).toBe(false)
   })
 
