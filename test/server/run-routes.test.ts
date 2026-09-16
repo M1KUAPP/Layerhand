@@ -26,6 +26,7 @@ class RecordingMeter implements MeterStore {
   heldBack = 0
   readonly reservation: MeterReservation = {
     visitorKey: 'opaque-visitor',
+    addressKey: 'opaque-address',
     dayUtc: '2026-09-15',
     reservedMicroUsd: usdToMicroUsd(10),
     freeTier: true

@@ -13,12 +13,15 @@ const RESERVATION_LIFETIME_MS = 15 * 60_000 + 5 * 60_000
 
 export interface AdmissionRequest {
   visitorKey: string
+  /** The address alone, independent of the cookie (#115). */
+  addressKey: string
   reservationMicroUsd: number
   byok: boolean
 }
 
 export interface MeterReservation {
   readonly visitorKey: string
+  readonly addressKey: string
   readonly dayUtc: string
   readonly reservedMicroUsd: number
   readonly freeTier: boolean
@@ -110,6 +113,7 @@ export class SqlMeterStore implements MeterStore {
     const now = this.#now()
     const reservation: MeterReservation = {
       visitorKey: request.visitorKey,
+      addressKey: request.addressKey,
       dayUtc: now.toISOString().slice(0, 10),
       reservedMicroUsd: request.byok ? 0 : request.reservationMicroUsd,
       freeTier: !request.byok
@@ -131,6 +135,19 @@ export class SqlMeterStore implements MeterStore {
           RETURNING accepted_free_runs
         `
         if (visitors.length === 0) throw new AdmissionDenied(FREE_LIMIT)
+
+        // The address's own count, so a fresh cookie at a used-up address
+        // still refuses (#115): a visitor key mixes the two together, so
+        // either one alone used to reset by changing the other.
+        const addresses = await transaction`
+          INSERT INTO address_usage (address_key, accepted_free_runs)
+          VALUES (${reservation.addressKey}, 1)
+          ON CONFLICT (address_key) DO UPDATE SET
+            accepted_free_runs = address_usage.accepted_free_runs + 1
+          WHERE address_usage.accepted_free_runs < ${FREE_RUN_LIMIT}
+          RETURNING accepted_free_runs
+        `
+        if (addresses.length === 0) throw new AdmissionDenied(FREE_LIMIT)
 
         await this.#assertRoom(transaction, reservation, liveSince)
 
@@ -200,6 +217,10 @@ export class SqlMeterStore implements MeterStore {
         await transaction`
           UPDATE visitor_usage SET accepted_free_runs = accepted_free_runs - 1
           WHERE visitor_key = ${reservation.visitorKey} AND accepted_free_runs > 0
+        `
+        await transaction`
+          UPDATE address_usage SET accepted_free_runs = accepted_free_runs - 1
+          WHERE address_key = ${reservation.addressKey} AND accepted_free_runs > 0
         `
         await transaction`DELETE FROM meter_reservations WHERE reservation_id = ${reservationId}`
       })
