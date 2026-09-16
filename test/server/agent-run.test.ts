@@ -688,6 +688,9 @@ describe('managed agent run', () => {
         expect(events.filter((event) => event.type === 'step').length).toBeGreaterThanOrEqual(38)
         expect(events.filter((event) => event.type === 'error')).toEqual([])
         expect(managed.metrics().stopReason).toBe('spend_cap')
+        // The run goes further, but what it spent stays within the $3 cap (NFR-2).
+        const spent = events.flatMap((event) => (event.type === 'cost' ? [event.usd] : []))
+        expect(spent.at(-1)).toBeLessThanOrEqual(3)
         expect(astra.model.steering).toMatchObject({ applied: 1, indeterminate: 0 })
       } finally {
         astra.stop()
