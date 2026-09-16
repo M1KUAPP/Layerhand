@@ -4,6 +4,7 @@ import { fakeRun } from '../../src/agent/fake-run'
 import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { createApplication } from '../../src/server/application'
 import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../src/server/artifact-store'
+import type { ManagedRun } from '../../src/server/managed-run'
 import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
@@ -117,7 +118,40 @@ function warmSessionStub(id: string) {
   }
 }
 
-function fixture(overrides: { meter?: RecordingMeter; warm?: boolean; failAtStep?: number } = {}) {
+/**
+ * A managed run whose model stopped answering after retries (Task 104, not
+ * yet merged): the loop treats that like a cap, so it ends with a `done`
+ * event and an incomplete result rather than an unrecoverable error. The
+ * manager still reports the run failed, and nothing was ever spent.
+ */
+function stoppedModelRun(): ManagedRun {
+  return {
+    handle: {
+      events: {
+        async *[Symbol.asyncIterator]() {
+          yield { type: 'started', runId: 'stopped-run', viewport: { width: 1440, height: 900 } } satisfies RunEvent
+          yield {
+            type: 'error',
+            reason: 'The model stopped answering, so the run stopped',
+            recoverable: true
+          } satisfies RunEvent
+          yield {
+            type: 'done',
+            result: { psdUrl: 'psd-url', previewUrl: 'preview-url', layers: [], complete: false }
+          } satisfies RunEvent
+        }
+      },
+      async steer() {},
+      async cancel() {}
+    },
+    metrics: () => ({ cacheHitRate: null, stopReason: 'failed' }),
+    releaseSecrets() {}
+  }
+}
+
+function fixture(
+  overrides: { meter?: RecordingMeter; warm?: boolean; failAtStep?: number; managedRun?: ManagedRun } = {}
+) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
   const registry = new RunRegistry()
@@ -153,6 +187,7 @@ function fixture(overrides: { meter?: RecordingMeter; warm?: boolean; failAtStep
       claimed.push(warmSession)
       if (failRunFactory) return Promise.reject(new Error('run factory failed'))
       runRequests.push(request)
+      if (overrides.managedRun) return overrides.managedRun
       return {
         handle: fakeRun(request, {
           intervalMs: 1,
@@ -310,6 +345,23 @@ describe('run HTTP contract', () => {
 
     const snapshot = await target.app.fetch(new Request(`https://layerhand.test/api/runs/${runId}`))
     expect((await snapshot.json()).status).toBe('failed')
+    expect(target.meter.calls).toContain('release')
+    expect(target.meter.calls.some((call) => call.startsWith('reconcile:'))).toBe(false)
+  })
+
+  test('gives back the free run when the model stops answering before any cost', async () => {
+    // Task 104 (not yet merged): a model call that fails after retries ends
+    // the run like a cap, with a `done` event and an incomplete result, so
+    // `snapshot.status` reads `incomplete` rather than `failed`. The manager
+    // still reports the run failed, and it happened before any cost (#116).
+    const target = fixture({ managedRun: stoppedModelRun() })
+
+    const start = await target.app.fetch(startRequest())
+    const { runId } = (await start.json()) as { runId: string }
+    await target.registry.waitForTerminal(runId)
+
+    const snapshot = await target.app.fetch(new Request(`https://layerhand.test/api/runs/${runId}`))
+    expect((await snapshot.json()).status).toBe('incomplete')
     expect(target.meter.calls).toContain('release')
     expect(target.meter.calls.some((call) => call.startsWith('reconcile:'))).toBe(false)
   })
