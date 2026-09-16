@@ -1,4 +1,5 @@
 @import './landing/tokens.css';
+@import './landing/shell.css';
 @import './landing/hero.css';
 @import './landing/scrub.css';
 @import './landing/drawer.css';
