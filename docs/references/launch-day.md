@@ -151,12 +151,16 @@ change, so it waits for the freeze to lift unless it is an emergency.
 `model_call_failed` is OpenAI, `editor_open_failed` is Browserbase or
 Photopea, and `editor_action_failed` is the editor itself.
 
-- **OpenAI errors or a rate limit.** Runs fail one by one and the page shows
-  its fixed reason. The daily ceiling is untouched by failures, because a
-  reservation is released when the run ends. If it is sustained, stop
-  spending with `RUN_MODE=fake`, which answers every run from a scripted
-  event sequence — no browser, no model, nothing spent — and say so on the
-  launch post:
+- **OpenAI errors or a rate limit.** A call that meets a rate limit, a
+  server error, or no answer is sent again, for about a minute of waiting,
+  or longer when OpenAI asks. A run whose retries run out stops as a cap
+  does: the visitor keeps the partial file, and the run log still records
+  `failed` with `model_call_failed`. A call OpenAI refuses outright fails
+  its run, and the page shows its fixed reason. The daily ceiling is
+  untouched by failures, because a reservation is released when the run
+  ends. If it is sustained, stop spending with `RUN_MODE=fake`, which
+  answers every run from a scripted event sequence — no browser, no model,
+  nothing spent — and say so on the launch post:
 
   ```sh
   gcloud run services update layerhand \
