@@ -8,6 +8,15 @@ const DEFAULT_RETENTION_MS = 60 * 60 * 1000
 // abandon phase of this length both fit inside.
 const SHUTDOWN_GRACE_MS = 4_000
 
+// A run ending or joining the queue tries the waiting runs again. This is for
+// a run told to wait with nothing else in flight, as a free run can be while a
+// crashed server's reservations run out.
+const RETRY_WAITING_MS = 30_000
+
+const LEFT_QUEUE = 'You left the queue before the run started.'
+const SHUT_DOWN_IN_QUEUE = 'The server restarted before the run started. Start it again.'
+const START_FAILED = 'The run could not be started. Try again in a moment.'
+
 /** Resolves when the promise settles, or after `ms`, whichever is first. */
 function within(promise: Promise<unknown>, ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -20,11 +29,14 @@ function within(promise: Promise<unknown>, ms: number): Promise<void> {
   })
 }
 
-export type RunStatus = 'running' | 'complete' | 'incomplete' | 'cancelled' | 'failed'
+export type RunStatus = 'queued' | 'running' | 'complete' | 'incomplete' | 'cancelled' | 'failed'
+
+/** What a run's event stream carries: Contract 2's events, and its place in the queue (Contract 3). */
+export type RunStreamEvent = RunEvent | { type: 'queued'; position: number }
 
 export interface RunEventEnvelope {
   id: number
-  event: RunEvent
+  event: RunStreamEvent
 }
 
 export interface RunSnapshot {
@@ -40,6 +52,8 @@ export interface RunSnapshot {
   lastEventId: number
   corrections: string[]
   recoverableErrors: string[]
+  /** While the run waits for a slot, its place in line, counting from 1. */
+  queuePosition?: number
   result?: RunResult
   failureReason?: string
   /**
@@ -65,9 +79,25 @@ export interface RegisterRun {
   onTerminal?: (run: TerminalRun) => void | Promise<void>
 }
 
+export interface EnqueueRun {
+  runId: string
+  instruction: string
+  /**
+   * Starts the run once it holds a slot. Resolves undefined when the run
+   * cannot start yet, and it keeps its place to be tried again. Rejects with
+   * RunStartRefused, whose message the visitor reads, when it never can.
+   */
+  start: () => Promise<ManagedRun | undefined>
+  onTerminal?: (run: TerminalRun) => void | Promise<void>
+}
+
 export interface RunRegistryOptions {
   now?: () => number
   retentionMs?: number
+  /** How many runs may be in flight at once; an enqueued run past it waits (NFR-4). Unbounded unless set. */
+  maxConcurrentRuns?: number
+  /** How long a run told to wait waits before it is tried again unprompted. */
+  retryWaitingMs?: number
   onTerminal?: (run: TerminalRun) => void | Promise<void>
 }
 
@@ -87,6 +117,12 @@ interface StoredRun {
    */
   managedRun?: ManagedRun
   onTerminal?: (run: TerminalRun) => void | Promise<void>
+  /** What starts the run, while it waits in the queue. */
+  start?: () => Promise<ManagedRun | undefined>
+  /** Whether a start is in flight, which holds a slot until it settles. */
+  starting: boolean
+  /** Whether the run is in flight and so counts against the cap. */
+  holdsSlot: boolean
   startedAt: number
   terminalAt?: number
   /** Every event at its id, but a frame a newer one replaced leaves a gap (#101). */
@@ -107,7 +143,7 @@ function isLive(run: StoredRun): run is LiveRun {
 }
 
 export class RunRegistryError extends Error {
-  readonly code: 'run_not_found' | 'run_ended' | 'run_exists' | 'shutting_down'
+  readonly code: 'run_not_found' | 'run_ended' | 'run_exists' | 'run_queued' | 'shutting_down'
 
   constructor(code: RunRegistryError['code'], message: string) {
     super(message)
@@ -116,10 +152,18 @@ export class RunRegistryError extends Error {
   }
 }
 
-function initialSnapshot(runId: string): RunSnapshot {
+/** Why a queued run can never start. Its message is shown to the visitor, so it carries no provider detail. */
+export class RunStartRefused extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'RunStartRefused'
+  }
+}
+
+function initialSnapshot(runId: string, status: RunStatus): RunSnapshot {
   return {
     runId,
-    status: 'running',
+    status,
     steps: 0,
     cap: null,
     narration: null,
@@ -150,49 +194,52 @@ export class RunRegistry {
   readonly #runs = new Map<string, StoredRun>()
   readonly #now: () => number
   readonly #retentionMs: number
+  readonly #maxConcurrentRuns: number
+  readonly #retryWaitingMs: number
   readonly #onTerminal: (run: TerminalRun) => void | Promise<void>
+  /** Runs waiting for a slot, in the order they came. */
+  readonly #queue: StoredRun[] = []
+  #slotsInUse = 0
+  #startPass: Promise<void> | undefined
+  #startPassAgain = false
+  #retryTimer: ReturnType<typeof setTimeout> | undefined
   #closed = false
 
   constructor({
     now = () => Date.now(),
     retentionMs = DEFAULT_RETENTION_MS,
+    maxConcurrentRuns = Number.POSITIVE_INFINITY,
+    retryWaitingMs = RETRY_WAITING_MS,
     onTerminal = () => undefined
   }: RunRegistryOptions = {}) {
     this.#now = now
     this.#retentionMs = retentionMs
+    this.#maxConcurrentRuns = maxConcurrentRuns
+    this.#retryWaitingMs = retryWaitingMs
     this.#onTerminal = onTerminal
   }
 
+  /**
+   * Registers a run that has already started. It takes a slot even past the
+   * cap, because it is running either way; runs that can wait are enqueued.
+   */
   register({ runId, instruction, managedRun, onTerminal }: RegisterRun): RunSnapshot {
-    // A run registered once close() has begun would never be ended by it.
-    if (this.#closed) {
-      throw new RunRegistryError('shutting_down', 'The server is shutting down, so the run was not started.')
-    }
-    this.#purgeExpired()
-    if (this.#runs.has(runId)) {
-      throw new RunRegistryError('run_exists', 'A run with this id already exists.')
-    }
+    const run = this.#add(runId, instruction, onTerminal, 'running')
+    this.#begin(run, managedRun)
+    return copySnapshot(run.snapshot)
+  }
 
-    let resolveTerminal: () => void = () => {}
-    const terminal = new Promise<void>((resolve) => {
-      resolveTerminal = resolve
-    })
-    const run: StoredRun = {
-      runId,
-      instruction,
-      managedRun,
-      onTerminal,
-      startedAt: this.#now(),
-      history: [],
-      snapshot: initialSnapshot(runId),
-      subscribers: new Set(),
-      cancelRequested: false,
-      finalized: false,
-      terminal,
-      resolveTerminal
-    }
-    this.#runs.set(runId, run)
-    void this.#pump(run, managedRun)
+  /**
+   * Registers a run that starts once a slot is free: at once when one is and
+   * no run waits ahead of it, and otherwise in first-in, first-out order,
+   * with its place in line on its snapshot and event stream. Resolves once
+   * the run has started, or taken its place.
+   */
+  async enqueue({ runId, instruction, start, onTerminal }: EnqueueRun): Promise<RunSnapshot> {
+    const run = this.#add(runId, instruction, onTerminal, 'queued')
+    run.start = start
+    this.#queue.push(run)
+    await this.#startWaiting()
     return copySnapshot(run.snapshot)
   }
 
@@ -239,6 +286,13 @@ export class RunRegistry {
   }
 
   async cancel(runId: string): Promise<void> {
+    const waiting = this.#required(runId)
+    if (waiting.snapshot.status === 'queued') {
+      waiting.cancelRequested = true
+      // A run whose start is in flight ends, or is cancelled, once that settles.
+      if (!waiting.starting) await this.#endWaiting(waiting, LEFT_QUEUE)
+      return
+    }
     const run = this.#requiredRunning(runId)
     run.cancelRequested = true
     try {
@@ -257,13 +311,19 @@ export class RunRegistry {
    */
   async close(graceMs = SHUTDOWN_GRACE_MS): Promise<void> {
     this.#closed = true
+    clearTimeout(this.#retryTimer)
     const running = () => [...this.#runs.values()].filter(isLive)
+    // A waiting run never starts now. One whose start is in flight is
+    // cancelled once that settles.
+    for (const run of this.#queue) run.cancelRequested = true
+    const waiting = this.#queue.filter((run) => !run.starting)
 
     // Each phase is bounded as a whole, because a cancel or an abandon can
     // itself wait on a provider that has stopped answering.
     await within(
-      Promise.all(
-        running().map(async (run) => {
+      Promise.all([
+        ...waiting.map((run) => this.#endWaiting(run, SHUT_DOWN_IN_QUEUE)),
+        ...running().map(async (run) => {
           run.cancelRequested = true
           try {
             // Shutdown gets its own outcome (#112) when the managed run can tell it apart from a cancel.
@@ -273,7 +333,7 @@ export class RunRegistry {
           }
           await run.terminal
         })
-      ),
+      ]),
       graceMs
     )
     await within(
@@ -325,7 +385,144 @@ export class RunRegistry {
     }
   }
 
-  #append(run: StoredRun, event: RunEvent): void {
+  #add(
+    runId: string,
+    instruction: string,
+    onTerminal: StoredRun['onTerminal'],
+    status: 'queued' | 'running'
+  ): StoredRun {
+    // A run registered once close() has begun would never be ended by it.
+    if (this.#closed) {
+      throw new RunRegistryError('shutting_down', 'The server is shutting down, so the run was not started.')
+    }
+    this.#purgeExpired()
+    if (this.#runs.has(runId)) {
+      throw new RunRegistryError('run_exists', 'A run with this id already exists.')
+    }
+
+    let resolveTerminal: () => void = () => {}
+    const terminal = new Promise<void>((resolve) => {
+      resolveTerminal = resolve
+    })
+    const run: StoredRun = {
+      runId,
+      instruction,
+      onTerminal,
+      starting: false,
+      holdsSlot: false,
+      startedAt: this.#now(),
+      history: [],
+      snapshot: initialSnapshot(runId, status),
+      subscribers: new Set(),
+      cancelRequested: false,
+      finalized: false,
+      terminal,
+      resolveTerminal
+    }
+    this.#runs.set(runId, run)
+    return run
+  }
+
+  #begin(run: StoredRun, managedRun: ManagedRun): void {
+    run.managedRun = managedRun
+    run.holdsSlot = true
+    this.#slotsInUse += 1
+    run.snapshot.status = 'running'
+    void this.#pump(run, managedRun)
+  }
+
+  /**
+   * Starts waiting runs in order while slots are free. One pass runs at a
+   * time, and a pass asked for during one runs after it, so no run is missed.
+   */
+  #startWaiting(): Promise<void> {
+    this.#startPassAgain = true
+    this.#startPass ??= (async () => {
+      // Never settles synchronously, so the pass is stored before it clears itself.
+      await undefined
+      try {
+        while (this.#startPassAgain) {
+          this.#startPassAgain = false
+          for (const run of [...this.#queue]) {
+            if (this.#closed || this.#slotsInUse >= this.#maxConcurrentRuns) break
+            // A run told to wait keeps its place, and the runs behind it may
+            // still start: a free run waiting for reserved budget must not
+            // hold up a run whose own reservation is what it waits for.
+            if (run.start) await this.#tryStart(run, run.start)
+          }
+        }
+        this.#renumber()
+      } finally {
+        this.#startPass = undefined
+        this.#retryLater()
+      }
+    })()
+    return this.#startPass
+  }
+
+  async #tryStart(run: StoredRun, start: () => Promise<ManagedRun | undefined>): Promise<void> {
+    // The slot is held while the start is in flight, so no other run takes it.
+    this.#slotsInUse += 1
+    run.starting = true
+    let managedRun: ManagedRun | undefined
+    let refusal: string | undefined
+    try {
+      managedRun = await start()
+    } catch (error) {
+      refusal = error instanceof RunStartRefused ? error.message : START_FAILED
+    }
+    run.starting = false
+    this.#slotsInUse -= 1
+
+    if (managedRun) {
+      this.#leaveQueue(run)
+      this.#begin(run, managedRun)
+      // A cancel or a shutdown that came while the run was starting still applies.
+      if (run.cancelRequested) void managedRun.handle.cancel().catch(() => undefined)
+    } else if (refusal !== undefined) {
+      void this.#endWaiting(run, refusal)
+    } else if (run.cancelRequested) {
+      void this.#endWaiting(run, this.#closed ? SHUT_DOWN_IN_QUEUE : LEFT_QUEUE)
+    }
+  }
+
+  /**
+   * Ends a run that never started. The run log records it as cancelled when
+   * that was asked for, and as failed otherwise.
+   */
+  async #endWaiting(run: StoredRun, reason: string): Promise<void> {
+    if (run.finalized) return
+    this.#leaveQueue(run)
+    this.#append(run, { type: 'error', reason, recoverable: false })
+    await this.#finalize(run, undefined)
+  }
+
+  #leaveQueue(run: StoredRun): void {
+    const index = this.#queue.indexOf(run)
+    if (index >= 0) this.#queue.splice(index, 1)
+    run.start = undefined
+    delete run.snapshot.queuePosition
+  }
+
+  /** Tells each waiting run whose place changed where it now stands. */
+  #renumber(): void {
+    this.#queue.forEach((run, index) => {
+      if (run.snapshot.queuePosition !== index + 1) this.#append(run, { type: 'queued', position: index + 1 })
+    })
+  }
+
+  /** A run told to wait while a slot is free is tried again later, in case nothing else prompts it. */
+  #retryLater(): void {
+    if (this.#closed || this.#retryTimer || this.#queue.length === 0) return
+    if (this.#slotsInUse >= this.#maxConcurrentRuns) return
+    this.#retryTimer = setTimeout(() => {
+      this.#retryTimer = undefined
+      void this.#startWaiting()
+    }, this.#retryWaitingMs)
+    this.#retryTimer.unref?.()
+  }
+
+  #append(run: StoredRun, event: RunStreamEvent): void {
     const envelope = { id: run.history.length, event }
     // The page shows only the latest frame, and each one kept would hold its
     // image as long as the run is kept, so a new frame replaces the last.
@@ -349,9 +546,12 @@ export class RunRegistry {
     }
   }
 
-  #reduce(run: StoredRun, event: RunEvent): void {
+  #reduce(run: StoredRun, event: RunStreamEvent): void {
     const snapshot = run.snapshot
     switch (event.type) {
+      case 'queued':
+        snapshot.queuePosition = event.position
+        break
       case 'step':
         snapshot.steps = event.n
         snapshot.cap = event.cap
@@ -385,7 +585,8 @@ export class RunRegistry {
     }
   }
 
-  async #finalize(run: StoredRun, managedRun: ManagedRun): Promise<void> {
+  /** Settles a run that has ended. `managedRun` is undefined for a run that never started. */
+  async #finalize(run: StoredRun, managedRun: ManagedRun | undefined): Promise<void> {
     if (run.finalized) return
     run.finalized = true
     run.terminalAt = this.#now()
@@ -395,11 +596,15 @@ export class RunRegistry {
       subscriber.wake = undefined
     }
 
-    let metrics: ManagedRunMetrics
-    try {
-      metrics = managedRun.metrics()
-    } catch {
-      metrics = { cacheHitRate: null, stopReason: 'failed' }
+    let metrics: ManagedRunMetrics = { cacheHitRate: null, stopReason: 'failed' }
+    if (!managedRun) {
+      if (run.cancelRequested) metrics = { cacheHitRate: null, stopReason: 'cancelled' }
+    } else {
+      try {
+        metrics = managedRun.metrics()
+      } catch {
+        // Counted as failed.
+      }
     }
 
     const terminalRun = {
@@ -423,11 +628,19 @@ export class RunRegistry {
       }
     } finally {
       try {
-        managedRun.releaseSecrets()
+        managedRun?.releaseSecrets()
       } finally {
         run.managedRun = undefined
         run.onTerminal = undefined
+        run.start = undefined
         run.resolveTerminal()
+        // The slot, or budget the run gave back when it was reconciled, may
+        // be what a waiting run needs.
+        if (run.holdsSlot) {
+          run.holdsSlot = false
+          this.#slotsInUse -= 1
+        }
+        void this.#startWaiting()
       }
     }
   }
@@ -441,6 +654,9 @@ export class RunRegistry {
 
   #requiredRunning(runId: string): LiveRun {
     const run = this.#required(runId)
+    if (run.snapshot.status === 'queued') {
+      throw new RunRegistryError('run_queued', 'The run has not started yet, so the correction was not applied.')
+    }
     if (!isLive(run) || run.snapshot.status !== 'running') {
       throw new RunRegistryError('run_ended', 'The run has already ended.')
     }

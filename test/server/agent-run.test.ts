@@ -10,6 +10,7 @@ import { ResponsesModel } from '../../src/agent/responses-model'
 import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../src/server/agent-run'
 import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
 import type { ManagedRun } from '../../src/server/managed-run'
+import type { RunStreamEvent } from '../../src/server/run-registry'
 import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
 
 const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
@@ -60,14 +61,14 @@ async function untilStep(runtime: LaunchRuntime, runId: string, n: number): Prom
   throw new Error(`The run ended before step ${n}`)
 }
 
-async function eventsOf(runtime: LaunchRuntime, runId: string): Promise<RunEvent[]> {
+async function eventsOf(runtime: LaunchRuntime, runId: string): Promise<RunStreamEvent[]> {
   await runtime.registry.waitForTerminal(runId)
-  const events: RunEvent[] = []
+  const events: RunStreamEvent[] = []
   for await (const { event } of runtime.registry.events(runId)) events.push(event)
   return events
 }
 
-const narrationsAfter = (events: RunEvent[], index: number) =>
+const narrationsAfter = (events: RunStreamEvent[], index: number) =>
   events.slice(index + 1).flatMap((event) => (event.type === 'step' ? [event.narration] : []))
 
 describe('steering the agent loop through the HTTP surface', () => {

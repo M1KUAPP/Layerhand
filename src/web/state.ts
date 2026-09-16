@@ -89,7 +89,7 @@ function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): Client
     }
   }
   const progress = progressFromSnapshot(snapshot, instruction)
-  if (snapshot.status === 'running') return { view: 'running', progress }
+  if (snapshot.status === 'running' || snapshot.status === 'queued') return { view: 'running', progress }
   if (!snapshot.result) {
     return { view: 'error', message: 'The run ended without a result.', runId: snapshot.runId }
   }
