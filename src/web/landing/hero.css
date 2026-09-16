@@ -77,6 +77,10 @@
   gap: 6px;
   color: var(--ink);
   font: var(--text-ui-label);
+  text-decoration: none;
+}
+
+.hero__updates-text {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -87,8 +91,7 @@
   font-size: 1.25em;
 }
 
-.hero__note,
-.hero__retention {
+.hero__note {
   flex-basis: 100%;
   color: var(--color-text-secondary);
   font: var(--text-ui-small);
@@ -149,6 +152,14 @@
     grid-template-columns: 1fr;
     row-gap: 48px;
     padding: 48px 16px;
+  }
+
+  .hero__title {
+    line-height: calc(78 / 88);
+  }
+
+  body:has(.hero) .site-header {
+    padding-inline: 16px;
   }
 
   .hero__copy,
