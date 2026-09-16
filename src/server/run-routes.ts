@@ -11,6 +11,11 @@ import { imageDigest, type WarmEditorSession, type WarmSessionPool } from './war
 
 export const MAX_RUN_REQUEST_BODY_BYTES = MAX_IMAGE_BYTES + 64 * 1024
 const MAX_INSTRUCTION_LENGTH = 500
+// Bun closes a request idle for ten seconds unless something is sent on it.
+// A run goes quiet for longer than that between frames and steps (#113), so
+// a comment line — ignored by EventSource — holds the stream open through
+// the gap, well inside that window.
+const EVENTS_HEARTBEAT_INTERVAL_MS = 5_000
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -295,8 +300,18 @@ export class RunRoutes {
     const afterId = header && /^\d+$/.test(header) ? Number(header) : -1
     const events = this.#dependencies.registry.events(runId, afterId)
     const encoder = new TextEncoder()
+    let heartbeat: ReturnType<typeof setInterval> | undefined
     const body = new ReadableStream<Uint8Array>({
       async start(controller) {
+        heartbeat = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode(': heartbeat\n\n'))
+          } catch {
+            // The connection dropped between ticks; cancel() clears this
+            // once the runtime notices, but do not let a stray write throw.
+            clearInterval(heartbeat)
+          }
+        }, EVENTS_HEARTBEAT_INTERVAL_MS)
         try {
           for await (const envelope of events) {
             controller.enqueue(
@@ -308,7 +323,12 @@ export class RunRoutes {
           controller.close()
         } catch (error) {
           controller.error(error)
+        } finally {
+          clearInterval(heartbeat)
         }
+      },
+      cancel() {
+        clearInterval(heartbeat)
       }
     })
     return new Response(body, {

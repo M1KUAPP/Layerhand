@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'bun:test'
 
 import { fakeRun } from '../../src/agent/fake-run'
-import type { RunRequest } from '../../src/agent/contract'
+import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { createApplication } from '../../src/server/application'
 import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../src/server/artifact-store'
 import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
@@ -443,4 +443,76 @@ describe('run HTTP contract', () => {
     expect(duplicate.status).toBe(200)
     expect(await duplicate.json()).toEqual({ email: 'Ada@example.com', created: false })
   })
+})
+
+describe('event stream keep-alive', () => {
+  test('keeps the SSE stream open across a fifteen-second gap between events (#113)', async () => {
+    const registry = new RunRegistry()
+    const routes = new RunRoutes({
+      registry,
+      meterStore: new RecordingMeter(),
+      artifactStore: new RecordingArtifacts(),
+      waitlistStore: new MemoryWaitlistStore(),
+      sessionSecret: 'session-secret',
+      trustProxyHops: 0,
+      freeRunReservationMicroUsd: usdToMicroUsd(10),
+      clientAddress: () => '203.0.113.10',
+      now: () => new Date('2026-09-15T12:00:00.000Z'),
+      idGenerator: () => 'events-run',
+      runFactory: () => ({
+        handle: {
+          events: (async function* (): AsyncGenerator<RunEvent> {
+            yield { type: 'started', runId: 'events-run', viewport: { width: 1440, height: 900 } }
+            // The gap the issue reproduces: quiet long enough that Bun's
+            // default ten-second idle timeout would close the connection
+            // without a heartbeat.
+            await new Promise((resolve) => setTimeout(resolve, 15_000))
+            yield {
+              type: 'done',
+              result: {
+                psdUrl: 'https://artifacts.example/psd',
+                previewUrl: 'https://artifacts.example/preview',
+                layers: [],
+                complete: true
+              }
+            }
+          })(),
+          steer: async () => undefined,
+          cancel: async () => undefined
+        },
+        metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
+        releaseSecrets() {}
+      })
+    })
+    const app = createApplication({ databaseReady: async () => true, routes })
+    // A real Bun.serve, not the in-process app.fetch the other tests use:
+    // only a live connection is subject to Bun's idle timeout, and none is
+    // set here, matching src/server/index.ts.
+    const server = Bun.serve({ hostname: '127.0.0.1', port: 0, fetch: app.fetch })
+
+    try {
+      const start = await app.fetch(startRequest())
+      const { runId } = (await start.json()) as { runId: string }
+
+      const response = await fetch(`${server.url.origin}/api/runs/${runId}/events`)
+      const reader = response.body!.getReader()
+      const decoder = new TextDecoder()
+      let text = ''
+      try {
+        for (;;) {
+          const { value, done } = await reader.read()
+          if (done) break
+          text += decoder.decode(value, { stream: true })
+        }
+      } catch {
+        // A connection Bun closed mid-stream surfaces as a read error here;
+        // the text collected before that is still evidence either way.
+      }
+
+      expect(text).toContain('"type":"started"')
+      expect(text).toContain('"type":"done"')
+    } finally {
+      server.stop(true)
+    }
+  }, 20_000)
 })
