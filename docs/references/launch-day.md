@@ -51,7 +51,8 @@ the last few minutes plus no traffic is the signal:
 
 ```sh
 psql "$DATABASE_URL" -c \
-  "select count(*), max(completed_at) from run_log where completed_at > now() - interval '15 minutes';"
+  "select count(*), max(completed_at) from run_log
+     where completed_at::timestamptz > now() - interval '15 minutes';"
 ```
 
 Fifteen minutes is the run ceiling, so nothing older than that is still
