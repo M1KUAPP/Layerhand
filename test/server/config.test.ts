@@ -125,13 +125,17 @@ describe('readSteering', () => {
 })
 
 describe('readRunsPaused', () => {
-  test('stays unpaused unless the switch is exactly 1', () => {
+  test('stays unpaused when unset, empty, or explicitly 0', () => {
     expect(readRunsPaused({})).toBe(false)
+    expect(readRunsPaused({ RUNS_PAUSED: '' })).toBe(false)
     expect(readRunsPaused({ RUNS_PAUSED: '0' })).toBe(false)
-    expect(readRunsPaused({ RUNS_PAUSED: 'true' })).toBe(false)
   })
 
   test('pauses when set to 1', () => {
     expect(readRunsPaused({ RUNS_PAUSED: '1' })).toBe(true)
+  })
+
+  test.each(['true', 'yes', ' 1', '1 ', '01', 'TRUE'])('rejects RUNS_PAUSED %p without echoing it', (value) => {
+    expect(() => readRunsPaused({ RUNS_PAUSED: value })).toThrow('RUNS_PAUSED must be 1 or 0')
   })
 })

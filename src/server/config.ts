@@ -104,7 +104,10 @@ export function readSteering(env: Environment): Steering {
 
 /** Refuses new runs and upload warming while set to `1`, for a launch-day emergency (#118). */
 export function readRunsPaused(env: Environment): boolean {
-  return env.RUNS_PAUSED === '1'
+  if (env.RUNS_PAUSED === undefined || env.RUNS_PAUSED === '') return false
+  if (env.RUNS_PAUSED === '1') return true
+  if (env.RUNS_PAUSED === '0') return false
+  throw new ConfigurationError('RUNS_PAUSED must be 1 or 0')
 }
 
 function parseTrustedProxyHops(value: string): number {
