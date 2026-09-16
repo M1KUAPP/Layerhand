@@ -1,4 +1,4 @@
-.waitlist {
+.waitlist__section {
   display: grid;
   grid-template-columns: 0.8fr 1fr;
   gap: 2rem;
@@ -7,20 +7,54 @@
   border-top: 1px solid var(--ink);
 }
 
-.waitlist .lede {
-  margin-top: 1rem;
+.waitlist__copy {
+  /* spacing handled in JS */
 }
 
-.inline-form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: start;
+.waitlist__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.inline-form .form-status {
+.waitlist__row {
+  display: flex;
+  gap: 0;
+}
+
+.waitlist__input {
+  outline: none;
+}
+
+.waitlist__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.waitlist__submit {
+  cursor: pointer;
+}
+
+.waitlist__status {
   grid-column: 1 / -1;
-  min-height: 1.4rem;
-  padding-top: 0.55rem;
-  color: #4e4d49;
-  font-size: 0.82rem;
+}
+
+.waitlist__footer {
+  /* styles in JS */
+}
+
+@media (max-width: 1279px) {
+  .waitlist__section {
+    grid-template-columns: 1fr;
+    padding-inline: 16px;
+  }
+
+  .waitlist__row,
+  .waitlist__footer {
+    flex-wrap: wrap;
+  }
+
+  .waitlist__input {
+    min-width: 0;
+    flex: 1 1 12rem;
+  }
 }
