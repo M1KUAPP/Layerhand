@@ -249,11 +249,15 @@ export class RunRoutes {
         runId,
         instruction,
         managedRun,
-        onTerminal: async ({ snapshot }) => {
+        onTerminal: async ({ snapshot, metrics }) => {
           try {
             // A run that failed without spending anything never used its free
             // run, so it is given back rather than reconciled at $0 (#116).
-            if (snapshot.status === 'failed' && snapshot.costUsd === 0) {
+            // The manager's stopReason, not the snapshot's status, says so: a
+            // run whose model call fails can still end with a `done` event
+            // and an incomplete result, so its status reads `incomplete`
+            // even though the manager counts it as failed.
+            if (metrics.stopReason === 'failed' && snapshot.costUsd === 0) {
               await this.#dependencies.meterStore.release(admission.reservation)
             } else {
               await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
