@@ -182,6 +182,7 @@ describe('ResponsesModel with the computer tool', () => {
 
     expect(sent[1]!.body.input[0].acknowledged_safety_checks).toEqual([check])
     expect(model.safetyChecksAcknowledged).toBe(1)
+    expect(model.safetyCheckCodes).toEqual(['malicious_instructions'])
   })
 })
 

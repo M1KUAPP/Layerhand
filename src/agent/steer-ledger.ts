@@ -43,6 +43,11 @@ export class SteerLedger {
     return this.#indeterminate
   }
 
+  /** Every correction sent as a native steer, applied or replayed alike. */
+  get total(): number {
+    return this.#entries.length
+  }
+
   /** A `response.steer` was sent for the response in flight. Returns the entry's id. */
   sent(text: string, parentResponseId: string): number {
     return this.#entries.push({ text, parentResponseId, state: 'sent' }) - 1
