@@ -16,6 +16,7 @@ const LAYER_NAMES = [
   'Warm the colours',
   'Very subtle corner vignette'
 ]
+const LAYER_GLYPHS = ['hgi-image-01', 'hgi-sliders-horizontal', 'hgi-sliders-horizontal', 'hgi-image-01']
 
 const isFocused = (locator: Locator): Promise<boolean> =>
   locator.evaluate((element) => element === document.activeElement)
@@ -66,6 +67,23 @@ describeBrowser('landing drawer in Chromium', () => {
         const close = sheet.locator('.drawer__close')
         await close.evaluate((element) => (element as HTMLElement).focus())
         expect(await isFocused(close)).toBe(false)
+      } finally {
+        await page.close()
+      }
+    }, 15_000)
+
+    test(`lists the four layer names beside the copy before the sheet opens at ${size}`, async () => {
+      const page = await openLanding(browser, application.origin, { viewport })
+      try {
+        const section = page.locator('[data-section="drawer"]')
+        const items = section.locator('.drawer__inline li')
+        expect(await items.count()).toBe(4)
+        for (const [index, name] of LAYER_NAMES.entries()) {
+          const item = items.nth(index)
+          expect(await item.textContent()).toBe(name)
+          expect(await item.locator(`i.${LAYER_GLYPHS[index]}`).count()).toBe(1)
+        }
+        expect(await page.locator('#drawer-sheet').isVisible()).toBe(false)
       } finally {
         await page.close()
       }

@@ -75,6 +75,16 @@ export function renderDrawer(): HTMLElement {
     )
   )
 
+  // The names repeat outside the sheet because the drawer alone cannot
+  // carry the message: the sheet stays closed until it is asked for.
+  const inline = node('ol', 'drawer__inline')
+  for (const layer of LAYERS) {
+    const item = node('li', 'drawer__inline-item')
+    item.append(icon(layer.icon, 'drawer__inline-icon'), layer.name)
+    inline.append(item)
+  }
+  section.append(inline)
+
   const openButton = node('button', 'drawer__open')
   openButton.type = 'button'
   openButton.setAttribute('aria-haspopup', 'dialog')
