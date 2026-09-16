@@ -2,6 +2,15 @@ import type { SQL, TransactionSQL } from 'bun'
 
 const FREE_RUN_LIMIT = 3
 
+/**
+ * How long a free run's reservation counts against the day's budget: the
+ * fifteen-minute run ceiling (`RUN_CEILING_MS`), plus five minutes for a run
+ * stopped there to export, give up its browser and be reconciled. No run is
+ * still spending after that, so an older reservation is one its server never
+ * gave back, because it crashed or was stopped first (#103).
+ */
+const RESERVATION_LIFETIME_MS = 15 * 60_000 + 5 * 60_000
+
 export interface AdmissionRequest {
   visitorKey: string
   reservationMicroUsd: number
@@ -65,7 +74,8 @@ export class SqlMeterStore implements MeterStore {
   readonly #database: SQL
   readonly #dailyCeilingMicroUsd: number
   readonly #now: () => Date
-  readonly #active = new WeakSet<MeterReservation>()
+  /** Each free reservation not yet given back, with the id of its row. */
+  readonly #active = new WeakMap<MeterReservation, string>()
   #transactionTail: Promise<void> = Promise.resolve()
 
   constructor(database: SQL, dailyCeilingMicroUsd: number, now: () => Date = () => new Date()) {
@@ -79,18 +89,19 @@ export class SqlMeterStore implements MeterStore {
   async admit(request: AdmissionRequest): Promise<AdmissionResult> {
     assertMicroUsd(request.reservationMicroUsd, 'Reservation')
     if (request.reservationMicroUsd === 0) throw new Error('Reservation must be positive')
+    const now = this.#now()
     const reservation: MeterReservation = {
       visitorKey: request.visitorKey,
-      dayUtc: this.#now().toISOString().slice(0, 10),
+      dayUtc: now.toISOString().slice(0, 10),
       reservedMicroUsd: request.byok ? 0 : request.reservationMicroUsd,
       freeTier: !request.byok
     }
 
-    if (!reservation.freeTier) {
-      this.#active.add(reservation)
-      return { accepted: true, reservation }
-    }
+    // A run on the user's own key reserves nothing, so it has nothing to give back.
+    if (!reservation.freeTier) return { accepted: true, reservation }
 
+    const reservationId = crypto.randomUUID()
+    const liveSince = new Date(now.getTime() - RESERVATION_LIFETIME_MS).toISOString()
     try {
       await this.#inTransaction(async (transaction) => {
         const visitors = await transaction`
@@ -103,67 +114,83 @@ export class SqlMeterStore implements MeterStore {
         `
         if (visitors.length === 0) throw new AdmissionDenied(FREE_LIMIT)
 
-        const days = await transaction`
+        // Writing the day's row holds it until this transaction ends, so
+        // admissions to one day take turns, and the check that follows counts
+        // every reservation made before this one.
+        await transaction`
           INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd)
-          VALUES (${reservation.dayUtc}, 0, ${reservation.reservedMicroUsd})
-          ON CONFLICT (day_utc) DO UPDATE SET
-            reserved_microusd = daily_usage.reserved_microusd + ${reservation.reservedMicroUsd}
-          WHERE daily_usage.spent_microusd + daily_usage.reserved_microusd
-            + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
-          RETURNING reserved_microusd
+          VALUES (${reservation.dayUtc}, 0, 0)
+          ON CONFLICT (day_utc) DO UPDATE SET spent_microusd = daily_usage.spent_microusd
+        `
+        // The row's reserved_microusd is what revisions from before
+        // meter_reservations reserved. Nothing adds to it now, but runs of
+        // theirs still in flight give it back, so it still counts.
+        const days = await transaction`
+          SELECT day_utc FROM daily_usage
+          WHERE day_utc = ${reservation.dayUtc}
+            AND daily_usage.spent_microusd + daily_usage.reserved_microusd + (
+              SELECT COALESCE(SUM(meter_reservations.reserved_microusd), 0) FROM meter_reservations
+              WHERE meter_reservations.day_utc = ${reservation.dayUtc}
+                AND meter_reservations.reserved_at > ${liveSince}
+            ) + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
         `
         if (days.length === 0) throw new AdmissionDenied(DAILY_LIMIT)
+
+        await transaction`
+          INSERT INTO meter_reservations (reservation_id, day_utc, reserved_microusd, reserved_at)
+          VALUES (${reservationId}, ${reservation.dayUtc}, ${reservation.reservedMicroUsd}, ${now.toISOString()})
+        `
       })
     } catch (error) {
       if (error instanceof AdmissionDenied) return error.result
       throw error
     }
 
-    this.#active.add(reservation)
+    this.#active.set(reservation, reservationId)
     return { accepted: true, reservation }
   }
 
   async reconcile(reservation: MeterReservation, actualMicroUsd: number): Promise<void> {
     assertMicroUsd(actualMicroUsd, 'Actual cost')
-    if (!this.#claim(reservation) || !reservation.freeTier) return
+    const reservationId = this.#claim(reservation)
+    if (reservationId === undefined) return
     try {
-      await this.#database`
-        UPDATE daily_usage SET
-          reserved_microusd = reserved_microusd - ${reservation.reservedMicroUsd},
-          spent_microusd = spent_microusd + ${actualMicroUsd}
-        WHERE day_utc = ${reservation.dayUtc}
-          AND reserved_microusd >= ${reservation.reservedMicroUsd}
-      `
+      // The measured spend replaces the reservation in one transaction.
+      await this.#inTransaction(async (transaction) => {
+        await transaction`
+          UPDATE daily_usage SET spent_microusd = spent_microusd + ${actualMicroUsd}
+          WHERE day_utc = ${reservation.dayUtc}
+        `
+        await transaction`DELETE FROM meter_reservations WHERE reservation_id = ${reservationId}`
+      })
     } catch (error) {
-      this.#active.add(reservation)
+      this.#active.set(reservation, reservationId)
       throw error
     }
   }
 
   async release(reservation: MeterReservation): Promise<void> {
-    if (!this.#claim(reservation) || !reservation.freeTier) return
+    const reservationId = this.#claim(reservation)
+    if (reservationId === undefined) return
     try {
       await this.#inTransaction(async (transaction) => {
         await transaction`
           UPDATE visitor_usage SET accepted_free_runs = accepted_free_runs - 1
           WHERE visitor_key = ${reservation.visitorKey} AND accepted_free_runs > 0
         `
-        await transaction`
-          UPDATE daily_usage SET reserved_microusd = reserved_microusd - ${reservation.reservedMicroUsd}
-          WHERE day_utc = ${reservation.dayUtc}
-            AND reserved_microusd >= ${reservation.reservedMicroUsd}
-        `
+        await transaction`DELETE FROM meter_reservations WHERE reservation_id = ${reservationId}`
       })
     } catch (error) {
-      this.#active.add(reservation)
+      this.#active.set(reservation, reservationId)
       throw error
     }
   }
 
-  #claim(reservation: MeterReservation): boolean {
-    if (!this.#active.has(reservation)) return false
+  /** The row of a reservation not yet given back, once: a second call finds nothing. */
+  #claim(reservation: MeterReservation): string | undefined {
+    const reservationId = this.#active.get(reservation)
     this.#active.delete(reservation)
-    return true
+    return reservationId
   }
 
   #inTransaction<T>(operation: (transaction: TransactionSQL) => Promise<T>): Promise<T> {

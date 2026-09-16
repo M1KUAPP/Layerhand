@@ -1,24 +1,34 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { SQL } from 'bun'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
+import { RUN_CEILING_MS } from '../../src/server/agent-run'
 import { SqlMeterStore, usdToMicroUsd, type AdmissionResult, type MeterReservation } from '../../src/server/meter-store'
 import { applyMigrations } from '../../src/server/migrations'
 
 const databases: SQL[] = []
 const NOW = new Date('2026-09-15T12:00:00.000Z')
+// No run outlives its ceiling plus five minutes to export and reconcile (#103).
+const RESERVATION_LIFETIME_MS = RUN_CEILING_MS + 5 * 60_000
 
 afterEach(async () => {
   await Promise.all(databases.splice(0).map((database) => database.close()))
 })
 
-async function store(ceilingUsd = 100): Promise<{ database: SQL; store: SqlMeterStore }> {
+async function store(ceilingUsd = 100, now: () => Date = () => NOW): Promise<{ database: SQL; store: SqlMeterStore }> {
   const database = new SQL(':memory:')
   databases.push(database)
   await applyMigrations(database)
   return {
     database,
-    store: new SqlMeterStore(database, usdToMicroUsd(ceilingUsd), () => NOW)
+    store: new SqlMeterStore(database, usdToMicroUsd(ceilingUsd), now)
   }
+}
+
+function later(ms: number): Date {
+  return new Date(NOW.getTime() + ms)
 }
 
 function accepted(result: AdmissionResult): MeterReservation {
@@ -91,8 +101,10 @@ describe('SqlMeterStore', () => {
     expect(accepted(second).freeTier).toBe(false)
     const visitorUsage = await database`SELECT * FROM visitor_usage`
     const dailyUsage = await database`SELECT * FROM daily_usage`
+    const reservations = await database`SELECT * FROM meter_reservations`
     expect([...visitorUsage]).toEqual([])
     expect([...dailyUsage]).toEqual([])
+    expect([...reservations]).toEqual([])
   })
 
   test('reconciles reserved cost to measured cost exactly once', async () => {
@@ -110,6 +122,9 @@ describe('SqlMeterStore', () => {
 
     const usage = await database`SELECT spent_microusd, reserved_microusd FROM daily_usage`
     expect([...usage]).toEqual([{ spent_microusd: 1_250_000, reserved_microusd: 0 }])
+    // Only the $1.25 spent still counts, so the rest of the $10 fits exactly.
+    const rest = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(8.75), byok: false })
+    expect(rest.accepted).toBe(true)
   })
 
   test('releases failed starts so allowance and reservation are reusable', async () => {
@@ -164,6 +179,78 @@ describe('SqlMeterStore', () => {
         message: "Today's free-run budget is used up. Add your own OpenAI API key to continue."
       }
     ])
+  })
+
+  test('stops counting a reservation once no run could still be spending it', async () => {
+    let now = NOW
+    const { store: meter } = await store(3, () => now)
+    accepted(await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false }))
+
+    now = later(RESERVATION_LIFETIME_MS - 1)
+    const whileHeld = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    now = later(RESERVATION_LIFETIME_MS)
+    const onceExpired = await meter.admit({
+      visitorKey: 'visitor-c',
+      reservationMicroUsd: usdToMicroUsd(3),
+      byok: false
+    })
+
+    expect(whileHeld).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+    expect(onceExpired.accepted).toBe(true)
+  })
+
+  test('admits free runs again once the reservations of a server that died without reconciling them expire', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'layerhand-meter-'))
+    const databaseUrl = `sqlite://${join(directory, 'layerhand.db')}`
+    const restarted = new SQL(databaseUrl)
+    try {
+      // The server that dies: three free runs fill a $9 ceiling, and it goes
+      // away with none of them reconciled or released.
+      const died = new SQL(databaseUrl)
+      await applyMigrations(died)
+      const before = new SqlMeterStore(died, usdToMicroUsd(9), () => NOW)
+      for (const visitorKey of ['visitor-a', 'visitor-b', 'visitor-c']) {
+        accepted(await before.admit({ visitorKey, reservationMicroUsd: usdToMicroUsd(3), byok: false }))
+      }
+      await died.close()
+
+      // The server that replaces it has only the database to go on.
+      let now = later(60_000)
+      await applyMigrations(restarted)
+      const after = new SqlMeterStore(restarted, usdToMicroUsd(9), () => now)
+      const soonAfter = await after.admit({
+        visitorKey: 'visitor-d',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
+      now = later(RESERVATION_LIFETIME_MS)
+      const onceExpired = await after.admit({
+        visitorKey: 'visitor-e',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
+
+      expect(soonAfter).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+      expect(onceExpired.accepted).toBe(true)
+    } finally {
+      await restarted.close()
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  test('keeps counting what an earlier revision reserved in the day row', async () => {
+    const { database, store: meter } = await store(3)
+    // A row as the revision before reservation rows left it: $1 spent, and $1 held by a run still going.
+    await database`
+      INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd)
+      VALUES (${'2026-09-15'}, ${usdToMicroUsd(1)}, ${usdToMicroUsd(1)})
+    `
+
+    const tooLarge = await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(2), byok: false })
+    const fits = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(1), byok: false })
+
+    expect(tooLarge).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+    expect(fits.accepted).toBe(true)
   })
 })
 
