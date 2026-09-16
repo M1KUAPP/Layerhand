@@ -128,10 +128,16 @@ Local hooks install themselves:
 bun install
 ```
 
-The pre-commit hook also runs
-[graphify](https://github.com/graphify-labs/graphify) to update the
-knowledge graph, and `bun install` does not provide it. Install it first,
-or every commit fails:
+The knowledge graph in `graphify-out/` is refreshed deliberately rather
+than on every commit:
+
+```sh
+bun run graph
+```
+
+Committing no longer needs
+[graphify](https://github.com/graphify-labs/graphify), but querying the
+graph does, and `bun install` does not provide it. Install it once:
 
 ```sh
 uv tool install graphifyy
