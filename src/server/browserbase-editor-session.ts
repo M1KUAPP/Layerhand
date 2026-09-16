@@ -78,24 +78,34 @@ async function installNetworkAllowList(page: Page, hostUrl: string): Promise<voi
     return origin !== undefined && origins.has(origin)
   }
   const context = page.context()
+  // Every branch below ends in .catch(() => undefined): route.fetch,
+  // route.fulfill, and route.abort can all reject once the context is
+  // being disposed, and the allow-list has to go on blocking traffic,
+  // without that noise, for as long as the browser is still up — it is
+  // never removed early, so this is the only thing standing between it
+  // and letting a request through unfiltered.
   await context.route('**/*', async (route) => {
-    if (!allowed(route.request().url(), httpOrigins)) return route.abort('blockedbyclient')
+    if (!allowed(route.request().url(), httpOrigins)) return route.abort('blockedbyclient').catch(() => undefined)
     // Both `continue` and fulfilled redirects can follow later hops without
     // routing them again, so only a final response is returned to Chromium.
     // A fetch that cannot reach an allowed host aborts the request instead
     // of leaving it unfulfilled until the page's own navigation times out.
     const response = await route.fetch({ maxRedirects: 0 }).catch(() => undefined)
-    if (!response) return route.abort('failed')
+    if (!response) return route.abort('failed').catch(() => undefined)
     const status = response.status()
-    if (status >= 300 && status < 400 && status !== 304) return route.abort('blockedbyclient')
-    return route.fulfill({ response }).catch(() => route.abort('failed'))
+    if (status >= 300 && status < 400 && status !== 304) return route.abort('blockedbyclient').catch(() => undefined)
+    return route.fulfill({ response }).catch(() => route.abort('failed').catch(() => undefined))
   })
   await context.routeWebSocket('**/*', (route) => {
     if (allowed(route.url(), interactiveOrigins)) {
-      route.connectToServer()
+      try {
+        route.connectToServer()
+      } catch {
+        // Best effort: connecting is moot once the context is disposing.
+      }
       return
     }
-    return route.close({ code: 1008, reason: 'Network origin is not allowed' })
+    return route.close({ code: 1008, reason: 'Network origin is not allowed' }).catch(() => undefined)
   })
 }
 

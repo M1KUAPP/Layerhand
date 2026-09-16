@@ -220,6 +220,66 @@ describe('Browserbase editor session', () => {
     expect(await httpOutcome(h, HOST_URL, 200, { fulfill: new Error('the response stream closed') })).toBe('aborted')
   })
 
+  test('settles without rejecting when fetch, fulfill, and abort all fail, as they can while disposing', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    let fulfillCalls = 0
+    const route = {
+      request: () => ({ url: () => HOST_URL }),
+      fetch: async () => {
+        throw new Error('Request context disposed')
+      },
+      fulfill: async () => {
+        fulfillCalls += 1
+        throw new Error('Request context disposed')
+      },
+      abort: async () => {
+        throw new Error('Target page, context or browser has been closed')
+      }
+    } as unknown as Route
+
+    let error: unknown
+    try {
+      await h.httpRoute?.(route)
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).toBeUndefined()
+    expect(fulfillCalls).toBe(0)
+  })
+
+  test('still aborts a disallowed origin without fetching it, even while every route call is failing', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    let fetchCalls = 0
+    const route = {
+      request: () => ({ url: () => 'https://tracker.test/collect' }),
+      fetch: async () => {
+        fetchCalls += 1
+        throw new Error('should never be called for a disallowed origin')
+      },
+      fulfill: async () => {
+        throw new Error('should never be called for a disallowed origin')
+      },
+      abort: async () => {
+        throw new Error('Target page, context or browser has been closed')
+      }
+    } as unknown as Route
+
+    let error: unknown
+    try {
+      await h.httpRoute?.(route)
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).toBeUndefined()
+    expect(fetchCalls).toBe(0)
+  })
+
   test('allows WebSockets only on the Layerhand host and Photopea origins', async () => {
     const h = await harness()
     await h.session.open(IMAGE, 'source.png')
@@ -232,6 +292,49 @@ describe('Browserbase editor session', () => {
       ['wss://tracker.test/socket', 'closed']
     ] as const
     for (const [url, expected] of cases) expect(await webSocketOutcome(h, url)).toBe(expected)
+  })
+
+  test('settles without rejecting when the WebSocket route calls fail, as they can while disposing', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    let blockedConnectCalls = 0
+    const allowedRoute = {
+      url: () => 'wss://layerhand.test/live',
+      connectToServer: () => {
+        throw new Error('Target page, context or browser has been closed')
+      },
+      close: async () => {
+        throw new Error('Target page, context or browser has been closed')
+      }
+    } as unknown as WebSocketRoute
+    const blockedRoute = {
+      url: () => 'wss://tracker.test/socket',
+      connectToServer: () => {
+        blockedConnectCalls += 1
+        throw new Error('should never be called for a disallowed origin')
+      },
+      close: async () => {
+        throw new Error('Target page, context or browser has been closed')
+      }
+    } as unknown as WebSocketRoute
+
+    let allowedError: unknown
+    let blockedError: unknown
+    try {
+      await h.webSocketRoute?.(allowedRoute)
+    } catch (caught) {
+      allowedError = caught
+    }
+    try {
+      await h.webSocketRoute?.(blockedRoute)
+    } catch (caught) {
+      blockedError = caught
+    }
+
+    expect(allowedError).toBeUndefined()
+    expect(blockedError).toBeUndefined()
+    expect(blockedConnectCalls).toBe(0)
   })
 
   test('closing the editor closes the browser and releases the session, once', async () => {
