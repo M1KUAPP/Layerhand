@@ -9,6 +9,13 @@ name: Deploy
 on:
   push:
     branches: [main]
+    # A push that only touches documentation, the graphify knowledge graph,
+    # or evidence (docs/evidence/**) changes nothing `bun run build` bundles,
+    # so it never triggers a build or a deploy (#112).
+    paths-ignore:
+      - 'docs/**'
+      - 'graphify-out/**'
+      - '**.md'
   workflow_dispatch:
 
 permissions:
@@ -57,6 +64,9 @@ jobs:
     needs: image
     if: vars.DEPLOY_PLATFORM == 'cloud-run'
     runs-on: ubuntu-latest
+    # A required reviewer on the `production` environment is what turns this
+    # into an approval gate; that is a repository setting, not set here.
+    # docs/references/launch-day.md says how an approval is given.
     environment: production
     permissions:
       contents: read
