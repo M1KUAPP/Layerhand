@@ -520,6 +520,30 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(model.steering.available).toBe(true)
   })
 
+  test('a steer the server held for a continuation that failed is replayed when the continuation is sent again', async () => {
+    const server = scriptedSocketServer()
+    const { model } = socketModel(server.url, { sleep: async () => undefined })
+
+    const { turn, connection } = await steerFirstResponse(model, server)
+    connection.send(accepted('steer_1', 'resp_1'))
+    connection.send(completed('resp_1', [said('Opening the Adjustments panel'), computerCall('call_1')]))
+    connection.send(pending('steer_1', 'resp_1', 'call_1'))
+    await turn
+    const next = model.next(observe(['Keep the shadow']), signal())
+    const continuation = await connection.received.next()
+    connection.send(created('resp_2'))
+    connection.send(failedResponse('resp_2'))
+    const again = await connection.received.next()
+    connection.send(created('resp_3'))
+    connection.send(completed('resp_3'))
+    await next
+
+    // The server held the steer for the first attempt, and the failed response may have spent it.
+    expect(correctionsIn(continuation.input)).toEqual([])
+    expect(again.previous_response_id).toBe('resp_1')
+    expect(correctionsIn(again.input)).toEqual(['Correction from the user: Keep the shadow'])
+  })
+
   test('a step with no traffic for a whole call timeout is sent again over HTTP', async () => {
     const server = scriptedSocketServer()
     const { model, http } = socketModel(server.url, { callTimeoutMs: 30 }, [

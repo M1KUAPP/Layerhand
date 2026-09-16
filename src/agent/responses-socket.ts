@@ -263,15 +263,13 @@ export class ResponsesSocket {
       case 'response.failed': {
         const error = response && isObject(response.error) ? response.error : {}
         const status = typeof event.status === 'number' ? event.status : 500
-        this.#step?.settle({ failed: { status, code: error.code } })
-        return
+        return this.#fail({ status, code: error.code })
       }
       case 'error': {
         const error = isObject(event.error) ? event.error : {}
         if (error.code === 'websocket_connection_limit_reached') return this.#lose()
         const status = typeof event.status === 'number' ? event.status : 500
-        this.#step?.settle({ failed: { status, code: error.code } })
-        return
+        return this.#fail({ status, code: error.code })
       }
     }
   }
@@ -325,6 +323,17 @@ export class ResponsesSocket {
       return
     }
     this.#adopt(step)
+  }
+
+  /**
+   * Ends the step on a failure, which the model may send again. The steers the
+   * server held for this continuation may be spent, so they are replayed.
+   */
+  #fail(failed: { status: number; code: unknown }): void {
+    const step = this.#step
+    if (!step) return
+    if (step.continuationOf) this.#ledger.continuationFailed(step.continuationOf)
+    step.settle({ failed })
   }
 
   /** A refused steer can leave an ended response owed nothing, and then no successor is coming. */

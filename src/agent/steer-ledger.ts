@@ -102,6 +102,18 @@ export class SteerLedger {
   }
 
   /**
+   * The `response.create` carrying the parent's tool output failed. The server
+   * may have spent the steers it held for that parent on the response that
+   * failed, so they are replayed with the call sent again.
+   */
+  continuationFailed(parentResponseId: string): void {
+    for (const entry of this.#entries) {
+      if (entry.parentResponseId !== parentResponseId) continue
+      if (entry.state === 'accepted' || entry.state === 'pending') entry.state = 'replay'
+    }
+  }
+
+  /**
    * The parent response completed normally. A steer on it that was neither
    * accepted nor refused never will be, so it is replayed. Accepted and
    * pending steers are left to their successor or continuation.
