@@ -31,8 +31,24 @@ export interface ModelTurn {
   done: boolean
 }
 
+/**
+ * What a model throws when a call still fails once its retries have run out.
+ * The loop ends the run as a cap does, with the file made so far, rather than
+ * as a failure (docs/TRD.md § Contract 2).
+ */
+export class ModelUnavailableError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options)
+    this.name = 'ModelUnavailableError'
+  }
+}
+
 export interface AgentModel {
-  /** Asks for the next step. Should reject once `signal` aborts; the run stops waiting either way. */
+  /**
+   * Asks for the next step. Should reject once `signal` aborts; the run stops
+   * waiting either way. Rejects with ModelUnavailableError once a call has
+   * failed past its retries.
+   */
   next(observation: Observation, signal: AbortSignal): Promise<ModelTurn>
   /**
    * Offers a correction the loop has already acknowledged and queued, so a

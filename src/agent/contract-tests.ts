@@ -11,6 +11,8 @@ export interface RunContractSubject {
   start(request: RunRequest): RunHandle | Promise<RunHandle>
   /** Starts a run that the implementation ends with an unrecoverable error. */
   startFailing(request: RunRequest): RunHandle | Promise<RunHandle>
+  /** Starts a run whose model stops answering once its retries run out. */
+  startUnanswered(request: RunRequest): RunHandle | Promise<RunHandle>
   /** Per-test timeout, for implementations slower than the runner's default. */
   timeoutMs?: number
 }
@@ -158,6 +160,18 @@ export function testRunContract(subject: RunContractSubject): void {
         const { result } = endOf(events, 'done')
         expect(result.complete).toBe(false)
         expect(result.layers.length).toBeGreaterThan(0)
+      },
+      timeoutMs
+    )
+
+    test(
+      'keeps the partial result, after saying so, when the model stops answering',
+      async () => {
+        const events = await collect(await track(subject.startUnanswered(request)))
+        const { result } = endOf(events, 'done')
+        expect(result.complete).toBe(false)
+        expect(result.layers.length).toBeGreaterThan(0)
+        expect(ofType(events, 'error').some((error) => error.recoverable)).toBe(true)
       },
       timeoutMs
     )
