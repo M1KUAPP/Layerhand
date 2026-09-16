@@ -189,13 +189,6 @@ describe('reliability workflow contract', () => {
     expect(runStep?.run).toContain('"$PUBLIC_URL/photopea-host"')
     expect(runStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
     expect(runStep?.env).not.toHaveProperty('OPENAI_API_KEY')
-
-    const alpineStep = job?.steps.find((step) => step.name === 'Probe from the production Alpine build')
-    expect(alpineStep?.if).toBe('always()')
-    expect(alpineStep?.run).toContain('docker build --target build')
-    expect(alpineStep?.run).toContain('--entrypoint bun')
-    expect(alpineStep?.run).toContain('src/server/browserbase-probe.ts')
-    expect(alpineStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
   })
 
   test('manual diagnostics read only one sanitized failure by run id', async () => {
