@@ -58,6 +58,23 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain('Preparing the editor...')
   })
 
+  test('states the 24-hour upload deletion beside the drop zone and on the landing page', async () => {
+    const app = await appFile.text()
+    const notice = 'Uploads are deleted within 24 hours.'
+
+    const occurrences = [...app.matchAll(/Uploads are deleted within 24 hours\./g)].map((match) => match.index)
+    expect(occurrences).toHaveLength(2)
+
+    const landingStart = app.indexOf('function renderLanding')
+    const landingEnd = app.indexOf('function waitlistSection')
+    expect(occurrences.some((index) => index > landingStart && index < landingEnd)).toBe(true)
+
+    const fileFieldStart = app.indexOf("const fileField = node('fieldset'")
+    const fileFieldEnd = app.indexOf("const instructionLabel = node('label'")
+    expect(occurrences.some((index) => index > fileFieldStart && index < fileFieldEnd)).toBe(true)
+    expect(app).toContain(notice)
+  })
+
   test('uses the approved visual tokens, hard geometry, and restrained motion', async () => {
     const css = await cssFile.text()
 
