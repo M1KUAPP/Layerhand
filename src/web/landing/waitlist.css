@@ -100,53 +100,14 @@
   font-size: 1.25em;
 }
 
-.waitlist__footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem 36px;
-  border-top: 1px solid var(--rule);
-}
-
-.waitlist__wordmark {
-  color: var(--ink);
-  font: var(--text-ui-label);
-}
-
-.waitlist__credit {
-  color: var(--color-text-secondary);
-  font: var(--text-ui-small);
-}
-
-.waitlist__link {
-  color: inherit;
-  text-decoration: underline;
-}
-
-.waitlist__source {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-left: auto;
-  color: var(--ink);
-  font: var(--text-ui-label);
-  text-decoration: underline;
-}
-
 @media (max-width: 1279px) {
   .waitlist__section {
     grid-template-columns: 1fr;
     padding-inline: 16px;
   }
 
-  .waitlist__row,
-  .waitlist__footer {
+  .waitlist__row {
     flex-wrap: wrap;
-  }
-
-  .waitlist__footer {
-    padding-inline: 16px;
   }
 
   .waitlist__input {

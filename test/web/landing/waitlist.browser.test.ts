@@ -7,7 +7,7 @@ import { openLanding } from './support'
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
 
-describeBrowser('waitlist and footer in Chromium', () => {
+describeBrowser('waitlist in Chromium', () => {
   let browser: Browser
   let application: Awaited<ReturnType<typeof startTestApplication>>
 
@@ -24,7 +24,7 @@ describeBrowser('waitlist and footer in Chromium', () => {
     }
   }, 30_000)
 
-  test('shows copy, form and footer at 1440x900', async () => {
+  test('shows copy and form at 1440x900', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
     try {
       // Eyebrow, headline, body
@@ -40,23 +40,6 @@ describeBrowser('waitlist and footer in Chromium', () => {
       // Button visible
       await expect(page.getByRole('button', { name: 'Email me the recording' }).isVisible()).resolves.toBe(true)
 
-      // Footer wordmark
-      await expect(page.locator('.waitlist__wordmark').textContent()).resolves.toBe('Layerhand')
-
-      // Footer credits with links
-      const credit1 = page.locator('.waitlist__credit').first()
-      await expect(credit1.textContent()).resolves.toContain('GPT-6 Astra Challenge')
-      const credit1Link = page.locator('.waitlist__credit .waitlist__link').first()
-      await expect(credit1Link.textContent()).resolves.toBe('GPT-6 Astra Challenge')
-      await expect(credit1Link.getAttribute('href')).resolves.toBe(
-        'https://www.producthunt.com/contests/gpt-6-astra-challenge'
-      )
-
-      // Source on GitHub link
-      const source = page.locator('.waitlist__source')
-      await expect(source.getAttribute('href')).resolves.toBe('https://github.com/M1KUAPP/astra')
-      await expect(source.textContent()).resolves.toContain('Source on GitHub')
-
       // #updates exists
       await expect(page.locator('#updates').count()).resolves.toBe(1)
     } finally {
@@ -64,16 +47,12 @@ describeBrowser('waitlist and footer in Chromium', () => {
     }
   }, 30_000)
 
-  test('shows copy, form and footer at 1280x800', async () => {
+  test('shows copy and form at 1280x800', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1280, height: 800 } })
     try {
       await expect(page.locator('.waitlist__eyebrow').textContent()).resolves.toBe('Launch updates')
       await expect(page.locator('.waitlist__title').textContent()).resolves.toBe('Get the launch recording.')
       await expect(page.getByRole('button', { name: 'Email me the recording' }).isVisible()).resolves.toBe(true)
-      await expect(page.locator('.waitlist__wordmark').textContent()).resolves.toBe('Layerhand')
-      await expect(page.locator('.waitlist__source').getAttribute('href')).resolves.toBe(
-        'https://github.com/M1KUAPP/astra'
-      )
     } finally {
       await page.close()
     }
