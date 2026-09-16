@@ -169,6 +169,8 @@ describeBrowser('landing drawer in Chromium', () => {
         for (const translate of await translates()) {
           expect(['none', '0px 0px']).toContain(translate)
         }
+        const duration = await sheet.evaluate((element) => getComputedStyle(element).transitionDuration)
+        expect(duration).not.toBe('0s')
       } finally {
         await page.close()
       }
