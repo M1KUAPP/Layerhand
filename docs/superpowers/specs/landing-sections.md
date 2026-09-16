@@ -471,6 +471,11 @@ Unit W. Secondary by design: Product Hunt's featuring guidelines exclude
 waitlisted products that give no immediate access, so the copy says the
 email address is for the recording and updates, never for access.
 
+The footer was built in this unit and has since moved into the page
+shell, which every view shares, and the page folds over it.
+[DESIGN.md](/docs/DESIGN.md#the-footer) describes its layout and the
+fold. Its copy below still holds.
+
 ### Waitlist copy
 
 ```text
@@ -489,6 +494,7 @@ Status, failed     the sentence context.publicMessage(error) returns
 ### Footer copy
 
 ```text
+Closing line       A layered PSD, not a flat JPEG.
 Wordmark           Layerhand
 Credit             Built on GPT-6 Astra for the GPT-6 Astra Challenge.
 Credit link        "GPT-6 Astra Challenge" goes to https://www.producthunt.com/contests/gpt-6-astra-challenge
@@ -517,13 +523,6 @@ div.waitlist                                   what renderWaitlist(context) retu
       p.waitlist__status                       UI / Small, --color-text-secondary, role="status"
         i.waitlist__status-icon                hgi-loading-03 saving, hgi-checkmark-circle-02 new or repeat, hgi-alert-circle failed
         span.waitlist__status-text
-  footer.waitlist__footer                      data-section="footer", 1px --rule on top
-    p.waitlist__wordmark                       UI / Label
-    p.waitlist__credit                         UI / Small, --color-text-secondary, holds a.waitlist__link
-    p.waitlist__credit                         UI / Small, --color-text-secondary, holds a.waitlist__link
-    a.waitlist__source                         UI / Label
-      i.hgi-github
-      "Source on GitHub"
 ```
 
 - **At 1280px and wider,** the section is padded 120px top and bottom,
@@ -532,9 +531,6 @@ div.waitlist                                   what renderWaitlist(context) retu
   48px row, and the input takes the width the button leaves.
 - **The input** is `--paper` with a 1px `--color-border-strong` border,
   and its placeholder is `--color-text-tertiary`.
-- **The footer** is padded 32px and runs in one row: the wordmark, the
-  two credits, and the source link at the right edge. It wraps below
-  1280px.
 - **Submitting** disables the button and shows the saving status. A new
   address shows the new status and clears the input, an existing one
   shows the repeat status and keeps it, and a throw shows the failed
@@ -553,9 +549,8 @@ Nothing beyond the copy and the glyphs in the outline.
 At 1440x900, the section shows its copy on the left and, on the right, a
 visible "Email address" label over the input and the ink "Email me the
 recording" button. A new address shows the check glyph and the thanks
-line, the same address again shows "That address is already signed up.",
-and the footer below carries the wordmark, both credits and the GitHub
-link.
+line, and the same address again shows "That address is already signed
+up."
 
 ## Strings the tests check
 
