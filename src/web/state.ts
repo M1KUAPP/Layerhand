@@ -1,8 +1,13 @@
 import type { RunEvent, RunResult } from '../agent/contract'
 import type { RunSnapshot } from '../server/run-registry'
 
+// The first step event reports the configured cap; until it arrives the
+// rail falls back to the server's default (DEFAULT_RUN_LIMITS.stepCap).
+const DEFAULT_STEP_CAP = 40
+
 export interface RunProgress {
   runId: string
+  instruction: string | null
   steps: number
   cap: number | null
   narration: string | null
@@ -30,18 +35,19 @@ export type ClientState =
 
 export type ClientAction =
   | { type: 'edit' }
-  | { type: 'started'; runId: string }
+  | { type: 'started'; runId: string; instruction: string }
   | { type: 'snapshot'; snapshot: RunSnapshot }
   | { type: 'event'; id: number; event: RunEvent }
   | { type: 'cancel_requested' }
   | { type: 'connection_failed'; message: string }
   | { type: 'reset' }
 
-function emptyProgress(runId: string): RunProgress {
+function emptyProgress(runId: string, instruction: string): RunProgress {
   return {
     runId,
+    instruction,
     steps: 0,
-    cap: null,
+    cap: DEFAULT_STEP_CAP,
     narration: null,
     frameUrl: null,
     costUsd: 0,
@@ -54,11 +60,12 @@ function emptyProgress(runId: string): RunProgress {
   }
 }
 
-function progressFromSnapshot(snapshot: RunSnapshot): RunProgress {
+function progressFromSnapshot(snapshot: RunSnapshot, instruction: string | null): RunProgress {
   return {
     runId: snapshot.runId,
+    instruction,
     steps: snapshot.steps,
-    cap: snapshot.cap,
+    cap: snapshot.cap ?? DEFAULT_STEP_CAP,
     narration: snapshot.narration,
     frameUrl: snapshot.frameUrl,
     costUsd: snapshot.costUsd,
@@ -71,7 +78,7 @@ function progressFromSnapshot(snapshot: RunSnapshot): RunProgress {
   }
 }
 
-function fromSnapshot(snapshot: RunSnapshot): ClientState {
+function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): ClientState {
   if (snapshot.status === 'failed') {
     return {
       view: 'error',
@@ -79,7 +86,7 @@ function fromSnapshot(snapshot: RunSnapshot): ClientState {
       runId: snapshot.runId
     }
   }
-  const progress = progressFromSnapshot(snapshot)
+  const progress = progressFromSnapshot(snapshot, instruction)
   if (snapshot.status === 'running') return { view: 'running', progress }
   if (!snapshot.result) {
     return { view: 'error', message: 'The run ended without a result.', runId: snapshot.runId }
@@ -146,9 +153,9 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
     case 'edit':
       return { view: 'input' }
     case 'started':
-      return { view: 'running', progress: emptyProgress(action.runId) }
+      return { view: 'running', progress: emptyProgress(action.runId, action.instruction) }
     case 'snapshot':
-      return fromSnapshot(action.snapshot)
+      return fromSnapshot(action.snapshot, null)
     case 'event':
       return state.view === 'running' ? reduceEvent(state, action.id, action.event) : state
     case 'cancel_requested':

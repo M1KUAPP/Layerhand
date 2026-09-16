@@ -75,6 +75,9 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain("submit.textContent = 'Starting…'")
     expect(app).toContain('instruction-count')
     expect(app).toContain('Used for this run only and never stored.')
+    expect(app).toContain('Step ${progress.steps} of')
+    expect(app).toContain("'rail-title', 'Run status'")
+    expect(app).toContain("'Spend'")
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")
     )

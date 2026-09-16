@@ -386,6 +386,14 @@ legend,
   font-size: 0;
 }
 
+.rail-title {
+  margin-bottom: 1.2rem;
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-eyebrow);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
 .progress-rail dl {
   display: grid;
   gap: 1.4rem;
@@ -393,16 +401,15 @@ legend,
 
 .progress-rail dt {
   margin-bottom: 0.25rem;
-  color: #5f5e59;
-  font-size: 0.68rem;
-  font-weight: 700;
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-micro);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .progress-rail dd {
-  font-size: 0.95rem;
-  line-height: 1.35;
+  font: var(--text-ui-body);
+  overflow-wrap: anywhere;
 }
 
 .correction-form {

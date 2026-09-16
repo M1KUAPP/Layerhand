@@ -51,9 +51,16 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.locator('[data-view="running"]').waitFor()
 
       const stored = await page.evaluate(() => ({ ...sessionStorage }))
-      expect(Object.keys(stored)).toEqual(['layerhand.runId'])
+      expect(Object.keys(stored)).toEqual(['layerhand.runId', 'layerhand.instruction'])
       expect(JSON.stringify(stored)).not.toContain(sentinel)
       expect(await page.locator('#api-key').count()).toBe(0)
+
+      const railText = await page.locator('.progress-rail').textContent()
+      expect(railText).toContain('Run status')
+      expect(railText).toContain('Spend')
+      expect(railText).toContain(EXAMPLE)
+      expect(railText).toMatch(/Step \d+ of 40/)
+      expect(railText?.toLowerCase().match(/credits/g)).toHaveLength(1)
 
       const correction = 'Keep the label unchanged'
       const field = page.getByRole('textbox', { name: 'Correct the next action' })
