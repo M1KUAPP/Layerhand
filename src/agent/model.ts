@@ -78,4 +78,15 @@ export interface AgentModel {
   steer?(text: string): NativeSteer | undefined
   /** Releases whatever the model holds, such as a socket. Called once, when the run ends. */
   close?(): void
+  /** Whether this run's calls went over the WebSocket, once opened, or stayed on HTTP (NFR-8). */
+  readonly transport?: 'http' | 'websocket'
+  /**
+   * How native steering settled every correction offered to `steer()`:
+   * delivered, handed back for replay (indeterminate ones included), or
+   * indeterminate after a dropped connection settled it without evidence.
+   * Set only by a model that can steer natively (NFR-8).
+   */
+  readonly steering?: { applied: number; replayed: number; indeterminate: number }
+  /** Codes of the safety checks an unattended run acknowledged automatically, in the order it saw them (NFR-8). */
+  readonly safetyCheckCodes?: readonly string[]
 }
