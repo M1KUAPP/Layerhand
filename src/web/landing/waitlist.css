@@ -83,7 +83,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: 1.4rem;
+  min-height: 1.875rem;
   padding-top: 0.55rem;
   color: var(--color-text-secondary);
   font: var(--text-ui-small);
