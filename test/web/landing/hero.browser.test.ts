@@ -56,7 +56,9 @@ describeBrowser('landing hero in Chromium', () => {
         const updates = page.locator('.hero__updates')
         expect(await updates.textContent()).toBe('Get launch updates by email')
         expect(await updates.getAttribute('href')).toBe('#updates')
-        expect(await page.locator('.hero__note').textContent()).toBe('Three free runs. No account needed.')
+        expect(await page.locator('.hero__note').textContent()).toBe(
+          'Three free runs. No account needed. Uploads are deleted within 24 hours.'
+        )
         expect(await page.locator('.hero__caption').textContent()).toBe(
           'Before retouching: the sample photograph, which you can try in the workbench.'
         )
