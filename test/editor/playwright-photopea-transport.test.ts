@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import type { Page } from 'playwright-core'
 import { PHOTOPEA_CONFIGURATION, PlaywrightPhotopeaTransport, decodePhotopeaWireMessage } from '../../src/editor'
+import { FILE_SLICE_BYTES } from '../../src/editor/playwright-photopea-transport'
 
 interface PageFakeState {
   readonly navigations: string[]
@@ -115,16 +116,16 @@ describe('Playwright Photopea transport', () => {
     expect(serializedBytes).toBeLessThan(expected.byteLength * 2 + 128)
   })
 
-  test('receives an exported file as compact base64, byte for byte', async () => {
+  test('reads an exported file out of the page in bounded slices of compact base64, byte for byte', async () => {
     const page = createPageFake()
-    // Every byte value, across several of the page's encoding chunks and a partial last one.
-    const exported = Uint8Array.from({ length: 100_000 }, (_, index) => (index * 7) % 256)
-    page.messages.push({ type: 'bytes', value: exported })
-    let returnedBytes = 0
+    // Every byte value, across two whole slices and a partial last one.
+    const exported = Uint8Array.from({ length: FILE_SLICE_BYTES * 2 + 100_000 }, (_, index) => (index * 7) % 256)
+    page.messages.push({ type: 'bytes', value: exported }, { type: 'text', value: 'after the file' })
+    const replyLengths: number[] = []
     const evaluate = page.evaluate
     page.evaluate = async (callback: Function, argument?: unknown) => {
       const result = await evaluate(callback, argument)
-      returnedBytes = JSON.stringify(result).length
+      replyLengths.push(JSON.stringify(result ?? null).length)
       return result
     }
     const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
@@ -134,27 +135,53 @@ describe('Playwright Photopea transport', () => {
     const message = await transport.nextMessage(750)
 
     expect(message).toEqual({ type: 'bytes', value: exported })
-    expect(returnedBytes).toBeLessThan(exported.byteLength * 1.4 + 128)
+    // A CDP connection closes on one message over 256 MiB, so no reply may carry the whole file (#100).
+    expect(replyLengths.filter((length) => length > 128)).toHaveLength(3)
+    expect(Math.max(...replyLengths)).toBeLessThan(FILE_SLICE_BYTES * 1.4 + 128)
+    expect(page.messages).toEqual([{ type: 'text', value: 'after the file' }])
   })
 
-  test('decodes text messages and base64 byte messages', () => {
+  test('rejects a file slice that is not exactly the base64 of its bytes', async () => {
+    // The page's slice of Uint8Array.of(1, 2, 3) is AQID: short, long, padded early, or not text at all.
+    for (const value of [['x'], new Array(2), [1, 2, 3], undefined, 'AQI', 'AQID!', 'AQ=D', 'AQIDBA==']) {
+      const page = createPageFake()
+      page.messages.push({ type: 'bytes', value: Uint8Array.of(1, 2, 3) })
+      const evaluate = page.evaluate
+      page.evaluate = async (callback: Function, argument?: unknown) => {
+        const result = await evaluate(callback, argument)
+        return typeof result === 'string' ? value : result
+      }
+      const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+        hostUrl: 'http://127.0.0.1:4123/editor'
+      })
+
+      await expect(transport.nextMessage(750)).rejects.toThrow('Photopea host returned an invalid message.')
+    }
+  })
+
+  test('reads an empty file without asking the page for a slice', async () => {
+    const page = createPageFake()
+    page.messages.push({ type: 'bytes', value: new Uint8Array() })
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    // The exporter's signature checks reject an empty file later.
+    expect(await transport.nextMessage(750)).toEqual({ type: 'bytes', value: new Uint8Array() })
+    expect(page.evaluations.filter((argument) => Array.isArray(argument))).toEqual([])
+  })
+
+  test('decodes text messages', () => {
     expect(decodePhotopeaWireMessage({ type: 'text', value: 'done' })).toEqual({
       type: 'text',
       value: 'done'
     })
-    expect(decodePhotopeaWireMessage({ type: 'bytes', value: 'AQID' })).toEqual({
-      type: 'bytes',
-      value: Uint8Array.of(1, 2, 3)
-    })
-    // An empty file is empty base64; the exporter's signature checks reject it later.
-    expect(decodePhotopeaWireMessage({ type: 'bytes', value: '' })).toEqual({ type: 'bytes', value: new Uint8Array() })
   })
 
   test('rejects malformed host messages', () => {
-    for (const value of [['x'], new Array(2), [1, 2, 3], 'AQI', 'AQID!', 'AQ=D']) {
-      expect(() => decodePhotopeaWireMessage({ type: 'bytes', value })).toThrow(
-        'Photopea host returned an invalid message.'
-      )
+    // A file never arrives whole: it is read out of the page in slices.
+    for (const value of [undefined, 'done', { type: 'text' }, { type: 'bytes', value: 'AQID' }]) {
+      expect(() => decodePhotopeaWireMessage(value)).toThrow('Photopea host returned an invalid message.')
     }
   })
 
