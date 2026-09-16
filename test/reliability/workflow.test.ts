@@ -27,7 +27,7 @@ interface WorkflowJob {
 
 interface WorkflowDefinition {
   name?: string
-  on: Record<string, unknown>
+  on: Record<string, any>
   env?: Record<string, string>
   jobs: Record<string, WorkflowJob>
 }
@@ -50,7 +50,8 @@ describe('reliability workflow contract', () => {
     expect(workflow.on.schedule).toEqual([{ cron: '0 16 * * *' }])
 
     expect(job).toBeDefined()
-    expect(job?.if).toBe("vars.RELIABILITY_ENABLED == 'true'")
+    expect(job?.if).toContain("github.event_name == 'schedule' && vars.RELIABILITY_ENABLED == 'true'")
+    expect(job?.if).toContain("github.event_name == 'workflow_dispatch' && inputs.task == 'reliability'")
     expect(job?.['timeout-minutes']).toBe(180)
     expect(job?.environment).toBe('production')
     expect(job?.permissions).toEqual({
@@ -98,6 +99,42 @@ describe('reliability workflow contract', () => {
     expect(failureStep?.if).toContain("steps.reliability.outcome == 'failure'")
 
     // Ensure neither credential is leaked into GITHUB_ENV or artifacts
+    for (const step of job?.steps ?? []) {
+      if (step.run) {
+        expect(step.run).not.toMatch(/GITHUB_ENV.*OPENAI_API_KEY/)
+        expect(step.run).not.toMatch(/GITHUB_ENV.*BROWSERBASE_API_KEY/)
+      }
+    }
+  })
+
+  test('a manual agent-loop dispatch runs one bounded cache acceptance session', async () => {
+    const source = await Bun.file(new URL('../../.github/workflows/reliability.yml', import.meta.url)).text()
+    const workflow = Bun.YAML.parse(source) as WorkflowDefinition
+    const dispatch = workflow.on.workflow_dispatch
+    const job = workflow.jobs.agent_loop_acceptance
+
+    expect(dispatch.inputs.task).toMatchObject({
+      required: true,
+      type: 'choice',
+      options: ['agent-loop-acceptance', 'reliability']
+    })
+    expect(job).toBeDefined()
+    expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'")
+    expect(job?.['timeout-minutes']).toBe(30)
+    expect(job?.environment).toBe('production')
+    expect(job?.permissions).toEqual({ contents: 'read', 'id-token': 'write' })
+
+    const runStep = job?.steps.find((step) => step.run?.includes('--profile cache-acceptance'))
+    expect(runStep).toMatchObject({ id: 'agent-loop', 'continue-on-error': true })
+    expect(runStep?.run).toContain('gcloud secrets versions access latest --secret OPENAI_API_KEY')
+    expect(runStep?.run).toContain('--step-cap 40')
+    expect(runStep?.run).toContain('--budget 8')
+    expect(runStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
+
+    const artifactStep = job?.steps.find((step) => step.uses === 'actions/upload-artifact@v4')
+    expect(artifactStep?.if).toBe('always()')
+    expect(artifactStep?.with?.path).toBe('docs/evidence/agent-run/output/')
+
     for (const step of job?.steps ?? []) {
       if (step.run) {
         expect(step.run).not.toMatch(/GITHUB_ENV.*OPENAI_API_KEY/)
