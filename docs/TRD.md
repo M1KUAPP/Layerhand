@@ -864,7 +864,11 @@ no account.
   and allows what the page loads: its own files, the live view's `data:`
   frames, and the presigned `https:` preview and download. Bun's routes
   for an HTML import cannot add a header, so `pageRoutes()` serves the
-  bundle's files itself (#114).
+  bundle's files itself (#114). Under `LAYERHAND_PAGE_RELOAD`, which
+  `bun run dev` sets, it serves the page through that native Bun route
+  instead, so an edit under `src/web` shows up without a restart, at the
+  cost of the headers above; `bun run start` and every test leave the
+  flag unset and stay secured.
 - Run state lives server-side, keyed by `runId`, and the page holds
   only the id. A reload re-subscribes (FR-14).
 - The live view is an `<img>` swapped on each `frame` event. The layer
