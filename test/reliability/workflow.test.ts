@@ -145,7 +145,21 @@ describe('reliability workflow contract', () => {
     })
     expect(diagnosticStep?.run).toContain('jsonPayload.runId=$run_id')
     expect(diagnosticStep?.run).toContain('cloud-run-failure.json')
+    expect(diagnosticStep?.run).toContain('Bun.argv[1]')
     expect(diagnosticStep?.run).not.toContain('secrets versions access')
+
+    const extractor = diagnosticStep?.run?.match(/run_id="\$\(bun -e '([^']+)' "\$latest_summary"\)"/)?.[1]
+    expect(extractor).toBeDefined()
+    const tempDir = await mkdtemp(join(tmpdir(), 'workflow-diagnostic-test-'))
+    try {
+      const summary = join(tempDir, 'summary.json')
+      await Bun.write(summary, JSON.stringify({ runId: 'run-from-summary' }))
+      const proc = Bun.spawn(['bun', '-e', extractor!, summary], { stdout: 'pipe' })
+      expect((await new Response(proc.stdout).text()).trim()).toBe('run-from-summary')
+      expect(await proc.exited).toBe(0)
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
 
     const artifactStep = job?.steps.find((step) => step.uses === 'actions/upload-artifact@v4')
     expect(artifactStep?.if).toBe('always()')

@@ -112,7 +112,7 @@ jobs:
         run: |
           output="docs/evidence/agent-run/output"
           latest_summary="$(find "$output" -name summary.json | sort | tail -n 1)"
-          run_id="$(bun -e 'const value = await Bun.file(Bun.argv[2]).json(); console.log(value.runId ?? "")' "$latest_summary")"
+          run_id="$(bun -e 'const value = await Bun.file(Bun.argv[1]).json(); console.log(value.runId ?? "")' "$latest_summary")"
           if [ -n "$run_id" ]; then
             gcloud logging read \
               "resource.type=cloud_run_revision AND jsonPayload.event=run_failed AND jsonPayload.runId=$run_id" \
