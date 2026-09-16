@@ -132,6 +132,17 @@ const pending = (steerId: string, parent: string, callId: string) => ({
   reason: 'waiting_for_required_input',
   required_input: [{ type: 'computer_call_output', call_id: callId }]
 })
+const rateLimitedEvent = {
+  type: 'error',
+  status: 429,
+  stream_id: 'layerhand',
+  error: { type: 'invalid_request_error', code: 'rate_limit_exceeded', message: `Limit reached for ${KEY}` }
+}
+const failedResponse = (id: string) => ({
+  type: 'response.failed',
+  stream_id: 'layerhand',
+  response: { id, status: 'failed', error: { code: 'server_error', message: `Failed for ${KEY}` }, output: [] }
+})
 const steerFailed = (parent: string, code: string) => ({
   type: 'response.steer.failed',
   stream_id: 'layerhand',
@@ -466,7 +477,7 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(model.steering.available).toBe(false)
   })
 
-  test('an error event fails the step with its status and code, never its message', async () => {
+  test('an error event refusing the step fails it with its status and code, never its message', async () => {
     const server = scriptedSocketServer()
     const { model } = socketModel(server.url)
 
@@ -475,15 +486,53 @@ describe('ResponsesModel over a WebSocket', () => {
     await connection.received.next()
     connection.send({
       type: 'error',
-      status: 429,
+      status: 400,
       stream_id: 'layerhand',
-      error: { type: 'invalid_request_error', code: 'rate_limit_exceeded', message: `Limit reached for ${KEY}` }
+      error: { type: 'invalid_request_error', code: 'invalid_value', message: `Refused for ${KEY}` }
     })
     const failure = await turn.catch((error: unknown) => error)
 
     expect(failure).toBeInstanceOf(ResponsesApiError)
-    expect(failure).toMatchObject({ status: 429, code: 'rate_limit_exceeded' })
+    expect(failure).toMatchObject({ status: 400, code: 'invalid_value' })
     expect(String((failure as Error).message)).not.toContain(KEY)
+  })
+
+  test.each([
+    ['a rate limit', [rateLimitedEvent]],
+    ['a failed response', [created('resp_failed'), failedResponse('resp_failed')]]
+  ])('a step that meets %s is sent again on the same socket, which stays open for steering', async (_, failure) => {
+    const server = scriptedSocketServer()
+    const waits: number[] = []
+    const { model, http } = socketModel(server.url, { sleep: async (ms) => void waits.push(ms) })
+
+    const turn = model.next(observe(), signal())
+    const connection = await server.connections.next()
+    const first = await connection.received.next()
+    for (const event of failure) connection.send(event)
+    const again = await connection.received.next()
+    connection.send(created('resp_1'))
+    connection.send(completed('resp_1', [said('Opening the Adjustments panel'), computerCall('call_1')]))
+
+    expect(await turn).toMatchObject({ narration: 'Opening the Adjustments panel', done: false })
+    expect(again).toEqual(first)
+    expect(waits).toHaveLength(1)
+    expect(http.sent).toEqual([])
+    expect(model.steering.available).toBe(true)
+  })
+
+  test('a step with no traffic for a whole call timeout is sent again over HTTP', async () => {
+    const server = scriptedSocketServer()
+    const { model, http } = socketModel(server.url, { callTimeoutMs: 30 }, [
+      { id: 'resp_http', output: [], usage: USAGE }
+    ])
+
+    const turn = model.next(observe(), signal())
+    const connection = await server.connections.next()
+    await connection.received.next()
+
+    expect(await turn).toMatchObject({ done: true })
+    await connection.closed
+    expect(http.sent).toHaveLength(1)
   })
 
   test('a cancelled call rejects with the abort reason and closes the socket', async () => {
