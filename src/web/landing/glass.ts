@@ -102,7 +102,7 @@ const GLASS_DEFAULTS: Required<GlassObjectOptions> = {
   tint: '',
   tintDensity: 2,
   depth: 0.1,
-  bevel: 1,
+  bevel: 0.3,
   highlight: '#066aff',
   environmentIntensity: 1,
   scale: 3,
@@ -784,7 +784,9 @@ async function mountGlass(host: HTMLElement, fallback: SVGSVGElement | null): Pr
   const canvas = document.createElement('canvas')
   canvas.className = 'glass__canvas'
   const src = URL.createObjectURL(new Blob([layersText], { type: 'image/svg+xml' }))
-  const highlight = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+  const tokens = getComputedStyle(document.documentElement)
+  const highlight = tokens.getPropertyValue('--accent').trim()
+  const paper = tokens.getPropertyValue('--paper').trim()
   try {
     host.append(canvas)
     const instance = createGlassObject(
@@ -794,6 +796,7 @@ async function mountGlass(host: HTMLElement, fallback: SVGSVGElement | null): Pr
         src,
         orbit: false,
         highlight: highlight || undefined,
+        tint: paper || undefined,
         onLoad: () => fallback?.remove(),
         onError: () => {
           canvas.remove()
