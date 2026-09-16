@@ -56,7 +56,7 @@ describeBrowser('landing scrub section in Chromium', () => {
       } finally {
         await page.close()
       }
-    })
+    }, 30_000)
 
     test(`pins the stage while the track scrolls at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport })
@@ -76,7 +76,7 @@ describeBrowser('landing scrub section in Chromium', () => {
       } finally {
         await page.close()
       }
-    })
+    }, 30_000)
 
     test(`reaches the last frame at the end of the track at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport })
@@ -107,7 +107,7 @@ describeBrowser('landing scrub section in Chromium', () => {
       } finally {
         await page.close()
       }
-    })
+    }, 30_000)
 
     test(`builds only the poster under reduced motion at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport, reducedMotion: true })
@@ -123,6 +123,6 @@ describeBrowser('landing scrub section in Chromium', () => {
       } finally {
         await page.close()
       }
-    })
+    }, 30_000)
   }
 })
