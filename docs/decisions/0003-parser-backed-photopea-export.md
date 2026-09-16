@@ -179,6 +179,17 @@ mask or adjustment remains exportable and is reported with `complete: false`.
 The session never creates a neutral mask or adjustment to satisfy policy; doing
 so would move a retouching decision onto the scripted side of the boundary.
 
+A model-finished edit that fails only the editable-layer half of that check —
+an edit that turned out to be raster-only, with valid names but no adjustment
+or enabled mask — is not discarded. The PSD and preview are already exported
+by the time the check runs, so the loop publishes them anyway, downgraded to
+`complete: false`, with a recoverable error explaining why. This is the same
+shape the agent loop already gives a cap, a cancel, or a model that stops
+answering: the file made so far outlives the reason the run stopped. A name
+that still fails `assertLayerNames` remains fatal and discards the file,
+because it signals the naming policy itself broke rather than a legitimately
+raster-only edit.
+
 ### Computer actions and lifecycle
 
 Map every `ComputerAction` to the injected Playwright page in array order.
