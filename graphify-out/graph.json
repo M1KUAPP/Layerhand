@@ -21,13 +21,7 @@
       {
         "id": "docs_trd_four_run_limits",
         "label": "Four enforced run limits",
-        "nodes": [
-          "docs_trd_run_limits",
-          "docs_prd_fr_12",
-          "docs_prd_nfr_2",
-          "docs_prd_fr_35",
-          "docs_prd_fr_37"
-        ],
+        "nodes": ["docs_trd_run_limits", "docs_prd_fr_12", "docs_prd_nfr_2", "docs_prd_fr_35", "docs_prd_fr_37"],
         "relation": "participate_in",
         "confidence": "EXTRACTED",
         "confidence_score": 1.0,
@@ -73802,13 +73796,7 @@
     {
       "id": "docs_trd_four_run_limits",
       "label": "Four enforced run limits",
-      "nodes": [
-        "docs_trd_run_limits",
-        "docs_prd_fr_12",
-        "docs_prd_nfr_2",
-        "docs_prd_fr_35",
-        "docs_prd_fr_37"
-      ],
+      "nodes": ["docs_trd_run_limits", "docs_prd_fr_12", "docs_prd_nfr_2", "docs_prd_fr_35", "docs_prd_fr_37"],
       "relation": "participate_in",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
