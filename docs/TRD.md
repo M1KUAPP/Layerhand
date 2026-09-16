@@ -858,6 +858,13 @@ no account.
 
 - Rendered from the same process that serves the API, so there is one
   deployment and one origin.
+- The page, every file it loads, and the link preview banners carry the
+  API's security headers. The content security policy lets no other site
+  frame the page, which holds the field for a visitor's own key (FR-36),
+  and allows what the page loads: its own files, the live view's `data:`
+  frames, and the presigned `https:` preview and download. Bun's routes
+  for an HTML import cannot add a header, so `pageRoutes()` serves the
+  bundle's files itself (#114).
 - Run state lives server-side, keyed by `runId`, and the page holds
   only the id. A reload re-subscribes (FR-14).
 - The live view is an `<img>` swapped on each `frame` event. The layer
