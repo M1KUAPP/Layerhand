@@ -326,7 +326,25 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.getByRole('button', { name: 'Email me the recording' }).click()
       await page.getByText('Thanks. The recording will come to that address.').waitFor()
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
-      expect(await page.locator('.drop-zone').getAttribute('tabindex')).toBe('0')
+
+      const dropZone = page.locator('.drop-zone')
+      expect(await dropZone.getAttribute('tabindex')).toBeNull()
+
+      await page.getByRole('button', { name: 'Back', exact: true }).focus()
+      await page.keyboard.press('Tab')
+      expect(await page.evaluate(() => document.activeElement?.matches('input.file-input'))).toBe(true)
+      const ring = await dropZone.evaluate((zone) => {
+        const probe = document.createElement('div')
+        probe.style.color = 'var(--ink)'
+        document.body.append(probe)
+        const ink = getComputedStyle(probe).color
+        probe.remove()
+        return { ink, outline: getComputedStyle(zone).outlineColor }
+      })
+      expect(ring.outline).toBe(ring.ink)
+
+      await page.keyboard.press('Tab')
+      expect(await dropZone.evaluate((zone) => zone.contains(document.activeElement))).toBe(false)
     } finally {
       await page.close()
     }

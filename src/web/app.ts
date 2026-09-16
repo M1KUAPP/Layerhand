@@ -185,7 +185,6 @@ function renderInput(): DocumentFragment {
   const legend = node('legend', undefined, 'Source photograph')
   const dropZone = node('label', 'drop-zone')
   dropZone.htmlFor = 'source-image'
-  dropZone.tabIndex = 0
   const input = node('input', 'file-input')
   input.id = 'source-image'
   input.name = 'image'
@@ -210,12 +209,6 @@ function renderInput(): DocumentFragment {
     dropZone.dataset.dragging = 'true'
   })
   dropZone.addEventListener('dragleave', () => delete dropZone.dataset.dragging)
-  dropZone.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      input.click()
-    }
-  })
   dropZone.addEventListener('drop', (event) => {
     event.preventDefault()
     delete dropZone.dataset.dragging
