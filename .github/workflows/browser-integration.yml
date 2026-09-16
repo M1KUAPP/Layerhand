@@ -1,0 +1,30 @@
+# Live Chrome against public Photopea and the network allow-list
+# (LAYERHAND_CHROME_INTEGRATION), covering test/editor's Photopea
+# integration tests and the network boundary test (#119). Real third-party
+# UI and network calls, so they run on a schedule and on demand rather than
+# blocking a pull request; test.yml covers the fake-backed browser tests
+# instead. A failing run shows in the Actions tab, and GitHub emails
+# whoever last edited this file's schedule (see
+# docs/references/git-workflow.md).
+name: Browser integration
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-integration:
+    name: Photopea and network tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test test/editor test/server/browserbase-network.integration.test.ts
+        env:
+          LAYERHAND_CHROME_INTEGRATION: '1'
