@@ -4,6 +4,7 @@ import type { RunEvent, RunHandle } from '../../src/agent/contract'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { RunRegistry, RunRegistryError, type TerminalRun } from '../../src/server/run-registry'
 import { createLaunchRuntime } from '../../src/server/runtime'
+import { WarmSessionPool } from '../../src/server/warm-session-pool'
 
 const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
 
@@ -179,5 +180,63 @@ describe('shutting the runtime down', () => {
     expect(records).toHaveLength(1)
     expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'cancelled' })
     expect((await runtime.registry.getSnapshot(runId))?.status).toBe('cancelled')
+  })
+
+  test('ends and records a run in flight while a warm session is still being released', async () => {
+    // A release as slow as a Browserbase request that takes its full ten
+    // seconds: it finishes only when the test lets it.
+    let finishRelease: () => void = () => undefined
+    const releasing = new Promise<void>((resolve) => {
+      finishRelease = resolve
+    })
+    let released = 0
+    const warmSessions = new WarmSessionPool({
+      create: () => ({
+        id: 'warm-session',
+        viewport: { width: 1440, height: 900 },
+        open: async () => undefined,
+        screenshot: async () => new Uint8Array(),
+        act: async () => undefined,
+        layers: async () => [],
+        exportPsd: async () => new Uint8Array(),
+        exportPreview: async () => new Uint8Array(),
+        close: async () => undefined,
+        async abandon() {
+          released += 1
+          await releasing
+        }
+      })
+    })
+    const records: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', RUN_MODE: 'scripted' },
+      clientAddress: () => '203.0.113.32',
+      // Slow enough that the run is still going when the runtime closes.
+      fakeRunIntervalMs: 60_000,
+      warmSessions,
+      writeRunLog: (record) => records.push(record)
+    })
+    await warmSessions.warm('visitor', new Uint8Array(await Bun.file(samplePath).arrayBuffer()), 'source.png')
+    const form = new FormData()
+    form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
+    form.set('filename', 'source.png')
+    form.set('instruction', 'Remove the background')
+    const response = await runtime.application.fetch(
+      new Request('http://layerhand.test/api/runs', { method: 'POST', body: form })
+    )
+    const { runId } = (await response.json()) as { runId: string }
+
+    const closing = runtime.close()
+    try {
+      // Well inside the four seconds a cancelled run is given, and nowhere near Cloud Run's ten.
+      await Promise.race([runtime.registry.waitForTerminal(runId), Bun.sleep(2_000)])
+
+      expect(records).toHaveLength(1)
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'cancelled' })
+      expect(released).toBe(1)
+    } finally {
+      finishRelease()
+      await closing
+    }
   })
 })
