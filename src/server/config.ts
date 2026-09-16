@@ -102,6 +102,11 @@ export function readSteering(env: Environment): Steering {
   throw new ConfigurationError('STEERING must be native or boundary')
 }
 
+/** Refuses new runs and upload warming while set to `1`, for a launch-day emergency (#118). */
+export function readRunsPaused(env: Environment): boolean {
+  return env.RUNS_PAUSED === '1'
+}
+
 function parseTrustedProxyHops(value: string): number {
   if (!/^(?:0|[1-9]\d*)$/.test(value)) {
     throw new ConfigurationError('TRUST_PROXY_HOPS must be a non-negative integer')

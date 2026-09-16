@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { ConfigurationError, readConfig, readRunLimits, readSteering } from '../../src/server/config'
+import { ConfigurationError, readConfig, readRunLimits, readRunsPaused, readSteering } from '../../src/server/config'
 
 const VALID_ENV = {
   DATABASE_URL: 'postgres://layerhand:password@database.internal/layerhand',
@@ -121,5 +121,17 @@ describe('readSteering', () => {
 
   test.each(['', 'Native', 'websocket'])('rejects STEERING %p without echoing it', (value) => {
     expect(() => readSteering({ STEERING: value })).toThrow('STEERING must be native or boundary')
+  })
+})
+
+describe('readRunsPaused', () => {
+  test('stays unpaused unless the switch is exactly 1', () => {
+    expect(readRunsPaused({})).toBe(false)
+    expect(readRunsPaused({ RUNS_PAUSED: '0' })).toBe(false)
+    expect(readRunsPaused({ RUNS_PAUSED: 'true' })).toBe(false)
+  })
+
+  test('pauses when set to 1', () => {
+    expect(readRunsPaused({ RUNS_PAUSED: '1' })).toBe(true)
   })
 })
