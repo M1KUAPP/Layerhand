@@ -188,10 +188,13 @@ after quota reservation releases the reservation before returning.
 
 Bun SQL supplies one database interface for production PostgreSQL and
 in-memory SQLite tests. Production startup requires `DATABASE_URL`; tests use
-`:memory:`. Migrations create three focused tables:
+`:memory:`. Migrations create four focused tables:
 
 - `visitor_usage` stores an HMAC-derived visitor key and accepted free runs.
-- `daily_usage` stores integer microdollars spent and reserved per UTC day.
+- `daily_usage` stores integer microdollars spent per UTC day. Its reserved
+  column holds only what revisions before `meter_reservations` reserved.
+- `meter_reservations` stores each free run's reservation in integer
+  microdollars, with its UTC day and the time it was made.
 - `waitlist_emails` stores a normalized unique email and creation time.
 
 A signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie contains a random visitor
@@ -206,7 +209,9 @@ ignores forwarding headers.
 Free admission uses one transaction. It refuses the fourth accepted run or a
 run whose reservation would exceed `FREE_DAILY_BUDGET_USD`. A reservation is
 the run's configured spend cap, represented as integer microdollars. Terminal
-completion atomically replaces the reservation with measured spend.
+completion atomically replaces the reservation with measured spend. A
+reservation counts for twenty minutes at most, the run ceiling plus five, so
+one whose server died before its run ended stops holding back other free runs.
 
 A user-supplied OpenAI key bypasses free-run and daily-budget admission. It
 does not bypass the per-run step or spend cap. The key is passed directly to

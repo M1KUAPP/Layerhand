@@ -799,6 +799,12 @@ Warm sessions belong to no run, and releasing one can wait ten seconds on
 Browserbase, so they are released alongside those phases rather than before
 them. A slow release cannot use up the time the runs need to be recorded.
 
+A crash, or a shutdown that overruns anyway, leaves runs that nothing
+records or reconciles. Their reservations stop counting against the daily
+ceiling twenty minutes after they were made, as
+[sizing the ceiling](#size-the-daily-ceiling-against-concurrency-not-one-user)
+describes.
+
 ## The web application
 
 A single page. Upload, prompt, run, result — no routing, no navigation,
@@ -958,9 +964,13 @@ measured cost per run from spike A2 rather than by this estimate. The
 arithmetic below is what that owner redoes.
 
 Each free run reserves NFR-2's $8 spend cap when it is admitted, and gives
-back the difference when it ends. A run is admitted only while the day's
-spend, plus what is still reserved, plus its own $8, stays within the
-ceiling. So wave _k_ of twenty concurrent free runs fits only when:
+back the difference when it ends. A reservation nothing gives back, because
+the server that admitted the run crashed or was stopped first, stops
+counting twenty minutes after it was made: the fifteen-minute run ceiling,
+plus five minutes for a run stopped there to export and be reconciled, by
+which time no run can still be spending it. A run is admitted only while
+the day's spend, plus what is still reserved, plus its own $8, stays within
+the ceiling. So wave _k_ of twenty concurrent free runs fits only when:
 
 ```text
 ceiling ≥ (k − 1) × spend per wave + 20 × $8 reservation
