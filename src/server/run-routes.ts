@@ -32,6 +32,8 @@ export interface RunRouteDependencies {
   stepCap?: number
   /** Warms an editor while the user types, when the run mode has a browser to warm (#70). */
   warmSessions?: WarmSessionPool
+  /** Refuses new runs and upload warming while true, for a launch-day emergency (#118). */
+  runsPaused?: boolean
 }
 
 class RunStartError extends Error {
@@ -162,7 +164,9 @@ export class RunRoutes {
     }
     const upload = validateImageUpload(new Uint8Array(await image.arrayBuffer()), filenameValue)
     const identity = await this.#visitor(request)
-    const uploadId = await this.#dependencies.warmSessions?.warm(identity.visitorKey, upload.bytes, upload.filename)
+    const uploadId = this.#dependencies.runsPaused
+      ? undefined
+      : await this.#dependencies.warmSessions?.warm(identity.visitorKey, upload.bytes, upload.filename)
     return json(
       { uploadId: uploadId ?? null, warming: uploadId !== undefined },
       201,
@@ -181,6 +185,9 @@ export class RunRoutes {
   }
 
   async #start(request: Request): Promise<Response> {
+    if (this.#dependencies.runsPaused) {
+      return apiError('runs_paused', 'New runs are paused right now. Try again shortly.', 503)
+    }
     const form = await boundedFormData(request, MAX_RUN_REQUEST_BODY_BYTES)
     const instructionValue = form.get('instruction')
     if (typeof instructionValue !== 'string' || instructionValue.trim().length === 0) {

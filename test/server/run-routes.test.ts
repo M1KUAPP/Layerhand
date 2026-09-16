@@ -150,7 +150,13 @@ function stoppedModelRun(): ManagedRun {
 }
 
 function fixture(
-  overrides: { meter?: RecordingMeter; warm?: boolean; failAtStep?: number; managedRun?: ManagedRun } = {}
+  overrides: {
+    meter?: RecordingMeter
+    warm?: boolean
+    failAtStep?: number
+    managedRun?: ManagedRun
+    paused?: boolean
+  } = {}
 ) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
@@ -183,6 +189,7 @@ function fixture(
     clientAddress: () => '203.0.113.10',
     now: () => new Date('2026-09-15T12:00:00.000Z'),
     idGenerator: () => `public-run-${++nextId}`,
+    runsPaused: overrides.paused,
     runFactory(request, warmSession) {
       claimed.push(warmSession)
       if (failRunFactory) return Promise.reject(new Error('run factory failed'))
@@ -293,6 +300,16 @@ describe('warming an editor before the run', () => {
     expect(target.claimed).toEqual([])
     expect(target.warmed[0]?.abandoned).toBe(1)
     expect(target.meter.calls).toContain('release')
+  })
+
+  test('does not warm an editor while paused', async () => {
+    const target = fixture({ warm: true, paused: true })
+
+    const upload = await target.app.fetch(uploadRequest())
+
+    expect(upload.status).toBe(201)
+    expect(await upload.json()).toEqual({ uploadId: null, warming: false })
+    expect(target.warmSessions?.size).toBe(0)
   })
 
   test('refuses an upload that is not an image', async () => {
@@ -427,6 +444,21 @@ describe('run HTTP contract', () => {
     expect(upload.sent()).toBeLessThan(24)
     expect(start.sent()).toBeLessThan(24)
     expect(target.meter.calls).toEqual([])
+  })
+
+  test('refuses to start a run while paused, before admission (#118)', async () => {
+    const target = fixture({ paused: true })
+
+    const response = await target.app.fetch(startRequest())
+
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({
+      code: 'runs_paused',
+      message: 'New runs are paused right now. Try again shortly.'
+    })
+    expect(target.meter.calls).toEqual([])
+    expect(target.artifacts.calls).toEqual([])
+    expect(target.runRequests).toEqual([])
   })
 
   test('returns a stated limit response without starting paid work', async () => {
