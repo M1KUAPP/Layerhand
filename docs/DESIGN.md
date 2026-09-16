@@ -196,18 +196,26 @@ way a message reaches a visitor.
 
 ### Hero: layered parallax
 
-Four layers in a `100vh` section with overflow hidden, from the
+Four layers in a section at least `100vh` tall with overflow hidden,
+adapted from the
 [MotionSites parallax lesson](/docs/research/design/motionsites.md#layered-parallax-hero):
 
-1.  A sky layer at 120% height, drifting with the scroll.
+1.  The photograph: the demo loop, or its poster until the loop exists,
+    at 120% of its plate's height, drifting inside the plate.
 1.  The headline, held still.
-1.  The lede, in `mix-blend-mode: overlay`.
-1.  A foreground layer above the headline, drifting with the sky.
+1.  The lede, held still.
+1.  The plate that frames the photograph, drifting with the scroll.
 
-Scroll maps 0–1 to 0%–8%. Because the headline stays put while the other
-two drift, it reads as sitting behind the foreground. That is the whole
-point: the hero demonstrates depth before a word is read, which is what
-[FR-30](PRD.md#launch-surface) asks the page to do above the fold.
+Scroll maps 0–1 to 0%–8% for the photograph and 0%–4% for the plate,
+where 0 is the section's top at the top of the viewport and 1 is its
+bottom there. The words stay put while the plate and the photograph
+inside it drift at two rates, so the hero shows three planes of depth
+and nothing ever passes over a word.
+
+Two parts of the lesson are dropped. Its foreground image sits above the
+headline, which needs a cut-out of the subject and hides words wherever
+the two overlap. Its lede is set in `mix-blend-mode: overlay`, which on
+our paper puts ink at about 1.1:1.
 
 ### Layer reveal: the drawer
 
