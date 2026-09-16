@@ -19,7 +19,8 @@ describe('createApplication', () => {
     expect(response.headers.get('referrer-policy')).toBe('no-referrer')
     expect(response.headers.get('content-security-policy')).toContain("img-src 'self' data: blob: https:")
     expect(response.headers.get('content-security-policy')).toContain("style-src 'self' https://use.hugeicons.com")
-    expect(response.headers.get('content-security-policy')).toContain("font-src 'self' https://use.hugeicons.com")
+    expect(response.headers.get('content-security-policy')).toContain("font-src 'self' data: https://use.hugeicons.com")
+    expect(response.headers.get('content-security-policy')).toContain("connect-src 'self' blob:")
   })
 
   test('returns service unavailable when the database readiness check fails', async () => {

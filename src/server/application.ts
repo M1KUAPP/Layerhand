@@ -18,8 +18,8 @@ const BASE_SECURITY_HEADERS = {
 const APPLICATION_CSP = [
   "default-src 'self'",
   "base-uri 'none'",
-  "connect-src 'self'",
-  "font-src 'self' https://use.hugeicons.com",
+  "connect-src 'self' blob:",
+  "font-src 'self' data: https://use.hugeicons.com",
   "form-action 'self'",
   "frame-ancestors 'none'",
   'frame-src https://www.photopea.com https://*.browserbase.com',
