@@ -9,6 +9,7 @@ import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } 
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
 import { RunRoutes } from '../../src/server/run-routes'
+import type { OpenAiKeyCheck } from '../../src/server/openai-key'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
 import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
 
@@ -165,6 +166,7 @@ function fixture(
     maxConcurrentRuns?: number
     retryWaitingMs?: number
     runIntervalMs?: number
+    checkApiKey?: (apiKey: string) => Promise<OpenAiKeyCheck>
   } = {}
 ) {
   const meter = overrides.meter ?? new RecordingMeter()
@@ -192,6 +194,7 @@ function fixture(
   const routes = new RunRoutes({
     registry,
     ...(warmSessions ? { warmSessions } : {}),
+    ...(overrides.checkApiKey ? { checkApiKey: overrides.checkApiKey } : {}),
     meterStore: meter,
     artifactStore: artifacts,
     waitlistStore: new MemoryWaitlistStore(),
@@ -387,6 +390,50 @@ describe('run HTTP contract', () => {
     expect(target.runRequests[0]?.apiKey).toBeUndefined()
     expect(target.meter.calls).toContain('reconcile:211050')
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
+  })
+
+  test('turns away a key OpenAI refuses before anything is stored, reserved, or opened for it', async () => {
+    const checked: string[] = []
+    const target = fixture({
+      checkApiKey: async (apiKey) => {
+        checked.push(apiKey)
+        return 'refused'
+      }
+    })
+
+    const response = await target.app.fetch(startRequest({ apiKey: 'sk-mistyped-key-000000' }))
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      code: 'invalid_api_key',
+      message: 'OpenAI did not accept this API key. Check the key and try again.'
+    })
+    expect(checked).toEqual(['sk-mistyped-key-000000'])
+    expect(target.meter.calls).toEqual([])
+    expect(target.artifacts.calls).toEqual([])
+    expect(target.runRequests).toEqual([])
+  })
+
+  test('asks for a retry when OpenAI cannot check a key, and checks no key for a free run', async () => {
+    const checked: string[] = []
+    const target = fixture({
+      checkApiKey: async (apiKey) => {
+        checked.push(apiKey)
+        return 'unchecked'
+      }
+    })
+
+    const unchecked = await target.app.fetch(startRequest({ apiKey: 'sk-visitor-own-key-000000' }))
+    const free = await target.app.fetch(startRequest())
+
+    expect(unchecked.status).toBe(503)
+    expect(await unchecked.json()).toEqual({
+      code: 'api_key_unchecked',
+      message: 'OpenAI could not be reached to check this API key. Try again in a moment.'
+    })
+    expect(free.status).toBe(201)
+    expect(checked).toEqual(['sk-visitor-own-key-000000'])
+    expect(target.runRequests).toHaveLength(1)
   })
 
   test('gives back the free run when it fails while opening the editor', async () => {
