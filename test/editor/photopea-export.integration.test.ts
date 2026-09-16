@@ -111,4 +111,38 @@ describeLive('Photopea export in Google Chrome', () => {
       await page.close()
     }
   }, 180_000)
+
+  test('renames a live Color Fill layer to a plain fallback name', async () => {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+    try {
+      const bridge = new PhotopeaBridge(
+        new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
+      )
+      const sample = await Bun.file(new URL('../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
+      await new PhotopeaDocumentLoader(bridge).open(sample, 'layerhand-sample.png')
+
+      const exporter = new PhotopeaDocumentExporter(bridge)
+      await exporter.nameSourceLayer()
+
+      // A solid-fill layer, named the way Layer > New Fill Layer > Solid
+      // Color names it from the Photopea menu: issue #110 found that name
+      // unrenamed. Setting .kind alone leaves Photopea's own "Layer 1", so
+      // the name is set explicitly to match the live menu default.
+      const fillLayerNamed = await bridge.runScript(
+        'var fill = app.activeDocument.artLayers.add();\n' +
+          'fill.kind = LayerKind.SOLIDFILL;\n' +
+          'fill.name = "Color Fill 1";\n' +
+          'app.echoToOE("layerhand:fill-named:" + fill.name);'
+      )
+      expect(fillLayerNamed).toContainEqual({ type: 'text', value: 'layerhand:fill-named:Color Fill 1' })
+
+      const snapshot = await exporter.exportSnapshot()
+      expect(snapshot.layers.map((layer) => ({ name: layer.name, kind: layer.kind }))).toEqual([
+        { name: 'Original photograph', kind: 'raster' },
+        { name: 'Retouched pixels', kind: 'raster' }
+      ])
+    } finally {
+      await page.close()
+    }
+  }, 120_000)
 })
