@@ -1,7 +1,7 @@
-import type { RunHandle } from '../agent/contract'
+import type { RunHandle, RunStopReason } from '../agent/contract'
 import type { RunFailure } from './run-failure'
 
-export type RunStopReason = 'complete' | 'step_cap' | 'spend_cap' | 'time_limit' | 'cancelled' | 'failed'
+export type { RunStopReason } from '../agent/contract'
 
 export interface ManagedRunMetrics {
   cacheHitRate: number | null
@@ -19,4 +19,10 @@ export interface ManagedRun {
    * for an export. For a run that did not stop when it was cancelled.
    */
   abandon?(): Promise<void>
+  /**
+   * Ends the run for a server shutdown rather than a user's cancel, so the
+   * run log and the page record `shutdown` in place of `cancelled` (#112).
+   * `RunRegistry.close()` prefers this over `handle.cancel()` when present.
+   */
+  shutdown?(): Promise<void>
 }

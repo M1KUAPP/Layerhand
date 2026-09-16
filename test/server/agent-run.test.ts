@@ -415,7 +415,12 @@ describe('live agent run', () => {
       [stepEvents, stepCapped, 'step_cap'],
       [spendEvents, spendCapped, 'spend_cap']
     ] as const) {
-      expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false, psdUrl: 'memory://psd' } })
+      // The result on the wire carries the same reason as metrics(), so the
+      // page can show it instead of always blaming the step cap (#125).
+      expect(events.at(-1)).toMatchObject({
+        type: 'done',
+        result: { complete: false, psdUrl: 'memory://psd', stopReason: reason }
+      })
       expect(capped.managed.metrics().stopReason).toBe(reason)
       expect(capped.browser).toMatchObject({ released: ['bb-1'], closed: 1 })
     }
@@ -494,6 +499,19 @@ describe('managed agent run', () => {
 
     expect(stepCapped.managed.metrics().stopReason).toBe('step_cap')
     expect(spendCapped.managed.metrics().stopReason).toBe('spend_cap')
+  })
+
+  test('shutdown() reports a reason distinct from a user cancel, and still exports the partial file', async () => {
+    const { managed } = await run({ stepCap: 15 })
+
+    await managed.shutdown?.()
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({
+      type: 'done',
+      result: { complete: false, psdUrl: 'memory://psd', stopReason: 'shutdown' }
+    })
+    expect(managed.metrics().stopReason).toBe('shutdown')
   })
 
   test('records a run whose model stopped answering as failed on the model call, even at the step cap', async () => {
