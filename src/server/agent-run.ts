@@ -2,7 +2,7 @@
 // the run log needs to know about how it ended (NFR-8).
 import type { RunEvent, RunHandle, RunRequest } from '../agent/contract'
 import { runAgent, type AgentLoopDependencies, type PublishedKind } from '../agent/loop'
-import type { AgentModel } from '../agent/model'
+import { ModelUnavailableError, type AgentModel } from '../agent/model'
 import { ResponsesModel } from '../agent/responses-model'
 import { Spend } from '../agent/spend'
 import type { ArtifactStore } from './artifact-store'
@@ -60,6 +60,8 @@ export function managedAgentRun(
   let cancelled = false
   let timedOut = false
   let missingNarration = false
+  // The loop ends such a run as a cap does, but the run log still counts it as failed.
+  let modelUnavailable = false
   let stopReason: RunStopReason = 'failed'
   // The loop reports every failure with one fixed reason, so the calls it makes are watched for the cause.
   const failures = new FailureRecorder()
@@ -68,7 +70,10 @@ export function managedAgentRun(
   const model: AgentModel = {
     async next(observation, signal) {
       calls += 1
-      const turn = await inner.next(observation, signal)
+      const turn = await inner.next(observation, signal).catch((error: unknown) => {
+        if (error instanceof ModelUnavailableError) modelUnavailable = true
+        throw error
+      })
       spend.add(turn.usage)
       cachedInputTokens += turn.usage.cachedInputTokens
       if ((!turn.done || turn.actions.length > 0) && !turn.narration.trim()) missingNarration = true
@@ -87,7 +92,7 @@ export function managedAgentRun(
 
   const stoppedBy = (complete: boolean, endedAfterCeiling: boolean): RunStopReason => {
     if (cancelled) return 'cancelled'
-    if (missingNarration) return 'failed'
+    if (missingNarration || modelUnavailable) return 'failed'
     if (complete) return 'complete'
     if (endedAfterCeiling) return 'time_limit'
     if (calls >= request.stepCap) return 'step_cap'
