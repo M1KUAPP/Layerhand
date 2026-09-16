@@ -143,7 +143,10 @@ and the launch freeze holds from Thursday evening, September 17.
     run may make, and what it may spend. A free run reserves its spend cap
     from the daily ceiling.
 - **Storage** is the GCS bucket `layerhand-artifacts-732371853772`, through
-  its S3 interoperability endpoint, with a 24-hour delete rule (NFR-6).
+  its S3 interoperability endpoint, with a 24-hour delete rule (NFR-6),
+  committed as `.github/gcs-lifecycle.json`. The manual
+  `.github/workflows/gcs-lifecycle.yml` applies it on request and always
+  prints the bucket's live rule.
 
 In production the container refuses to start unless all eleven variables
 that `src/server/config.ts` requires are set.
