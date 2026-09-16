@@ -118,16 +118,23 @@ async function harness(behaviour: Behaviour = {}): Promise<Harness> {
   return Object.assign(state, { session })
 }
 
-async function httpOutcome(h: Harness, url: string, responseStatus = 200): Promise<'fulfilled' | 'aborted'> {
+async function httpOutcome(
+  h: Harness,
+  url: string,
+  responseStatus = 200,
+  errors: { fetch?: Error; fulfill?: Error } = {}
+): Promise<'fulfilled' | 'aborted'> {
   let outcome: 'fulfilled' | 'aborted' | undefined
   let fetchOptions: { maxRedirects?: number } | undefined
   const route = {
     request: () => ({ url: () => url }),
     fetch: async (options?: { maxRedirects?: number }) => {
       fetchOptions = options
+      if (errors.fetch) throw errors.fetch
       return { status: () => responseStatus }
     },
     fulfill: async () => {
+      if (errors.fulfill) throw errors.fulfill
       outcome = 'fulfilled'
     },
     abort: async () => {
@@ -195,6 +202,22 @@ describe('Browserbase editor session', () => {
     await h.session.open(IMAGE, 'source.png')
 
     expect(await httpOutcome(h, HOST_URL, 302)).toBe('aborted')
+  })
+
+  test('aborts a routed request when the allow-list fetch fails', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    expect(await httpOutcome(h, HOST_URL, 200, { fetch: new Error('connect ECONNREFUSED 127.0.0.1:1') })).toBe(
+      'aborted'
+    )
+  })
+
+  test('aborts a routed request when fulfilling its response fails', async () => {
+    const h = await harness()
+    await h.session.open(IMAGE, 'source.png')
+
+    expect(await httpOutcome(h, HOST_URL, 200, { fulfill: new Error('the response stream closed') })).toBe('aborted')
   })
 
   test('allows WebSockets only on the Layerhand host and Photopea origins', async () => {
