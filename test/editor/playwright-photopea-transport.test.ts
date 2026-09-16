@@ -159,6 +159,28 @@ describe('Playwright Photopea transport', () => {
     }
   })
 
+  test('releases the parked file when a slice read fails, so cleanup does not depend on success', async () => {
+    const page = createPageFake()
+    page.messages.push({ type: 'bytes', value: Uint8Array.of(1, 2, 3) })
+    const evaluate = page.evaluate
+    page.evaluate = async (callback: Function, argument?: unknown) => {
+      const result = await evaluate(callback, argument)
+      // Corrupt only the slice reply; the head-shift and cleanup calls do not return strings.
+      return typeof result === 'string' ? 'not base64 at all' : result
+    }
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    await expect(transport.nextMessage(750)).rejects.toThrow('Photopea host returned an invalid message.')
+
+    // head-shift, the failed slice, then cleanup: the parked file must not outlive a thrown slice read.
+    // toHaveLength is load-bearing here: toEqual treats a missing trailing element as equal to undefined.
+    expect(page.evaluations).toHaveLength(3)
+    expect(page.evaluations[1]).toEqual([0, 3])
+    expect(page.evaluations[2]).toBeUndefined()
+  })
+
   test('reads an empty file without asking the page for a slice', async () => {
     const page = createPageFake()
     page.messages.push({ type: 'bytes', value: new Uint8Array() })
