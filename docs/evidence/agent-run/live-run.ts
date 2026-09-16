@@ -128,8 +128,7 @@ const cacheHitRate = managed.metrics().cacheHitRate
 const acceptance = evaluateAgentRunAcceptance(profile, {
   outcome,
   steps,
-  cacheHitRate,
-  browserReleased: browserbase.releasedMs !== null && browserbaseStatus === 'COMPLETED'
+  cacheHitRate
 })
 const summary = {
   label: 'Live run of liveAgentRun: GPT-6 Astra, computer tool, Browserbase, deployed /photopea-host',
