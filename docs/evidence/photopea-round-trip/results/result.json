@@ -1,19 +1,13 @@
 {
   "browser": "Google Chrome via Playwright",
-  "consoleMessages": [
-    "1440",
-    "adding"
-  ],
+  "consoleMessages": ["1440", "adding"],
   "exportMs": 100,
   "fixtureBytes": 13442,
   "fixturePath": "output/input.jpg",
   "fixtureSha256": "cdced3c5f2e0524af39acb80c96ca8a26254c924ea1514774202091e97d13d11",
   "fixtureUrl": "https://picsum.photos/seed/layerhand/640/480.jpg",
   "height": 480,
-  "layers": [
-    "Original photograph",
-    "Retouched copy"
-  ],
+  "layers": ["Original photograph", "Retouched copy"],
   "messageSequence": [
     "string:done",
     "binary:1412711",

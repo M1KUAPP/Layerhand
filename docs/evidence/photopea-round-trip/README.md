@@ -97,6 +97,11 @@ Paths in `results/result.json` are relative to this directory. They name
 `output/`, where the probe wrote each file; the files moved to `results/`
 afterwards.
 
+The probes write their JSON with `JSON.stringify`, which is not the shape
+Prettier produces. A rerun's files land in `output/`, which Git and Prettier
+both skip, so nothing checks them there. Run `bunx prettier --write` on any
+file promoted from `output/` into `results/`.
+
 ## Files
 
 - [`probe.ts`](probe.ts) contains the outer-page message listener, JPEG upload,
@@ -127,13 +132,15 @@ afterwards.
 
 ## Digests
 
-SHA-256 digests identify the retained outputs:
+SHA-256 digests identify the retained outputs. The three JSON files were
+formatted by Prettier after capture, so each digest below is of the
+formatted bytes; every file still parses to exactly what the probe wrote:
 
 ```text
 cdced3c5f2e0524af39acb80c96ca8a26254c924ea1514774202091e97d13d11  results/input.jpg
 fbf838068cc10c61772907f2147ef9a9cc7afaa9ea17032c410276ca033f8ae7  results/photopea-round-trip.psd
 58aed27873edc925f39489161f762bfda2f57d9fe8c28a74b8fadac315c37eef  results/photopea-final.png
-18b6250db8b941b82331a02051ab8a00fb0d8d991037f8c4e6130d422ae8bc1b  results/result.json
-f86421943cffac4beed618ff1b05f7484c60a23293675ac6aa1d8e843daa1dc2  results/trap-results.json
-f42a44b9f1b76b4275b2757e76539ec2088f5001bc60e5c61ce1ae78f040a7e8  results/photoshop-verification.json
+988d2424a8a56e9e12d2c94ca2530a66cf349c51a78f08b39ea092741e337420  results/result.json
+4286ff547d657bdc673058335abb3c967eec2f4de9a9bb1aace805fd32b23faa  results/trap-results.json
+4735d62879aeef2e8d29795d878ce10dc23c0df0bc71b5e5bf13a85d51d84911  results/photoshop-verification.json
 ```
