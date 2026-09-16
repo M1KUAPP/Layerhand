@@ -31,17 +31,21 @@ sources are quoted in [PRODUCT § Open questions](/docs/PRODUCT.md#open-question
 
 ## The freeze, and the no-deploy rule
 
-**A merge to `main` that touches code deploys, and now waits for an
-approval first.** `deploy.yml` builds and deploys on every push to `main`,
-except a push that changes only documentation, `graphify-out/`, or evidence
-under `docs/evidence/`: `paths-ignore` stops that from triggering the
-workflow at all, so those merge safely at any time. Cloud Run runs **one
-instance** whose memory holds the state of every run in flight, so a deploy
-restarts it, ends the runs that are going on, and a visitor watching one
-sees it stop. The `production` environment requires a reviewer's approval
-before the deploy job runs — a repository setting applied once this change
-merges — so a build reaching Cloud Run is a deliberate second step, not a
-side effect of the merge.
+**A merge to `main` that touches code deploys. Once a required reviewer
+is set on the `production` environment, that deploy waits for an
+approval first.** `deploy.yml` builds and deploys on every push to
+`main`, except a push that changes only documentation, `graphify-out/`,
+or evidence under `docs/evidence/`: `paths-ignore` stops that from
+triggering the workflow at all, so those merge safely at any time. Cloud
+Run runs **one instance** whose memory holds the state of every run in
+flight, so a deploy restarts it, ends the runs that are going on, and a
+visitor watching one sees it stop. The `deploy` job targets the
+`production` environment, but targeting an environment does not gate a
+job by itself — only a required-reviewers protection rule on that
+environment does. That rule is a repository setting the maintainers add
+separately, after this change merges; once it is in place, a build
+reaching Cloud Run is a deliberate second step, not a side effect of the
+merge.
 
 So, from the freeze onwards:
 
@@ -50,11 +54,12 @@ So, from the freeze onwards:
     Run the query below and wait for it to come back empty, with no new
     traffic, before approving.
 2.  **Give the approval from the run's page.** Under the repository's
-    **Actions** tab, open the workflow run for the merge. It shows a
-    **Review deployments** button because the `deploy` job targets
-    `production`. Click it, select **production**, and click **Approve and
-    deploy** once the check above is clean — or leave it pending until it
-    is.
+    **Actions** tab, open the workflow run for the merge. Once the
+    required-reviewers rule is set on `production`, it shows a **Review
+    deployments** button — the rule is what gates the job, not merely the
+    `deploy` job targeting `production`. Click it, select **production**,
+    and click **Approve and deploy** once the check above is clean — or
+    leave it pending until it is.
 3.  **If something must change, change it on the service, not in the
     repository.** [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
     does that without a new image, and the repository catches up afterwards.
@@ -94,6 +99,13 @@ did to runs in flight — it only stops things from getting worse. Announce
 the rollback the same way as a deploy, and open an issue the same day so
 the repository catches up, whether that means reverting the merge or
 fixing forward.
+
+**A rollback does not hold on its own.** The deploy step runs a plain
+`gcloud run deploy` with no `--no-traffic` flag, so it sends all traffic
+to its new revision. The next successful deploy overwrites this
+rollback and brings the bad change back if `main` still contains it, so
+the bad commit must be reverted or fixed on `main` before any other
+deploy is approved during the freeze.
 
 ## Where to look when something is wrong
 
