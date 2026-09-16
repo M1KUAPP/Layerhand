@@ -100,6 +100,26 @@ describe('launch runtime', () => {
     }
   })
 
+  test('refuses new runs when RUNS_PAUSED is set, and never reaches the run factory (#118)', async () => {
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', RUNS_PAUSED: '1' },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      writeRunLog: () => undefined
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      expect(response.status).toBe(503)
+      expect(await response.json()).toEqual({
+        code: 'runs_paused',
+        message: 'New runs are paused right now. Try again shortly.'
+      })
+    } finally {
+      await runtime.close()
+    }
+  })
+
   test('fails closed when production configuration is absent', async () => {
     await expect(
       createLaunchRuntime({
