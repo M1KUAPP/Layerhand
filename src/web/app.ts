@@ -231,7 +231,11 @@ function renderInput(): DocumentFragment {
   const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
   fileField.append(legend, dropZone, fileHint, retentionNotice, fileStatus)
 
-  const sample = button('Use the sample photograph', 'text-button sample-button')
+  const sample = button('Use the sample photograph', 'sample-button')
+  const sampleThumb = node('img', 'sample-thumb')
+  sampleThumb.src = samplePhotoUrl
+  sampleThumb.alt = ''
+  sample.prepend(sampleThumb)
   sample.dataset.action = 'sample'
   sample.addEventListener('click', async () => {
     sample.disabled = true
