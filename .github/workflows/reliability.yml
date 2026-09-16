@@ -14,6 +14,7 @@ on:
         type: choice
         options:
           - agent-loop-acceptance
+          - browserbase-probe
           - reliability
 
 permissions:
@@ -142,3 +143,20 @@ jobs:
       - name: Propagate agent loop outcome
         if: always() && steps.agent-loop.outcome == 'failure'
         run: exit 1
+
+  browserbase_probe:
+    name: Browserbase editor probe
+    if: github.event_name == 'workflow_dispatch' && inputs.task == 'browserbase-probe'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Probe Browserbase and Photopea
+        env:
+          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+        run: bun run browserbase:probe -- "$PUBLIC_URL/photopea-host"
