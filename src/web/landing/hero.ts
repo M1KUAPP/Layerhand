@@ -23,12 +23,22 @@ export function renderHero(context: LandingContext): HTMLElement {
   const hero = node('section', 'landing-grid')
   hero.setAttribute('aria-labelledby', 'landing-title')
   const copy = node('div', 'landing-copy')
-  copy.append(node('p', 'eyebrow', 'A photographic agent inside a real editor'))
-  const title = node('h1', undefined, 'Retouch. Keep the layers.')
+  const eyebrow = node('p', 'eyebrow enter', 'A photographic agent inside a real editor')
+  eyebrow.style.setProperty('--enter-i', '0')
+  copy.append(eyebrow)
+  const title = node('h1', 'enter', 'Retouch. Keep the layers.')
+  title.style.setProperty('--enter-i', '1')
   title.id = 'landing-title'
   copy.append(title)
-  copy.append(node('p', 'lede', 'Layerhand works visibly in Photopea and returns an editable, human-layered PSD.'))
-  const start = button('Retouch a photo', 'button button-accent')
+  const lede = node(
+    'p',
+    'lede enter',
+    'Layerhand works visibly in Photopea and returns an editable, human-layered PSD.'
+  )
+  lede.style.setProperty('--enter-i', '2')
+  copy.append(lede)
+  const start = button('Retouch a photo', 'button button-accent enter')
+  start.style.setProperty('--enter-i', '3')
   const arrow = node('i', 'hgi-stroke hgi-arrow-right-01')
   arrow.setAttribute('aria-hidden', 'true')
   start.append(arrow)
