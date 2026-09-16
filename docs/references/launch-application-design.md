@@ -76,8 +76,11 @@ fail rather than regenerate an unreadable lockfile.
 
 `src/server/index.ts` imports `src/web/index.html` and serves it with
 `Bun.serve`. Bun bundles the HTML, TypeScript, CSS, fonts, and image assets for
-production with one `bun build --target=bun` command. No React, router, CSS
-framework, or second development server is added.
+production with one `bun build --target=bun` command. No router, CSS framework,
+or second development server is added. React is confined to the landing page,
+where [the design specification](/docs/DESIGN.md) permits one island for an
+effect that exists only as a React component; the workbench stays plain
+TypeScript.
 
 The container is a two-stage build pinned to Bun 1.4.2. It exposes one port,
 runs as a non-root user, stores no secret in an image layer, and starts the
