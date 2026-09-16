@@ -1,10 +1,14 @@
 // A run's events, kept so that each iteration replays the run from its first
-// event and then follows it live, as contract 2 requires (FR-14).
+// event and then follows it live, as contract 2 requires (FR-14). Only the
+// latest frame is kept: the page shows no other, and every frame kept would
+// hold its image for as long as the run is (#101).
 import type { RunEvent } from './contract'
 
 export class EventLog implements AsyncIterable<RunEvent> {
-  readonly #events: RunEvent[] = []
+  // A frame a newer one replaces leaves a gap, so every iteration keeps its place.
+  readonly #events: (RunEvent | undefined)[] = []
   readonly #waiting: (() => void)[] = []
+  #latestFrame: number | undefined
   #ended = false
 
   get ended(): boolean {
@@ -12,6 +16,10 @@ export class EventLog implements AsyncIterable<RunEvent> {
   }
 
   emit(event: RunEvent): void {
+    if (event.type === 'frame') {
+      if (this.#latestFrame !== undefined) this.#events[this.#latestFrame] = undefined
+      this.#latestFrame = this.#events.length
+    }
     this.#events.push(event)
     for (const wake of this.#waiting.splice(0)) wake()
   }
@@ -28,7 +36,8 @@ export class EventLog implements AsyncIterable<RunEvent> {
         if (this.#ended) return
         await new Promise<void>((wake) => this.#waiting.push(wake))
       }
-      yield this.#events[i]!
+      const event = this.#events[i]
+      if (event) yield event
     }
   }
 }
