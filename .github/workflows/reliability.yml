@@ -8,6 +8,14 @@ on:
   schedule:
     - cron: '0 16 * * *'
   workflow_dispatch:
+    inputs:
+      task:
+        description: Live evidence to collect
+        required: true
+        type: choice
+        options:
+          - agent-loop-acceptance
+          - reliability
 
 permissions:
   contents: read
@@ -21,7 +29,9 @@ env:
 jobs:
   reliability:
     name: Reliability suite
-    if: vars.RELIABILITY_ENABLED == 'true'
+    if: >-
+      (github.event_name == 'schedule' && vars.RELIABILITY_ENABLED == 'true') ||
+      (github.event_name == 'workflow_dispatch' && inputs.task == 'reliability')
     runs-on: ubuntu-latest
     timeout-minutes: 180
     environment: production
@@ -66,4 +76,57 @@ jobs:
           path: artifacts/reliability/
       - name: Propagate reliability outcome
         if: always() && steps.reliability.outcome == 'failure'
+        run: exit 1
+
+  agent_loop_acceptance:
+    name: Agent loop acceptance
+    if: github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Run agent loop acceptance
+        id: agent-loop
+        continue-on-error: true
+        env:
+          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+          PUBLIC_URL: ${{ env.PUBLIC_URL }}
+        run: |
+          OPENAI_API_KEY="$(gcloud secrets versions access latest --secret OPENAI_API_KEY --project "$PROJECT_ID")"
+          export OPENAI_API_KEY
+          bun run docs/evidence/agent-run/live-run.ts "$PUBLIC_URL" \
+            --profile cache-acceptance --step-cap 40 --budget 8
+      - name: Publish agent loop summary
+        if: always()
+        run: |
+          latest_summary="$(find docs/evidence/agent-run/output -name summary.json | sort | tail -n 1)"
+          if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
+            {
+              echo '## Agent loop acceptance'
+              echo '```json'
+              cat "$latest_summary"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload agent loop artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-loop-acceptance-${{ github.run_id }}
+          path: docs/evidence/agent-run/output/
+      - name: Propagate agent loop outcome
+        if: always() && steps.agent-loop.outcome == 'failure'
         run: exit 1
