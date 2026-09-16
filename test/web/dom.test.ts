@@ -8,6 +8,7 @@ const cssSource = async () =>
       [
         'styles.css',
         'landing/tokens.css',
+        'landing/shell.css',
         'landing/hero.css',
         'landing/scrub.css',
         'landing/drawer.css',
