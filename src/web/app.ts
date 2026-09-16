@@ -187,12 +187,19 @@ function renderInput(): DocumentFragment {
   input.type = 'file'
   input.accept = 'image/jpeg,image/png,.jpg,.jpeg,.png'
   input.required = true
+  dropZone.append(input)
+  if (selectedPreviewUrl) {
+    const preview = node('img', 'selected-preview')
+    preview.src = selectedPreviewUrl
+    preview.alt = `Selected source: ${selectedFile?.name ?? 'photograph'}`
+    dropZone.append(preview)
+  }
   const prompt = node(
     'span',
     'drop-prompt',
     selectedFile ? selectedFile.name : 'Drop a photograph here, or choose a file'
   )
-  dropZone.append(input, prompt)
+  dropZone.append(prompt)
   dropZone.addEventListener('dragover', (event) => {
     event.preventDefault()
     dropZone.dataset.dragging = 'true'
@@ -236,12 +243,6 @@ function renderInput(): DocumentFragment {
     }
   })
   fileField.append(sample)
-  if (selectedPreviewUrl) {
-    const preview = node('img', 'selected-preview')
-    preview.src = selectedPreviewUrl
-    preview.alt = `Selected source: ${selectedFile?.name ?? 'photograph'}`
-    fileField.append(preview)
-  }
 
   const instructionLabel = node('label', 'field-label', 'Retouching instruction')
   instructionLabel.htmlFor = 'instruction'
