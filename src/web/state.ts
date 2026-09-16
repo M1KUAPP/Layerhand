@@ -1,4 +1,4 @@
-import type { RunEvent, RunResult } from '../agent/contract'
+import type { RunEvent, RunResult, RunStopReason } from '../agent/contract'
 import type { RunSnapshot } from '../server/run-registry'
 
 // The first step event reports the configured cap; until it arrives the
@@ -30,7 +30,7 @@ export type ClientState =
       view: 'result'
       progress: RunProgress
       result: RunResult
-      outcome: 'complete' | 'incomplete' | 'cancelled'
+      outcome: RunStopReason
     }
   | { view: 'error'; message: string; runId?: string }
 
@@ -97,7 +97,11 @@ function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): Client
     view: 'result',
     progress,
     result: snapshot.result,
-    outcome: snapshot.status
+    // The stop reason is the true one (step cap, spend cap, time limit,
+    // shutdown, or cancel); a snapshot from before it was recorded falls
+    // back to no reason rather than guessing one, as an unrecognised
+    // `failed` stop reason already does.
+    outcome: snapshot.stopReason ?? (snapshot.result.complete ? 'complete' : 'failed')
   }
 }
 
@@ -140,7 +144,10 @@ function reduceEvent(state: Extract<ClientState, { view: 'running' }>, id: numbe
         view: 'result',
         progress,
         result: event.result,
-        outcome: progress.cancelRequested ? 'cancelled' : event.result.complete ? 'complete' : 'incomplete'
+        // Trusts the server's stop reason over the locally tracked cancel
+        // request, so a live 'done' agrees with what a reload would show
+        // (a run may end for a reason other than the cancel the user sent).
+        outcome: event.result.stopReason ?? (event.result.complete ? 'complete' : 'failed')
       }
   }
   return { view: 'running', progress }

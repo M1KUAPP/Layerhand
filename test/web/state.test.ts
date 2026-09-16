@@ -150,16 +150,55 @@ describe('client run reducer', () => {
     })
     const incomplete = reduceClientState(running, {
       type: 'snapshot',
-      snapshot: runningSnapshot({ status: 'incomplete', result: { ...result, complete: false } })
+      snapshot: runningSnapshot({
+        status: 'incomplete',
+        stopReason: 'step_cap',
+        result: { ...result, complete: false }
+      })
     })
     const cancelled = reduceClientState(running, {
       type: 'snapshot',
-      snapshot: runningSnapshot({ status: 'cancelled', result: { ...result, complete: false } })
+      snapshot: runningSnapshot({
+        status: 'cancelled',
+        stopReason: 'cancelled',
+        result: { ...result, complete: false }
+      })
     })
 
     expect(running).toMatchObject({ view: 'running', progress: { frameUrl: '/frame-1.png' } })
-    expect(incomplete).toMatchObject({ view: 'result', outcome: 'incomplete' })
+    expect(incomplete).toMatchObject({ view: 'result', outcome: 'step_cap' })
     expect(cancelled).toMatchObject({ view: 'result', outcome: 'cancelled' })
+  })
+
+  test('gives no reason for a reload snapshot missing one, rather than guessing the step cap', () => {
+    const state = reduceClientState(initialClientState(), {
+      type: 'snapshot',
+      snapshot: runningSnapshot({ status: 'incomplete', result: { ...result, complete: false } })
+    })
+
+    expect(state).toMatchObject({ view: 'result', outcome: 'failed' })
+  })
+
+  test('agrees with a reload for a spend-cap stop and for a shutdown', () => {
+    for (const stopReason of ['spend_cap', 'shutdown'] as const) {
+      let live = reduceClientState(initialClientState(), {
+        type: 'started',
+        runId: 'run-1',
+        instruction: 'Clean the reflections.'
+      })
+      live = reduceClientState(live, {
+        type: 'event',
+        id: 9,
+        event: { type: 'done', result: { ...result, complete: false, stopReason } }
+      })
+      const reloaded = reduceClientState(initialClientState(), {
+        type: 'snapshot',
+        snapshot: runningSnapshot({ status: 'incomplete', stopReason, result: { ...result, complete: false } })
+      })
+
+      expect(live).toMatchObject({ view: 'result', outcome: stopReason })
+      expect(reloaded).toMatchObject({ view: 'result', outcome: stopReason })
+    }
   })
 
   test('ignores the replay prefix already represented by a snapshot', () => {
@@ -190,7 +229,7 @@ describe('client run reducer', () => {
     state = reduceClientState(state, {
       type: 'event',
       id: 7,
-      event: { type: 'done', result: { ...result, complete: false } }
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
     })
 
     expect(state).toMatchObject({
