@@ -78,9 +78,12 @@ export class ResponsesApiError extends Error {
     this.retryAfterMs = retryAfterMs
   }
 
-  /** A rate limit or a server error, which the same call sent again can get past. */
+  /**
+   * A rate limit or a server error, which the same call sent again can get
+   * past. A rate limit for an exhausted quota is not: no wait clears it.
+   */
   get retryable(): boolean {
-    return this.status === 429 || this.status >= 500
+    return (this.status === 429 && this.code !== 'insufficient_quota') || this.status >= 500
   }
 }
 
