@@ -71,6 +71,8 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain('updateRunning(state)')
     expect(app).toContain("download.download = 'layerhand-result.psd'")
     expect(app).toContain('The server could not be reached. Check your connection and try again.')
+    expect(app).toContain("submit.textContent = 'Starting…'")
+    expect(app).toContain('instruction-count')
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")
     )
