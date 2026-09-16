@@ -145,28 +145,36 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
   async #readFile(byteLength: number): Promise<Uint8Array> {
     const bytes = new Uint8Array(byteLength)
     const file = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-    for (let start = 0; start < byteLength; start += FILE_SLICE_BYTES) {
-      const end = Math.min(start + FILE_SLICE_BYTES, byteLength)
-      const slice = await this.#page.evaluate(
-        ([start, end]) => {
-          const file = (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
-          if (!file) return undefined
+    try {
+      for (let start = 0; start < byteLength; start += FILE_SLICE_BYTES) {
+        const end = Math.min(start + FILE_SLICE_BYTES, byteLength)
+        const slice = await this.#page.evaluate(
+          ([start, end]) => {
+            const file = (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
+            if (!file) return undefined
 
-          // In chunks, because String.fromCharCode takes each byte as its own argument.
-          let binary = ''
-          for (let offset = start; offset < end; offset += 0x8000) {
-            const chunk = file.subarray(offset, Math.min(offset + 0x8000, end))
-            binary += String.fromCharCode.apply(null, chunk as unknown as number[])
-          }
-          return btoa(binary)
-        },
-        [start, end] as const
-      )
-      writeSlice(file, start, end, slice)
+            // In chunks, because String.fromCharCode takes each byte as its own argument.
+            let binary = ''
+            for (let offset = start; offset < end; offset += 0x8000) {
+              const chunk = file.subarray(offset, Math.min(offset + 0x8000, end))
+              binary += String.fromCharCode.apply(null, chunk as unknown as number[])
+            }
+            return btoa(binary)
+          },
+          [start, end] as const
+        )
+        writeSlice(file, start, end, slice)
+      }
+    } finally {
+      // A failed slice must not leave the file parked in the page: an unrelated later
+      // command could be misread as a continuation of it. If the page itself is gone,
+      // this cleanup call has nothing to release and its own failure is not our error.
+      await this.#page
+        .evaluate(() => {
+          delete (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
+        })
+        .catch(() => {})
     }
-    await this.#page.evaluate(() => {
-      delete (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
-    })
     return bytes
   }
 
