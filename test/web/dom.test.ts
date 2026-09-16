@@ -41,6 +41,8 @@ describe('Layerhand workbench markup', () => {
     expect(html).toContain('aria-live="polite"')
     expect(html).toContain('id="desktop-required"')
     expect(html).toContain('This workbench requires a desktop at least 1280 pixels wide.')
+    expect(html).toContain('rel="icon"')
+    expect(html).toContain('./assets/favicon.svg')
     expect(html).not.toMatch(/[—–]/)
   })
 

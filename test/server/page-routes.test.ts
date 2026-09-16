@@ -75,4 +75,15 @@ describe('page routes', () => {
       expect([...bytes.subarray(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47])
     }
   })
+
+  test('/favicon.ico is a page route, not the API 404', async () => {
+    const server = serve()
+
+    const response = await fetch(new URL('/favicon.ico', server.url))
+
+    // Until the icon file lands the route answers a plain 404; afterwards it
+    // serves the icon. Either way it never leaks the API's JSON shape.
+    expect(response.headers.get('content-type')).not.toContain('application/json')
+    expect([200, 404]).toContain(response.status)
+  })
 })
