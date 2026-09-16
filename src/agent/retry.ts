@@ -10,14 +10,15 @@ const MAX_WAIT_MS = 30_000
 /**
  * The wait before the retry that follows `retries` earlier ones, or undefined
  * when there should be none: the retries have run out, or the server asked for
- * a longer wait than any retry makes. The wait doubles from one second up to
- * thirty, half of it jittered by `random`, from 0 up to 1, and is never
- * shorter than the server's `retry-after`.
+ * a longer wait than any retry makes. The backoff doubles from one second up
+ * to thirty. The wait is half of it, or the server's `retry-after` when that
+ * is longer, plus up to the other half by `random`, from 0 up to 1, so runs
+ * told the same wait still come back apart. It never passes thirty seconds.
  */
 export function retryWaitMs(retries: number, retryAfterMs: number | undefined, random: number): number | undefined {
   if (retries >= MAX_RETRIES || (retryAfterMs ?? 0) > MAX_WAIT_MS) return undefined
-  const backoff = Math.min(MAX_WAIT_MS, FIRST_WAIT_MS * 2 ** retries)
-  return Math.max(retryAfterMs ?? 0, backoff * (0.5 + random / 2))
+  const half = Math.min(MAX_WAIT_MS, FIRST_WAIT_MS * 2 ** retries) / 2
+  return Math.min(MAX_WAIT_MS, Math.max(retryAfterMs ?? 0, half) + half * random)
 }
 
 /** A `retry-after` header in milliseconds, given in seconds or as an HTTP date. Undefined when absent or unreadable. */
