@@ -1063,12 +1063,21 @@ again, and a run whose retries run out stops with its partial file, as
   browser (NFR-5).
 - A user-supplied key is held in memory for the life of the run,
   redacted from every log line, and never written to disk.
-- Uploads go to object storage under an unguessable key with a
-  twenty-four-hour lifecycle rule (NFR-6), committed as
-  `.github/gcs-lifecycle.json`. `.github/workflows/gcs-lifecycle.yml` is a
-  manual, `workflow_dispatch`-only job that applies it on request and
-  always prints the bucket's live rule; it never runs on push. Results
-  are served by signed URL.
+- Uploads go to object storage under an unguessable key, governed by a
+  twenty-four-hour lifecycle rule (NFR-6) that is bucket-wide: it
+  deletes every object — uploads, results, and previews alike — once
+  it is a day old, not uploads only. Cloud Storage applies the rule
+  asynchronously, so an object can still outlive that day by up to
+  another one. The rule is committed as `.github/gcs-lifecycle.json`,
+  and the manual `.github/workflows/gcs-lifecycle.yml` — triggered only
+  by `workflow_dispatch`, never by push — applies it on request and
+  always prints the bucket's live rule.
+- Two tighter guarantees sit in front of that day-old backstop: an
+  upload is deleted from the bucket as soon as its run ends, and every
+  download link — the PSD's and the preview's — expires after one hour
+  (`expiresIn: 3600` in `s3-artifact-store.ts`), by which point the run
+  itself has also aged out of the registry (`DEFAULT_RETENTION_MS`, one
+  hour, in `run-registry.ts`).
 - Every Browserbase session is created with `recordSession` and
   `logSession` both false, so a run's photograph is not retained at
   Browserbase beyond the run itself (NFR-6).
