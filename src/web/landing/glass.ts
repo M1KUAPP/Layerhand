@@ -382,7 +382,7 @@ function createGlassObject(
   controls.enablePan = false
 
   const glass = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
+    color: 'white',
     metalness: 0,
     transmission: 1,
     clearcoatRoughness: 0.06,
@@ -407,11 +407,11 @@ function createGlassObject(
       [15, -15],
       [-15, -15]
     ]) {
-      const spot = new THREE.SpotLight(0xffffff, 2, 0, 0.2, 1, 0)
+      const spot = new THREE.SpotLight('white', 2, 0, 0.2, 1, 0)
       spot.position.set(x!, 20, z!)
       room.add(spot, spot.target)
     }
-    const center = new THREE.PointLight(0xffffff, 100, 28, 2)
+    const center = new THREE.PointLight('white', 100, 28, 2)
     center.position.set(0.5, 14, 0.5)
     room.add(center)
 
@@ -421,7 +421,7 @@ function createGlassObject(
     shell.scale.set(31.5, 28.5, 31.5)
     room.add(shell)
 
-    const white = new THREE.MeshStandardMaterial({ color: 0xffffff })
+    const white = new THREE.MeshStandardMaterial({ color: 'white' })
     for (const def of ROOM_BLOCKS) {
       const mesh = new THREE.Mesh(box, white)
       mesh.position.set(...def.position)
@@ -436,7 +436,7 @@ function createGlassObject(
         side: THREE.DoubleSide,
         toneMapped: false
       })
-      material.color.set(def.kind === 'ring' ? config.highlight : '#ffffff').multiplyScalar(def.intensity)
+      material.color.set(def.kind === 'ring' ? config.highlight : 'white').multiplyScalar(def.intensity)
       if (def.kind === 'ring') ringMaterial = material
       const mesh = new THREE.Mesh(geometry, material)
       mesh.position.set(...def.position)
@@ -444,7 +444,7 @@ function createGlassObject(
       if (def.lookAtCenter) mesh.lookAt(0, 0, 0)
       room.add(mesh)
       if (def.withLight) {
-        const light = new THREE.PointLight(0xffffff, 100, 28, 2)
+        const light = new THREE.PointLight('white', 100, 28, 2)
         light.position.set(...def.position)
         room.add(light)
       }
@@ -571,7 +571,7 @@ function createGlassObject(
 
   function applyOptions() {
     scene.background = null
-    renderer.setClearColor(0x000000, 0)
+    renderer.setClearColor('black', 0)
     scene.environmentIntensity = config.environmentIntensity
     controls.enableRotate = config.orbit
     controls.enableZoom = config.zoom
@@ -590,7 +590,7 @@ function createGlassObject(
       glass.attenuationColor.set(config.tint)
       glass.attenuationDistance = 1.5 / Math.max(config.tintDensity, 0.01)
     } else {
-      glass.attenuationColor.set(0xffffff)
+      glass.attenuationColor.set('white')
       glass.attenuationDistance = Infinity
     }
 
