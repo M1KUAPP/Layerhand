@@ -1,6 +1,7 @@
 import samplePhotoUrl from './assets/sample-photo.png'
 import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
+import { renderLanding, type LandingContext } from './landing/index'
 import { formatCredits, initialClientState, reduceClientState, type ClientAction, type ClientState } from './state'
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
@@ -80,78 +81,11 @@ function eyebrow(text: string): HTMLParagraphElement {
   return node('p', 'eyebrow', text)
 }
 
-function renderLanding(): DocumentFragment {
-  const fragment = document.createDocumentFragment()
-  fragment.append(brandHeader())
-
-  const hero = node('section', 'landing-grid')
-  hero.setAttribute('aria-labelledby', 'landing-title')
-  const copy = node('div', 'landing-copy')
-  copy.append(eyebrow('A photographic agent inside a real editor'))
-  const title = node('h1', undefined, 'Retouch. Keep the layers.')
-  title.id = 'landing-title'
-  copy.append(title)
-  copy.append(description('Layerhand works visibly in Photopea and returns an editable, human-layered PSD.'))
-  const start = button('Retouch a photo', 'button button-accent')
-  start.addEventListener('click', () => dispatch({ type: 'edit' }))
-  copy.append(start)
-  copy.append(node('p', 'field-hint', 'Uploads are deleted within 24 hours.'))
-
-  const media = node('div', 'landing-media')
-  const wedge = node('div', 'wedge')
-  wedge.setAttribute('aria-hidden', 'true')
-  const video = node('video', 'demo-video')
-  video.autoplay = true
-  video.muted = true
-  video.loop = true
-  video.playsInline = true
-  video.poster = samplePhotoUrl
-  video.setAttribute('aria-label', 'Layerhand retouching demonstration placeholder')
-  media.append(video, wedge)
-  hero.append(copy, media)
-  fragment.append(hero, waitlistSection())
-  return fragment
-}
-
-function waitlistSection(): HTMLElement {
-  const section = node('section', 'waitlist')
-  section.setAttribute('aria-labelledby', 'waitlist-title')
-  const title = node('h2', undefined, 'See the launch result')
-  title.id = 'waitlist-title'
-  section.append(title, description('Join the short list for the public release and final demo.'))
-
-  const form = node('form', 'inline-form')
-  form.dataset.form = 'waitlist'
-  const label = node('label', 'sr-only', 'Email address')
-  label.htmlFor = 'waitlist-email'
-  const email = node('input')
-  email.id = 'waitlist-email'
-  email.name = 'email'
-  email.type = 'email'
-  email.autocomplete = 'email'
-  email.placeholder = 'you@example.com'
-  email.required = true
-  const submit = button('Join waitlist', 'button button-dark')
-  submit.type = 'submit'
-  const status = node('p', 'form-status')
-  status.setAttribute('role', 'status')
-  form.append(label, email, submit, status)
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault()
-    submit.disabled = true
-    status.textContent = 'Saving your place...'
-    try {
-      const result = await api.joinWaitlist(email.value)
-      status.textContent = result.created ? 'You are on the list.' : 'That address is already on the list.'
-      if (result.created) email.value = ''
-    } catch (error) {
-      status.textContent = publicMessage(error)
-    } finally {
-      submit.disabled = false
-    }
-  })
-  section.append(form)
-  return section
+const landingContext: LandingContext = {
+  startRun: () => dispatch({ type: 'edit' }),
+  joinWaitlist: (email) => api.joinWaitlist(email),
+  publicMessage,
+  brandHeader: () => brandHeader()
 }
 
 function validateFile(file: File): string | undefined {
@@ -285,9 +219,9 @@ function renderInput(): DocumentFragment {
   fileStatus.setAttribute('role', 'alert')
   const fileHint = node('p', 'field-hint', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
   fileHint.id = 'source-image-hint'
-  const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
   input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
   if (fileError) input.setAttribute('aria-invalid', 'true')
+  const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
   fileField.append(legend, dropZone, fileHint, retentionNotice, fileStatus)
 
   const sample = button('Use the sample photograph', 'text-button sample-button')
@@ -631,7 +565,7 @@ function render(): void {
   root.dataset.view = state.view
   switch (state.view) {
     case 'landing':
-      root.append(renderLanding())
+      root.append(renderLanding(landingContext))
       break
     case 'input':
       root.append(renderInput())

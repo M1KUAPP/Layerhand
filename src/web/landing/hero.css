@@ -1,0 +1,43 @@
+.landing-grid {
+  display: grid;
+  min-height: calc(100dvh - 72px);
+  grid-template-columns: minmax(420px, 0.78fr) minmax(650px, 1.22fr);
+}
+
+.landing-copy {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: clamp(2.2rem, 5vw, 5.6rem);
+}
+
+.landing-copy h1 {
+  max-width: 100%;
+  font-size: clamp(3.3rem, 4vw, 4.6rem);
+}
+
+.landing-media {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: #dedbd2;
+}
+
+.demo-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wedge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24%;
+  height: 38%;
+  background: var(--accent);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}

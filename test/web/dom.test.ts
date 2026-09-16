@@ -1,8 +1,21 @@
 import { describe, expect, test } from 'bun:test'
 
 const htmlFile = Bun.file(new URL('../../src/web/index.html', import.meta.url))
-const appFile = Bun.file(new URL('../../src/web/app.ts', import.meta.url))
 const cssFile = Bun.file(new URL('../../src/web/styles.css', import.meta.url))
+const appSource = async () =>
+  (
+    await Promise.all(
+      [
+        'app.ts',
+        'landing/index.ts',
+        'landing/hero.ts',
+        'landing/scrub.ts',
+        'landing/drawer.ts',
+        'landing/glass.ts',
+        'landing/waitlist.ts'
+      ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
+    )
+  ).join('\n')
 
 describe('Layerhand workbench markup', () => {
   test('keeps one accessible live application root and a desktop boundary', async () => {
@@ -16,7 +29,7 @@ describe('Layerhand workbench markup', () => {
   })
 
   test('renders every launch control without assigning untrusted HTML', async () => {
-    const app = await appFile.text()
+    const app = await appSource()
 
     expect(app).toContain("input.type = 'file'")
     expect(app).toContain("input.accept = 'image/jpeg,image/png,.jpg,.jpeg,.png'")
@@ -47,7 +60,7 @@ describe('Layerhand workbench markup', () => {
   })
 
   test('warms the editor as soon as a photograph is chosen, and starts the run on it', async () => {
-    const app = await appFile.text()
+    const app = await appSource()
 
     // The warm upload goes as soon as the file passes the checks, not on submit.
     expect(app).toContain('warmEditor(file)')
@@ -59,20 +72,18 @@ describe('Layerhand workbench markup', () => {
   })
 
   test('states the 24-hour upload deletion beside the drop zone and on the landing page', async () => {
-    const app = await appFile.text()
+    const app = await Bun.file(new URL('../../src/web/app.ts', import.meta.url)).text()
+    const hero = await Bun.file(new URL('../../src/web/landing/hero.ts', import.meta.url)).text()
     const notice = 'Uploads are deleted within 24 hours.'
 
+    const heroStart = hero.indexOf('function renderHero')
+    expect(hero.indexOf(notice)).toBeGreaterThan(heroStart)
+
     const occurrences = [...app.matchAll(/Uploads are deleted within 24 hours\./g)].map((match) => match.index)
-    expect(occurrences).toHaveLength(2)
-
-    const landingStart = app.indexOf('function renderLanding')
-    const landingEnd = app.indexOf('function waitlistSection')
-    expect(occurrences.some((index) => index > landingStart && index < landingEnd)).toBe(true)
-
+    expect(occurrences).toHaveLength(1)
     const fileFieldStart = app.indexOf("const fileField = node('fieldset'")
     const fileFieldEnd = app.indexOf("const instructionLabel = node('label'")
     expect(occurrences.some((index) => index > fileFieldStart && index < fileFieldEnd)).toBe(true)
-    expect(app).toContain(notice)
   })
 
   test('uses the approved visual tokens, hard geometry, and restrained motion', async () => {
