@@ -417,6 +417,25 @@ describe('ResponsesModel retries', () => {
     expect(waits).toEqual([])
   })
 
+  test('does not send again a rate limit for an exhausted quota, which no wait clears', async () => {
+    const quotaSpent = Response.json(
+      { error: { code: 'insufficient_quota', message: `No credit left for ${KEY}` } },
+      { status: 429 }
+    )
+    const { fetch, sent } = scriptedFetch([quotaSpent])
+    const { sleep, waits } = recordedSleep()
+
+    const failure = await retrying(fetch, { sleep })
+      .next(observe(), signal())
+      .catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(ResponsesApiError)
+    expect(failure).toMatchObject({ status: 429, code: 'insufficient_quota' })
+    expect(String((failure as Error).message)).not.toContain(KEY)
+    expect(sent).toHaveLength(1)
+    expect(waits).toEqual([])
+  })
+
   test('gives a call that never answers its own timeout, then sends it again', async () => {
     const { fetch, sent } = scriptedFetch(['no answer', ANSWER])
     const { sleep, waits } = recordedSleep()
