@@ -166,13 +166,14 @@ Three places, in the order worth trying:
 
 ## Changing a limit in a hurry
 
-The four numbers that bound spending, and what each does:
+The numbers that bound spending and load, and what each does:
 
 | Variable                 | Now    | What it bounds                                |
 | ------------------------ | ------ | --------------------------------------------- |
 | `FREE_DAILY_BUDGET_USD`  | 10     | Every free run together, per day (FR-37)      |
 | `FREE_RUN_SPEND_CAP_USD` | 3      | One run, and what a free run reserves (NFR-2) |
 | `RUN_STEP_CAP`           | 40     | Model calls in one run (FR-12)                |
+| `MAX_CONCURRENT_RUNS`    | 20     | Runs in flight at once; the rest wait (NFR-4) |
 | `STEERING`               | native | Whether a correction steers the live response |
 
 During the freeze, change them **on the service**, which makes a new
@@ -193,6 +194,25 @@ does. Two things to know before typing it:
 - **The repository must catch up.** `deploy.yml` holds the real values, and
   the next deploy overwrites whatever was set by hand. Open the pull request
   the same day, even if it merges after the freeze.
+
+`MAX_CONCURRENT_RUNS` covers free runs and runs on a visitor's own key
+alike. It is not in `deploy.yml`, so the service runs with the default of 20
+until it is set as above, and the server refuses to start with anything but
+a whole number above zero. A run past the cap waits in line, sees its place,
+and starts by itself. Nothing is logged for it until it ends, and one that
+leaves the line is logged as `cancelled` with no steps. To see the value a
+revision runs with, where no entry for it means the default:
+
+```sh
+gcloud run services describe layerhand \
+  --project layerhand-astra-2026 --region us-central1 \
+  --format 'yaml(spec.template.spec.containers[0].env)'
+```
+
+Lower it when a provider binds first: OpenAI rate limits, or Browserbase
+refusing sessions. Raise it only within Browserbase's 25 browsers, of which
+warm sessions take up to four, and with memory in mind: twenty runs peaked
+at 679 MiB of the service's 4 GiB.
 
 ## Rotating the server key
 
@@ -232,7 +252,10 @@ Photopea, and `editor_action_failed` is the editor itself.
   `model_call_failed`. A call OpenAI refuses outright, including one for
   an exhausted quota, fails its run at once, and the page shows its fixed
   reason. The daily ceiling is untouched by failures, because a
-  reservation is released when the run ends. If it is sustained, stop new
+  reservation is released when the run ends. Rate limits that persist while
+  many runs are in flight mean the cap is above what our OpenAI tier
+  allows, so lower `MAX_CONCURRENT_RUNS` first, and the runs past it wait
+  in line instead of failing. If errors are sustained, stop new
   runs with `RUNS_PAUSED=1`: `POST /api/runs` is refused before it
   reserves a free run, uploads stop warming an editor, and the page shows
   the refusal — unlike `RUN_MODE=fake`, which still spends a visitor's
