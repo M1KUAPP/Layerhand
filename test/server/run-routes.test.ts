@@ -117,7 +117,7 @@ function warmSessionStub(id: string) {
   }
 }
 
-function fixture(overrides: { meter?: RecordingMeter; warm?: boolean } = {}) {
+function fixture(overrides: { meter?: RecordingMeter; warm?: boolean; failAtStep?: number } = {}) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
   const registry = new RunRegistry()
@@ -154,8 +154,11 @@ function fixture(overrides: { meter?: RecordingMeter; warm?: boolean } = {}) {
       if (failRunFactory) return Promise.reject(new Error('run factory failed'))
       runRequests.push(request)
       return {
-        handle: fakeRun(request, { intervalMs: 1 }),
-        metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
+        handle: fakeRun(request, {
+          intervalMs: 1,
+          ...(overrides.failAtStep !== undefined ? { failAtStep: overrides.failAtStep } : {})
+        }),
+        metrics: () => ({ cacheHitRate: null, stopReason: overrides.failAtStep !== undefined ? 'failed' : 'complete' }),
         releaseSecrets() {
           request.apiKey = undefined
           releasedSecrets += 1
@@ -293,6 +296,22 @@ describe('run HTTP contract', () => {
     expect(target.runRequests[0]?.apiKey).toBeUndefined()
     expect(target.meter.calls).toContain('reconcile:211050')
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
+  })
+
+  test('gives back the free run when it fails while opening the editor', async () => {
+    // Zero steps ever ran, so nothing was ever spent (#116): the editor
+    // failed to open before the first model call, unlike a run that fails
+    // after making progress, which still used up its free run.
+    const target = fixture({ failAtStep: 0 })
+
+    const start = await target.app.fetch(startRequest())
+    const { runId } = (await start.json()) as { runId: string }
+    await target.registry.waitForTerminal(runId)
+
+    const snapshot = await target.app.fetch(new Request(`https://layerhand.test/api/runs/${runId}`))
+    expect((await snapshot.json()).status).toBe('failed')
+    expect(target.meter.calls).toContain('release')
+    expect(target.meter.calls.some((call) => call.startsWith('reconcile:'))).toBe(false)
   })
 
   test('rejects oversized metadata and malformed images before admission', async () => {
