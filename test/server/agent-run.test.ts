@@ -5,7 +5,7 @@ import type { RunEvent, RunRequest } from '../../src/agent/contract'
 import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
-import type { AgentModel } from '../../src/agent/model'
+import { ModelUnavailableError, type AgentModel } from '../../src/agent/model'
 import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../src/server/agent-run'
 import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
 import type { ManagedRun } from '../../src/server/managed-run'
@@ -493,6 +493,23 @@ describe('managed agent run', () => {
 
     expect(stepCapped.managed.metrics().stopReason).toBe('step_cap')
     expect(spendCapped.managed.metrics().stopReason).toBe('spend_cap')
+  })
+
+  test('records a run whose model stopped answering as failed on the model call, even at the step cap', async () => {
+    const unanswered: AgentModel = {
+      async next() {
+        throw new ModelUnavailableError('The Responses API did not answer after 7 attempts')
+      }
+    }
+    const { managed } = await run({ stepCap: 1 }, undefined, unanswered)
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false } })
+    expect(managed.metrics()).toMatchObject({
+      stopReason: 'failed',
+      failure: { code: 'model_call_failed', errorName: 'ModelUnavailableError' }
+    })
   })
 
   test('reports missing narration as failed at the final step', async () => {
