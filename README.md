@@ -165,6 +165,12 @@ against this service, and
 run. `boundary`, the default, sends a correction with the next model call
 instead, and is what a run falls back to if its socket fails.
 
+`RUNS_PAUSED` is unset: runs start normally. The
+[launch-day runbook](/docs/references/launch-day.md#when-the-providers-misbehave)
+sets it to `1` on the service for a launch-day emergency, which refuses
+`POST /api/runs` before it reserves a free run and stops
+`POST /api/uploads` from warming an editor.
+
 **The database is the Neon project `layerhand`**, in the M1KUAPP
 organisation and region `aws-us-east-2`. It is not paused when it goes
 without queries, so it needs no keep-alive request.
