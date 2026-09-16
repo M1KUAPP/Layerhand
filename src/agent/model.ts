@@ -50,6 +50,15 @@ export class ModelUnavailableError extends Error {
   }
 }
 
+/** A correction a model sent to steer the call in flight (#9). */
+export interface NativeSteer {
+  /**
+   * Whether native steering has applied the correction: a response the model
+   * answered with saw it. It turns true only as a call ends, and stays true.
+   */
+  readonly applied: boolean
+}
+
 export interface AgentModel {
   /**
    * Asks for the next step. Should reject once `signal` aborts; the run stops
@@ -58,13 +67,15 @@ export interface AgentModel {
    */
   next(observation: Observation, signal: AbortSignal): Promise<ModelTurn>
   /**
-   * Offers a correction the loop has already acknowledged and queued, so a
-   * model that can steer the call in flight applies it at once (#9). Returns
-   * true only if it sent the correction natively. Every correction offered is
-   * still passed with a later call, in the same order, and a model that took
-   * one natively must not deliver it twice.
+   * Offers a correction the loop has just acknowledged and queued, so a model
+   * that can steer the call in flight applies it at once (#9). Returns the
+   * native steer, if the model sent one, so the loop neither reports a
+   * correction native steering applied as undelivered nor makes a call only to
+   * carry it. Every correction offered is still passed with a later call, if
+   * one follows, in the same order, and a model that applied one natively must
+   * not deliver it twice.
    */
-  steer?(text: string): boolean
+  steer?(text: string): NativeSteer | undefined
   /** Releases whatever the model holds, such as a socket. Called once, when the run ends. */
   close?(): void
 }

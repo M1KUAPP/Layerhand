@@ -6,7 +6,14 @@
 // WebSocket it also steers the response in flight (docs/TRD.md § Steering). A
 // call that meets a rate limit, a server error, or no answer is sent again.
 import type { Button, ComputerAction, Pt } from '../editor/session'
-import { ModelUnavailableError, type AgentModel, type ModelTurn, type Observation, type TokenUsage } from './model'
+import {
+  ModelUnavailableError,
+  type AgentModel,
+  type ModelTurn,
+  type NativeSteer,
+  type Observation,
+  type TokenUsage
+} from './model'
 import { openResponsesSocket, ResponsesSocket, type SteeringEvent } from './responses-socket'
 import { retryAfterMs, retryWaitMs, sleep } from './retry'
 import { SteerLedger } from './steer-ledger'
@@ -319,14 +326,20 @@ export class ResponsesModel implements AgentModel {
     }
   }
 
-  steer(correction: string): boolean {
+  steer(correction: string): NativeSteer | undefined {
     const index = this.#offered++
-    // A call already carried it, which happens when a call starts between the acknowledgement and the offer.
-    if (index < this.#passed || !this.#socket) return false
+    // A call already carried it: it was offered after a call had passed it.
+    if (index < this.#passed || !this.#socket) return undefined
     const id = this.#socket.steer(correctionText(correction))
-    if (id === undefined) return false
+    if (id === undefined) return undefined
     this.#steered.set(index, id)
-    return true
+    // The ledger settles a steer only once every event through its call's last response is read.
+    const ledger = this.#ledger
+    return {
+      get applied() {
+        return ledger.entry(id).state === 'applied'
+      }
+    }
   }
 
   /** Closes the socket, if there is one. The run has ended. */
