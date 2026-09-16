@@ -17,6 +17,7 @@ Contents:
 1.  [Icons](#icons)
 1.  [Motion](#motion)
 1.  [The four techniques](#the-four-techniques)
+1.  [The footer](#the-footer)
 1.  [Fallbacks](#fallbacks)
 1.  [Acceptance](#acceptance)
 1.  [Do and do not](#do-and-do-not)
@@ -268,6 +269,34 @@ and the cursor effects — are **out of scope**. Peel is the most
 on-message effect in the library and it is still out, because it would
 work only in Chrome with a token for a domain that does not exist yet.
 
+## The footer
+
+One footer serves every view, the landing page and the workbench alike.
+It sits in the page shell rather than in a view, so changing view never
+redraws it. On `color/bg/subtle`, it holds:
+
+1.  The tagline as a closing line, in Display / H2.
+1.  A link to the source on GitHub, level with the line at the right.
+1.  The wordmark, and beside it the credits: the GPT-6 Astra Challenge,
+    and Photopea, which Layerhand drives and is not affiliated with.
+
+The page folds over it. The footer is fixed to the floor of the viewport
+behind the page, and the page keeps a bottom margin exactly as tall as
+the footer, measured again whenever the footer resizes. As the last
+screen scrolls away, the page's bottom edge, a 1px `color/border/default`
+rule, lifts off the footer and uncovers it from its bottom row up. At the
+end of the page the footer is wholly in view, and the page ends exactly
+where the footer begins.
+
+- **Nothing moves.** The fold is the page scrolling away from a footer
+  that stays put, so reduced motion changes nothing.
+- **Keyboard.** A footer link that takes focus scrolls the page to its
+  end, so the link is never hidden under the page, under WCAG 2.4.11.
+- **No JavaScript, and print.** The footer stays in the flow after the
+  page. In print a fixed footer would repeat on every sheet.
+- **Below 1280px.** The footer hides with the workbench behind the NFR-7
+  gate, and stacks to one column if #128 lifts the gate.
+
 ## Fallbacks
 
 - **Below 1280px.** [NFR-7](PRD.md#non-functional-requirements) puts the
@@ -300,6 +329,8 @@ non-Chromium browser:
     and every section still reads.
 1.  No text uses `color/text/muted`.
 1.  The waitlist submits, and the product is reachable without joining it.
+1.  At the end of every view the footer is wholly uncovered, and a
+    focused footer link is never hidden under the page.
 
 That last line is not a style preference. Product Hunt's
 [featuring guidelines](https://help.producthunt.com/en/articles/9883485-product-hunt-featuring-guidelines)
