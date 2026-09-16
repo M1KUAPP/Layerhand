@@ -31,6 +31,7 @@ const appSource = async () =>
       ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
     )
   ).join('\n')
+const landingFile = (name: string) => Bun.file(new URL(`../../src/web/landing/${name}`, import.meta.url))
 
 describe('Layerhand workbench markup', () => {
   test('keeps one accessible live application root and a desktop boundary', async () => {
@@ -59,10 +60,12 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain("keyInput.autocomplete = 'off'")
     expect(app).toContain('instruction.value = draftInstruction')
     expect(app).toContain('keyInput.value = draftApiKey')
-    expect(app).toContain('video.autoplay = true')
-    expect(app).toContain('video.muted = true')
-    expect(app).toContain('video.loop = true')
-    expect(app).toContain("form.dataset.form = 'waitlist'")
+    const hero = await landingFile('hero.ts').text()
+    expect(hero).toContain('video.autoplay = true')
+    expect(hero).toContain('video.muted = true')
+    expect(hero).toContain('video.loop = true')
+    const waitlist = await landingFile('waitlist.ts').text()
+    expect(waitlist).toContain("form.dataset.form = 'waitlist'")
     expect(app).toContain("correction.dataset.form = 'correction'")
     expect(app).toContain("root.dataset.view === 'running' && state.view === 'running'")
     expect(app).toContain('updateRunning(state)')
