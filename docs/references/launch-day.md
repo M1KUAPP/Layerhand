@@ -128,6 +128,25 @@ Three places, in the order worth trying:
     `layer_policy_failed`, `missing_narration`, or `run_failed` when
     nothing else explains it.
 
+    The same table says whether a correction actually rode the WebSocket,
+    and what an unattended run waved through on its own (NFR-8):
+
+    ```sh
+    psql "$DATABASE_URL" -c \
+      "select run_id, transport, corrections_applied, corrections_replayed,
+          corrections_indeterminate, safety_check_codes
+         from run_log order by completed_at desc limit 20;"
+    ```
+
+    `transport` is `websocket` once the run's socket opened, `http`
+    otherwise — a run on `boundary` steering, or one whose socket failed to
+    open, is `http`. `corrections_applied` is how many corrections native
+    steering delivered; `corrections_replayed` is how many were handed back
+    as a user message instead, indeterminate ones (an unsettled correction
+    after a dropped connection) included; `corrections_indeterminate` breaks
+    those out. `safety_check_codes` is the codes the run acknowledged
+    automatically, as a JSON array, empty when there were none.
+
 2.  **The service's own records**, in Cloud Run's logs. A failed run writes
     one `run_failed` line to standard error carrying its `runId`, `step`,
     `failureCode`, the error's name, its message with keys and web
