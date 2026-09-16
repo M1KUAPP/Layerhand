@@ -693,6 +693,25 @@ describe('managed agent run', () => {
         astra.stop()
       }
     })
+
+    test('does not report a correction steered into the last call the step cap allows as lost', async () => {
+      const astra = steerableAstra(2)
+      try {
+        const { managed } = await run({ stepCap: 2 }, undefined, astra.model)
+        await astra.inFlight()
+        await managed.handle.steer('Keep the shadow')
+
+        const events = await finish(managed)
+
+        expect(events.filter((event) => event.type === 'correction_ack')).toHaveLength(1)
+        expect(events.filter((event) => event.type === 'error')).toEqual([])
+        expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: false } })
+        expect(managed.metrics().stopReason).toBe('step_cap')
+        expect(astra.model.steering).toMatchObject({ applied: 1, indeterminate: 0 })
+      } finally {
+        astra.stop()
+      }
+    })
   })
 
   test('reports missing narration as failed at the final step', async () => {
@@ -735,7 +754,7 @@ describe('managed agent run', () => {
       steer(text) {
         offered.push(text)
         if (text === 'Leave the label') throw new Error('The socket is gone')
-        return true
+        return { applied: false }
       }
     }
     const { managed } = await run(

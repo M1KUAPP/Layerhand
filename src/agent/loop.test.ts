@@ -145,6 +145,33 @@ function thinking(model: AgentModel, ms: number): AgentModel {
 }
 
 /**
+ * Steers the call in flight with each correction it is offered, as native
+ * steering does, and applies the correction once that call has answered.
+ */
+function steeringNatively(model: AgentModel): AgentModel {
+  let inFlight: { applied: boolean }[] | undefined
+  return {
+    async next(observation, signal) {
+      const steers: { applied: boolean }[] = []
+      inFlight = steers
+      try {
+        const turn = await model.next(observation, signal)
+        for (const steer of steers) steer.applied = true
+        return turn
+      } finally {
+        inFlight = undefined
+      }
+    },
+    steer() {
+      if (!inFlight) return undefined
+      const steer = { applied: false }
+      inFlight.push(steer)
+      return steer
+    }
+  }
+}
+
+/**
  * Makes each look at the editor differ from the last, as it does while an edit
  * goes on, and returns a count of the looks taken so far.
  */
@@ -477,6 +504,35 @@ describe('runAgent', () => {
     expect(ofType(events, 'correction_ack')).toHaveLength(1)
     expect(ofType(events, 'error')).toMatchObject([{ type: 'error', recoverable: true }])
     expect(resultOf(events).complete).toBe(false)
+  })
+
+  test('does not report a correction that native steering applied, when the cap then stops the run', async () => {
+    let handle!: RunHandle
+    const steers: Promise<void>[] = []
+    const run = await fixture(TEN_PASSES, (call) => {
+      if (call === 0) steers.push(handle.steer('keep the shadow'))
+    })
+    handle = runAgent({ ...request, stepCap: 1 }, { ...run, model: steeringNatively(run.model) })
+    const events = await collect(handle)
+    await Promise.all(steers)
+    expect(ofType(events, 'correction_ack')).toHaveLength(1)
+    expect(ofType(events, 'error')).toEqual([])
+    expect(resultOf(events).complete).toBe(false)
+  })
+
+  test('finishes without another call when native steering applied a correction to the call that finished', async () => {
+    let handle!: RunHandle
+    const steers: Promise<void>[] = []
+    const run = await editableFixture([], (call) => {
+      if (call === 0) steers.push(handle.steer('keep the shadow'))
+    })
+    handle = runAgent(request, { ...run, model: steeringNatively(run.model) })
+    const events = await collect(handle)
+    await Promise.all(steers)
+    // The answer that finished the edit had already seen the correction.
+    expect(correctionsSeen(run)).toEqual([[]])
+    expect(ofType(events, 'error')).toEqual([])
+    expect(resultOf(events).complete).toBe(true)
   })
 
   test('never acknowledges a correction that it then neither sends nor reports', async () => {

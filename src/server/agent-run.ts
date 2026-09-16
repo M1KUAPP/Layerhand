@@ -79,16 +79,9 @@ export function managedAgentRun(
       cachedInputTokens += turn.usage.cachedInputTokens
       if ((!turn.done || turn.actions.length > 0) && !turn.narration.trim()) missingNarration = true
       return turn
-    }
-  }
-  // The loop is unchanged, so a model that can steer the call in flight gets
-  // each correction here, after the loop has acknowledged and queued it.
-  const offer = (text: string) => {
-    try {
-      inner.steer?.(text)
-    } catch {
-      // The step boundary still delivers it.
-    }
+    },
+    // The loop offers each correction it queues, and keeps what native steering did with it.
+    ...(inner.steer ? { steer: inner.steer } : {})
   }
 
   const stoppedBy = (complete: boolean, endedAfterCeiling: boolean): RunStopReason => {
@@ -159,10 +152,7 @@ export function managedAgentRun(
         }
       }
     },
-    async steer(text) {
-      await underlying.steer(text)
-      offer(text)
-    },
+    steer: (text) => underlying.steer(text),
     async cancel() {
       cancelled = true
       await underlying.cancel()
