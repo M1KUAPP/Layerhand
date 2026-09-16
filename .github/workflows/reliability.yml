@@ -14,8 +14,13 @@ on:
         type: choice
         options:
           - agent-loop-acceptance
+          - agent-loop-diagnostics
           - browserbase-probe
           - reliability
+      run_id:
+        description: Existing run id for diagnostics
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -160,3 +165,26 @@ jobs:
         env:
           BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
         run: bun run browserbase:probe -- "$PUBLIC_URL/photopea-host"
+
+  agent_loop_diagnostics:
+    name: Agent loop diagnostics
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.task == 'agent-loop-diagnostics' &&
+      inputs.run_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Read sanitized run failure
+        run: |
+          gcloud logging read \
+            'resource.type=cloud_run_revision AND jsonPayload.event=run_failed AND jsonPayload.runId="${{ inputs.run_id }}"' \
+            --project "$PROJECT_ID" --limit 1 --freshness 2h --format json
