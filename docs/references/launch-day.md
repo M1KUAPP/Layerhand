@@ -9,6 +9,7 @@ Contents:
 
 1.  [The clock](#the-clock)
 1.  [The freeze, and the no-deploy rule](#the-freeze-and-the-no-deploy-rule)
+1.  [Rolling back to the previous revision](#rolling-back-to-the-previous-revision)
 1.  [Where to look when something is wrong](#where-to-look-when-something-is-wrong)
 1.  [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
 1.  [Rotating the server key](#rotating-the-server-key)
@@ -30,20 +31,35 @@ sources are quoted in [PRODUCT § Open questions](/docs/PRODUCT.md#open-question
 
 ## The freeze, and the no-deploy rule
 
-**Every merge to `main` deploys.** `deploy.yml` builds and deploys on every
-push to `main`, and Cloud Run runs **one instance** whose memory holds the
-state of every run in flight. A deploy therefore ends the runs that are
-going on, and a visitor watching one sees it stop.
+**A merge to `main` that touches code deploys, and now waits for an
+approval first.** `deploy.yml` builds and deploys on every push to `main`,
+except a push that changes only documentation, `graphify-out/`, or evidence
+under `docs/evidence/`: `paths-ignore` stops that from triggering the
+workflow at all, so those merge safely at any time. Cloud Run runs **one
+instance** whose memory holds the state of every run in flight, so a deploy
+restarts it, ends the runs that are going on, and a visitor watching one
+sees it stop. The `production` environment requires a reviewer's approval
+before the deploy job runs — a repository setting applied once this change
+merges — so a build reaching Cloud Run is a deliberate second step, not a
+side effect of the merge.
 
 So, from the freeze onwards:
 
-1.  **Nothing merges while runs may be live.** Check before merging, not
-    after.
-2.  **If something must change, change it on the service, not in the
+1.  **Check for live runs before approving, not just before merging.** A
+    merge still starts the build immediately; approving is what deploys it.
+    Run the query below and wait for it to come back empty, with no new
+    traffic, before approving.
+2.  **Give the approval from the run's page.** Under the repository's
+    **Actions** tab, open the workflow run for the merge. It shows a
+    **Review deployments** button because the `deploy` job targets
+    `production`. Click it, select **production**, and click **Approve and
+    deploy** once the check above is clean — or leave it pending until it
+    is.
+3.  **If something must change, change it on the service, not in the
     repository.** [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
     does that without a new image, and the repository catches up afterwards.
-3.  **If a deploy is unavoidable**, announce it, wait for the run log to go
-    quiet, then merge.
+4.  **If a deploy is unavoidable**, announce it, wait for the run log to go
+    quiet, then approve.
 
 To see whether runs are live, ask the database for runs that have not
 finished; a run writes its row only when it ends, so an empty answer over
@@ -57,6 +73,27 @@ psql "$DATABASE_URL" -c \
 
 Fifteen minutes is the run ceiling, so nothing older than that is still
 going.
+
+## Rolling back to the previous revision
+
+Cloud Run keeps every revision it has deployed, so undoing a bad deploy is a
+traffic change, not a new build:
+
+```sh
+gcloud run revisions list \
+  --project layerhand-astra-2026 --region us-central1 \
+  --service layerhand --format 'value(metadata.name)' --limit 5
+gcloud run services update-traffic layerhand \
+  --project layerhand-astra-2026 --region us-central1 \
+  --to-revisions "<previous-revision-name>=100"
+```
+
+The first command finds the revision before the bad one; the second sends
+it all the traffic. This does not undo whatever the bad revision already
+did to runs in flight — it only stops things from getting worse. Announce
+the rollback the same way as a deploy, and open an issue the same day so
+the repository catches up, whether that means reverting the merge or
+fixing forward.
 
 ## Where to look when something is wrong
 
