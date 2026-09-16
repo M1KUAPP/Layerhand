@@ -958,15 +958,19 @@ going to reject is a bill we chose to pay for nothing.
 editor (#70): the twenty-one seconds a first frame takes are spent inside
 the browser session, so they start when the image arrives rather than when
 the button is pressed, and the run that follows begins with the image
-already open (NFR-3). A visitor holds **one** warm session, so a retried
-upload cannot double the browser bill; a second upload releases the first,
-an unclaimed one is released after two minutes, and shutdown releases them
-all. A visitor is only a cookie and an address, both of which anyone can
-change, so the pool is bounded globally too: at most four sessions are warm
-at once, and past that an upload does not warm and its run starts cold. Warming spends nothing on the model and reserves nothing from the
-daily ceiling: metering stays at run start, where the spend is. A run whose
-`uploadId` is unknown, expired, another visitor's, or for a different image
-starts cold, exactly as it did before.
+already open (NFR-3). A visitor holds **one** warm session: a repeat
+upload of the same image is handed the session already warming rather
+than opened twice, and a repeat upload of a different image is refused
+rather than releasing paid work already under way to replace it (#115).
+An unclaimed session is released after two minutes, and shutdown
+releases them all. A visitor is only a cookie and an address, both of
+which anyone can change, so the pool is bounded globally too: at most
+four sessions are warm at once, and past that an upload does not warm
+and its run starts cold. Warming spends nothing on the model and
+reserves nothing from the daily ceiling: metering stays at run start,
+where the spend is. A run whose `uploadId` is unknown, expired, another
+visitor's, or for a different image starts cold, exactly as it did
+before.
 
 Three checks, each with its own message naming the reason:
 
@@ -976,6 +980,34 @@ Three checks, each with its own message naming the reason:
     rather than a declared one.
 1.  **Dimensions**, at most 6000 px on the long edge, read from the
     header without decoding the whole image.
+
+### Request limits, origin, and body size
+
+Four more checks sit in front of `POST /api/uploads`, `/api/runs`, and
+`/api/waitlist`, refusing a request before it can spend anything (#115):
+
+1.  **A rate limit, per visitor and per address.** Each endpoint keeps
+    its own count of a rolling window, so a burst on one does not spend
+    another's budget; a visitor over its own limit or an address over
+    its limit is refused the same way, with HTTP 429 and a stated
+    `{code, message}` body. Both counts live in memory, which is
+    acceptable because production runs one instance.
+1.  **An origin check, on every state-changing request.** A `POST`
+    whose `Origin` or `Sec-Fetch-Site` header names another site is
+    refused with HTTP 403, before the route it named ever runs. A
+    request carrying neither header — a script or another non-browser
+    client, rather than a page loaded in someone's browser — is
+    allowed, because there is no site for it to misname.
+1.  **A JSON body cap**, on `POST /api/runs/:id/steer` and
+    `/api/waitlist`, the two endpoints that take one. A body is refused
+    with HTTP 413 as it streams in, the same discipline
+    [upload validation](#input-validation) already applies to a
+    multipart body, well above what a steer or an email address needs
+    and well below anything worth buffering.
+
+`src/server/rate-limiter.ts` is the in-memory limiter; `RunRoutes` in
+`src/server/run-routes.ts` wires it, the origin check, and the body cap
+in front of the three endpoints.
 
 ### Resolution: Two different things
 
@@ -1057,10 +1089,14 @@ confuse in the wrong direction.
 | Free runs     | Per visit | The HTTP layer | FR-35       |
 | Daily ceiling | Global    | The HTTP layer | FR-37       |
 
-The free allowance is enforced server-side against a signed cookie plus
-address, accepting that this is defeatable. The global daily ceiling is
-what actually protects us, and it is the one that must be tested by
-being hit.
+The free allowance is enforced server-side, accepting that this is
+defeatable, against a signed cookie and against the address
+independently (#115): each keeps its own count of up to three accepted
+free runs in its own table, `visitor_usage` and `address_usage`, so
+exhausting either one refuses the run — a fresh cookie no longer also
+resets what the address behind it has already used. The global daily
+ceiling is what actually protects us, and it is the one that must be
+tested by being hit.
 
 A user-supplied key (FR-36) bypasses the free-run limit and the daily
 ceiling, because it is their money. It does not bypass the step or
