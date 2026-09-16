@@ -715,6 +715,24 @@ describe('managed agent run', () => {
         astra.stop()
       }
     })
+
+    test('records the transport and how the correction settled, for the run log (NFR-8)', async () => {
+      const astra = steerableAstra(2)
+      try {
+        const { managed } = await run({ stepCap: 2 }, undefined, astra.model)
+        await astra.inFlight()
+        await managed.handle.steer('Keep the shadow')
+
+        await finish(managed)
+
+        expect(managed.metrics()).toMatchObject({
+          transport: 'websocket',
+          steering: { applied: 1, replayed: 0, indeterminate: 0 }
+        })
+      } finally {
+        astra.stop()
+      }
+    })
   })
 
   test('reports missing narration as failed at the final step', async () => {

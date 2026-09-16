@@ -164,7 +164,10 @@ export function managedAgentRun(
     metrics: () => ({
       cacheHitRate: spend.tokensIn > 0 ? cachedInputTokens / spend.tokensIn : null,
       stopReason,
-      ...(stopReason === 'failed' ? { failure: failures.failure(missingNarration) } : {})
+      ...(stopReason === 'failed' ? { failure: failures.failure(missingNarration) } : {}),
+      ...(dependencies.model.transport ? { transport: dependencies.model.transport } : {}),
+      ...(dependencies.model.steering ? { steering: dependencies.model.steering } : {}),
+      ...(dependencies.model.safetyCheckCodes ? { safetyCheckCodes: dependencies.model.safetyCheckCodes } : {})
     }),
     releaseSecrets() {
       request.apiKey = undefined
