@@ -139,6 +139,56 @@ describeBrowser('launch application in Chromium', () => {
     }
   }, 10_000)
 
+  test('rejects unusable image bytes when the file is chosen', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await page.goto(application.origin)
+      await page.getByRole('button', { name: 'Retouch a photo' }).click()
+      await page.getByText('JPEG or PNG, up to 20 MB and 6000 px on the long edge.').waitFor()
+
+      const input = page.locator('#source-image')
+      await input.setInputFiles({
+        name: 'image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.from('not an image')
+      })
+
+      await page.getByText('Only JPEG and PNG images are supported.').waitFor()
+      await expect(input.inputValue()).resolves.toBe('')
+      expect((await input.getAttribute('aria-describedby'))?.split(' ')).toContain('source-image-error')
+      await expect(page.getByText('image.png', { exact: true }).count()).resolves.toBe(0)
+      await expect(page.locator('.selected-preview').count()).resolves.toBe(0)
+    } finally {
+      await page.close()
+    }
+  })
+
+  test('shows an empty instruction error beside the instruction field', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+
+      const instruction = page.getByRole('textbox', { name: 'Retouching instruction' })
+      const error = page.locator('#instruction-error')
+      await expect(error.textContent()).resolves.toBe('Enter a retouching instruction.')
+      expect((await instruction.getAttribute('aria-describedby'))?.split(' ')).toContain('instruction-error')
+
+      await instruction.fill('Keep the label unchanged')
+      await expect(error.textContent()).resolves.toBe('')
+      await expect(instruction.getAttribute('aria-invalid')).resolves.toBeNull()
+
+      await instruction.fill('')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await expect(error.textContent()).resolves.toBe('Enter a retouching instruction.')
+      await page.getByRole('button', { name: EXAMPLE }).click()
+      await expect(error.textContent()).resolves.toBe('')
+      await expect(instruction.getAttribute('aria-invalid')).resolves.toBeNull()
+    } finally {
+      await page.close()
+    }
+  })
+
   test('labels a step-cap result incomplete', async () => {
     const capped = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
