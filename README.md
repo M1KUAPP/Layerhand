@@ -143,8 +143,13 @@ and the launch freeze holds from Thursday evening, September 17.
     run may make, and what it may spend. A free run reserves its spend cap
     from the daily ceiling.
 - **Storage** is the GCS bucket `layerhand-artifacts-732371853772`, through
-  its S3 interoperability endpoint, with a 24-hour delete rule (NFR-6),
-  committed as `.github/gcs-lifecycle.json`. The manual
+  its S3 interoperability endpoint, with a bucket-wide 24-hour delete
+  rule (NFR-6): every object — uploads, results, and previews alike — is
+  deleted once it is a day old. Cloud Storage applies the rule
+  asynchronously, so an object can outlive that day by up to another
+  one; an upload is also deleted as soon as its run ends, and every
+  download link expires after one hour. The rule is committed as
+  `.github/gcs-lifecycle.json`; the manual
   `.github/workflows/gcs-lifecycle.yml` applies it on request and always
   prints the bucket's live rule.
 
