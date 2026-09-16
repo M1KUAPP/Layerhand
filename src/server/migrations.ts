@@ -8,6 +8,16 @@ export async function applyMigrations(database: SQL): Promise<void> {
         CHECK (accepted_free_runs >= 0)
     )
   `
+  // The address's own count, independent of visitor_usage's cookie-mixed
+  // key, so a fresh cookie does not also reset what this address has
+  // already used (#115).
+  await database`
+    CREATE TABLE IF NOT EXISTS address_usage (
+      address_key TEXT PRIMARY KEY,
+      accepted_free_runs INTEGER NOT NULL DEFAULT 0
+        CHECK (accepted_free_runs >= 0)
+    )
+  `
   await database`
     CREATE TABLE IF NOT EXISTS daily_usage (
       day_utc TEXT PRIMARY KEY,

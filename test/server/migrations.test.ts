@@ -39,6 +39,7 @@ describe('launch persistence migrations', () => {
       ORDER BY name
     `
     expect(tables.map((row: { name: string }) => row.name)).toEqual([
+      'address_usage',
       'daily_usage',
       'meter_reservations',
       'run_log',
@@ -53,6 +54,9 @@ describe('launch persistence migrations', () => {
 
     await expectConstraint(
       database`INSERT INTO visitor_usage (visitor_key, accepted_free_runs) VALUES (${'visitor'}, ${-1})`
+    )
+    await expectConstraint(
+      database`INSERT INTO address_usage (address_key, accepted_free_runs) VALUES (${'address'}, ${-1})`
     )
     await expectConstraint(
       database`INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd) VALUES (${'2026-09-15'}, ${0}, ${-1})`

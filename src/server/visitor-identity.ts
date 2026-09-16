@@ -12,6 +12,8 @@ export interface VisitorIdentityOptions {
 
 export interface VisitorIdentity {
   visitorKey: string
+  /** The address alone, independent of the cookie (#115). */
+  addressKey: string
   setCookie?: string
 }
 
@@ -90,11 +92,15 @@ export async function establishVisitorIdentity(options: VisitorIdentityOptions):
   const visitorKey = Buffer.from(
     await hmac(options.sessionSecret, `visitor:${visitorId}\naddress:${address}`)
   ).toString('hex')
+  // Independent of the cookie, so a fresh one does not also reset what this
+  // address has already used (#115).
+  const addressKey = Buffer.from(await hmac(options.sessionSecret, `address:${address}`)).toString('hex')
 
-  if (existing) return { visitorKey }
+  if (existing) return { visitorKey, addressKey }
   const signature = await signVisitorId(options.sessionSecret, visitorId)
   return {
     visitorKey,
+    addressKey,
     setCookie: `${COOKIE_NAME}=${visitorId}.${signature}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`
   }
 }
