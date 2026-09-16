@@ -45,9 +45,14 @@ export class BrowserbaseClient {
   }
 
   async createSession(): Promise<BrowserbaseSession> {
+    // Both default to on. Off, so no photo a run opens is recorded or logged
+    // at Browserbase beyond the run itself (NFR-6).
     const value = await this.#request('/v1/sessions', {
       method: 'POST',
-      body: JSON.stringify({ timeout: SESSION_TIMEOUT_SECONDS })
+      body: JSON.stringify({
+        timeout: SESSION_TIMEOUT_SECONDS,
+        browserSettings: { recordSession: false, logSession: false }
+      })
     })
     const record = value as Record<string, unknown>
     const id = requiredString(record.id)

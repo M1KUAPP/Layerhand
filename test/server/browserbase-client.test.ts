@@ -50,7 +50,10 @@ describe('BrowserbaseClient', () => {
     expect(request.init.method).toBe('POST')
     expect(new Headers(request.init.headers).get('x-bb-api-key')).toBe(apiKey)
     expect(new Headers(request.init.headers).get('content-type')).toBe('application/json')
-    expect(JSON.parse(String(request.init.body))).toEqual({ timeout: 1200 })
+    expect(JSON.parse(String(request.init.body))).toEqual({
+      timeout: 1200,
+      browserSettings: { recordSession: false, logSession: false }
+    })
   })
 
   test('returns only the public live-view URL from the debug endpoint', async () => {
