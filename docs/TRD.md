@@ -331,11 +331,14 @@ scripted model. How the loop applies the rules above:
 
 - Both caps come from the `RunRequest` and are checked before every call.
   The step cap counts model calls. The spend cap stops the run when the
-  next call could pass `budgetUsd`, pricing that call as the last call's
-  input, grown by as much as the last call grew it and none of it cached,
-  plus the last call's output. A run can still pass the cap if its output
-  jumps or its history grows faster than before, and the first call has
-  nothing to estimate from.
+  next call could pass `budgetUsd`. The next call continues from the
+  response the last call ended on, so it is priced as that response's
+  input, grown by as much as it grew over the call before and none of it
+  cached, plus that response's output. A steered call is billed for the
+  response steered away as well, but the call after it continues from
+  its answer alone. A run can still pass the cap if its output jumps, its
+  history grows faster than before, or a correction steers the call, and
+  the first call has nothing to estimate from.
 - Uncached input is priced as a cache write, at $12.50 per million rather
   than $10, so the running cost errs high.
 - A step's narration is trimmed and cut to eighty characters. A step
@@ -343,7 +346,7 @@ scripted model. How the loop applies the rules above:
   recoverable error that says why.
 - Corrections are refused once no further call can carry one. One already
   acknowledged by then is reported as a recoverable error rather than
-  dropped.
+  dropped, unless native steering has already applied it.
 - `cancel()` resolves at once. It abandons the model call in flight, even
   one that ignores the abort signal, but an editor call that hangs still
   waits for the [fifteen-minute ceiling](#one-ceiling-fifteen-minutes).
@@ -469,15 +472,21 @@ including one a cancel strands, is reported as a recoverable error.
 `ResponsesModel` implements native steering when `STEERING` is `native`,
 which is what production sets, because spike A3 proved it there. The
 default is `boundary`, the step-boundary path, which is also what a run
-falls back to. The loop is unchanged. `managedAgentRun` acknowledges a
-correction through the loop, then offers it to the model's optional
-`steer()`. The model sends every step as `response.create` over one
-WebSocket per run, with `store: true` and one lane, and steers the response
-being generated with the correction. A steer exists only while a response
-is being generated, so a correction typed while the editor carries out
-actions still waits for the next call. The loop passes every correction
-with its next call either way, and the model leaves out any that native
-steering applied, or that the server holds for the continuation.
+falls back to. The loop acknowledges and queues each correction, then
+offers it to the model's optional `steer()`, which returns the native
+steer if the model sent one. The model sends every step as
+`response.create` over one WebSocket per run, with `store: true` and one
+lane, and steers the response being generated with the correction. A steer
+exists only while a response is being generated, so a correction typed
+while the editor carries out actions still waits for the next call. The
+loop passes every correction with its next call either way, and the model
+leaves out any that native steering applied, or that the server holds for
+the continuation. A correction native steering applied reached the answer
+that ended its call, so the loop never reports it as undelivered, and a
+call that finishes the edit is final even if such a correction arrived
+during it. A steered call is billed for both of its responses, but the
+spend cap prices the call after it from the answer alone, as
+[The loop](#the-loop) describes.
 
 `SteerLedger` alone decides what happens to each correction. Each one ends
 either applied or replayed, never both and never neither:
