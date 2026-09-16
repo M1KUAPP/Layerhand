@@ -98,6 +98,24 @@ async function jsonObject(request: Request): Promise<Record<string, unknown>> {
   return value as Record<string, unknown>
 }
 
+/**
+ * True when a state-changing request's own headers say it came from another
+ * site. A request carrying neither header — any non-browser client — is
+ * let through (#115).
+ */
+function fromAllowedOrigin(request: Request, url: URL): boolean {
+  const secFetchSite = request.headers.get('sec-fetch-site')
+  const origin = request.headers.get('origin')
+  if (!secFetchSite && !origin) return true
+  if (secFetchSite && secFetchSite !== 'same-origin') return false
+  if (!origin) return true
+  try {
+    return new URL(origin).origin === url.origin
+  } catch {
+    return false
+  }
+}
+
 function registryError(error: RunRegistryError): Response {
   const status = error.code === 'run_not_found' ? 404 : error.code === 'shutting_down' ? 503 : 409
   return apiError(error.code, error.message, status)
@@ -112,6 +130,9 @@ export class RunRoutes {
 
   async handle(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url)
+    if (request.method === 'POST' && !fromAllowedOrigin(request, url)) {
+      return apiError('origin_refused', 'This request did not come from the Layerhand page.', 403)
+    }
     try {
       if (request.method === 'POST' && url.pathname === '/api/runs') {
         return await this.#start(request)
