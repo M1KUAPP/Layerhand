@@ -83,6 +83,7 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain('Download flattened PNG')
     expect(app).toContain('Download links expire after one hour.')
     expect(app).toContain('layer-hidden')
+    expect(app).toContain('The retouching run stopped.')
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")
     )
@@ -99,7 +100,7 @@ describe('Layerhand workbench markup', () => {
     expect(app.indexOf('warmEditor(file)')).toBeLessThan(app.indexOf("body.set('instruction'"))
     expect(app).toContain("body.set('uploadId', warmUploadId)")
     // The live view says what is happening until the first frame arrives.
-    expect(app).toContain('Preparing the editor...')
+    expect(app).toContain('Preparing the editor…')
   })
 
   test('states the 24-hour upload deletion beside the drop zone and on the landing page', async () => {

@@ -140,6 +140,21 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   })
 
+  test('drops the hover lift when reduced motion is requested', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+      reducedMotion: 'reduce'
+    })
+    try {
+      await page.goto(application.origin)
+      const button = page.getByRole('button', { name: 'Retouch a photo' })
+      await button.hover()
+      expect(await button.evaluate((element) => getComputedStyle(element).translate)).toBe('none')
+    } finally {
+      await page.close()
+    }
+  })
+
   test('cancels and keeps a partial layered result', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     try {
