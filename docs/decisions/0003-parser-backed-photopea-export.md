@@ -139,8 +139,10 @@ locale-independent lowercase form. Preserve names that contain at least one
 Unicode letter and are neither Photopea defaults nor document-wide duplicates.
 Every occurrence of a duplicate is renamed, including the first. Treat empty
 names, `Layer`, `Layer <number>`, `Group`, `Group <number>`, raw parsed
-adjustment defaults with an optional number, and names ending in `copy` or
-`copy <number>` as generic. Match all generic patterns case-insensitively.
+adjustment defaults with an optional number, Photopea's default fill and
+shape names (`Color Fill <number>`, `Gradient Fill <number>`, `Pattern Fill
+<number>`, `Shape <number>`), and names ending in `copy` or `copy <number>`
+as generic. Match all generic patterns case-insensitively.
 
 Build a deterministic rename plan from the parsed tree:
 
