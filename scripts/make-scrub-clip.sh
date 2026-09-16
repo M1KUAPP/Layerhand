@@ -22,30 +22,33 @@ FAVICON_ICO="$ASSETS/favicon.ico"
 mkdir -p "$LANDING"
 
 # --- scrub clip -------------------------------------------------------------
-# 1280x720, 4 s at 30 fps, silent, #F3F0E8 background. The photograph is
-# scaled to 880x586 and centred; three band copies (top/middle/bottom
-# thirds) slide up and right with a cubic ease-out, 120/80/40 px up and
-# 60/40/20 px right. Each band sits over a padded #11110F solid that fades
-# in during the first second, giving a 2 px outline while frame zero stays
-# the plain photograph.
+# 1280x720, 4 s at 30 fps, silent. The photograph is scaled and centre-
+# cropped to fill the frame edge to edge, then stacked as three full-frame
+# sheets: the untinted base, a copy overlaid with #C7FF4A at 0.25 alpha and
+# a copy overlaid with #11110F at 0.20 alpha. Each sheet carries a 2 px
+# #11110F outline that fades in over the first second, and the two upper
+# sheets fade in with it, so frame zero stays the plain photograph. Over
+# four seconds with a cubic ease-out the middle sheet slides 48 px up and
+# 80 px right and the top sheet twice as far; the frame clips them, so
+# their far edges leave a gap where the sheet below shows.
 GRAPH="$(mktemp)"
 trap 'rm -f "$GRAPH"' EXIT
 cat >"$GRAPH" <<'GRAPH_EOF'
-color=c=0xF3F0E8:s=1280x720:d=4:r=30[bg];
-[0:v]scale=880:586,split=4[base][s1][s2][s3];
-[s1]crop=880:195:0:0[b1];
-[s2]crop=880:195:0:195[b2];
-[s3]crop=880:196:0:390[b3];
-color=c=0x11110F:s=884x199:d=4:r=30,format=rgba,fade=t=in:st=0:d=1:alpha=1[o1];
-color=c=0x11110F:s=884x199:d=4:r=30,format=rgba,fade=t=in:st=0:d=1:alpha=1[o2];
-color=c=0x11110F:s=884x200:d=4:r=30,format=rgba,fade=t=in:st=0:d=1:alpha=1[o3];
-[bg][base]overlay=200:67[v0];
-[v0][o1]overlay=x='198+60*(1-pow(1-t/4,3))':y='65-120*(1-pow(1-t/4,3))'[v1];
-[v1][o2]overlay=x='198+40*(1-pow(1-t/4,3))':y='260-80*(1-pow(1-t/4,3))'[v2];
-[v2][o3]overlay=x='198+20*(1-pow(1-t/4,3))':y='455-40*(1-pow(1-t/4,3))'[v3];
-[v3][b1]overlay=x='200+60*(1-pow(1-t/4,3))':y='67-120*(1-pow(1-t/4,3))'[v4];
-[v4][b2]overlay=x='200+40*(1-pow(1-t/4,3))':y='262-80*(1-pow(1-t/4,3))'[v5];
-[v5][b3]overlay=x='200+20*(1-pow(1-t/4,3))':y='457-40*(1-pow(1-t/4,3))'[vout]
+[0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720[photo];
+[photo]split=3[base][midsrc][topsrc];
+color=c=0xC7FF4A@0.25:s=1280x720:d=4:r=30,format=rgba[tintm];
+color=c=0x11110F@0.20:s=1280x720:d=4:r=30,format=rgba[tintt];
+[midsrc][tintm]overlay=0:0[midraw];
+[topsrc][tintt]overlay=0:0[topraw];
+[midraw]format=rgba,fade=t=in:st=0:d=1:alpha=1[mid];
+[topraw]format=rgba,fade=t=in:st=0:d=1:alpha=1[top];
+color=c=black@0:s=1280x720:d=4:r=30,format=rgba,drawbox=x=0:y=0:w=1280:h=720:c=0x11110F:t=2:replace=1,fade=t=in:st=0:d=1:alpha=1[ol];
+[ol]split=3[olb][olm][olt];
+[base][olb]overlay=0:0[v0];
+[v0][mid]overlay=x='round(80*(1-pow(1-t/4,3)))':y='round(-48*(1-pow(1-t/4,3)))'[v1];
+[v1][olm]overlay=x='round(80*(1-pow(1-t/4,3)))':y='round(-48*(1-pow(1-t/4,3)))'[v2];
+[v2][top]overlay=x='round(160*(1-pow(1-t/4,3)))':y='round(-96*(1-pow(1-t/4,3)))'[v3];
+[v3][olt]overlay=x='round(160*(1-pow(1-t/4,3)))':y='round(-96*(1-pow(1-t/4,3)))'[vout]
 GRAPH_EOF
 
 # All-intra keyframes for instant seeking while scrubbing. Raise the CRF in
