@@ -464,10 +464,13 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   field.id = 'correction'
   field.name = 'correction'
   field.maxLength = 500
-  field.placeholder = 'Keep the label unchanged'
+  field.placeholder = 'For example: keep the label unchanged'
   const send = button('Send correction', 'button button-dark')
   send.type = 'submit'
-  correction.append(label, field, send)
+  const correctionHint = node('p', 'field-hint', 'A correction steers the next action. It does not restart the run.')
+  correctionHint.id = 'correction-hint'
+  field.setAttribute('aria-describedby', correctionHint.id)
+  correction.append(label, field, send, correctionHint)
   correction.addEventListener('submit', async (event) => {
     event.preventDefault()
     const text = field.value.trim()
