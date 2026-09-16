@@ -71,6 +71,41 @@ async function expectPageFilesServed(origin: string): Promise<void> {
   }
 }
 
+/**
+ * "/", every file the page loads, and both banners each say that no site may
+ * frame them, that their content type is not to be guessed, and that no
+ * referrer is to be sent from them (#114).
+ */
+async function expectEverythingSecured(origin: string): Promise<void> {
+  const urls = [
+    new URL('/', origin),
+    ...(await filesThePageLoads(origin)),
+    new URL('/og-image.png', origin),
+    new URL('/og-image-dark.png', origin),
+    new URL('/favicon.ico', origin)
+  ]
+  for (const url of urls) {
+    const response = await fetch(url)
+    await response.arrayBuffer()
+
+    expect({
+      path: url.pathname,
+      framing: response.headers.get('content-security-policy')?.includes("frame-ancestors 'none'")
+        ? 'denied'
+        : 'allowed',
+      xFrameOptions: response.headers.get('x-frame-options'),
+      contentTypeOptions: response.headers.get('x-content-type-options'),
+      referrerPolicy: response.headers.get('referrer-policy')
+    }).toEqual({
+      path: url.pathname,
+      framing: 'denied',
+      xFrameOptions: 'DENY',
+      contentTypeOptions: 'nosniff',
+      referrerPolicy: 'no-referrer'
+    })
+  }
+}
+
 describe('page routes', () => {
   test('the rendered page carries an absolute og:image from the public address, and still loads the app', async () => {
     const server = await serve('https://layerhand.test')
@@ -127,6 +162,12 @@ describe('page routes', () => {
     expect(response.headers.get('content-type')).not.toContain('application/json')
     expect([200, 404]).toContain(response.status)
   })
+
+  test('the page and everything it loads carry the security headers, so no other site can frame it (#114)', async () => {
+    const server = await serve('https://layerhand.test')
+
+    await expectEverythingSecured(server.url.origin)
+  })
 })
 
 describe('page routes, built ahead of time', () => {
@@ -175,6 +216,10 @@ describe('page routes, built ahead of time', () => {
     expect(html).toContain('<main id="app"')
     expect(meta.get('og:image')).toBe(`${origin}/og-image.png`)
     await expectPageFilesServed(origin)
+  })
+
+  test('the built page and everything it loads carry the security headers (#114)', async () => {
+    await expectEverythingSecured(origin)
   })
 
   test('serves both banners', async () => {
