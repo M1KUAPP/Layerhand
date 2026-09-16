@@ -6,6 +6,7 @@ import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
 import { ModelUnavailableError, type AgentModel } from '../../src/agent/model'
+import { ResponsesModel } from '../../src/agent/responses-model'
 import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../src/server/agent-run'
 import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
 import type { ManagedRun } from '../../src/server/managed-run'
@@ -381,7 +382,7 @@ describe('live agent run', () => {
 
   test('releases the browser when the model fails', async () => {
     const run = await live('sk-user-secret-value', [
-      Response.json({ error: { code: 'server_error' } }, { status: 500 })
+      Response.json({ error: { code: 'invalid_value' } }, { status: 400 })
     ])
 
     const events = await finish(run.managed)
@@ -509,6 +510,68 @@ describe('managed agent run', () => {
     expect(managed.metrics()).toMatchObject({
       stopReason: 'failed',
       failure: { code: 'model_call_failed', errorName: 'ModelUnavailableError' }
+    })
+  })
+
+  describe('on a rate-limited Responses API', () => {
+    const rateLimited = () =>
+      Response.json({ error: { code: 'rate_limit_exceeded', message: 'Rate limit reached' } }, { status: 429 })
+    const answer =
+      (id: string, output: unknown[] = []) =>
+      () =>
+        Response.json({ id, output, usage: { input_tokens: 2_000, output_tokens: 120 } })
+    const CLICK_STEP = [
+      { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: 'Opening the Adjustments panel' }] },
+      { type: 'computer_call', call_id: 'call_1', actions: [{ type: 'wait' }], pending_safety_checks: [] }
+    ]
+
+    /** GPT-6 Astra answering from a script, whose last answer repeats, with retries that do not wait. */
+    function scriptedAstra(script: (() => Response)[]) {
+      let requests = 0
+      const fetch = (async () =>
+        script[Math.min(requests++, script.length - 1)]!()) as unknown as typeof globalThis.fetch
+      const model = new ResponsesModel({
+        apiKey: 'sk-user-secret-value',
+        instruction: 'Remove the background',
+        stepCap: 15,
+        mechanism: 'computer',
+        fetch,
+        sleep: async () => undefined
+      })
+      return { model, requests: () => requests }
+    }
+
+    test('a call that meets a rate limit is sent again, and the run completes', async () => {
+      const astra = scriptedAstra([rateLimited, answer('resp_1', CLICK_STEP), rateLimited, answer('resp_2')])
+      const editable: LayerInfo[] = [
+        { name: 'Warm highlights', kind: 'adjustment', visible: true, masks: [], children: [] }
+      ]
+      const { managed } = await run({}, editable, astra.model)
+
+      const events = await finish(managed)
+
+      expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+      expect(events.filter((event) => event.type === 'error')).toEqual([])
+      expect(managed.metrics().stopReason).toBe('complete')
+      expect(astra.requests()).toBe(4)
+    })
+
+    test('a model that stays rate limited ends the run with its partial file, logged as failed on the model call', async () => {
+      const astra = scriptedAstra([answer('resp_1', CLICK_STEP), rateLimited])
+      const { managed } = await run({}, undefined, astra.model)
+
+      const events = await finish(managed)
+
+      expect(events.slice(-2)).toMatchObject([
+        { type: 'error', reason: 'The model stopped answering, so the run stopped', recoverable: true },
+        { type: 'done', result: { complete: false, psdUrl: 'memory://psd' } }
+      ])
+      expect(managed.metrics()).toMatchObject({
+        stopReason: 'failed',
+        failure: { code: 'model_call_failed', errorName: 'ModelUnavailableError' }
+      })
+      // One answered call, then the next call's first attempt and its six retries.
+      expect(astra.requests()).toBe(8)
     })
   })
 
