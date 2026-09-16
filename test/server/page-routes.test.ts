@@ -168,6 +168,23 @@ describe('page routes', () => {
 
     await expectEverythingSecured(server.url.origin)
   })
+
+  test('LAYERHAND_PAGE_RELOAD serves the reloading route, and its absence the secured one (#114)', async () => {
+    const previous = process.env.LAYERHAND_PAGE_RELOAD
+    process.env.LAYERHAND_PAGE_RELOAD = '1'
+    try {
+      const server = await serve()
+
+      const response = await fetch(server.url)
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('x-frame-options')).toBeNull()
+      expect(response.headers.get('content-security-policy')).toBeNull()
+    } finally {
+      if (previous === undefined) delete process.env.LAYERHAND_PAGE_RELOAD
+      else process.env.LAYERHAND_PAGE_RELOAD = previous
+    }
+  })
 })
 
 describe('page routes, built ahead of time', () => {
