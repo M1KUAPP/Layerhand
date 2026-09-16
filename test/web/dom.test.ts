@@ -78,6 +78,8 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain('Step ${progress.steps} of')
     expect(app).toContain("'rail-title', 'Run status'")
     expect(app).toContain("'Spend'")
+    expect(app).toContain('For example: keep the label unchanged')
+    expect(app).toContain('It does not restart the run.')
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")
     )
