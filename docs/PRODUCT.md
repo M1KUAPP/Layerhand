@@ -365,26 +365,55 @@ Each is assigned and answered before it can block work.
     server-side editing API?~~ **Answered: Adobe's, and it is GA.** Both
     are written up in [competition](#competition), and together they are
     why risk 1 exists.
-1.  What are the official contest rules? **The deadline is answered; the
-    rest needs a person.** The contest runs on Friday, September 18 PT
-    alone. Submissions close at 12:00am PT that day, 07:00 UTC, and a
+1.  ~~What are the official contest rules?~~ **Answered: there is no
+    separate rules document.** Three published documents govern together,
+    and all three were read on September 16: the contest page's
+    [submission guide](https://app.notion.com/p/teamhome1431/GPT-6-Astra-Challenge-Product-Hunt-Launch-Guide-3d62e1256c9e80f39bccdd2ab93bb306),
+    which was not linked there on September 15; Product Hunt's
+    [featuring guidelines](https://help.producthunt.com/en/articles/9883485-product-hunt-featuring-guidelines);
+    and its [site-wide terms](https://www.producthunt.com/legal).
+
+    The deadline is unchanged: the contest runs on Friday, September 18
+    PT alone, submissions close at 12:00am PT that day, 07:00 UTC, and a
     launch enters only if it is scheduled for the 18th and joined to the
     challenge, which is a separate choice when scheduling. Every source
-    for that is quoted in
-    [the schedule change](https://github.com/M1KUAPP/astra/pull/69).
+    is quoted in
+    [the schedule change](https://github.com/M1KUAPP/astra/pull/69). The
+    countdown read 1d 19h 5m on the evening of September 16, which lands
+    on the same moment.
 
-    The rules themselves are not published. They were looked for twice on
-    September 15 in a logged-in browser: the contest page gives the prize,
-    the date and a countdown, and links no terms but Product Hunt's
-    site-wide ones. What is left sits behind the submission form, which is
-    part of the submission flow, so a person opens it rather than an
-    agent. Seven questions wait on that: whether a public repository is
-    required; whether an open-source licence is; whether a demo video is,
-    and how long it may run; any team-size limit; any region restriction;
-    any age restriction; and the IP terms. This repository is private and
-    unlicensed, so the first two would be blockers with a lead time, which
-    is why [#23](https://github.com/M1KUAPP/astra/issues/23) stays open
-    rather than being answered by inference.
+    The seven questions are answered:
+
+    - **A public repository is not required**; no contest document
+      mentions one. This repository is public in any case.
+    - **An open-source licence is not required**; no contest document
+      mentions one. Licensing the repository stays worthwhile and is
+      [#122](https://github.com/M1KUAPP/astra/issues/122), but it does
+      not gate the launch.
+    - **A demo video is required** — "a quick demo video of the app doing
+      its thing". No length is stated anywhere, and the binding
+      constraint is hosting rather than duration: Product Hunt takes a
+      YouTube link only, never an uploaded file. That is
+      [#137](https://github.com/M1KUAPP/astra/issues/137), and it has a
+      lead time.
+    - **There is no team-size limit on entry.** "Up to two team members"
+      caps who receives ChatGPT Pro, not who may enter.
+    - **No region restriction is stated.** Product Hunt is maintained in
+      the United States and says so.
+    - **The minimum age is 16**, and an entrant must be of legal age to
+      form a binding contract or hold a guardian's permission.
+    - **Entrants keep their intellectual property.** Product Hunt takes a
+      royalty-free, perpetual, sublicensable, irrevocable, worldwide
+      licence to display and distribute a submission. No contest-specific
+      transfer exists.
+
+    Two of those findings changed work rather than closing a question.
+    The featuring guidelines exclude "waitlisted products (unless
+    immediate access is provided)", which constrains how
+    [#30](https://github.com/M1KUAPP/astra/issues/30) orders its landing
+    page, and the submission itself wants a 60-character tagline, a
+    260-character description, two or more 1270x760 gallery images, three
+    topics, and a maker comment.
 
 1.  Where does the launch-day audience come from?
 

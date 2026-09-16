@@ -199,10 +199,11 @@ Thursday, September 17. Each is checked by someone who did not build it.
 1.  Someone has read the official contest rules and confirmed we meet
     them.
 
-Point 7 is unresolved as of writing: the rules are behind a login wall.
-It is an
-[open question](PRODUCT.md#open-questions) with an owner, and it gates
-the launch rather than following it.
+Point 7 is answered: there is no separate rules document, and the
+submission guide, the featuring guidelines, and Product Hunt's site-wide
+terms govern together. All three were read on September 16, and the
+answers sit in [PRODUCT § Open questions](PRODUCT.md#open-questions).
+What remains on the evening is confirming the launch still meets them.
 
 ## Deliberately excluded
 
