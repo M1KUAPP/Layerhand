@@ -123,15 +123,20 @@ export function testRunContract(subject: RunContractSubject): void {
     })
 
     test(
-      'replays the whole run to every subscriber',
+      'replays the run to every subscriber, with only its latest frame',
       async () => {
-        const handle = await start({ stepCap: 1 })
+        const handle = await start()
         let late: Promise<RunEvent[]> | undefined
         const events = await collect(handle, (event) => {
           if (event.type === 'step') late ??= collect(handle)
         })
-        expect(await late).toEqual(events)
-        expect(await collect(handle)).toEqual(events)
+        const lateEvents = (await late) ?? []
+        expect(lateEvents.filter((event) => event.type !== 'frame')).toEqual(
+          events.filter((event) => event.type !== 'frame')
+        )
+        expect(ofType(lateEvents, 'frame').at(-1)).toEqual(ofType(events, 'frame').at(-1))
+        const latestFrame = events.findLastIndex((event) => event.type === 'frame')
+        expect(await collect(handle)).toEqual(events.filter((event, i) => event.type !== 'frame' || i === latestFrame))
       },
       timeoutMs
     )
