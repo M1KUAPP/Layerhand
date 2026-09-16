@@ -28,8 +28,13 @@ export function renderScrub(): HTMLElement {
   section.setAttribute('aria-labelledby', 'scrub-title')
 
   const copy = node('div', 'scrub__copy')
-  const title = node('h2', 'scrub__title', 'A flat JPEG keeps the result. A PSD keeps the work.')
+  const title = node('h2', 'scrub__title')
   title.id = 'scrub-title'
+  // The space between the two lines lives inside the first line so the
+  // headline reads as one sentence pair without an anonymous blank box.
+  const firstLine = node('span', 'scrub__line', 'A flat JPEG keeps the result.')
+  firstLine.append(' ')
+  title.append(firstLine, node('span', 'scrub__line', 'A PSD keeps the work.'))
   copy.append(
     node('p', 'scrub__eyebrow', 'Why layers'),
     title,
