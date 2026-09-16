@@ -70,10 +70,15 @@ export interface RunLimits {
   stepCap: number
   /** What one run may spend, and what a free run reserves from the daily ceiling (NFR-2, FR-37). */
   freeRunSpendCapUsd: number
+  /** Runs in flight at once, free and on a user's own key alike; the rest wait in line (NFR-4). */
+  maxConcurrentRuns: number
 }
 
 // The live agent run needed 19 steps, so 40 leaves room; $3 is several times its $0.85.
-export const DEFAULT_RUN_LIMITS: RunLimits = { stepCap: 40, freeRunSpendCapUsd: 3 }
+// Twenty runs is NFR-4's figure. It fits Browserbase's 25 browsers beside the
+// four warm sessions, and twenty scripted runs peaked at 679 MiB of the 4 GiB
+// service. Our OpenAI tier is unconfirmed (#3), and may bind first.
+export const DEFAULT_RUN_LIMITS: RunLimits = { stepCap: 40, freeRunSpendCapUsd: 3, maxConcurrentRuns: 20 }
 
 /** The run limits, in every environment. Each is optional and has a default. */
 export function readRunLimits(env: Environment): RunLimits {
@@ -85,7 +90,11 @@ export function readRunLimits(env: Environment): RunLimits {
     freeRunSpendCapUsd:
       env.FREE_RUN_SPEND_CAP_USD === undefined
         ? DEFAULT_RUN_LIMITS.freeRunSpendCapUsd
-        : parsePositiveDecimal('FREE_RUN_SPEND_CAP_USD', env.FREE_RUN_SPEND_CAP_USD)
+        : parsePositiveDecimal('FREE_RUN_SPEND_CAP_USD', env.FREE_RUN_SPEND_CAP_USD),
+    maxConcurrentRuns:
+      env.MAX_CONCURRENT_RUNS === undefined
+        ? DEFAULT_RUN_LIMITS.maxConcurrentRuns
+        : parsePositiveInteger('MAX_CONCURRENT_RUNS', env.MAX_CONCURRENT_RUNS)
   }
 }
 
