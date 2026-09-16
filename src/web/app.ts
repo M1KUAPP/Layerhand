@@ -426,6 +426,9 @@ function replaceNotices(container: HTMLElement, progress: Extract<ClientState, {
   for (const message of progress.corrections) {
     container.append(node('p', 'correction-ack', `Correction applied: ${message}`))
   }
+  // The container has a bounded height (styles.css); keep the newest
+  // acknowledgement in view rather than the oldest.
+  container.scrollTop = container.scrollHeight
 }
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
@@ -490,7 +493,15 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   const notices = node('div', 'run-notices')
   notices.id = 'run-notices'
   replaceNotices(notices, current.progress)
-  fragment.append(layout, correction, notices)
+
+  // A grid row sized only by min-height grows to fit an oversized child (a
+  // real frame, not fakeRun's tiny placeholder), pushing the form and the
+  // notices below it off screen. A fixed-height flex shell keeps the three
+  // parts within the viewport instead: running-layout is the only part that
+  // flexes.
+  const shell = node('div', 'running-shell')
+  shell.append(layout, correction, notices)
+  fragment.append(shell)
   return fragment
 }
 
