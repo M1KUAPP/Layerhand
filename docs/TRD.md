@@ -136,11 +136,16 @@ type RunEvent =
   | { type: 'done'; result: RunResult }
   | { type: 'error'; reason: string; recoverable: boolean }
 
+// Why the run isn't complete, or that it is: the step cap, the spend cap,
+// the time limit, a server shutdown, a cancel, or a model failure.
+type RunStopReason = 'complete' | 'step_cap' | 'spend_cap' | 'time_limit' | 'shutdown' | 'cancelled' | 'failed'
+
 interface RunResult {
   psdUrl: string
   previewUrl: string
   layers: LayerInfo[]
-  complete: boolean // false if the step cap ended it, FR-12
+  complete: boolean // false if the run stopped before finishing, FR-12
+  stopReason?: RunStopReason
 }
 
 interface RunHandle {
@@ -167,6 +172,14 @@ alike:
   finished: at the step cap, at the spend cap, on cancel, or because the
   model stopped answering. The result still carries the layers made so
   far (FR-12, FR-13).
+- `stopReason` names why, so the page states the true reason instead of
+  always blaming the step cap: `step_cap`, `spend_cap`, `time_limit`,
+  `shutdown`, `cancelled`, or `failed`. A run the registry's `close()`
+  ends for a server shutdown is `shutdown`, distinct from a user's own
+  `cancelled` (#112). A `failed` result — the model stopped answering,
+  above — states no cap, because it did not stop on one. `RunSnapshot`
+  carries the same field, so a reload agrees with what the live `done`
+  event showed.
 - A model call that still fails once its retries have run out ends the
   run as a cap does, not as a failure: a recoverable error says the model
   stopped answering, and `done` follows with the file made so far. The
