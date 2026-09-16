@@ -5,6 +5,14 @@ import { formatCredits, initialClientState, reduceClientState, type ClientAction
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024
+const IMAGE_UPLOAD_ERROR_CODES = new Set([
+  'unsupported_image_format',
+  'image_too_large',
+  'malformed_image',
+  'image_dimensions_too_large',
+  'request_too_large',
+  'image_required'
+])
 const EXAMPLES = [
   'Remove the background and keep the product shadow.',
   'Clean the reflections without changing the label.',
@@ -20,6 +28,7 @@ let state = initialClientState()
 let selectedFile: File | undefined
 let selectedPreviewUrl: string | undefined
 let fileError: string | undefined
+let instructionError: string | undefined
 let formError: string | undefined
 let draftInstruction = ''
 let draftApiKey = ''
@@ -154,8 +163,8 @@ function validateFile(file: File): string | undefined {
 }
 
 // The editor is warmed as soon as a file passes the checks here, so the run
-// starts with the image already open (#70). Warming that fails is silent: the
-// run starts cold, as it always did.
+// starts with the image already open (#70). Non-validation warming failures
+// stay silent, and the run starts cold as it always did.
 let warmUploadId: string | undefined
 
 function warmEditor(file: File): void {
@@ -169,7 +178,24 @@ function warmEditor(file: File): void {
       // A file chosen since this upload started owns the warm session now.
       if (selectedFile === file) warmUploadId = uploadId ?? undefined
     })
-    .catch(() => undefined)
+    .catch((error) => {
+      if (isImageUploadError(error)) rejectSelectedFile(file, error.message)
+    })
+}
+
+function isImageUploadError(error: unknown): error is RunApiError {
+  return error instanceof RunApiError && IMAGE_UPLOAD_ERROR_CODES.has(error.code)
+}
+
+function rejectSelectedFile(file: File, message: string): boolean {
+  // An older upload response must not clear a file chosen in the meantime.
+  if (selectedFile !== file) return false
+  selectedFile = undefined
+  warmUploadId = undefined
+  releaseSelectedPreview()
+  fileError = message
+  render()
+  return true
 }
 
 function chooseFile(file: File): void {
@@ -211,7 +237,7 @@ function renderInput(): DocumentFragment {
   intro.append(eyebrow('New layered retouch'))
   const title = node('h1', undefined, 'Give the agent one clear direction.')
   title.id = 'input-title'
-  intro.append(title, description('JPEG or PNG, up to 20 MB. The result remains editable.'))
+  intro.append(title, description('The result remains editable.'))
 
   const form = node('form', 'run-form')
   form.noValidate = true
@@ -255,8 +281,12 @@ function renderInput(): DocumentFragment {
   })
   const fileStatus = node('p', 'field-error', fileError)
   fileStatus.id = 'source-image-error'
-  input.setAttribute('aria-describedby', fileStatus.id)
-  fileField.append(legend, dropZone, fileStatus)
+  fileStatus.setAttribute('role', 'alert')
+  const fileHint = node('p', 'field-hint', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
+  fileHint.id = 'source-image-hint'
+  input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
+  if (fileError) input.setAttribute('aria-invalid', 'true')
+  fileField.append(legend, dropZone, fileHint, fileStatus)
 
   const sample = button('Use the sample photograph', 'text-button sample-button')
   sample.dataset.action = 'sample'
@@ -289,13 +319,29 @@ function renderInput(): DocumentFragment {
   instruction.value = draftInstruction
   instruction.addEventListener('input', () => {
     draftInstruction = instruction.value
+    if (instructionError) {
+      instructionError = undefined
+      instruction.removeAttribute('aria-invalid')
+      const status = root.querySelector<HTMLElement>('#instruction-error')
+      if (status) status.textContent = ''
+    }
   })
+  const instructionHint = node('p', 'field-hint', 'Try a precise direction')
+  instructionHint.id = 'instruction-hint'
+  const instructionStatus = node('p', 'field-error', instructionError)
+  instructionStatus.id = 'instruction-error'
+  instructionStatus.setAttribute('role', 'alert')
+  instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionStatus.id}`)
+  if (instructionError) instruction.setAttribute('aria-invalid', 'true')
   const examples = node('div', 'examples')
   for (const example of EXAMPLES) {
     const exampleButton = button(example, 'example-button')
     exampleButton.addEventListener('click', () => {
       instruction.value = example
       draftInstruction = example
+      instructionError = undefined
+      instruction.removeAttribute('aria-invalid')
+      instructionStatus.textContent = ''
       instruction.focus()
     })
     examples.append(exampleButton)
@@ -323,7 +369,8 @@ function renderInput(): DocumentFragment {
     fileField,
     instructionLabel,
     instruction,
-    node('p', 'field-hint', 'Try a precise direction'),
+    instructionHint,
+    instructionStatus,
     examples,
     keyLabel,
     keyInput,
@@ -333,22 +380,24 @@ function renderInput(): DocumentFragment {
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     formError = undefined
+    instructionError = undefined
     if (!selectedFile) {
       fileError = 'Choose a JPEG or PNG image.'
       render()
       return
     }
     if (!instruction.value.trim()) {
-      formError = 'Enter a retouching instruction.'
+      instructionError = 'Enter a retouching instruction.'
       render()
       return
     }
     submit.disabled = true
     root.ariaBusy = 'true'
+    const submittedFile = selectedFile
     try {
       const body = new FormData()
-      body.set('image', selectedFile, selectedFile.name)
-      body.set('filename', selectedFile.name)
+      body.set('image', submittedFile, submittedFile.name)
+      body.set('filename', submittedFile.name)
       body.set('instruction', instruction.value.trim())
       if (keyInput.value) body.set('apiKey', keyInput.value)
       // The editor warmed while the instruction was typed, if it is still ours.
@@ -364,6 +413,10 @@ function renderInput(): DocumentFragment {
       dispatch({ type: 'started', runId: started.runId })
       followRun(started.runId)
     } catch (error) {
+      if (isImageUploadError(error)) {
+        rejectSelectedFile(submittedFile, error.message)
+        return
+      }
       formError = publicMessage(error)
       render()
     } finally {
