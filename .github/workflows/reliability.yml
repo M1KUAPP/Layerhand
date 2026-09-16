@@ -1,7 +1,6 @@
-# Scheduled nightly reliability run (#10).
-# Only runs when repository variable RELIABILITY_ENABLED is set to 'true'.
-# Reads OPENAI_API_KEY from Google Secret Manager at runtime and consumes
-# BROWSERBASE_API_KEY from repository secrets without leaking either credential.
+# Nightly reliability (#10), guarded by RELIABILITY_ENABLED, plus a manual
+# deployed-agent acceptance run. The scheduled job reads its runtime keys from
+# their existing stores; acceptance uses only DATABASE_URL to read its run log.
 name: Reliability
 
 on:
@@ -86,40 +85,30 @@ jobs:
     environment: production
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.DEPLOYER }}
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v3
       - name: Run agent loop acceptance
         id: agent-loop
         continue-on-error: true
         env:
-          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PUBLIC_URL: ${{ env.PUBLIC_URL }}
-        run: |
-          OPENAI_API_KEY="$(gcloud secrets versions access latest --secret OPENAI_API_KEY --project "$PROJECT_ID")"
-          export OPENAI_API_KEY
-          bun run docs/evidence/agent-run/live-run.ts "$PUBLIC_URL" \
-            --profile cache-acceptance --step-cap 40 --budget 8
+        run: bun run docs/evidence/agent-run/deployed-run.ts "$PUBLIC_URL" --profile cache-acceptance
       - name: Publish agent loop summary
         if: always()
         run: |
-          latest_summary="$(find docs/evidence/agent-run/output -name summary.json | sort | tail -n 1)"
-          if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
-            {
-              echo '## Agent loop acceptance'
-              echo '```json'
-              cat "$latest_summary"
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
+          if [ -d "docs/evidence/agent-run/output" ]; then
+            latest_summary="$(find docs/evidence/agent-run/output -name summary.json | sort | tail -n 1)"
+            if [ -n "$latest_summary" ] && [ -f "$latest_summary" ]; then
+              {
+                echo '## Agent loop acceptance'
+                echo '```json'
+                cat "$latest_summary"
+                echo '```'
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
       - name: Upload agent loop artifacts
         if: always()

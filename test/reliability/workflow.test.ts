@@ -39,7 +39,7 @@ describe('reliability workflow contract', () => {
     const job = workflow.jobs.reliability
 
     // Verification from brief Step 1:
-    expect(source).toContain('# Scheduled nightly reliability run (#10).')
+    expect(source).toContain('# Nightly reliability (#10), guarded by RELIABILITY_ENABLED')
     expect(source).not.toContain('#24')
 
     expect(workflow.on).toHaveProperty('schedule')
@@ -122,18 +122,26 @@ describe('reliability workflow contract', () => {
     expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'")
     expect(job?.['timeout-minutes']).toBe(30)
     expect(job?.environment).toBe('production')
-    expect(job?.permissions).toEqual({ contents: 'read', 'id-token': 'write' })
+    expect(job?.permissions).toEqual({ contents: 'read' })
 
-    const runStep = job?.steps.find((step) => step.run?.includes('--profile cache-acceptance'))
+    expect(job?.steps.some((step) => step.uses === 'google-github-actions/auth@v3')).toBe(false)
+    expect(job?.steps.some((step) => step.uses === 'google-github-actions/setup-gcloud@v3')).toBe(false)
+
+    const runStep = job?.steps.find((step) => step.run?.includes('deployed-run.ts'))
     expect(runStep).toMatchObject({ id: 'agent-loop', 'continue-on-error': true })
-    expect(runStep?.run).toContain('gcloud secrets versions access latest --secret OPENAI_API_KEY')
-    expect(runStep?.run).toContain('--step-cap 40')
-    expect(runStep?.run).toContain('--budget 8')
-    expect(runStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
+    expect(runStep?.run).toContain('--profile cache-acceptance')
+    expect(runStep?.env?.DATABASE_URL).toBe('${{ secrets.DATABASE_URL }}')
+    expect(runStep?.env?.PUBLIC_URL).toBe('${{ env.PUBLIC_URL }}')
+    expect(runStep?.env).not.toHaveProperty('OPENAI_API_KEY')
+    expect(runStep?.env).not.toHaveProperty('BROWSERBASE_API_KEY')
+    expect(runStep?.run).not.toContain('gcloud secrets')
 
     const artifactStep = job?.steps.find((step) => step.uses === 'actions/upload-artifact@v4')
     expect(artifactStep?.if).toBe('always()')
     expect(artifactStep?.with?.path).toBe('docs/evidence/agent-run/output/')
+
+    const summaryStep = job?.steps.find((step) => step.name === 'Publish agent loop summary')
+    expect(summaryStep?.run).toMatch(/if\s+\[\s+-d\s+"?docs\/evidence\/agent-run\/output"?\s+\]/)
 
     for (const step of job?.steps ?? []) {
       if (step.run) {
@@ -158,6 +166,27 @@ describe('reliability workflow contract', () => {
       })
       const exitCode = await proc.exited
       expect(exitCode).toBe(0)
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
+  })
+
+  test('agent summary step handles a missing output directory without error', async () => {
+    const source = await Bun.file(new URL('../../.github/workflows/reliability.yml', import.meta.url)).text()
+    const workflow = Bun.YAML.parse(source) as WorkflowDefinition
+    const summaryStep = workflow.jobs.agent_loop_acceptance?.steps.find(
+      (step) => step.name === 'Publish agent loop summary'
+    )
+    expect(summaryStep?.run).toBeDefined()
+
+    const tempDir = await mkdtemp(join(tmpdir(), 'workflow-agent-test-'))
+    try {
+      const summaryFile = join(tempDir, 'summary.log')
+      const proc = Bun.spawn(['bash', '-e', '-u', '-o', 'pipefail', '-c', summaryStep!.run!], {
+        cwd: tempDir,
+        env: { ...process.env, GITHUB_STEP_SUMMARY: summaryFile }
+      })
+      expect(await proc.exited).toBe(0)
     } finally {
       await rm(tempDir, { recursive: true, force: true })
     }

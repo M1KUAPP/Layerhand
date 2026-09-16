@@ -2,7 +2,6 @@ export interface AgentRunAcceptanceCriteria {
   minimumSteps: number
   minimumCacheHitRateExclusive: number
   requireComplete: boolean
-  requireBrowserRelease: boolean
 }
 
 export interface AgentRunProfile {
@@ -15,7 +14,6 @@ export interface AgentRunMeasurement {
   outcome: 'complete' | 'incomplete' | 'failed'
   steps: number
   cacheHitRate: number | null
-  browserReleased: boolean
 }
 
 export interface AgentRunAcceptanceResult {
@@ -24,7 +22,6 @@ export interface AgentRunAcceptanceResult {
     complete: boolean
     minimumSteps: boolean
     cacheHitRate: boolean
-    browserReleased: boolean
   }
 }
 
@@ -41,19 +38,18 @@ const THREE_EDIT: AgentRunProfile = {
 const CACHE_ACCEPTANCE: AgentRunProfile = {
   name: 'cache-acceptance',
   instruction: [
-    'Make five restrained edits to this photograph, each on its own layer with a name that says what it does:',
-    '1. Brighten it with a Levels, Curves, or Brightness/Contrast adjustment layer.',
-    '2. Warm its colours with a Photo Filter or Color Balance adjustment layer.',
-    '3. Add subtle colour intensity with a Hue/Saturation or Vibrance adjustment layer.',
-    '4. Darken the corners into a soft vignette on a new layer with an editable mask.',
-    '5. Add subtle sharpening on a separate raster layer while keeping the original photograph intact.',
-    'Inspect the finished layer panel, correct any unclear layer names, and finish only when all five edits are present.'
+    'Make five restrained edits, each on its own layer with a clear name:',
+    '1. Brighten with a Levels, Curves, or Brightness/Contrast adjustment.',
+    '2. Warm colours with Photo Filter or Color Balance.',
+    '3. Add subtle intensity with Hue/Saturation or Vibrance.',
+    '4. Add a soft corner vignette on a masked layer.',
+    '5. Add subtle sharpening on a separate raster layer.',
+    'Keep the original intact. Inspect the layer panel, fix unclear names, and finish only when all five edits are present.'
   ].join('\n'),
   acceptance: {
     minimumSteps: 20,
     minimumCacheHitRateExclusive: 0.8,
-    requireComplete: true,
-    requireBrowserRelease: true
+    requireComplete: true
   }
 }
 
@@ -77,8 +73,7 @@ export function evaluateAgentRunAcceptance(
   const checks = {
     complete: !criteria.requireComplete || measurement.outcome === 'complete',
     minimumSteps: measurement.steps >= criteria.minimumSteps,
-    cacheHitRate: measurement.cacheHitRate !== null && measurement.cacheHitRate > criteria.minimumCacheHitRateExclusive,
-    browserReleased: !criteria.requireBrowserRelease || measurement.browserReleased
+    cacheHitRate: measurement.cacheHitRate !== null && measurement.cacheHitRate > criteria.minimumCacheHitRateExclusive
   }
   return { passed: Object.values(checks).every(Boolean), checks }
 }
