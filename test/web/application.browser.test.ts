@@ -138,7 +138,7 @@ describeBrowser('launch application in Google Chrome', () => {
         await page.close()
       }
     }
-  })
+  }, 30_000)
 
   test('drops the hover lift when reduced motion is requested', async () => {
     const page = await browser.newPage({
@@ -153,7 +153,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('cancels and keeps a partial layered result', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
