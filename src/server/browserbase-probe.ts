@@ -4,7 +4,7 @@ import { PhotopeaBridge } from '../editor/photopea-bridge'
 import { PhotopeaDocumentLoader } from '../editor/photopea-document-loader'
 import { PlaywrightPhotopeaTransport } from '../editor/playwright-photopea-transport'
 import { BrowserbaseClient, type BrowserbaseLiveView, type BrowserbaseSession } from './browserbase-client'
-import { browserbaseEditorSession } from './browserbase-editor-session'
+import { browserbaseEditorSession, connectOverCdp } from './browserbase-editor-session'
 
 const SAMPLE_PNG = Uint8Array.from(
   Buffer.from(
@@ -88,9 +88,33 @@ async function main(): Promise<void> {
   if (!apiKey) throw new Error('BROWSERBASE_API_KEY is required')
   const client = new BrowserbaseClient(apiKey ?? '')
   let sessionId: string | undefined
+  const safeAddress = (raw: string) => {
+    try {
+      const url = new URL(raw)
+      return `${url.origin}${url.pathname}`
+    } catch {
+      return '[invalid URL]'
+    }
+  }
   const editor = browserbaseEditorSession({
     id: crypto.randomUUID(),
     hostUrl,
+    connect: async (connectUrl) => {
+      const browser = await connectOverCdp(connectUrl)
+      browser.page.on('requestfailed', (request) => {
+        console.error(
+          JSON.stringify({ event: 'request_failed', url: safeAddress(request.url()), reason: request.failure() })
+        )
+      })
+      browser.page.on('response', (response) => {
+        if (response.status() >= 300 && response.status() < 400) {
+          console.error(
+            JSON.stringify({ event: 'redirect', url: safeAddress(response.url()), status: response.status() })
+          )
+        }
+      })
+      return browser
+    },
     sessions: {
       async createSession() {
         const session = await client.createSession()
