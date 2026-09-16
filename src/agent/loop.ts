@@ -143,7 +143,7 @@ export function runAgent(
         log.emit({ type: 'error', reason: 'The model stopped answering, so the run stopped', recoverable: true })
         return false
       }
-      spend.add(turn.usage)
+      spend.add(turn.usage, turn.lastResponseUsage)
       log.emit({ type: 'cost', usd: spend.usd, tokensIn: spend.tokensIn, tokensOut: spend.tokensOut })
       if (aborter.signal.aborted) return false
 

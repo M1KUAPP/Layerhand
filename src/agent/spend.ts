@@ -41,10 +41,13 @@ export class Spend {
     return this.#tokensOut
   }
 
-  /** Adds one model call to the run's totals. */
-  add(usage: TokenUsage): void {
-    if (this.#last) this.#growth = Math.max(0, usage.inputTokens - this.#last.inputTokens)
-    this.#last = usage
+  /**
+   * Adds one model call to the run's totals. `lastResponse` is the response the
+   * call ended on, when the call was billed for more than one.
+   */
+  add(usage: TokenUsage, lastResponse: TokenUsage = usage): void {
+    if (this.#last) this.#growth = Math.max(0, lastResponse.inputTokens - this.#last.inputTokens)
+    this.#last = lastResponse
     const uncached = usage.inputTokens - usage.cachedInputTokens
     this.#usd +=
       uncached * this.#pricing.usdPerInputToken +
@@ -56,9 +59,10 @@ export class Spend {
 
   /**
    * Whether one more call could take the run past `budgetUsd`. The next call
-   * is taken to resend the last call's input, grown as much as the last call
-   * grew it, with none of it read from the cache, and to write as much as the
-   * last call wrote. The first call has nothing to estimate from.
+   * continues from the response the last call ended on, so it is taken to
+   * resend that response's input, grown as much as it grew over the call
+   * before, with none of it read from the cache, and to write as much as that
+   * response wrote. The first call has nothing to estimate from.
    */
   wouldPass(budgetUsd: number): boolean {
     if (!this.#last) return false
