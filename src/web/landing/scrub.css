@@ -73,6 +73,11 @@
 }
 
 @media (min-width: 1280px) {
+  .scrub__line {
+    display: block;
+    white-space: nowrap;
+  }
+
   .scrub__stage {
     grid-template-columns: repeat(12, 1fr);
     column-gap: 24px;

@@ -39,6 +39,10 @@ describeBrowser('landing scrub section in Chromium', () => {
         expect(await section.locator('.scrub__title').textContent()).toBe(
           'A flat JPEG keeps the result. A PSD keeps the work.'
         )
+        const lines = section.locator('.scrub__line')
+        expect(await lines.count()).toBe(2)
+        expect(await lines.nth(0).textContent()).toBe('A flat JPEG keeps the result. ')
+        expect(await lines.nth(1).textContent()).toBe('A PSD keeps the work.')
         expect(await section.locator('.scrub__body').textContent()).toBe(
           'Retouching is a stack of separate decisions, from the photograph at the bottom to the last adjustment on top. Layerhand hands the stack back as it was built, so one decision can change without redoing the rest.'
         )
