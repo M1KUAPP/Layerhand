@@ -77,6 +77,7 @@ function isGenericLayerName(name: string): boolean {
     !/\p{L}/u.test(normalized) ||
     /^(?:layer|group)(?: \d+)?$/iu.test(normalized) ||
     hasDefaultAdjustmentName(normalized) ||
+    /^(?:color fill|gradient fill|pattern fill|shape)(?: \d+)?$/iu.test(normalized) ||
     /(?:^| )copy(?: \d+)?$/iu.test(normalized)
   )
 }
