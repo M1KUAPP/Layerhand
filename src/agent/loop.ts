@@ -4,7 +4,7 @@
 // export is bounded and best-effort because teardown must stop browser billing.
 import { startFramePump, type FramePump } from '../browser/frame-pump'
 import type { EditorSession } from '../editor/session'
-import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
+import { assertCompleteLayerTree, LayerCompletionError } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
 import { ModelUnavailableError, type AgentModel, type ModelTurn, type NativeSteer } from './model'
@@ -201,7 +201,7 @@ export function runAgent(
 
   void (async () => {
     try {
-      const complete = await work()
+      let complete = await work()
       // No frame may follow the end of the run, and no look at the editor
       // should overlap its export, so the live view stops first. A frame in
       // progress gets up to a second to settle.
@@ -211,7 +211,21 @@ export function runAgent(
       const psd = await exportPsd()
       const preview = await session.exportPreview()
       const layers = await session.layers()
-      if (complete) assertCompleteLayerTree(layers)
+      if (complete) {
+        try {
+          assertCompleteLayerTree(layers)
+        } catch (error) {
+          if (!(error instanceof LayerCompletionError)) throw error
+          // The export already succeeded, so a finished edit that leaves
+          // nothing editable ends like a cap does: published, incomplete.
+          complete = false
+          log.emit({
+            type: 'error',
+            reason: 'The finished edit had no editable layer, so the run stopped',
+            recoverable: true
+          })
+        }
+      }
       // The file is already in hand, so a session that fails to close does not cost the user their result.
       await session.close().catch(() => undefined)
       log.end({

@@ -66,6 +66,7 @@ const RETOUCH = [
 const TEN_PASSES = Array.from({ length: 10 }, (_, i) => step(`Retouching, pass ${i + 1}`))
 const UNANSWERED = new ModelUnavailableError('The Responses API did not answer after 7 attempts')
 const STOPPED_ANSWERING = 'The model stopped answering, so the run stopped'
+const LAYER_POLICY_FAILED = 'The finished edit had no editable layer, so the run stopped'
 
 /**
  * Plays its script one turn per call, then reports the edit done. Each call
@@ -230,19 +231,19 @@ testRunContract({
 })
 
 describe('runAgent', () => {
-  test('rejects a model-finished all-raster tree with one unrecoverable error and no result', async () => {
+  test('keeps the file made so far when a finished edit fails the layer-policy check', async () => {
     const run = await fixture([DONE])
     run.session.layers = async () => [
       { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }
     ]
     const events = await collect(runAgent(request, run))
-    expect(ofType(events, 'error')).toEqual([
-      { type: 'error', reason: 'The run stopped because of an unexpected error', recoverable: false }
-    ])
-    expect(ofType(events, 'done')).toEqual([])
-    expect(events.at(-1)?.type).toBe('error')
-    expect([...run.published.keys()].every((url) => url.startsWith('memory://frame/'))).toBe(true)
-    await expect(run.session.screenshot()).rejects.toThrow('Editor session is closed')
+    expect(ofType(events, 'error')).toEqual([{ type: 'error', reason: LAYER_POLICY_FAILED, recoverable: true }])
+    const result = resultOf(events)
+    expect(result).toMatchObject({
+      complete: false,
+      layers: [{ name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }]
+    })
+    expect(psdLayerCount(run.published.get(result.psdUrl))).toBe(2)
   })
 
   test('accepts a model-finished tree with an effectively visible adjustment as complete', async () => {
