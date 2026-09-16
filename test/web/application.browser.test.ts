@@ -6,6 +6,13 @@ import { startTestApplication } from './support/test-server'
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
 const EXAMPLE = 'Clean the reflections without changing the label.'
+// FR-2 allows up to 500 characters, and the progress rail renders the whole
+// instruction (src/web/app.ts, progressRail). Long enough to force wrapping
+// well past the rail's available height in a 260px-wide column.
+const LONG_INSTRUCTION =
+  'Remove the background, clean the reflections, and warm the highlights without changing the label. '
+    .repeat(5)
+    .slice(0, 450)
 const REAL_FRAME_URL = new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url)
 
 async function openInput(page: Page, origin: string): Promise<void> {
@@ -183,12 +190,12 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 30_000)
 
-  test('keeps the correction field and its acknowledgements in the viewport at 1280x800', async () => {
+  test('keeps the correction field, acknowledgements, and progress rail in the viewport at 1280x800', async () => {
     const viewport = { width: 1280, height: 800 }
     const page = await browser.newPage({ viewport })
     try {
       await openInput(page, application.origin)
-      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill(LONG_INSTRUCTION)
       await page.getByRole('button', { name: 'Start retouching' }).click()
       await page.locator('[data-view="running"]').waitFor()
       await page.locator('#live-frame img').waitFor({ timeout: 5_000 })
@@ -219,16 +226,31 @@ describeBrowser('launch application in Google Chrome', () => {
           return { y: box.y, height: box.height }
         }
         const acks = document.querySelectorAll('.correction-ack')
+        const field = document.querySelector('#correction')
+        const fieldRect = field?.getBoundingClientRect() ?? null
+        const topElementAtField = fieldRect
+          ? document.elementFromPoint(fieldRect.x + fieldRect.width / 2, fieldRect.y + fieldRect.height / 2)
+          : null
         return {
-          field: rect(document.querySelector('#correction')),
+          field: rect(field),
           notices: rect(document.querySelector('#run-notices')),
-          lastAck: rect(acks[acks.length - 1] ?? null)
+          lastAck: rect(acks[acks.length - 1] ?? null),
+          rail: rect(document.querySelector('.progress-rail')),
+          layout: rect(document.querySelector('.running-layout')),
+          fieldUnobstructed: Boolean(field && topElementAtField && field.contains(topElementAtField))
         }
       }, realFrameDataUrl)
 
       expectBoxInViewport(boxes.field, viewport.height)
       expectBoxInViewport(boxes.notices, viewport.height)
       expectBoxInViewport(boxes.lastAck, viewport.height)
+      expect(boxes.rail).not.toBeNull()
+      expect(boxes.layout).not.toBeNull()
+      // The rail renders the whole instruction (FR-2, up to 500 characters);
+      // it must scroll inside its own box rather than grow the row and
+      // overflow past running-layout's bottom edge, onto the correction form.
+      expect(boxes.rail!.y + boxes.rail!.height).toBeLessThanOrEqual(boxes.layout!.y + boxes.layout!.height)
+      expect(boxes.fieldUnobstructed).toBe(true)
 
       await page.getByRole('button', { name: 'Cancel and keep work' }).click()
       await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
