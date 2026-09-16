@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright-core'
+import sharp from 'sharp'
 
+import { createPhotopeaHostHtml } from '../../src/editor'
 import type { EditorSession } from '../../src/editor/session'
 import { browserbaseEditorSession } from '../../src/server/browserbase-editor-session'
 
@@ -152,4 +154,46 @@ describeChrome('Browserbase network boundary in Google Chrome', () => {
       await session.abandon()
     }
   }, 15_000)
+
+  test('boots public Photopea through the allow-list and opens an image', async () => {
+    const host = Bun.serve({
+      hostname: '127.0.0.1',
+      port: 0,
+      fetch: () =>
+        new Response(createPhotopeaHostHtml(), {
+          headers: { 'content-type': 'text/html; charset=utf-8' }
+        })
+    })
+    let context: BrowserContext | undefined
+    const session = browserbaseEditorSession({
+      id: 'public-photopea-boundary',
+      hostUrl: new URL('/', host.url).toString(),
+      sessions: {
+        async createSession() {
+          return { id: 'local', projectId: 'local', connectUrl: 'unused' }
+        },
+        async releaseSession() {}
+      },
+      async connect() {
+        context = await browser.newContext()
+        const page = await context.newPage()
+        return { page, close: () => context!.close() }
+      }
+    })
+
+    try {
+      const png = await sharp({ create: { width: 8, height: 8, channels: 4, background: '#ff0000' } })
+        .png()
+        .toBuffer()
+
+      await session.open(png, 'source.png')
+
+      expect(await session.layers()).toEqual([
+        { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] }
+      ])
+    } finally {
+      await session.close()
+      host.stop(true)
+    }
+  }, 120_000)
 })
