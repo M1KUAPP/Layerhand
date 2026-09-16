@@ -628,6 +628,10 @@ async function restoreRun(runId: string): Promise<void> {
 
 function publicMessage(error: unknown): string {
   if (error instanceof RunApiError) return error.message
+  // fetch reports a refused or unreachable request as a bare TypeError.
+  if (error instanceof TypeError) {
+    return 'The server could not be reached. Check your connection and try again.'
+  }
   if (error instanceof Error && !error.message.toLowerCase().includes('secret')) return error.message
   return 'The request could not be completed.'
 }
