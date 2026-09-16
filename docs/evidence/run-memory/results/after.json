@@ -1,0 +1,22 @@
+{
+  "label": "after",
+  "measured": "2026-09-16T16:37:04.125Z",
+  "runtime": "Bun 1.4.2, darwin arm64",
+  "runs": 20,
+  "stepMs": 12000,
+  "frameBytes": 840000,
+  "uploadBytes": 1741555,
+  "idleRssMb": 99.5,
+  "peakRssMb": 679.2,
+  "idleHeapMb": 27,
+  "peakHeapMb": 368.1,
+  "retainedHeapMb": 41.2,
+  "framesPerRun": 60.9,
+  "reload": {
+    "replayedFrames": 1.5,
+    "replayedMb": 1.6
+  },
+  "outcomes": {
+    "failed": 20
+  }
+}
