@@ -21,6 +21,8 @@ const QUEUE_FULL = {
   code: 'queue_full',
   message: 'Layerhand is busy, and the line to start a run is full. Try again in a few minutes.'
 }
+// A steer or waitlist body has no reason to be more than a fraction of this (#115).
+export const MAX_JSON_BODY_BYTES = 4 * 1024
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -44,8 +46,8 @@ export interface RunRouteDependencies {
 }
 
 class RequestTooLargeError extends Error {
-  constructor() {
-    super('The upload exceeds the 20 MB request limit.')
+  constructor(message = 'The upload exceeds the 20 MB request limit.') {
+    super(message)
     this.name = 'RequestTooLargeError'
   }
 }
@@ -92,8 +94,41 @@ function apiError(code: string, message: string, status: number): Response {
   return json({ code, message }, status)
 }
 
-async function jsonObject(request: Request): Promise<Record<string, unknown>> {
-  const value: unknown = await request.json()
+/**
+ * The request's JSON object body, refusing one that passes `limit` as it
+ * arrives — the same discipline `boundedFormData` applies to a multipart
+ * body, so a steer or waitlist request cannot send an arbitrarily large one
+ * (#115).
+ */
+async function boundedJson(request: Request, limit: number): Promise<Record<string, unknown>> {
+  const declaredLength = Number(request.headers.get('content-length') ?? 0)
+  if (Number.isFinite(declaredLength) && declaredLength > limit) {
+    throw new RequestTooLargeError(`The request body exceeds the ${limit / 1024} KB limit.`)
+  }
+
+  const chunks: Uint8Array[] = []
+  let total = 0
+  const reader = request.body?.getReader()
+  if (reader) {
+    try {
+      for (;;) {
+        const { value, done } = await reader.read()
+        if (done) break
+        total += value.byteLength
+        if (total > limit) throw new RequestTooLargeError(`The request body exceeds the ${limit / 1024} KB limit.`)
+        chunks.push(value)
+      }
+    } finally {
+      await reader.cancel().catch(() => undefined)
+    }
+  }
+
+  let value: unknown
+  try {
+    value = JSON.parse(await new Blob(chunks as unknown as BlobPart[]).text())
+  } catch {
+    throw new Error('invalid_json')
+  }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid_json')
   return value as Record<string, unknown>
 }
@@ -407,7 +442,7 @@ export class RunRoutes {
   }
 
   async #steer(runId: string, request: Request): Promise<Response> {
-    const body = await jsonObject(request)
+    const body = await boundedJson(request, MAX_JSON_BODY_BYTES)
     const text = body.text
     if (typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
       return apiError('invalid_correction', 'Enter a correction of 500 characters or fewer.', 400)
@@ -422,7 +457,7 @@ export class RunRoutes {
   }
 
   async #waitlist(request: Request): Promise<Response> {
-    const body = await jsonObject(request)
+    const body = await boundedJson(request, MAX_JSON_BODY_BYTES)
     if (typeof body.email !== 'string') {
       return apiError('invalid_email', 'Enter a valid email address.', 400)
     }
