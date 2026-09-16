@@ -24,6 +24,7 @@ export interface RunProgress {
 export type ClientState =
   | { view: 'landing' }
   | { view: 'input' }
+  | { view: 'restoring'; runId: string }
   | { view: 'running'; progress: RunProgress }
   | {
       view: 'result'
@@ -36,7 +37,8 @@ export type ClientState =
 export type ClientAction =
   | { type: 'edit' }
   | { type: 'started'; runId: string; instruction: string }
-  | { type: 'snapshot'; snapshot: RunSnapshot }
+  | { type: 'restoring'; runId: string }
+  | { type: 'snapshot'; snapshot: RunSnapshot; instruction?: string | null }
   | { type: 'event'; id: number; event: RunEvent }
   | { type: 'cancel_requested' }
   | { type: 'connection_failed'; message: string }
@@ -154,8 +156,13 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
       return { view: 'input' }
     case 'started':
       return { view: 'running', progress: emptyProgress(action.runId, action.instruction) }
+    case 'restoring':
+      return { view: 'restoring', runId: action.runId }
     case 'snapshot':
-      return fromSnapshot(action.snapshot, null)
+      return fromSnapshot(
+        action.snapshot,
+        action.instruction ?? (state.view === 'running' ? state.progress.instruction : null)
+      )
     case 'event':
       return state.view === 'running' ? reduceEvent(state, action.id, action.event) : state
     case 'cancel_requested':
@@ -166,7 +173,7 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
       return {
         view: 'error',
         message: action.message,
-        runId: state.view === 'running' ? state.progress.runId : undefined
+        runId: state.view === 'running' ? state.progress.runId : state.view === 'restoring' ? state.runId : undefined
       }
     case 'reset':
       return initialClientState()
