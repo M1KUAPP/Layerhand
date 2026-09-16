@@ -165,17 +165,6 @@ jobs:
         env:
           BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
         run: bun run browserbase:probe -- "$PUBLIC_URL/photopea-host"
-      - name: Probe from the production Alpine build
-        if: always()
-        env:
-          BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
-        run: |
-          docker build --target build --tag layerhand-browser-probe .
-          docker run --rm \
-            --env BROWSERBASE_API_KEY \
-            --entrypoint bun \
-            layerhand-browser-probe \
-            src/server/browserbase-probe.ts "$PUBLIC_URL/photopea-host"
 
   agent_loop_diagnostics:
     name: Agent loop diagnostics
