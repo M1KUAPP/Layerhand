@@ -104,7 +104,11 @@ export function renderWaitlist(context: LandingContext): HTMLElement {
     } catch (error) {
       statusIcon.replaceChildren()
       statusIcon.append(icon('alert-circle'))
-      statusText.textContent = context.publicMessage(error)
+      // A rejected address keeps the server's reason, so a typo is not
+      // retried as typed. Anything else says what happened and what to do.
+      const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined
+      statusText.textContent =
+        code === 'invalid_email' ? context.publicMessage(error) : 'Your address was not saved. Try again in a moment.'
     } finally {
       submit.disabled = false
     }
