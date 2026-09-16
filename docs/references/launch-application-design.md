@@ -150,16 +150,17 @@ and broadcasts new events to subscribers. It does not depend on a connected
 page, so browser disconnects cannot pause a run.
 
 Each server-sent event carries its zero-based sequence as the SSE `id`. A new
-subscriber receives the retained history and then follows live events. A page
-reload restores the `runId` from `sessionStorage`, requests the current
-snapshot, and reconnects with `EventSource`. Duplicate event IDs are ignored
-by the client reducer.
+subscriber receives the retained history, which keeps only the latest frame,
+and then follows live events. A page reload restores the `runId` from
+`sessionStorage`, requests the current snapshot, and reconnects with
+`EventSource`. Duplicate event IDs are ignored by the client reducer.
 
 The registry retains terminal metadata for sixty minutes for launch-day
 reconnects but does not provide user history. Terminal handling calls
 `releaseSecrets()` in `finally`, including when reconciliation or logging
-fails. The registry accepts a terminal callback for quota reconciliation and
-the later structured log line.
+fails, and then lets go of the run, so a finished run keeps only its history
+and snapshot. The registry accepts a terminal callback for quota
+reconciliation and the later structured log line.
 
 `ManagedRun` is a server adapter, not a change to contract 2. It supplies
 cache metrics that `RunEvent` does not expose and gives the registry one
