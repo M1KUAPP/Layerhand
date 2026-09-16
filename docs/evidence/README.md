@@ -21,6 +21,8 @@ its README gives the result, how to run it again, and any known limits.
   correction steered into a live response.
 - [Warm editor session](/docs/evidence/warm-editor/README.md) — NFR-3: button
   to first frame, with and without a warmed editor.
+- [Run memory](/docs/evidence/run-memory/README.md) — NFR-4: the server's peak
+  memory with twenty runs at once, before and after frames left its history.
 
 ## Layout
 
