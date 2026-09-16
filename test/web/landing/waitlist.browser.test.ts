@@ -76,6 +76,20 @@ describeBrowser('waitlist in Chromium', () => {
     }
   }, 30_000)
 
+  test('a mistyped address keeps the server reason', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      const input = page.locator('#waitlist-email')
+      // Passes the browser's type=email check; the server wants two labels.
+      await input.fill('name@gmail')
+      await page.getByRole('button', { name: 'Email me the recording' }).click()
+      await page.locator('.waitlist__status-text', { hasText: 'Enter a valid email address.' }).waitFor()
+      await expect(input.inputValue()).resolves.toBe('name@gmail')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   test('submitting the same address shows repeat status and keeps input', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
     try {
