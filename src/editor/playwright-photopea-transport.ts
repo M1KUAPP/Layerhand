@@ -6,6 +6,13 @@ const DEFAULT_VIEWPORT: Viewport = { width: 1440, height: 900 }
 const INVALID_MESSAGE = 'Photopea host returned an invalid message.'
 const INVALID_HOST_URL = 'Photopea host URL must use HTTP or HTTPS.'
 
+/**
+ * The most of an exported file one reply carries out of the page. A CDP
+ * connection closes on any message over 256 MiB, which a file of about
+ * 192 MiB fills once encoded, so a file leaves in slices instead (#100).
+ */
+export const FILE_SLICE_BYTES = 4 * 2 ** 20
+
 // A message as the host page holds it, on either side of Photopea.
 type PhotopeaPageMessage =
   { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: Uint8Array }
@@ -15,9 +22,15 @@ type PhotopeaPageMessage =
 type PhotopeaWireMessage =
   { readonly type: 'text'; readonly value: string } | { readonly type: 'bytes'; readonly value: string }
 
+// What taking a message from the host queue returns: text whole, or a file's size.
+type PhotopeaQueueHead =
+  { readonly type: 'text'; readonly value: string } | { readonly type: 'file'; readonly byteLength: number }
+
 interface LayerhandWindow extends Window {
   readonly __layerhandPhotopeaMessages: PhotopeaPageMessage[]
   readonly __layerhandSendToPhotopea: (message: PhotopeaPageMessage) => void
+  // The file being read out of the page, from its first slice to its last.
+  __layerhandPhotopeaFile?: Uint8Array
 }
 
 export interface PlaywrightPhotopeaTransportOptions {
@@ -34,13 +47,22 @@ export function decodePhotopeaWireMessage(value: unknown): PhotopeaMessage {
     return { type: 'text', value: message.value }
   }
 
-  if (message.type === 'bytes' && typeof message.value === 'string') {
-    const bytes = Buffer.from(message.value, 'base64')
-    // Buffer skips what is not base64, so only a value that encodes back to itself arrived whole.
-    if (bytes.toString('base64') === message.value) return { type: 'bytes', value: new Uint8Array(bytes) }
-  }
-
   throw new Error(INVALID_MESSAGE)
+}
+
+// Decodes one slice's base64 straight into the file, so reading makes no copies
+// of its own. Buffer skips what is not base64, so a slice arrived whole only if
+// it is the exact length of its bytes' base64 and decodes to every one of them.
+function writeSlice(file: Buffer, start: number, end: number, slice: unknown): void {
+  const byteLength = end - start
+  if (
+    typeof slice !== 'string' ||
+    slice.length !== Math.ceil(byteLength / 3) * 4 ||
+    Buffer.byteLength(slice, 'base64') !== byteLength ||
+    file.write(slice, start, byteLength, 'base64') !== byteLength
+  ) {
+    throw new Error(INVALID_MESSAGE)
+  }
 }
 
 export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
@@ -106,20 +128,46 @@ export class PlaywrightPhotopeaTransport implements PhotopeaTransport {
       { timeout: timeoutMs }
     )
     await ready.dispose()
-    const wireMessage = await this.#page.evaluate((): PhotopeaWireMessage | undefined => {
+    const head = await this.#page.evaluate((): PhotopeaQueueHead | undefined => {
       const layerhandWindow = window as unknown as LayerhandWindow
       const message = layerhandWindow.__layerhandPhotopeaMessages.shift()
       if (message?.type !== 'bytes') return message
 
-      // In chunks, because String.fromCharCode takes each byte as its own argument.
-      let binary = ''
-      for (let offset = 0; offset < message.value.length; offset += 0x8000) {
-        const chunk = message.value.subarray(offset, offset + 0x8000)
-        binary += String.fromCharCode.apply(null, chunk as unknown as number[])
-      }
-      return { type: 'bytes', value: btoa(binary) }
+      layerhandWindow.__layerhandPhotopeaFile = message.value
+      return { type: 'file', byteLength: message.value.byteLength }
     })
-    return decodePhotopeaWireMessage(wireMessage)
+    if (head?.type !== 'file') return decodePhotopeaWireMessage(head)
+    if (!Number.isSafeInteger(head.byteLength) || head.byteLength < 0) throw new Error(INVALID_MESSAGE)
+    return { type: 'bytes', value: await this.#readFile(head.byteLength) }
+  }
+
+  // Assembles the file taken from the queue, one slice to a reply.
+  async #readFile(byteLength: number): Promise<Uint8Array> {
+    const bytes = new Uint8Array(byteLength)
+    const file = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    for (let start = 0; start < byteLength; start += FILE_SLICE_BYTES) {
+      const end = Math.min(start + FILE_SLICE_BYTES, byteLength)
+      const slice = await this.#page.evaluate(
+        ([start, end]) => {
+          const file = (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
+          if (!file) return undefined
+
+          // In chunks, because String.fromCharCode takes each byte as its own argument.
+          let binary = ''
+          for (let offset = start; offset < end; offset += 0x8000) {
+            const chunk = file.subarray(offset, Math.min(offset + 0x8000, end))
+            binary += String.fromCharCode.apply(null, chunk as unknown as number[])
+          }
+          return btoa(binary)
+        },
+        [start, end] as const
+      )
+      writeSlice(file, start, end, slice)
+    }
+    await this.#page.evaluate(() => {
+      delete (window as unknown as LayerhandWindow).__layerhandPhotopeaFile
+    })
+    return bytes
   }
 
   async press(key: string): Promise<void> {
