@@ -267,7 +267,7 @@ describe('ResponsesModel over a WebSocket', () => {
     })
     expect(continuation.previous_response_id).toBe('resp_2')
     expect(correctionsIn(continuation.input)).toEqual([])
-    expect(model.steering).toEqual({ available: true, applied: 1, indeterminate: 0 })
+    expect(model.steering).toEqual({ available: true, applied: 1, replayed: 0, indeterminate: 0 })
   })
 
   test('reports the response a steered step ended on apart from the responses it was billed for', async () => {
@@ -340,7 +340,7 @@ describe('ResponsesModel over a WebSocket', () => {
 
     expect(correctionsIn(continuation.input)).toEqual(['Correction from the user: Keep the shadow'])
     expect(native.applied).toBe(false)
-    expect(model.steering).toEqual({ available: true, applied: 0, indeterminate: 0 })
+    expect(model.steering).toEqual({ available: true, applied: 0, replayed: 1, indeterminate: 0 })
   })
 
   test('steering_not_supported replays the steer and turns native steering off for the run', async () => {
@@ -426,7 +426,7 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(resent.previous_response_id).toBe('resp_1')
     expect(resent.input[0]).toMatchObject({ type: 'computer_call_output', call_id: 'call_1' })
     expect(correctionsIn(resent.input)).toEqual(['Correction from the user: Keep the shadow'])
-    expect(model.steering).toEqual({ available: false, applied: 0, indeterminate: 1 })
+    expect(model.steering).toEqual({ available: false, applied: 0, replayed: 1, indeterminate: 1 })
     expect(model.steer('Leave the label')).toBeUndefined()
   })
 
@@ -477,7 +477,7 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(http.sent[0]!.body.previous_response_id).toBeUndefined()
     // The answer sent again over HTTP never saw it, so the next call must carry it.
     expect(native.applied).toBe(false)
-    expect(model.steering).toEqual({ available: false, applied: 0, indeterminate: 1 })
+    expect(model.steering).toEqual({ available: false, applied: 0, replayed: 1, indeterminate: 1 })
   })
 
   test('a response nobody asked for abandons the socket, and the next step goes over HTTP', async () => {
@@ -709,5 +709,30 @@ describe('ResponsesModel over a WebSocket', () => {
 
     await connection.closed
     expect(model.steering.available).toBe(false)
+  })
+
+  test('reports the transport as websocket once the socket opens, http before then', async () => {
+    const server = scriptedSocketServer()
+    const { model } = socketModel(server.url)
+    expect(model.transport).toBe('http')
+
+    const turn = model.next(observe(), signal())
+    const connection = await server.connections.next()
+    await connection.received.next()
+    connection.send(created('resp_1'))
+    connection.send(completed('resp_1'))
+    await turn
+
+    expect(model.transport).toBe('websocket')
+  })
+
+  test('stays on http when the socket fails to open, and the call carries on', async () => {
+    // Port 0 refuses the connection immediately, so the run falls back without waiting.
+    const { model, http } = socketModel('ws://127.0.0.1:0/v1/responses', {}, [{ id: 'resp_1', output: [] }])
+
+    await model.next(observe(), signal())
+
+    expect(model.transport).toBe('http')
+    expect(http.sent).toHaveLength(1)
   })
 })
