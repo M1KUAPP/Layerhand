@@ -2,7 +2,9 @@
 // with the preview tags added, whose URLs must be absolute and come from the
 // public address. The page's files are served from routes made here rather
 // than by Bun's routes for an HTML import, which cannot add a header, so
-// every one of them carries the API's security headers (#114).
+// every one of them carries the API's security headers (#114) — except under
+// LAYERHAND_PAGE_RELOAD, which trades the headers for Bun's own reloading
+// route so a page edit shows up without a restart.
 import type { HTMLBundle } from 'bun'
 import { posix } from 'node:path'
 
@@ -10,6 +12,8 @@ import ogImageDarkPath from '../web/assets/og-image-dark.png'
 import ogImagePath from '../web/assets/og-image.png'
 import { SECURITY_HEADERS } from './application'
 import { SOCIAL_IMAGE_PATHS, withSocialMeta } from './social-meta'
+
+const PAGE_SHELL_PATH = '/page-shell'
 
 export interface PageRouteOptions {
   /** The address link previews point at. The request's own origin unless set. */
@@ -58,7 +62,37 @@ async function favicon(): Promise<Response> {
   }
 }
 
-export async function pageRoutes(page: HTMLBundle, { publicUrl }: PageRouteOptions = {}) {
+// The reloading and secured route tables differ in shape (only the secured
+// one keys every bundled file), so this is typed by value rather than by the
+// literal keys Bun infers from a single object, which fixed key set neither
+// table alone has.
+type PageRoute = Response | HTMLBundle | ((request: Request) => Response | Promise<Response>)
+
+export async function pageRoutes(
+  page: HTMLBundle,
+  { publicUrl }: PageRouteOptions = {}
+): Promise<Record<string, PageRoute>> {
+  const banners = {
+    '/favicon.ico': favicon,
+    [SOCIAL_IMAGE_PATHS.light]: securedResponse(Bun.file(ogImagePath)),
+    [SOCIAL_IMAGE_PATHS.dark]: securedResponse(Bun.file(ogImageDarkPath))
+  }
+
+  if (process.env.LAYERHAND_PAGE_RELOAD) {
+    // Bun's own route for an HTML import rebundles the page on every
+    // request under `bun --hot`, so an edit under src/web shows up without a
+    // restart. It cannot carry a header, so only `bun run dev` sets this
+    // flag; `bun run start` and every test leave it unset and stay secured.
+    return {
+      [PAGE_SHELL_PATH]: page,
+      '/': async (request: Request) => {
+        const shell = await fetch(new URL(PAGE_SHELL_PATH, request.url))
+        return withSocialMeta(shell, publicUrl ?? new URL(request.url).origin)
+      },
+      ...banners
+    }
+  }
+
   const files = await bundledFiles(page)
   const html = files.find((file) => file.path.endsWith('.html'))!
   return {
@@ -69,8 +103,6 @@ export async function pageRoutes(page: HTMLBundle, { publicUrl }: PageRouteOptio
     ),
     '/': (request: Request) =>
       withSocialMeta(securedResponse(html.body, html.headers), publicUrl ?? new URL(request.url).origin),
-    '/favicon.ico': favicon,
-    [SOCIAL_IMAGE_PATHS.light]: securedResponse(Bun.file(ogImagePath)),
-    [SOCIAL_IMAGE_PATHS.dark]: securedResponse(Bun.file(ogImageDarkPath))
+    ...banners
   }
 }
