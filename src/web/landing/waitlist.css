@@ -1,0 +1,26 @@
+.waitlist {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  gap: 2rem;
+  align-items: end;
+  padding: 4rem clamp(2.2rem, 5vw, 5.6rem);
+  border-top: 1px solid var(--ink);
+}
+
+.waitlist .lede {
+  margin-top: 1rem;
+}
+
+.inline-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
+.inline-form .form-status {
+  grid-column: 1 / -1;
+  min-height: 1.4rem;
+  padding-top: 0.55rem;
+  color: #4e4d49;
+  font-size: 0.82rem;
+}
