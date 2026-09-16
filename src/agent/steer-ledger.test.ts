@@ -95,6 +95,20 @@ describe('SteerLedger', () => {
     expect(ledger.outstanding()).toEqual(['On another response'])
   })
 
+  test('a steer held for a continuation that failed is replayed, because the failed response may have spent it', () => {
+    const ledger = new SteerLedger()
+    ledger.sent('Keep the shadow', 'resp_1')
+    ledger.accepted('resp_1', 'steer_1')
+    ledger.pending('steer_1')
+    ledger.sent('On another response', 'resp_2')
+    ledger.accepted('resp_2', 'steer_2')
+
+    ledger.continuationFailed('resp_1')
+
+    expect(drain(ledger)).toEqual(['Keep the shadow'])
+    expect(ledger.outstanding()).toEqual(['On another response'])
+  })
+
   test('reads and replays one entry by its id', () => {
     const ledger = new SteerLedger()
     const kept = ledger.sent('Keep the shadow', 'resp_1')
