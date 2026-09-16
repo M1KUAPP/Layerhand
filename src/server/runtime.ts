@@ -176,6 +176,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
     const publish = artifactPublisher(artifactStore)
     const dailyBudgetUsd = config?.freeDailyBudgetUsd ?? developmentNumber(env.FREE_DAILY_BUDGET_USD, 1_000)
     const registry = new RunRegistry({
+      maxConcurrentRuns: limits.maxConcurrentRuns,
       ...options.registryOptions,
       onTerminal: createRunLogger({
         write: options.writeRunLog ?? ((record) => process.stdout.write(record)),

@@ -156,11 +156,15 @@ function fixture(
     failAtStep?: number
     managedRun?: ManagedRun
     paused?: boolean
+    maxConcurrentRuns?: number
+    runIntervalMs?: number
   } = {}
 ) {
   const meter = overrides.meter ?? new RecordingMeter()
   const artifacts = new RecordingArtifacts()
-  const registry = new RunRegistry()
+  const registry = new RunRegistry(
+    overrides.maxConcurrentRuns === undefined ? {} : { maxConcurrentRuns: overrides.maxConcurrentRuns }
+  )
   const runRequests: RunRequest[] = []
   const warmed: ReturnType<typeof warmSessionStub>[] = []
   const claimed: (WarmEditorSession | undefined)[] = []
@@ -197,7 +201,7 @@ function fixture(
       if (overrides.managedRun) return overrides.managedRun
       return {
         handle: fakeRun(request, {
-          intervalMs: 1,
+          intervalMs: overrides.runIntervalMs ?? 1,
           ...(overrides.failAtStep !== undefined ? { failAtStep: overrides.failAtStep } : {})
         }),
         metrics: () => ({ cacheHitRate: null, stopReason: overrides.failAtStep !== undefined ? 'failed' : 'complete' }),
@@ -280,25 +284,33 @@ describe('warming an editor before the run', () => {
     target.failNextRunStart()
 
     const started = await target.app.fetch(startRequest({ uploadId, cookie: visitorCookie(upload) }))
+    const { runId } = (await started.json()) as { runId: string }
+    await target.registry.waitForTerminal(runId)
 
-    expect(started.status).toBe(500)
+    expect(started.status).toBe(201)
+    expect(await target.registry.getSnapshot(runId)).toMatchObject({
+      status: 'failed',
+      failureReason: 'The run could not be started. Try again in a moment.'
+    })
     expect(target.warmed[0]?.abandoned).toBe(1)
     expect(target.warmSessions?.size).toBe(0)
     expect(target.meter.calls).toContain('release')
   })
 
-  test('releases the warm session when the run fails before the factory is reached', async () => {
+  test('leaves the warm session for a retry when the upload cannot be stored', async () => {
     const target = fixture({ warm: true })
     const upload = await target.app.fetch(uploadRequest())
     const { uploadId } = (await upload.json()) as { uploadId: string }
-    // Storing the upload fails, so no run is ever created to own the session.
+    // Storing the upload fails, so no run is ever created to claim the session.
     target.artifacts.failPut = true
 
     const started = await target.app.fetch(startRequest({ uploadId, cookie: visitorCookie(upload) }))
 
     expect(started.status).toBeGreaterThanOrEqual(400)
     expect(target.claimed).toEqual([])
-    expect(target.warmed[0]?.abandoned).toBe(1)
+    // Still warm, so a retry can claim it, and released by the pool if none does.
+    expect(target.warmSessions?.size).toBe(1)
+    expect(target.warmed[0]?.abandoned).toBe(0)
     expect(target.meter.calls).toContain('release')
   })
 
@@ -310,6 +322,25 @@ describe('warming an editor before the run', () => {
     expect(upload.status).toBe(201)
     expect(await upload.json()).toEqual({ uploadId: null, warming: false })
     expect(target.warmSessions?.size).toBe(0)
+  })
+
+  test('claims the warm session when a queued run starts, not while it waits', async () => {
+    const target = fixture({ warm: true, maxConcurrentRuns: 1, runIntervalMs: 60_000 })
+    const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+    const upload = await target.app.fetch(uploadRequest())
+    const { uploadId } = (await upload.json()) as { uploadId: string }
+
+    const second = await target.app.fetch(startRequest({ uploadId, cookie: visitorCookie(upload) }))
+    const { runId } = (await second.json()) as { runId: string }
+    expect(await target.registry.getSnapshot(runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
+    expect(target.warmSessions?.size).toBe(1)
+
+    await target.registry.cancel(first.runId)
+    for await (const { event } of target.registry.events(runId)) if (event.type === 'started') break
+
+    expect(target.claimed.map((session) => session?.id)).toEqual([undefined, 'warm-1'])
+    expect(target.warmSessions?.size).toBe(0)
+    await target.registry.cancel(runId)
   })
 
   test('refuses an upload that is not an image', async () => {
@@ -484,14 +515,30 @@ describe('run HTTP contract', () => {
     target.artifacts.failDelete = true
 
     const response = await target.app.fetch(startRequest())
+    const { runId } = (await response.json()) as { runId: string }
+    await target.registry.waitForTerminal(runId)
 
-    expect(response.status).toBe(500)
-    expect(await response.json()).toEqual({
-      code: 'run_start_failed',
-      message: 'The run could not be started. Try again in a moment.'
-    })
+    expect(response.status).toBe(201)
+    expect((await target.registry.getSnapshot(runId))?.status).toBe('failed')
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
     expect(target.meter.calls).toContain('release')
+  })
+
+  test('gives back the free run and the upload of a run that leaves the queue', async () => {
+    const target = fixture({ maxConcurrentRuns: 1, runIntervalMs: 60_000 })
+    const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+    const second = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+
+    const cancel = await target.app.fetch(
+      new Request(`https://layerhand.test/api/runs/${second.runId}/cancel`, { method: 'POST' })
+    )
+    await target.registry.waitForTerminal(second.runId)
+
+    expect(cancel.status).toBe(202)
+    expect(target.runRequests).toHaveLength(1)
+    expect(target.meter.calls).toEqual(['admit:false', 'admit:false', 'release'])
+    expect(target.artifacts.calls).toContain('delete:upload/random.png')
+    await target.registry.cancel(first.runId)
   })
 
   test('replays SSE, returns snapshots, and exposes steering and cancellation', async () => {
