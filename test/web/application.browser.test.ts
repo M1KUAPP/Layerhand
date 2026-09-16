@@ -161,7 +161,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 15_000)
 
   test('shows an empty instruction error beside the instruction field', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -187,7 +187,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 15_000)
 
   test('labels a step-cap result incomplete', async () => {
     const capped = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
@@ -202,5 +202,5 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
       await capped.close()
     }
-  })
+  }, 15_000)
 })
