@@ -57,4 +57,31 @@ export async function applyMigrations(database: SQL): Promise<void> {
   } catch (error) {
     if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
   }
+  // Added the same way, for the same reason: a run's transport, how its
+  // corrections settled, and the safety checks it acknowledged (NFR-8, #108).
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN transport TEXT`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN corrections_applied INTEGER`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN corrections_replayed INTEGER`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN corrections_indeterminate INTEGER`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN safety_check_codes TEXT`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
 }
