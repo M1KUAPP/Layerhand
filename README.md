@@ -19,7 +19,7 @@ Contents:
 
 - [Bun 1.4.2](https://bun.sh/)
 - Docker for the production-container smoke test
-- Chromium for opt-in browser integration tests
+- Google Chrome for opt-in browser integration tests
 
 The Bun version is pinned because the committed lockfile uses lockfile
 version 2. Copy `.env.example` to `.env` only for local development. Store
