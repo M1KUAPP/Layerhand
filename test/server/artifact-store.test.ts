@@ -76,7 +76,15 @@ describe('S3ArtifactStore', () => {
 
     expect(calls).toEqual([
       ['write', 'upload/random-object-id.jpg', UPLOAD.bytes, { type: 'image/jpeg' }],
-      ['presign', 'upload/random-object-id.jpg', { expiresIn: 3600, method: 'GET' }],
+      [
+        'presign',
+        'upload/random-object-id.jpg',
+        {
+          expiresIn: 3600,
+          method: 'GET',
+          contentDisposition: 'attachment; filename="layerhand-upload.jpg"'
+        }
+      ],
       ['delete', 'upload/random-object-id.jpg']
     ])
   })
