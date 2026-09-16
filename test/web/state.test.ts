@@ -44,6 +44,38 @@ describe('client run reducer', () => {
     expect(JSON.stringify(running)).not.toContain('apiKey')
   })
 
+  test('restores through a dedicated view and keeps the stored instruction', () => {
+    const restoring = reduceClientState(initialClientState(), { type: 'restoring', runId: 'run-1' })
+    expect(restoring).toEqual({ view: 'restoring', runId: 'run-1' })
+
+    const running = reduceClientState(restoring, {
+      type: 'snapshot',
+      snapshot: runningSnapshot({ cap: null }),
+      instruction: 'Clean the reflections.'
+    })
+    expect(running).toMatchObject({
+      view: 'running',
+      progress: { instruction: 'Clean the reflections.', cap: 40 }
+    })
+
+    const failed = reduceClientState(restoring, {
+      type: 'connection_failed',
+      message: 'The server could not be reached.'
+    })
+    expect(failed).toEqual({ view: 'error', message: 'The server could not be reached.', runId: 'run-1' })
+  })
+
+  test('keeps the instruction when a reconnect snapshot has none', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, { type: 'snapshot', snapshot: runningSnapshot() })
+
+    expect(state).toMatchObject({ view: 'running', progress: { instruction: 'Clean the reflections.' } })
+  })
+
   test('reduces ordered events and ignores duplicate event ids', () => {
     let state = reduceClientState(initialClientState(), {
       type: 'started',
