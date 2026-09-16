@@ -795,6 +795,10 @@ instead of waiting for the editor's normal close queue to drain.
 A deploy therefore never leaves a run billing. Both phases fit inside the
 ten seconds Cloud Run allows after SIGTERM.
 
+Warm sessions belong to no run, and releasing one can wait ten seconds on
+Browserbase, so they are released alongside those phases rather than before
+them. A slow release cannot use up the time the runs need to be recorded.
+
 ## The web application
 
 A single page. Upload, prompt, run, result — no routing, no navigation,
