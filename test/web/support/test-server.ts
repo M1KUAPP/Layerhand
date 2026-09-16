@@ -1,4 +1,5 @@
 import web from '../../../src/web/index.html'
+import { pageRoutes } from '../../../src/server/page-routes'
 import { MAX_RUN_REQUEST_BODY_BYTES } from '../../../src/server/run-routes'
 import { createLaunchRuntime } from '../../../src/server/runtime'
 
@@ -21,7 +22,7 @@ export async function startTestApplication(options: TestApplicationOptions = {})
     hostname: '127.0.0.1',
     port: 0,
     maxRequestBodySize: MAX_RUN_REQUEST_BODY_BYTES,
-    routes: { '/': web },
+    routes: await pageRoutes(web),
     fetch: runtime.application.fetch
   })
 
