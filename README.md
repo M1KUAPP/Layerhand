@@ -38,8 +38,9 @@ bun run dev
 ```
 
 The page is served at `http://localhost:3000`; readiness is available at
-`/health`. The page is bundled once as the server starts, so restart it to
-see a change under `src/web`.
+`/health`. `bun run dev` reloads the page on an edit under `src/web`, and
+serves it without the security headers, which production and the tests
+check.
 
 ## Verify
 
