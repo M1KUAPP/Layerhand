@@ -52,9 +52,11 @@
 }
 
 .drawer__inline {
-  align-self: center;
+  /* Spans the intro's four rows; 1 / -1 on an implicit grid is one row,
+     which stretched the eyebrow's row to the list's height. */
+  align-self: start;
   grid-column: 7 / 13;
-  grid-row: 1 / -1;
+  grid-row: 1 / 5;
   margin: 0;
   padding: 0;
   list-style: none;
