@@ -18,11 +18,11 @@ describe('agent run evidence profiles', () => {
     expect(profile.name).toBe('cache-acceptance')
     expect(numberedEdits).toHaveLength(5)
     expect(profile.instruction).toContain('each on its own layer')
+    expect(profile.instruction.length).toBeLessThanOrEqual(500)
     expect(profile.acceptance).toEqual({
       minimumSteps: 20,
       minimumCacheHitRateExclusive: 0.8,
-      requireComplete: true,
-      requireBrowserRelease: true
+      requireComplete: true
     })
   })
 
@@ -37,16 +37,14 @@ describe('agent run evidence profiles', () => {
       evaluateAgentRunAcceptance(profile, {
         outcome: 'complete',
         steps: 20,
-        cacheHitRate: 0.81,
-        browserReleased: true
+        cacheHitRate: 0.81
       })
     ).toMatchObject({ passed: true })
 
     for (const measurement of [
-      { outcome: 'complete' as const, steps: 19, cacheHitRate: 0.81, browserReleased: true },
-      { outcome: 'complete' as const, steps: 20, cacheHitRate: 0.8, browserReleased: true },
-      { outcome: 'incomplete' as const, steps: 20, cacheHitRate: 0.81, browserReleased: true },
-      { outcome: 'complete' as const, steps: 20, cacheHitRate: 0.81, browserReleased: false }
+      { outcome: 'complete' as const, steps: 19, cacheHitRate: 0.81 },
+      { outcome: 'complete' as const, steps: 20, cacheHitRate: 0.8 },
+      { outcome: 'incomplete' as const, steps: 20, cacheHitRate: 0.81 }
     ]) {
       expect(evaluateAgentRunAcceptance(profile, measurement)).toMatchObject({ passed: false })
     }

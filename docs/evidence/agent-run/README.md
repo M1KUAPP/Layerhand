@@ -77,3 +77,19 @@ files are kept in [`results/`](/docs/evidence/agent-run/results/):
 
 The script also writes `result.psd` and `first-frame.png`, which are not
 kept.
+
+The issue #5 cache threshold has a second, bounded profile. CI starts it
+through the deployed API, then reads only that run's cache metric from the
+production run log. The deployment keeps the OpenAI and Browserbase keys;
+the harness needs `DATABASE_URL` only:
+
+```sh
+DATABASE_URL=... PUBLIC_URL=https://layerhand.example \
+  bun run docs/evidence/agent-run/deployed-run.ts \
+  --profile cache-acceptance
+```
+
+This profile passes only when the deployed run completes at least 20 steps
+and more than 80% of its input tokens came from the prompt cache. Its five
+edits are deliberately longer than the three-edit benchmark, while the
+production step and spend ceilings remain authoritative.
