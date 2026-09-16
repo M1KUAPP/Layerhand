@@ -332,14 +332,38 @@ scripted model. How the loop applies the rules above:
 - `cancel()` resolves at once. It abandons the model call in flight, even
   one that ignores the abort signal, but an editor call that hangs still
   waits for the [fifteen-minute ceiling](#one-ceiling-fifteen-minutes).
-- A finished edit, a cap, a cancel, or a missing narration exports the
-  file and then closes the session. A failure attempts one PSD export
-  after the frame pump stops, gives it four seconds, and then closes the
-  session whether that export succeeded or not. Contract 2 still ends a
-  failed run without a result, and the failure's reason is fixed because
-  a provider's error message can quote a key.
+- A finished edit, a cap, a cancel, a missing narration, or a model that
+  stopped answering exports the file and then closes the session. A
+  failure attempts one PSD export after the frame pump stops, gives it
+  four seconds, and then closes the session whether that export succeeded
+  or not. Contract 2 still ends a failed run without a result, and the
+  failure's reason is fixed because a provider's error message can quote
+  a key.
 - The page sees the editor through a frame pump of its own rather than
   the model's screenshots, as [Frames](#frames) describes.
+
+`ResponsesModel` sends a call again rather than let one error end the run
+(#104). A call that meets HTTP 429 or 5xx, a failed connection, a failed
+step over the WebSocket, or no answer within its own timeout is retried,
+over the same socket when it has one:
+
+- **The timeout** gives each attempt one minute. Over HTTP it bounds the
+  request to its whole response; over the WebSocket it bounds a step's
+  silence, because a response sends traffic as it goes. Recorded runs
+  spent 3 to 20 seconds a step, the editor's actions included.
+- **The wait** doubles from one second up to thirty, half of it jittered
+  so that runs rate-limited together come back apart, and is never
+  shorter than `retry-after`. A cancel or the run's ceiling ends it at
+  once.
+- **Giving up** comes after six retries, whose waits add up to between
+  thirty seconds and a minute unless `retry-after` asks for more, or at
+  once when the server asks for a wait longer than thirty seconds. The
+  model then throws `ModelUnavailableError`, and the loop ends the run as
+  a cap does: it reports a correction left unsent, says the model stopped
+  answering, and publishes the file made so far. The run log still
+  records it as `failed`, with `model_call_failed`.
+- **A refusal is not retried.** Any other 400-class status, a missing
+  key, or a malformed action fails the run as before.
 
 ### Screenshots
 
@@ -447,11 +471,17 @@ either applied or replayed, never both and never neither:
   response has been read, so a steer still unanswered when its response
   completed is replayed. A late acceptance can then land the correction
   twice, which is the harmless direction.
-- A dropped connection, a successor that never comes, or a response
-  nobody asked for leaves steers the connection cannot vouch for. Each is
-  replayed and counted as indeterminate. The step is sent again over HTTP,
-  and the run stays on HTTP. Replay is the default because a correction
-  applied twice does no harm, while a lost one breaks FR-20.
+- A dropped connection, a step silent for a whole call timeout, a
+  successor that never comes, or a response nobody asked for leaves
+  steers the connection cannot vouch for. Each is replayed and counted as
+  indeterminate. The step is sent again over HTTP, and the run stays on
+  HTTP. Replay is the default because a correction applied twice does no
+  harm, while a lost one breaks FR-20.
+- A step that fails with a rate limit or a server error is sent again on
+  the same socket, as [The loop](#the-loop) describes. The steers the
+  server held for a continuation that failed are replayed with it,
+  because the failed response may have spent them, and the responses the
+  step ended before it failed are still billed.
 
 **A3 result, September 15:** passed, on the deployed service. A correction
 sent into a response being generated was accepted 194 ms later, that
@@ -1013,6 +1043,11 @@ organisation's tier and headroom is
 [spike A4](#decisions-deferred-to-spikes) and it is a day-0 item,
 because the remedy — raising the tier — has a lead time we do not
 control.
+
+Retries do not raise that ceiling; they ride out a burst. A call that
+meets the limit waits at least as long as `retry-after` asks and is sent
+again, and a run whose retries run out stops with its partial file, as
+[The loop](#the-loop) describes.
 
 ## Security
 
