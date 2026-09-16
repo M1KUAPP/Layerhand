@@ -22,6 +22,9 @@ export interface PhotopeaConfiguration {
 }
 
 export const PHOTOPEA_ORIGIN = 'https://www.photopea.com'
+// Photopea serves the editor shell from its primary origin and its versioned
+// CSS and JavaScript bundles from this separate first-party asset origin.
+export const PHOTOPEA_ASSET_ORIGIN = 'https://vecpea.com'
 
 export const PHOTOPEA_CONFIGURATION = {
   environment: {
