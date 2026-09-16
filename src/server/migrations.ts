@@ -17,6 +17,17 @@ export async function applyMigrations(database: SQL): Promise<void> {
         CHECK (reserved_microusd >= 0)
     )
   `
+  // A row for each free run's reservation, with the time it was made, so one
+  // that nothing gave back stops counting once no run could still hold it.
+  await database`
+    CREATE TABLE IF NOT EXISTS meter_reservations (
+      reservation_id TEXT PRIMARY KEY,
+      day_utc TEXT NOT NULL,
+      reserved_microusd BIGINT NOT NULL
+        CHECK (reserved_microusd > 0),
+      reserved_at TEXT NOT NULL
+    )
+  `
   await database`
     CREATE TABLE IF NOT EXISTS waitlist_emails (
       email TEXT PRIMARY KEY,
