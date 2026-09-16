@@ -260,6 +260,47 @@ describe('client run reducer', () => {
     expect(connection).toMatchObject({ view: 'error', message: 'The live connection could not be restored.' })
   })
 
+  test('shows a queued run in the running view with its place in line, until it starts', () => {
+    const restored = reduceClientState(initialClientState(), {
+      type: 'snapshot',
+      snapshot: runningSnapshot({ status: 'queued', steps: 0, narration: null, frameUrl: null, queuePosition: 3 })
+    })
+    expect(restored).toMatchObject({ view: 'running', progress: { queuePosition: 3 } })
+
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    expect(state).toMatchObject({ view: 'running', progress: { queuePosition: null } })
+    state = reduceClientState(state, { type: 'event', id: 0, event: { type: 'queued', position: 2 } })
+    expect(state).toMatchObject({ view: 'running', progress: { queuePosition: 2 } })
+    state = reduceClientState(state, { type: 'event', id: 1, event: { type: 'queued', position: 1 } })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 2,
+      event: { type: 'started', runId: 'run-1', viewport: { width: 1440, height: 900 } }
+    })
+    expect(state).toMatchObject({ view: 'running', progress: { queuePosition: null } })
+  })
+
+  test('returns to the form when the visitor leaves the queue', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, { type: 'event', id: 0, event: { type: 'queued', position: 1 } })
+    state = reduceClientState(state, { type: 'cancel_requested' })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 1,
+      event: { type: 'error', reason: 'You left the queue before the run started.', recoverable: false }
+    })
+
+    expect(state).toEqual({ view: 'input' })
+  })
+
   test('formats running USD cost as stable display credits', () => {
     expect(formatCredits(0)).toBe('0.00 credits')
     expect(formatCredits(0.21105)).toBe('0.21 credits')

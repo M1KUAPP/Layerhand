@@ -6,12 +6,16 @@ import { createLaunchRuntime } from '../../../src/server/runtime'
 export interface TestApplicationOptions {
   fakeRunIntervalMs?: number
   stepCap?: number
+  maxConcurrentRuns?: number
 }
 
 export async function startTestApplication(options: TestApplicationOptions = {}) {
   let server: ReturnType<typeof Bun.serve> | undefined
   const runtime = await createLaunchRuntime({
-    env: { NODE_ENV: 'development' },
+    env: {
+      NODE_ENV: 'development',
+      ...(options.maxConcurrentRuns === undefined ? {} : { MAX_CONCURRENT_RUNS: String(options.maxConcurrentRuns) })
+    },
     clientAddress(request) {
       return server?.requestIP(request)?.address ?? '127.0.0.1'
     },

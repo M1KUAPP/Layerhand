@@ -1,6 +1,6 @@
-import type { RunEvent, RunResult, RunStopReason } from '../agent/contract'
+import type { RunResult, RunStopReason } from '../agent/contract'
 import type { LayerInfo, LayerMaskInfo } from '../editor/contract'
-import type { RunSnapshot, RunStatus } from '../server/run-registry'
+import type { RunSnapshot, RunStatus, RunStreamEvent } from '../server/run-registry'
 
 type Fetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 
@@ -56,6 +56,13 @@ function integer(value: unknown): number {
   if (!Number.isSafeInteger(parsed) || parsed < 0) {
     invalidResponse()
   }
+  return parsed
+}
+
+/** A place in line, which counts from 1. */
+function place(value: unknown): number {
+  const parsed = integer(value)
+  if (parsed < 1) invalidResponse()
   return parsed
 }
 
@@ -121,7 +128,7 @@ function runResult(value: unknown): RunResult {
 
 function status(value: unknown): RunStatus {
   const parsed = string(value)
-  if (!['running', 'complete', 'incomplete', 'cancelled', 'failed'].includes(parsed)) {
+  if (!['queued', 'running', 'complete', 'incomplete', 'cancelled', 'failed'].includes(parsed)) {
     throw new RunApiError('invalid_response', 'The server returned an invalid response.')
   }
   return parsed as RunStatus
@@ -143,18 +150,21 @@ export function decodeRunSnapshot(value: unknown): RunSnapshot {
     corrections: stringArray(source.corrections),
     recoverableErrors: stringArray(source.recoverableErrors)
   }
+  if (source.queuePosition !== undefined) parsed.queuePosition = place(source.queuePosition)
   if (source.result !== undefined) parsed.result = runResult(source.result)
   if (source.failureReason !== undefined) parsed.failureReason = string(source.failureReason)
   if (source.stopReason !== undefined) parsed.stopReason = stopReason(source.stopReason)
-  if (parsed.status !== 'running' && parsed.status !== 'failed' && !parsed.result) {
+  if (parsed.status !== 'queued' && parsed.status !== 'running' && parsed.status !== 'failed' && !parsed.result) {
     throw new RunApiError('invalid_response', 'The server returned an invalid response.')
   }
   return parsed
 }
 
-export function decodeRunEvent(value: unknown): RunEvent {
+export function decodeRunEvent(value: unknown): RunStreamEvent {
   const source = record(value)
   switch (string(source.type)) {
+    case 'queued':
+      return { type: 'queued', position: place(source.position) }
     case 'started': {
       const viewport = record(source.viewport)
       return {
@@ -262,11 +272,11 @@ export class RunApi {
 
   subscribe(
     runId: string,
-    onEvent: (id: number, event: RunEvent) => void,
+    onEvent: (id: number, event: RunStreamEvent) => void,
     onConnectionError: () => void
   ): { close(): void } {
     const source = this.#eventSource(`/api/runs/${encodeURIComponent(runId)}/events`)
-    for (const type of ['started', 'step', 'frame', 'correction_ack', 'cost', 'done']) {
+    for (const type of ['queued', 'started', 'step', 'frame', 'correction_ack', 'cost', 'done']) {
       source.addEventListener(type, (event) => this.#receiveEvent(event, onEvent, onConnectionError))
     }
     source.addEventListener('error', (event) => {
@@ -289,7 +299,11 @@ export class RunApi {
     return { accepted: true }
   }
 
-  #receiveEvent(event: Event, onEvent: (id: number, event: RunEvent) => void, onConnectionError: () => void): void {
+  #receiveEvent(
+    event: Event,
+    onEvent: (id: number, event: RunStreamEvent) => void,
+    onConnectionError: () => void
+  ): void {
     try {
       const message = event as MessageEvent<string>
       const id = Number(message.lastEventId)
