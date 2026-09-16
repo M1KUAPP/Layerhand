@@ -145,7 +145,15 @@ export async function createRecordedFakeEditorSession(): Promise<FakeEditorSessi
       preview,
       layers: [
         { name: 'Original photograph', kind: 'raster', visible: true, masks: [], children: [] },
-        { name: 'Retouched copy', kind: 'raster', visible: true, masks: [], children: [] }
+        {
+          // Not "Retouched copy": assertLayerNames (#133) rejects a name
+          // ending in "copy" as Photopea's own generic auto-naming.
+          name: 'Retouched photograph',
+          kind: 'raster',
+          visible: true,
+          masks: [{ kind: 'pixel', enabled: true }],
+          children: []
+        }
       ]
     }
   })
