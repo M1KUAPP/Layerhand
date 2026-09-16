@@ -116,7 +116,7 @@ describe('reliability workflow contract', () => {
     expect(dispatch.inputs.task).toMatchObject({
       required: true,
       type: 'choice',
-      options: ['agent-loop-acceptance', 'reliability']
+      options: ['agent-loop-acceptance', 'browserbase-probe', 'reliability']
     })
     expect(job).toBeDefined()
     expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'")
@@ -174,6 +174,21 @@ describe('reliability workflow contract', () => {
         expect(step.run).not.toMatch(/GITHUB_ENV.*BROWSERBASE_API_KEY/)
       }
     }
+  })
+
+  test('a manual browserbase probe diagnoses the editor boundary without a model call', async () => {
+    const source = await Bun.file(new URL('../../.github/workflows/reliability.yml', import.meta.url)).text()
+    const workflow = Bun.YAML.parse(source) as WorkflowDefinition
+    const job = workflow.jobs.browserbase_probe
+
+    expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'browserbase-probe'")
+    expect(job?.['timeout-minutes']).toBe(5)
+    expect(job?.environment).toBe('production')
+    expect(job?.permissions).toEqual({ contents: 'read' })
+    const runStep = job?.steps.find((step) => step.run?.includes('browserbase:probe'))
+    expect(runStep?.run).toContain('"$PUBLIC_URL/photopea-host"')
+    expect(runStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
+    expect(runStep?.env).not.toHaveProperty('OPENAI_API_KEY')
   })
 
   test('summary step handles missing artifacts/reliability directory without error', async () => {
