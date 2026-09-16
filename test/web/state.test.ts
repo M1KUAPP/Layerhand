@@ -34,15 +34,22 @@ function runningSnapshot(overrides: Partial<RunSnapshot> = {}): RunSnapshot {
 describe('client run reducer', () => {
   test('moves through landing, input, and running without retaining secrets', () => {
     const input = reduceClientState(initialClientState(), { type: 'edit' })
-    const running = reduceClientState(input, { type: 'started', runId: 'run-1' })
+    const running = reduceClientState(input, { type: 'started', runId: 'run-1', instruction: 'Clean the reflections.' })
 
     expect(input).toEqual({ view: 'input' })
-    expect(running).toMatchObject({ view: 'running', progress: { runId: 'run-1' } })
+    expect(running).toMatchObject({
+      view: 'running',
+      progress: { runId: 'run-1', instruction: 'Clean the reflections.', cap: 40 }
+    })
     expect(JSON.stringify(running)).not.toContain('apiKey')
   })
 
   test('reduces ordered events and ignores duplicate event ids', () => {
-    let state = reduceClientState(initialClientState(), { type: 'started', runId: 'run-1' })
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
     state = reduceClientState(state, {
       type: 'event',
       id: 0,
@@ -79,7 +86,11 @@ describe('client run reducer', () => {
   })
 
   test('keeps correction acknowledgements and recoverable errors visible', () => {
-    let state = reduceClientState(initialClientState(), { type: 'started', runId: 'run-1' })
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
     state = reduceClientState(state, {
       type: 'event',
       id: 3,
@@ -138,7 +149,11 @@ describe('client run reducer', () => {
   })
 
   test('marks a locally cancelled run and preserves its partial result', () => {
-    let state = reduceClientState(initialClientState(), { type: 'started', runId: 'run-1' })
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
     state = reduceClientState(state, { type: 'cancel_requested' })
     state = reduceClientState(state, {
       type: 'event',
@@ -154,7 +169,11 @@ describe('client run reducer', () => {
   })
 
   test('turns fatal run and connection failures into a specific error state', () => {
-    const running = reduceClientState(initialClientState(), { type: 'started', runId: 'run-1' })
+    const running = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
     const fatal = reduceClientState(running, {
       type: 'event',
       id: 5,
