@@ -7,7 +7,7 @@ import type { EditorSession } from '../editor/session'
 import { assertCompleteLayerTree } from '../editor/layer-tree-policy'
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
-import type { AgentModel, ModelTurn } from './model'
+import { ModelUnavailableError, type AgentModel, type ModelTurn } from './model'
 import { Spend, type TokenPricing } from './spend'
 
 export type PublishedKind = 'frame' | 'psd' | 'preview'
@@ -135,7 +135,13 @@ export function runAgent(
         turn = await Promise.race([model.next(observation, aborter.signal), cancelled])
       } catch (error) {
         if (aborter.signal.aborted) return false
-        throw error
+        if (!(error instanceof ModelUnavailableError)) throw error
+        // A model that stopped answering ends the run as a cap does. Its
+        // reason comes last: the run log takes a stopped run's last
+        // recoverable error as why it stopped.
+        refuseCorrections()
+        log.emit({ type: 'error', reason: 'The model stopped answering, so the run stopped', recoverable: true })
+        return false
       }
       spend.add(turn.usage)
       log.emit({ type: 'cost', usd: spend.usd, tokensIn: spend.tokensIn, tokensOut: spend.tokensOut })

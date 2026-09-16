@@ -4,7 +4,7 @@ import type { ComputerAction, EditorSession } from '../editor/session'
 import type { RunEvent, RunHandle, RunRequest, RunResult } from './contract'
 import { collect, testRunContract } from './contract-tests'
 import { runAgent, type PublishedKind } from './loop'
-import type { AgentModel, ModelTurn, Observation, TokenUsage } from './model'
+import { ModelUnavailableError, type AgentModel, type ModelTurn, type Observation, type TokenUsage } from './model'
 
 const request: RunRequest = {
   image: new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
@@ -58,6 +58,8 @@ const RETOUCH = [
   step('Painting out the reflections')
 ]
 const TEN_PASSES = Array.from({ length: 10 }, (_, i) => step(`Retouching, pass ${i + 1}`))
+const UNANSWERED = new ModelUnavailableError('The Responses API did not answer after 7 attempts')
+const STOPPED_ANSWERING = 'The model stopped answering, so the run stopped'
 
 /**
  * Plays its script one turn per call, then reports the edit done. Each call
@@ -188,7 +190,8 @@ testRunContract({
   request,
   start: async (request) => runAgent(request, await editableFixture()),
   startFailing: async (request) =>
-    runAgent(request, await fixture([step('Selecting the product'), new Error('The model stopped responding')]))
+    runAgent(request, await fixture([step('Selecting the product'), new Error('The model stopped responding')])),
+  startUnanswered: async (request) => runAgent(request, await fixture([step('Selecting the product'), UNANSWERED]))
 })
 
 describe('runAgent', () => {
@@ -522,6 +525,34 @@ describe('runAgent', () => {
     expect(ofType(events, 'correction_ack')).toEqual([])
   })
 
+  test('keeps the file made so far when the model stops answering, and says why the run stopped', async () => {
+    const run = await fixture([step('Selecting the product'), UNANSWERED])
+    const events = await collect(runAgent(request, run))
+    expect(ofType(events, 'step').map((event) => event.n)).toEqual([1])
+    expect(ofType(events, 'error')).toEqual([{ type: 'error', reason: STOPPED_ANSWERING, recoverable: true }])
+    const result = resultOf(events)
+    expect(result).toMatchObject({ complete: false, layers: RECORDED_LAYERS })
+    expect(psdLayerCount(run.published.get(result.psdUrl))).toBe(2)
+  })
+
+  test('reports a correction the stopped model left unsent, before why the run stopped', async () => {
+    let handle!: RunHandle
+    const steers: Promise<void>[] = []
+    const run = await fixture([UNANSWERED], (call) => {
+      if (call === 0) steers.push(handle.steer('keep the shadow'))
+    })
+    handle = runAgent(request, run)
+    const events = await collect(handle)
+    await Promise.all(steers)
+    // The run log takes a stopped run's last recoverable error as its reason.
+    expect(ofType(events, 'error').map((event) => event.reason)).toEqual([
+      'The run stopped before a correction reached the agent',
+      STOPPED_ANSWERING
+    ])
+    expect(resultOf(events).complete).toBe(false)
+    await expect(handle.steer('too late')).rejects.toThrow()
+  })
+
   test('abandons the model call in flight when cancelled, and keeps the partial result', async () => {
     let handle!: RunHandle
     let cancelled: Promise<void> | undefined
@@ -633,6 +664,7 @@ describe('runAgent', () => {
     },
     fails: (run) =>
       collect(runAgent(request, { ...run, model: new ScriptedModel([new Error('The model stopped responding')]) })),
+    'loses its model': (run) => collect(runAgent(request, { ...run, model: new ScriptedModel([UNANSWERED]) })),
     'cannot export its file': (run) => {
       run.session.exportPsd = async () => {
         throw new Error('The export timed out')
