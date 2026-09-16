@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 364 532">
+  <path class="glass__slab" d="M182 410 362 470 182 530 2 470Z" />
+  <path class="glass__slab" d="M182 274 362 334 182 394 2 334Z" />
+  <path class="glass__slab" d="M182 138 362 198 182 258 2 198Z" />
+  <path class="glass__slab glass__slab--top" d="M182 2 362 62 182 122 2 62Z" />
+</svg>
