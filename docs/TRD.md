@@ -1214,8 +1214,9 @@ From the September 17 freeze through the launch window, `deploy.yml` holds
 still in three more ways (#112): `--min-instances 1` trades an idle instance
 for the eight seconds a cold `/health` cost against well under two warm; a
 push that changes only documentation, `graphify-out/`, or evidence never
-triggers the workflow at all (`paths-ignore`); and the `production`
-environment requires a reviewer's approval before the deploy step runs. The
+triggers the workflow at all (`paths-ignore`); and the deploy step waits
+for an approval once a required reviewer is set on the `production`
+environment, a repository setting the workflow does not itself apply. The
 [launch-day runbook](/docs/references/launch-day.md#the-freeze-and-the-no-deploy-rule)
 has the approval and rollback steps.
 
