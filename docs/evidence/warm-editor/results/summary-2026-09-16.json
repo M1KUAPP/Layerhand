@@ -1,0 +1,21 @@
+{
+  "label": "Button to first frame on the deployed service, warm against cold (#70)",
+  "baseUrl": "https://layerhand-732371853772.us-central1.run.app",
+  "image": "input.jpg",
+  "typedForMs": 8000,
+  "warm": {
+    "warm": true,
+    "runId": "659685f2-20da-40da-9905-a8f613e6260e",
+    "firstFrameMs": 2283,
+    "firstStepMs": null,
+    "costUsd": null
+  },
+  "cold": {
+    "warm": false,
+    "runId": "2f4ddd5e-6528-4050-9463-fa22bebc3faf",
+    "firstFrameMs": 8939,
+    "firstStepMs": null,
+    "costUsd": null
+  },
+  "savedMs": 6656
+}
