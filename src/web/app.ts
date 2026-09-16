@@ -541,6 +541,22 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
         : 'The step cap was reached. Layerhand kept the work completed so far.'
   copy.append(eyebrow('Retouch result'), title, description(outcome))
 
+  const recap = node('dl', 'result-recap')
+  if (current.progress.instruction) {
+    recap.append(node('dt', undefined, 'Instruction'), node('dd', undefined, current.progress.instruction))
+  }
+  recap.append(node('dt', undefined, 'Corrections'))
+  const correctionDetail = node('dd')
+  if (current.progress.corrections.length > 0) {
+    const list = node('ul')
+    for (const correction of current.progress.corrections) list.append(node('li', undefined, correction))
+    correctionDetail.append(list)
+  } else {
+    correctionDetail.textContent = 'None'
+  }
+  recap.append(correctionDetail)
+  copy.append(recap)
+
   const image = node('img')
   image.className = 'result-preview'
   image.src = current.result.previewUrl
@@ -551,28 +567,37 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   const layersTitle = node('h2', undefined, 'Layers in the PSD')
   layers.append(layersTitle, renderLayerTree(current.result.layers))
 
+  const downloads = node('div', 'result-actions')
   const download = node('a', 'button button-accent', 'Download layered PSD')
   download.href = current.result.psdUrl
   download.download = 'layerhand-result.psd'
-  copy.append(download)
+  const preview = node('a', 'button', 'Download flattened PNG')
+  preview.href = current.result.previewUrl
+  preview.download = 'layerhand-preview.png'
+  downloads.append(download, preview)
+  copy.append(downloads, node('p', 'result-expiry', 'Download links expire after one hour.'))
   section.append(image, copy, layers)
   fragment.append(section)
   return fragment
 }
 
+// The contract lists layers bottom to top; editors show the top layer first.
 function renderLayerTree(layers: readonly LayerInfo[]): HTMLOListElement {
   const list = node('ol')
-  for (const layer of layers) list.append(renderLayer(layer))
+  for (const layer of [...layers].reverse()) list.append(renderLayer(layer))
   return list
 }
 
 function renderLayer(layer: LayerInfo): HTMLLIElement {
   const item = node('li', 'layer-row')
   const summary = node('div', 'layer-summary')
-  summary.append(node('strong', undefined, layer.name), node('span', undefined, layer.kind))
+  const tags = node('span', 'layer-tags')
+  tags.append(node('span', undefined, layer.kind))
+  if (!layer.visible) tags.append(node('span', 'layer-hidden', 'hidden'))
   for (const mask of layer.masks) {
-    summary.append(node('span', 'layer-mask', `${mask.enabled ? '' : 'disabled '}${mask.kind} mask`))
+    tags.append(node('span', 'layer-mask', `${mask.enabled ? '' : 'disabled '}${mask.kind} mask`))
   }
+  summary.append(node('strong', undefined, layer.name), tags)
   item.append(summary)
   if (layer.children.length > 0) item.append(renderLayerTree(layer.children))
   return item

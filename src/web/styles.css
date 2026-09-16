@@ -470,6 +470,46 @@ legend,
   font-size: clamp(3rem, 4.2vw, 4.8rem);
 }
 
+.result-recap {
+  display: grid;
+  width: 100%;
+  max-width: 52ch;
+  gap: 0.3rem;
+}
+
+.result-recap dt {
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.result-recap dd {
+  color: var(--color-text-secondary);
+  font: var(--text-ui-small);
+}
+
+.result-recap dd + dt {
+  margin-top: 0.6rem;
+}
+
+.result-recap ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.result-expiry {
+  margin-top: -0.6rem;
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-small);
+}
+
 .layer-list {
   align-self: end;
   width: 100%;
@@ -485,20 +525,26 @@ legend,
 }
 
 .layer-summary {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   padding: 0.65rem 0;
   border-bottom: 1px solid var(--rule);
+}
+
+.layer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.8rem;
 }
 
 .layer-list ol ol {
   padding-left: 1.5rem;
 }
 
-.layer-list span {
-  color: #5f5e59;
-  font-size: 0.78rem;
+.layer-tags > span {
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-small);
   text-transform: capitalize;
 }
 
