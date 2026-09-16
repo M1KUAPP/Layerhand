@@ -40,9 +40,14 @@ async function bundledFiles(page: HTMLBundle): Promise<PageFile[]> {
       })
     )
   }
-  // Run from source, the page is bundled once, as the server starts.
-  const { outputs } = await Bun.build({ entrypoints: [page.index], target: 'browser' })
-  return outputs.map((output) => ({ path: output.path, body: output, headers: { 'content-type': output.type } }))
+  // Run from source, the page is bundled once, as the server starts. `throw:
+  // false` trades Bun.build()'s default AggregateError for its logs, which
+  // this surfaces itself so a bundling failure is never silent.
+  const build = await Bun.build({ entrypoints: [page.index], target: 'browser', throw: false })
+  if (!build.success) {
+    throw new Error(`The page failed to bundle: ${build.logs.map((log) => log.message).join('; ')}`)
+  }
+  return build.outputs.map((output) => ({ path: output.path, body: output, headers: { 'content-type': output.type } }))
 }
 
 function securedResponse(body: Blob, headers: Record<string, string> = {}): Response {
@@ -94,7 +99,8 @@ export async function pageRoutes(
   }
 
   const files = await bundledFiles(page)
-  const html = files.find((file) => file.path.endsWith('.html'))!
+  const html = files.find((file) => file.path.endsWith('.html'))
+  if (!html) throw new Error("The page's bundled HTML file is missing")
   return {
     ...Object.fromEntries(
       files
