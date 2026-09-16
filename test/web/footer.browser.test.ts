@@ -1,11 +1,56 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { chromium, type Browser } from 'playwright-core'
+import { chromium, type Browser, type Page } from 'playwright-core'
 
 import { openLanding } from './landing/support'
 import { startTestApplication } from './support/test-server'
 
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
+const VIEWPORTS = [
+  { width: 1440, height: 900 },
+  { width: 1280, height: 800 }
+]
+
+function scrollAndSettle(page: Page, top: number): Promise<void> {
+  return page.evaluate(
+    (y) =>
+      new Promise<void>((resolve) => {
+        window.scrollTo(0, y)
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      }),
+    top
+  )
+}
+
+// floor: how far the footer sits above the bottom of the viewport.
+// uncovered: whether its middle is painted by the footer, not the page.
+// fold: how far the footer's top sits below the bottom of the page.
+function footerView(page: Page): Promise<{ floor: number; uncovered: boolean; fold: number }> {
+  return page.evaluate(() => {
+    const footer = document.querySelector('#site-footer')!
+    const box = footer.getBoundingClientRect()
+    return {
+      floor: window.innerHeight - box.bottom,
+      uncovered: footer.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)),
+      fold: box.top - document.querySelector('#app')!.getBoundingClientRect().bottom
+    }
+  })
+}
+
+// At the top the footer waits on the floor under the page; at the end the
+// page has lifted off it, and ends exactly where the footer begins.
+async function expectFold(page: Page): Promise<void> {
+  await scrollAndSettle(page, 0)
+  const top = await footerView(page)
+  expect(Math.abs(top.floor)).toBeLessThan(1)
+  expect(top.uncovered).toBe(false)
+
+  await scrollAndSettle(page, Number.MAX_SAFE_INTEGER)
+  const end = await footerView(page)
+  expect(Math.abs(end.floor)).toBeLessThan(1)
+  expect(end.uncovered).toBe(true)
+  expect(Math.abs(end.fold)).toBeLessThan(1)
+}
 
 describeBrowser('sitewide footer in Chromium', () => {
   let browser: Browser
@@ -52,12 +97,48 @@ describeBrowser('sitewide footer in Chromium', () => {
     }
   }, 30_000)
 
-  test('stays the same footer when the view changes', async () => {
+  for (const viewport of VIEWPORTS) {
+    const size = `${viewport.width}x${viewport.height}`
+
+    test(`folds the landing over the footer at ${size}`, async () => {
+      const page = await openLanding(browser, application.origin, { viewport })
+      try {
+        await expectFold(page)
+      } finally {
+        await page.close()
+      }
+    }, 30_000)
+  }
+
+  test('folds the workbench over the same footer', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
     try {
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
       await page.locator('#app[data-view="input"]').waitFor()
-      await expect(page.locator('#site-footer .site-footer__line').isVisible()).resolves.toBe(true)
+      await expectFold(page)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('scrolls to the footer when one of its links takes focus', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      await page.getByRole('link', { name: 'Source on GitHub' }).focus()
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+      await expect(footerView(page)).resolves.toMatchObject({ uncovered: true })
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('leaves the footer in flow for print', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      await page.emulateMedia({ media: 'print' })
+      await expect(page.locator('#site-footer').evaluate((node) => getComputedStyle(node).position)).resolves.toBe(
+        'static'
+      )
     } finally {
       await page.close()
     }
