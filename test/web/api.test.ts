@@ -65,6 +65,44 @@ describe('browser API validation', () => {
     expect(() => decodeRunEvent({ type: 'unknown', apiKey: 'sk-secret' })).toThrow(RunApiError)
   })
 
+  test('decodes a queued run, its place in line, and each change of place', () => {
+    const queued = {
+      ...snapshot,
+      status: 'queued',
+      steps: 0,
+      cap: null,
+      narration: null,
+      frameUrl: null,
+      lastEventId: 0,
+      queuePosition: 2
+    } satisfies RunSnapshot
+
+    expect(decodeRunSnapshot(queued)).toEqual(queued)
+    expect(decodeRunEvent({ type: 'queued', position: 2 })).toEqual({ type: 'queued', position: 2 })
+    expect(() => decodeRunSnapshot({ ...queued, queuePosition: 'second' })).toThrow(RunApiError)
+    expect(() => decodeRunEvent({ type: 'queued', position: 0 })).toThrow(RunApiError)
+  })
+
+  test('delivers a change of place in line from the event stream', () => {
+    const listeners = new Map<string, (event: Event) => void>()
+    const api = new RunApi(fetch, () => ({
+      addEventListener: (type, listener) => void listeners.set(type, listener),
+      close() {}
+    }))
+    const received: unknown[] = []
+
+    api.subscribe(
+      'run-1',
+      (id, event) => received.push({ id, event }),
+      () => received.push('connection failed')
+    )
+    listeners.get('queued')?.(
+      new MessageEvent('queued', { data: JSON.stringify({ type: 'queued', position: 1 }), lastEventId: '4' })
+    )
+
+    expect(received).toEqual([{ id: 4, event: { type: 'queued', position: 1 } }])
+  })
+
   test('decodes recursive layer trees', () => {
     expect(decodeRunSnapshot(completeSnapshot(nestedLayers)).result?.layers).toEqual(nestedLayers)
   })
