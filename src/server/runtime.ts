@@ -28,6 +28,8 @@ export interface LaunchRuntimeOptions {
   fakeRunIntervalMs?: number
   stepCap?: number
   artifactStore?: ArtifactStore
+  /** Editors warmed for uploads. Agent mode warms them on Browserbase unless given. */
+  warmSessions?: WarmSessionPool
   registryOptions?: Omit<RunRegistryOptions, 'onTerminal'>
   /** Receives one NDJSON record per finished run. Defaults to standard output. */
   writeRunLog?: (record: string) => void
@@ -159,12 +161,14 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       })
     })
     // Only agent mode has a browser to warm: the other modes start instantly (#70).
-    const warmSessions = agent
-      ? new WarmSessionPool({
-          create: () =>
-            browserbaseEditorSession({ id: crypto.randomUUID(), hostUrl: agent.hostUrl, sessions: agent.sessions })
-        })
-      : undefined
+    const warmSessions =
+      options.warmSessions ??
+      (agent
+        ? new WarmSessionPool({
+            create: () =>
+              browserbaseEditorSession({ id: crypto.randomUUID(), hostUrl: agent.hostUrl, sessions: agent.sessions })
+          })
+        : undefined)
     const routes = new RunRoutes({
       registry,
       ...(warmSessions ? { warmSessions } : {}),
@@ -199,12 +203,15 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
         routes
       }),
       registry,
-      // Warm sessions belong to nobody's run, so they are released first. Runs
-      // in flight then end, so their results and run log lines still reach the database.
+      // Runs in flight end first, so their results and run log lines still
+      // reach the database. Warm sessions belong to nobody's run, so they are
+      // released alongside rather than before: each release can wait ten
+      // seconds on Browserbase, and the runs have to end inside Cloud Run's ten.
       async close() {
-        await warmSessions?.close()
+        const releasingWarmSessions = warmSessions?.close()
         await registry.close()
         await database.close()
+        await releasingWarmSessions
       }
     }
   } catch (error) {
