@@ -79,6 +79,33 @@ describeBrowser('landing glass section in Chromium', () => {
       }
     }, 30_000)
 
+    test(`holds the flat svg still when the canvas joins it at ${size}`, async () => {
+      // Without WebGL the canvas never mounts, so the test appends one beside
+      // the svg as mountGlass does while three loads.
+      const noGpu = await chromium.launch({
+        headless: true,
+        args: ['--disable-gpu', '--disable-webgl']
+      })
+      try {
+        const page = await openLanding(noGpu, application.origin, { viewport })
+        try {
+          const art = page.locator('svg.glass__art')
+          await art.waitFor()
+          const before = await art.boundingBox()
+          await page.locator('.glass__object').evaluate((host) => {
+            const canvas = document.createElement('canvas')
+            canvas.className = 'glass__canvas'
+            host.append(canvas)
+          })
+          expect(await art.boundingBox()).toEqual(before)
+        } finally {
+          await page.close()
+        }
+      } finally {
+        await noGpu.close()
+      }
+    }, 30_000)
+
     test(`renders one still frame under reduced motion at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, {
         viewport,
