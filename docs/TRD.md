@@ -1064,8 +1064,14 @@ again, and a run whose retries run out stops with its partial file, as
 - A user-supplied key is held in memory for the life of the run,
   redacted from every log line, and never written to disk.
 - Uploads go to object storage under an unguessable key with a
-  twenty-four-hour lifecycle rule (NFR-6). Results are served by signed
-  URL.
+  twenty-four-hour lifecycle rule (NFR-6), committed as
+  `.github/gcs-lifecycle.json`. `.github/workflows/gcs-lifecycle.yml` is a
+  manual, `workflow_dispatch`-only job that applies it on request and
+  always prints the bucket's live rule; it never runs on push. Results
+  are served by signed URL.
+- Every Browserbase session is created with `recordSession` and
+  `logSession` both false, so a run's photograph is not retained at
+  Browserbase beyond the run itself (NFR-6).
 
 ### An agent driving a browser is an attack surface
 
