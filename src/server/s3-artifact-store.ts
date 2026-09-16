@@ -4,7 +4,7 @@ import { createArtifactKey, type ArtifactPutRequest, type ArtifactStore, type St
 
 export interface S3Bucket {
   write(key: string, bytes: Uint8Array, options: { type: string }): Promise<number | unknown>
-  presign(key: string, options: { expiresIn: number; method: 'GET' }): string
+  presign(key: string, options: { expiresIn: number; method: 'GET'; contentDisposition?: string }): string
   delete(key: string): Promise<void>
 }
 
@@ -18,6 +18,14 @@ export interface S3ArtifactStoreConfig {
 
 export function createS3Bucket(config: S3ArtifactStoreConfig): S3Bucket {
   return new S3Client(config)
+}
+
+// Keys are `kind/id.ext`; the friendly name keeps the kind and extension.
+function downloadName(key: string): string {
+  const slash = key.indexOf('/')
+  const dot = key.lastIndexOf('.')
+  if (slash < 1 || dot <= slash) return 'layerhand-download'
+  return `layerhand-${key.slice(0, slash)}.${key.slice(dot + 1)}`
 }
 
 export class S3ArtifactStore implements ArtifactStore {
@@ -36,7 +44,13 @@ export class S3ArtifactStore implements ArtifactStore {
   }
 
   async presign(key: string): Promise<string> {
-    return this.#bucket.presign(key, { expiresIn: 3600, method: 'GET' })
+    // The download attribute is ignored on a cross-origin link, so the
+    // filename travels in the signed response headers instead (#135).
+    return this.#bucket.presign(key, {
+      expiresIn: 3600,
+      method: 'GET',
+      contentDisposition: `attachment; filename="${downloadName(key)}"`
+    })
   }
 
   async delete(key: string): Promise<void> {
