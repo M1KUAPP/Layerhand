@@ -122,10 +122,12 @@ describe('reliability workflow contract', () => {
     expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'")
     expect(job?.['timeout-minutes']).toBe(30)
     expect(job?.environment).toBe('production')
-    expect(job?.permissions).toEqual({ contents: 'read' })
+    expect(job?.permissions).toEqual({ contents: 'read', 'id-token': 'write' })
 
-    expect(job?.steps.some((step) => step.uses === 'google-github-actions/auth@v3')).toBe(false)
-    expect(job?.steps.some((step) => step.uses === 'google-github-actions/setup-gcloud@v3')).toBe(false)
+    const diagnosticAuth = job?.steps.find((step) => step.uses === 'google-github-actions/auth@v3')
+    expect(diagnosticAuth?.if).toBe("steps.agent-loop.outcome == 'failure'")
+    const diagnosticSetup = job?.steps.find((step) => step.uses === 'google-github-actions/setup-gcloud@v3')
+    expect(diagnosticSetup?.if).toBe("steps.agent-loop.outcome == 'failure'")
 
     const runStep = job?.steps.find((step) => step.run?.includes('deployed-run.ts'))
     expect(runStep).toMatchObject({ id: 'agent-loop', 'continue-on-error': true })
@@ -135,6 +137,15 @@ describe('reliability workflow contract', () => {
     expect(runStep?.env).not.toHaveProperty('OPENAI_API_KEY')
     expect(runStep?.env).not.toHaveProperty('BROWSERBASE_API_KEY')
     expect(runStep?.run).not.toContain('gcloud secrets')
+
+    const diagnosticStep = job?.steps.find((step) => step.name === 'Capture sanitized failure diagnostic')
+    expect(diagnosticStep).toMatchObject({
+      if: "steps.agent-loop.outcome == 'failure'",
+      'continue-on-error': true
+    })
+    expect(diagnosticStep?.run).toContain('jsonPayload.runId=$run_id')
+    expect(diagnosticStep?.run).toContain('cloud-run-failure.json')
+    expect(diagnosticStep?.run).not.toContain('secrets versions access')
 
     const artifactStep = job?.steps.find((step) => step.uses === 'actions/upload-artifact@v4')
     expect(artifactStep?.if).toBe('always()')
