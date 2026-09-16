@@ -82,6 +82,54 @@ describe('RunRegistry.close', () => {
     expect((await registry.getSnapshot('first'))?.status).toBe('cancelled')
   })
 
+  test('prefers shutdown() over handle.cancel() when the managed run tells them apart', async () => {
+    const { registry, terminal } = registryWithLog()
+    const calls: string[] = []
+    let end: (event: RunEvent) => void = () => undefined
+    const ended = new Promise<RunEvent>((resolve) => {
+      end = resolve
+    })
+    const shutdownDone: RunEvent = {
+      type: 'done',
+      result: {
+        psdUrl: 'memory://psd',
+        previewUrl: 'memory://preview',
+        layers: [],
+        complete: false,
+        stopReason: 'shutdown'
+      }
+    }
+    const managedRun: ManagedRun = {
+      handle: {
+        events: {
+          async *[Symbol.asyncIterator]() {
+            yield STARTED
+            yield await ended
+          }
+        },
+        async steer() {},
+        async cancel() {
+          calls.push('cancel')
+          end(CANCELLED)
+        }
+      },
+      metrics: () => ({ cacheHitRate: null, stopReason: 'shutdown' }),
+      releaseSecrets: () => {},
+      async shutdown() {
+        calls.push('shutdown')
+        end(shutdownDone)
+      }
+    }
+    registry.register({ runId: 'distinguishable', instruction: 'Warm it', managedRun })
+
+    await registry.close(1_000)
+
+    expect(calls).toEqual(['shutdown'])
+    expect(terminal.map((run) => run.metrics.stopReason)).toEqual(['shutdown'])
+    // The page's reload path reads this, not just the run log (#125).
+    expect((await registry.getSnapshot('distinguishable'))?.stopReason).toBe('shutdown')
+  })
+
   test('abandons a run that has not ended within the grace period', async () => {
     const { registry, terminal } = registryWithLog()
     const stuck = runInFlight({ ignoresCancel: true })
@@ -178,7 +226,9 @@ describe('shutting the runtime down', () => {
     await runtime.close()
 
     expect(records).toHaveLength(1)
-    expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'cancelled' })
+    // A shutdown gets its own outcome (#112): the page still shows 'cancelled'
+    // status, because nobody here asked for the run to stop.
+    expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'shutdown' })
     expect((await runtime.registry.getSnapshot(runId))?.status).toBe('cancelled')
   })
 
@@ -232,7 +282,7 @@ describe('shutting the runtime down', () => {
       await Promise.race([runtime.registry.waitForTerminal(runId), Bun.sleep(2_000)])
 
       expect(records).toHaveLength(1)
-      expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'cancelled' })
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, outcome: 'shutdown' })
       expect(released).toBe(1)
     } finally {
       finishRelease()
