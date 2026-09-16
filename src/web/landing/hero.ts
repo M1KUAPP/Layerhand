@@ -131,6 +131,24 @@ export function renderHero(context: LandingContext): HTMLElement {
   }
   media.append(plate)
 
+  // One write per frame at most; under reduced motion nothing drifts.
+  let scheduled = false
+  const drift = (): void => {
+    scheduled = false
+    const top = hero.getBoundingClientRect().top + window.scrollY
+    const progress = Math.min(1, Math.max(0, (window.scrollY - top) / hero.offsetHeight))
+    hero.style.setProperty('--hero-progress', String(progress))
+  }
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (scheduled || reducedMotion.matches) return
+      scheduled = true
+      requestAnimationFrame(drift)
+    },
+    { passive: true }
+  )
+
   hero.append(copy, media)
   return hero
 }

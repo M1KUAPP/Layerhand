@@ -1,4 +1,5 @@
 .hero {
+  --hero-progress: 0;
   display: grid;
   min-height: 100vh;
   min-height: 100dvh;
@@ -98,6 +99,10 @@
   grid-column: 7 / 13;
 }
 
+.hero__plate {
+  translate: 0 calc(var(--hero-progress) * 4%);
+}
+
 .hero__window {
   position: relative;
   overflow: hidden;
@@ -112,6 +117,7 @@
   width: 100%;
   height: 120%;
   object-fit: cover;
+  translate: 0 calc(var(--hero-progress) * 8%);
 }
 
 .hero__caption {
@@ -148,5 +154,12 @@
   .hero__copy,
   .hero__media {
     grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__plate,
+  .hero__photo {
+    translate: none;
   }
 }
