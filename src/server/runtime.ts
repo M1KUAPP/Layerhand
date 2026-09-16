@@ -22,6 +22,7 @@ import { createDatabase, databaseReady } from './database'
 import type { ManagedRun, RunStopReason } from './managed-run'
 import { SqlMeterStore, usdToMicroUsd } from './meter-store'
 import { applyMigrations } from './migrations'
+import { checkOpenAiKey } from './openai-key'
 import { RunRegistry, type RunRegistryOptions } from './run-registry'
 import { createRunLogger, SqlRunLogStore } from './run-log'
 import { RunRoutes } from './run-routes'
@@ -43,6 +44,8 @@ export interface LaunchRuntimeOptions {
   writeRunLog?: (record: string) => void
   /** Receives one NDJSON record per failed run, with its redacted cause. Defaults to standard error. */
   writeRunFailure?: (record: string) => void
+  /** Checks a user's own key in agent mode. The real OpenAI unless given. */
+  openAiFetch?: (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 }
 
 export interface LaunchRuntime {
@@ -196,6 +199,8 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
     const routes = new RunRoutes({
       registry,
       ...(warmSessions ? { warmSessions } : {}),
+      // Only agent mode opens a browser for a run, so only it checks the key first.
+      ...(agent ? { checkApiKey: (apiKey: string) => checkOpenAiKey(apiKey, options.openAiFetch) } : {}),
       meterStore: new SqlMeterStore(database, usdToMicroUsd(dailyBudgetUsd)),
       artifactStore,
       waitlistStore: new SqlWaitlistStore(database),
