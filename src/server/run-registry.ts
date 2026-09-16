@@ -331,6 +331,12 @@ export class RunRegistry {
     this.#reduce(run, event)
     run.snapshot.lastEventId = envelope.id
     for (const subscriber of run.subscribers) {
+      // A slow reader's queue is this process's memory too, so an unread
+      // frame is superseded the same way a replayed one is: at most one
+      // waits here, and no non-frame event is ever dropped (#101).
+      if (event.type === 'frame') {
+        subscriber.queue = subscriber.queue.filter((queued) => queued.event.type !== 'frame')
+      }
       subscriber.queue.push(envelope)
       subscriber.wake?.()
       subscriber.wake = undefined

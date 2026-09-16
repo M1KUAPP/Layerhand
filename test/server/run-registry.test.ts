@@ -4,7 +4,7 @@ import { fakeRun } from '../../src/agent/fake-run'
 import type { RunEvent, RunHandle, RunResult } from '../../src/agent/contract'
 import type { LayerInfo } from '../../src/editor/session'
 import type { ManagedRun } from '../../src/server/managed-run'
-import { RunRegistry, RunRegistryError } from '../../src/server/run-registry'
+import { RunRegistry, RunRegistryError, type RunEventEnvelope } from '../../src/server/run-registry'
 
 const RESULT: RunResult = {
   psdUrl: 'https://artifacts.example/result.psd',
@@ -67,6 +67,45 @@ function registerRunHoldingUpload(registry: RunRegistry, runId: string): WeakRef
   })
   registry.register({ runId, instruction: 'Retouch this', managedRun })
   return new WeakRef(request.image)
+}
+
+/**
+ * A managed run whose `handle.events` is driven by explicit `push()` calls
+ * instead of a fixed script, so a test can hold a live subscriber's queue at
+ * an exact, known state between pushes (#101).
+ */
+function manualRun(): { managedRun: ManagedRun; push: (event: RunEvent) => Promise<void> } {
+  const queue: RunEvent[] = []
+  let wake: (() => void) | undefined
+  const handle: RunHandle = {
+    events: {
+      async *[Symbol.asyncIterator]() {
+        while (true) {
+          while (queue.length > 0) yield queue.shift()!
+          await new Promise<void>((resolve) => {
+            wake = resolve
+          })
+        }
+      }
+    },
+    async steer() {},
+    async cancel() {}
+  }
+  return {
+    managedRun: {
+      handle,
+      metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
+      releaseSecrets() {}
+    },
+    // Resolves once the pump has had a full microtask checkpoint to read the
+    // event and call `#append`, so the caller's next push sees its effect.
+    async push(event: RunEvent) {
+      queue.push(event)
+      wake?.()
+      wake = undefined
+      await Bun.sleep(0)
+    }
+  }
 }
 
 /** How many of the objects a full collection leaves alive. */
@@ -140,6 +179,45 @@ describe('RunRegistry', () => {
     expect(reload.filter((entry) => entry.event.type === 'frame')).toEqual([{ id: 5, event: frame(3) }])
     expect(reconnect.map((entry) => entry.id)).toEqual([4, 5, 6, 7])
     expect((await registry.getSnapshot('run-1'))?.lastEventId).toBe(7)
+  })
+
+  test('drops a superseded frame from a live subscriber queue, keeping every other event', async () => {
+    const registry = new RunRegistry()
+    const { managedRun, push } = manualRun()
+    registry.register({ runId: 'run-1', instruction: 'Retouch this', managedRun })
+
+    // Starts the subscriber before any event exists, so it is live rather
+    // than replaying from history.
+    const iterator = registry.events('run-1')[Symbol.asyncIterator]()
+    const first = iterator.next()
+    await push(STARTED)
+    const firstResult = await first
+    if (firstResult.done) throw new Error('the subscriber ended before any event arrived')
+
+    // Every push below lands while the subscriber still has not read: two
+    // frames are pushed while an earlier, still-queued frame is waiting.
+    await push(frame(1))
+    await push({ type: 'step', n: 1, cap: 40, narration: 'Retouching, pass 1' })
+    await push(frame(2)) // frame(1) is still queued and unread: it should be dropped
+    await push({ type: 'step', n: 2, cap: 40, narration: 'Retouching, pass 2' })
+    await push(frame(3)) // frame(2) is still queued and unread: it should be dropped
+    await push({ type: 'done', result: RESULT })
+    await registry.waitForTerminal('run-1')
+
+    const rest: RunEventEnvelope[] = []
+    for (let result = await iterator.next(); !result.done; result = await iterator.next()) {
+      rest.push(result.value)
+    }
+    const received = [firstResult.value, ...rest]
+
+    expect(received.map((entry) => entry.id)).toEqual([0, 2, 4, 5, 6])
+    expect(received.filter((entry) => entry.event.type === 'frame')).toEqual([{ id: 5, event: frame(3) }])
+    expect(received.filter((entry) => entry.event.type !== 'frame').map((entry) => entry.event)).toEqual([
+      { type: 'started', runId: 'run-1', viewport: { width: 1440, height: 900 } },
+      { type: 'step', n: 1, cap: 40, narration: 'Retouching, pass 1' },
+      { type: 'step', n: 2, cap: 40, narration: 'Retouching, pass 2' },
+      { type: 'done', result: RESULT }
+    ])
   })
 
   test('keeps no more of a finished run than its latest frame and its other events', async () => {
