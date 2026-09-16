@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import type { CodeRunner } from './responses-model'
+import { ModelUnavailableError } from './model'
+import type { CodeRunner, ResponsesModelOptions } from './responses-model'
 import { ResponsesApiError, ResponsesModel, toComputerAction } from './responses-model'
 
 const KEY = 'sk-test-key-that-must-not-leak'
@@ -9,8 +10,12 @@ const USAGE = { input_tokens: 2_000, input_tokens_details: { cached_tokens: 1_50
 
 type Sent = { url: string; headers: Headers; body: Record<string, any>; signal: AbortSignal | undefined }
 
-/** Answers each request with the next scripted payload, keeping what was sent. */
-function scriptedFetch(responses: (Record<string, unknown> | Response)[]) {
+/**
+ * Answers each request with the next scripted payload, keeping what was sent.
+ * An error is thrown as the network's, and `no answer` waits until the request
+ * is aborted.
+ */
+function scriptedFetch(responses: (Record<string, unknown> | Response | Error | 'no answer')[]) {
   const sent: Sent[] = []
   const fetch = (async (url: string, init: RequestInit) => {
     sent.push({
@@ -21,13 +26,35 @@ function scriptedFetch(responses: (Record<string, unknown> | Response)[]) {
     })
     const next = responses[sent.length - 1]
     if (!next) throw new Error('No scripted response left')
+    if (next instanceof Error) throw next
+    if (next === 'no answer') {
+      return new Promise<never>((_resolve, reject) => {
+        init.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true })
+      })
+    }
     return next instanceof Response ? next : Response.json(next)
   }) as unknown as typeof globalThis.fetch
   return { fetch, sent }
 }
 
+/** Keeps each wait a retry asks for, without waiting. */
+function recordedSleep() {
+  const waits: number[] = []
+  const sleep = async (ms: number, signal: AbortSignal) => {
+    waits.push(ms)
+    if (signal.aborted) throw signal.reason
+  }
+  return { sleep, waits }
+}
+
 const observe = (corrections: string[] = []) => ({ screenshot: SCREENSHOT, corrections })
 const signal = () => new AbortController().signal
+const rateLimited = (headers: Record<string, string> = {}) =>
+  Response.json(
+    { error: { code: 'rate_limit_exceeded', message: `Limit reached for ${KEY}` } },
+    { status: 429, headers }
+  )
+const serverError = (status: number) => Response.json({ error: { code: 'server_error' } }, { status })
 
 describe('ResponsesModel with the computer tool', () => {
   test('sends the instruction as its own message, the screenshot at original detail, and an explicit effort', async () => {
@@ -261,16 +288,17 @@ describe('ResponsesModel with code execution', () => {
 })
 
 describe('ResponsesModel failures', () => {
-  test('reports the status and error code, never the provider message', async () => {
-    const body = { error: { code: 'rate_limit_exceeded', message: `Limit reached for key ${KEY}` } }
-    const { fetch } = scriptedFetch([Response.json(body, { status: 429 })])
+  test('reports a refused call by its status and error code, never the provider message, and does not send it again', async () => {
+    const body = { error: { code: 'invalid_api_key', message: `Incorrect API key provided: ${KEY}` } }
+    const { fetch, sent } = scriptedFetch([Response.json(body, { status: 401 })])
     const model = new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 1, mechanism: 'computer', fetch })
 
     const failure = await model.next(observe(), signal()).catch((error: unknown) => error)
 
     expect(failure).toBeInstanceOf(ResponsesApiError)
-    expect(failure).toMatchObject({ status: 429, code: 'rate_limit_exceeded' })
+    expect(failure).toMatchObject({ status: 401, code: 'invalid_api_key' })
     expect(String((failure as Error).message)).not.toContain(KEY)
+    expect(sent).toHaveLength(1)
   })
 
   test('drops an error code that could quote the request, even on a 200', async () => {
@@ -283,14 +311,16 @@ describe('ResponsesModel failures', () => {
     expect(String((failure as Error).message)).not.toContain(KEY)
   })
 
-  test('passes the abort signal to the request', async () => {
+  test("aborts the request when the run's signal aborts", async () => {
     const { fetch, sent } = scriptedFetch([{ id: 'resp_1', output: [] }])
     const model = new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 1, mechanism: 'computer', fetch })
     const aborter = new AbortController()
 
     await model.next(observe(), aborter.signal)
+    expect(sent[0]!.signal?.aborted).toBe(false)
+    aborter.abort()
 
-    expect(sent[0]!.signal).toBe(aborter.signal)
+    expect(sent[0]!.signal?.aborted).toBe(true)
   })
 
   test('reads a key given as a function at each call, and sends nothing once it is gone', async () => {
@@ -318,5 +348,111 @@ describe('ResponsesModel failures', () => {
       path: [{ x: 1, y: 2 }],
       keys: ['SHIFT']
     })
+  })
+})
+
+describe('ResponsesModel retries', () => {
+  const retrying = (fetch: typeof globalThis.fetch, overrides: Partial<ResponsesModelOptions> = {}) =>
+    new ResponsesModel({ apiKey: KEY, instruction: 'x', stepCap: 40, mechanism: 'computer', fetch, ...overrides })
+  const ANSWER = { id: 'resp_1', output: [], usage: USAGE }
+
+  test('sends a rate-limited call again, corrections and all, after the wait the server asks for', async () => {
+    const { fetch, sent } = scriptedFetch([rateLimited({ 'retry-after': '3' }), ANSWER])
+    const { sleep, waits } = recordedSleep()
+
+    const turn = await retrying(fetch, { sleep }).next(observe(['Keep the shadow']), signal())
+
+    expect(turn).toMatchObject({ done: true, usage: { inputTokens: 2_000 } })
+    expect(waits).toEqual([3_000])
+    expect(sent).toHaveLength(2)
+    expect(sent[1]!.body).toEqual(sent[0]!.body)
+  })
+
+  test('sends a call again after server errors and a failed connection, waiting about twice as long each time', async () => {
+    const { fetch, sent } = scriptedFetch([
+      serverError(500),
+      serverError(503),
+      new TypeError('Unable to connect. Is the computer able to access the url?'),
+      ANSWER
+    ])
+    const { sleep, waits } = recordedSleep()
+
+    expect(await retrying(fetch, { sleep }).next(observe(), signal())).toMatchObject({ done: true })
+
+    expect(sent).toHaveLength(4)
+    expect(waits).toHaveLength(3)
+    waits.forEach((wait, retries) => {
+      expect(wait).toBeGreaterThanOrEqual(500 * 2 ** retries)
+      expect(wait).toBeLessThanOrEqual(1_000 * 2 ** retries)
+    })
+  })
+
+  test('gives up once six retries have failed, naming the last failure but never quoting the provider', async () => {
+    const { fetch, sent } = scriptedFetch(Array.from({ length: 7 }, () => rateLimited()))
+    const { sleep, waits } = recordedSleep()
+
+    const failure = await retrying(fetch, { sleep })
+      .next(observe(), signal())
+      .catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(ModelUnavailableError)
+    expect((failure as Error).message).toBe(
+      'Gave up on the model after 7 attempts: The Responses API returned HTTP 429 (rate_limit_exceeded)'
+    )
+    expect(sent).toHaveLength(7)
+    expect(waits).toHaveLength(6)
+    expect(Math.max(...waits)).toBeLessThanOrEqual(30_000)
+  })
+
+  test('gives up at once when the server asks for a longer wait than any retry makes', async () => {
+    const { fetch, sent } = scriptedFetch([rateLimited({ 'retry-after': '120' })])
+    const { sleep, waits } = recordedSleep()
+
+    const failure = await retrying(fetch, { sleep })
+      .next(observe(), signal())
+      .catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(ModelUnavailableError)
+    expect(sent).toHaveLength(1)
+    expect(waits).toEqual([])
+  })
+
+  test('gives a call that never answers its own timeout, then sends it again', async () => {
+    const { fetch, sent } = scriptedFetch(['no answer', ANSWER])
+    const { sleep, waits } = recordedSleep()
+
+    const turn = await retrying(fetch, { sleep, callTimeoutMs: 20 }).next(observe(), signal())
+
+    expect(turn).toMatchObject({ done: true })
+    expect(sent[0]!.signal?.aborted).toBe(true)
+    expect(sent).toHaveLength(2)
+    expect(waits).toHaveLength(1)
+  })
+
+  test('stops waiting to retry once the run is cancelled', async () => {
+    const { fetch, sent } = scriptedFetch([rateLimited()])
+    const aborter = new AbortController()
+
+    const turn = retrying(fetch).next(observe(), aborter.signal)
+    await Bun.sleep(20)
+    aborter.abort(new Error('cancelled'))
+
+    await expect(turn).rejects.toThrow('cancelled')
+    expect(sent).toHaveLength(1)
+  })
+
+  test('sends nothing more once the run has released its key', async () => {
+    let key: string | undefined = KEY
+    const { fetch, sent } = scriptedFetch([rateLimited()])
+    const sleep = async () => {
+      key = undefined
+    }
+
+    const failure = await retrying(fetch, { apiKey: () => key, sleep })
+      .next(observe(), signal())
+      .catch((error: unknown) => error)
+
+    expect((failure as Error).message).toBe('The run has no API key')
+    expect(sent).toHaveLength(1)
   })
 })

@@ -3,10 +3,12 @@
 // spike A0 compares: the `computer` tool, whose actions the loop carries out,
 // or a `run_code` function tool, whose code the adapter runs itself against
 // the editor's browser page before the loop takes its next screenshot. Over a
-// WebSocket it also steers the response in flight (docs/TRD.md § Steering).
+// WebSocket it also steers the response in flight (docs/TRD.md § Steering). A
+// call that meets a rate limit, a server error, or no answer is sent again.
 import type { Button, ComputerAction, Pt } from '../editor/session'
-import type { AgentModel, ModelTurn, Observation } from './model'
+import { ModelUnavailableError, type AgentModel, type ModelTurn, type Observation } from './model'
 import { openResponsesSocket, ResponsesSocket, type SteeringEvent } from './responses-socket'
+import { retryAfterMs, retryWaitMs, sleep } from './retry'
 import { SteerLedger } from './steer-ledger'
 
 export type DrivingMechanism = 'computer' | 'code'
@@ -49,6 +51,14 @@ export interface ResponsesModelOptions {
   connectTimeoutMs?: number
   /** How long a response that ended with an accepted steer waits for its successor. */
   successorTimeoutMs?: number
+  /**
+   * How long one attempt at a call may go unanswered before it is sent again:
+   * over HTTP, from the request to the whole response; over the WebSocket,
+   * without any traffic. One minute unless set.
+   */
+  callTimeoutMs?: number
+  /** Waits before a retry, and rejects with the signal's reason once it aborts. Tests pass one that does not wait. */
+  sleep?: (ms: number, signal: AbortSignal) => Promise<void>
   /** Sees each steering and response event, for a run that records what steering did (NFR-8). */
   onSteeringEvent?: (event: SteeringEvent) => void
 }
@@ -56,13 +66,30 @@ export interface ResponsesModelOptions {
 export class ResponsesApiError extends Error {
   readonly status: number
   readonly code: string | undefined
+  /** How long the server asked a retry to wait, when it said. */
+  readonly retryAfterMs: number | undefined
 
-  constructor(status: number, code?: string) {
+  constructor(status: number, code?: string, retryAfterMs?: number) {
     // Only the status and a short error code: a provider message can quote the request.
     super(`The Responses API returned HTTP ${status}${code ? ` (${code})` : ''}`)
     this.name = 'ResponsesApiError'
     this.status = status
     this.code = code
+    this.retryAfterMs = retryAfterMs
+  }
+
+  /** A rate limit or a server error, which the same call sent again can get past. */
+  get retryable(): boolean {
+    return this.status === 429 || this.status >= 500
+  }
+}
+
+/** An attempt that got no usable answer: the connection failed, or the call ran out of time. */
+class CallUnanswered extends Error {
+  constructor(timedOut: boolean) {
+    // Not the network's own message, which could name the address.
+    super(timedOut ? 'The Responses API did not answer in time' : 'The connection to the Responses API failed')
+    this.name = 'CallUnanswered'
   }
 }
 
@@ -247,6 +274,9 @@ export class ResponsesModel implements AgentModel {
       socketEndpoint: 'wss://api.openai.com/v1/responses',
       connectTimeoutMs: 10_000,
       successorTimeoutMs: 10_000,
+      // Recorded runs spent 3 to 20 seconds a step, the editor's actions included.
+      callTimeoutMs: 60_000,
+      sleep,
       ...options
     }
   }
@@ -293,32 +323,68 @@ export class ResponsesModel implements AgentModel {
     const first = this.#passed
     this.#passed += corrections.length
     const offered = corrections.map((correction, index) => ({ correction, id: this.#steered.get(first + index) }))
-    const apiKey = typeof this.#options.apiKey === 'function' ? this.#options.apiKey() : this.#options.apiKey
-    if (!apiKey) throw new Error('The run has no API key')
+    const apiKey = this.#apiKey()
     const pending = this.#pending
     if (pending?.kind === 'computer') this.#safetyChecksAcknowledged += pending.safetyChecks.length
-    const input = (included: boolean[]) =>
-      this.#input(
+    // A correction one attempt carried goes with every later one: an attempt that failed delivered nothing.
+    let carried = offered.map(() => false)
+    const input = (continuationOf: string | undefined) => {
+      carried = offered.map(({ id }, index) => carried[index]! || this.#carries(id, continuationOf))
+      return this.#input(
         screenshot,
-        offered.flatMap(({ correction }, index) => (included[index] ? [correction] : []))
+        offered.flatMap(({ correction }, index) => (carried[index] ? [correction] : []))
       )
-
-    const socket = this.#options.transport === 'websocket' ? await this.#connect(apiKey) : undefined
-    if (socket) {
-      const continuationOf = pending ? this.#previousResponseId : undefined
-      const included = offered.map(({ id }) => this.#carries(id, continuationOf))
-      const result = await socket.step(this.#body(input(included)), continuationOf, signal)
-      if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
-      if (!('lost' in result)) return this.#turn(result.responses, signal)
-      // The connection failed before the step ended, so the step is sent again
-      // over HTTP with every correction the socket could not vouch for. The
-      // editor has not acted on anything the lost responses said.
-      const resent = offered.map(
-        ({ id }, index) => included[index]! || (id !== undefined && this.#ledger.takeReplay(id))
-      )
-      return this.#overHttp(apiKey, input(resent), signal, result.responses)
     }
-    return this.#overHttp(apiKey, input(offered.map(({ id }) => this.#carries(id, undefined))), signal)
+    // Every response the call was billed for, in order, the answer last.
+    const responses: Json[] = []
+
+    const attempt = async (): Promise<void> => {
+      const socket = this.#options.transport === 'websocket' ? await this.#connect(apiKey) : undefined
+      if (socket) {
+        const continuationOf = pending ? this.#previousResponseId : undefined
+        const result = await socket.step(this.#body(input(continuationOf)), continuationOf, signal)
+        if ('failed' in result) throw new ResponsesApiError(result.failed.status, safeCode(result.failed.code))
+        responses.push(...result.responses)
+        if (!('lost' in result)) return
+        // The connection failed before the step ended, so the step is sent
+        // again over HTTP with every correction the socket could not vouch
+        // for. The editor has not acted on anything the lost responses said.
+      }
+      responses.push(await this.#overHttp(this.#apiKey(), input(undefined), signal))
+    }
+    for (let attempts = 1; ; attempts += 1) {
+      try {
+        await attempt()
+        break
+      } catch (error) {
+        await this.#beforeRetry(error, attempts, signal)
+      }
+    }
+    return this.#turn(responses, signal)
+  }
+
+  /** Read by every call, and again before each request over HTTP, so a key the run has released is sent nowhere. */
+  #apiKey(): string {
+    const apiKey = typeof this.#options.apiKey === 'function' ? this.#options.apiKey() : this.#options.apiKey
+    if (!apiKey) throw new Error('The run has no API key')
+    return apiKey
+  }
+
+  /**
+   * Waits before the next attempt at a call. Rethrows a failure that sending
+   * the call again cannot get past, and gives up once the retries have run out
+   * or the server asks for a longer wait than any retry makes.
+   */
+  async #beforeRetry(error: unknown, attempts: number, signal: AbortSignal): Promise<void> {
+    if (signal.aborted) throw signal.reason
+    if (!(error instanceof CallUnanswered) && !(error instanceof ResponsesApiError && error.retryable)) throw error
+    const asked = error instanceof ResponsesApiError ? error.retryAfterMs : undefined
+    const wait = retryWaitMs(attempts - 1, asked, Math.random())
+    if (wait === undefined) {
+      const tries = `${attempts} ${attempts === 1 ? 'attempt' : 'attempts'}`
+      throw new ModelUnavailableError(`Gave up on the model after ${tries}: ${error.message}`, { cause: error })
+    }
+    await this.#options.sleep(wait, signal)
   }
 
   /**
@@ -341,6 +407,8 @@ export class ResponsesModel implements AgentModel {
         const socket = await openResponsesSocket(this.#options.socketEndpoint, apiKey, this.#options.connectTimeoutMs)
         this.#socket = new ResponsesSocket(socket, this.#ledger, {
           successorTimeoutMs: this.#options.successorTimeoutMs,
+          // A step answers with traffic as it goes, so silence for a whole call timeout is no answer.
+          stepIdleTimeoutMs: this.#options.callTimeoutMs,
           ...(this.#options.onSteeringEvent ? { onEvent: this.#options.onSteeringEvent } : {})
         })
       } catch {
@@ -363,19 +431,28 @@ export class ResponsesModel implements AgentModel {
     }
   }
 
-  /** `billed` are responses a lost socket had already ended: the step is sent again, but they still count. */
-  async #overHttp(apiKey: string, input: object[], signal: AbortSignal, billed: Json[] = []): Promise<ModelTurn> {
-    const response = await this.#options.fetch(this.#options.endpoint, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify(this.#body(input)),
-      signal
-    })
-    if (!response.ok) throw new ResponsesApiError(response.status, await errorCode(response))
-    const payload: unknown = await response.json()
+  /** One attempt at the call over HTTP, within the call timeout. Returns the response. */
+  async #overHttp(apiKey: string, input: object[], signal: AbortSignal): Promise<Json> {
+    const bounded = AbortSignal.any([signal, AbortSignal.timeout(this.#options.callTimeoutMs)])
+    const { response, payload } = await this.#options
+      .fetch(this.#options.endpoint, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+        body: JSON.stringify(this.#body(input)),
+        signal: bounded
+      })
+      .then(async (response) => ({ response, payload: response.ok ? ((await response.json()) as unknown) : undefined }))
+      .catch((error: unknown) => {
+        if (signal.aborted) throw error
+        throw new CallUnanswered(bounded.aborted)
+      })
+    if (!response.ok) {
+      const asked = retryAfterMs(response.headers.get('retry-after'), Date.now())
+      throw new ResponsesApiError(response.status, await errorCode(response), asked)
+    }
     if (!isObject(payload) || typeof payload.id !== 'string') throw new ResponsesApiError(response.status)
     if (isObject(payload.error)) throw new ResponsesApiError(response.status, safeCode(payload.error.code))
-    return this.#turn([...billed, payload], signal)
+    return payload
   }
 
   /**
