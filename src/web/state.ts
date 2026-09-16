@@ -190,3 +190,24 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
 export function formatCredits(costUsd: number): string {
   return `${Math.max(0, costUsd).toFixed(2)} credits`
 }
+
+// The true reason a run isn't complete (FR-12, FR-13), not always the step
+// cap: a model failure states none, because it did not stop on any cap.
+export function resultOutcomeText(outcome: RunStopReason): string {
+  switch (outcome) {
+    case 'complete':
+      return 'The requested retouch completed.'
+    case 'cancelled':
+      return 'You cancelled the run. Layerhand kept the work completed so far.'
+    case 'shutdown':
+      return 'The service restarted before the run finished. Layerhand kept the work completed so far.'
+    case 'step_cap':
+      return 'The step cap was reached. Layerhand kept the work completed so far.'
+    case 'spend_cap':
+      return 'The spend limit was reached. Layerhand kept the work completed so far.'
+    case 'time_limit':
+      return 'The time limit was reached. Layerhand kept the work completed so far.'
+    case 'failed':
+      return 'Layerhand kept the work completed so far.'
+  }
+}
