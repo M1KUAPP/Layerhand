@@ -79,7 +79,9 @@ interface StoredRun {
   onTerminal?: (run: TerminalRun) => void | Promise<void>
   startedAt: number
   terminalAt?: number
-  history: RunEventEnvelope[]
+  /** Every event at its id, but a frame a newer one replaced leaves a gap (#101). */
+  history: (RunEventEnvelope | undefined)[]
+  latestFrame?: number
   snapshot: RunSnapshot
   subscribers: Set<Subscriber>
   cancelRequested: boolean
@@ -196,7 +198,7 @@ export class RunRegistry {
 
     try {
       for (const envelope of run.history) {
-        if (envelope.id > afterId && envelope.id <= replayEnd) yield envelope
+        if (envelope && envelope.id > afterId && envelope.id <= replayEnd) yield envelope
       }
       while (true) {
         while (subscriber.queue.length > 0) yield subscriber.queue.shift()!
@@ -308,6 +310,12 @@ export class RunRegistry {
 
   #append(run: StoredRun, event: RunEvent): void {
     const envelope = { id: run.history.length, event }
+    // The page shows only the latest frame, and each one kept would hold its
+    // image as long as the run is kept, so a new frame replaces the last.
+    if (event.type === 'frame') {
+      if (run.latestFrame !== undefined) run.history[run.latestFrame] = undefined
+      run.latestFrame = envelope.id
+    }
     run.history.push(envelope)
     this.#reduce(run, event)
     run.snapshot.lastEventId = envelope.id
