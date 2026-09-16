@@ -26,6 +26,16 @@ export interface RunLogLine {
   /** Which call a failed run failed on, so launch day can be triaged without the message. */
   failureCode: RunFailureCode | null
   instruction: string
+  /** Whether the run's calls went over the WebSocket or stayed on HTTP; 'http' when the model has no native steering (NFR-8). */
+  transport: 'http' | 'websocket'
+  /** How many corrections native steering delivered; zero when the model has no native steering (NFR-8). */
+  correctionsApplied: number
+  /** How many corrections were handed back for replay, indeterminate ones included (NFR-8). */
+  correctionsReplayed: number
+  /** Of those replayed, how many a dropped connection settled without evidence (NFR-8). */
+  correctionsIndeterminate: number
+  /** Codes of the safety checks the run acknowledged automatically; empty when there were none (NFR-8). */
+  safetyCheckCodes: readonly string[]
 }
 
 export interface RunLogStore {
@@ -65,7 +75,12 @@ export function runLogLine({ runId, instruction, startedAt, completedAt, snapsho
     outcome: metrics.stopReason,
     failureReason: failureReason(snapshot, metrics.stopReason),
     failureCode: metrics.stopReason === 'failed' ? (metrics.failure?.code ?? 'run_failed') : null,
-    instruction: truncate(instruction)
+    instruction: truncate(instruction),
+    transport: metrics.transport ?? 'http',
+    correctionsApplied: metrics.steering?.applied ?? 0,
+    correctionsReplayed: metrics.steering?.replayed ?? 0,
+    correctionsIndeterminate: metrics.steering?.indeterminate ?? 0,
+    safetyCheckCodes: metrics.safetyCheckCodes ?? []
   }
 }
 
@@ -122,12 +137,16 @@ export class SqlRunLogStore implements RunLogStore {
     await this.#database`
       INSERT INTO run_log (
         run_id, completed_at, steps, cap_hit, tokens_in, tokens_out, cost_usd,
-        cache_hit_rate, duration_ms, outcome, failure_reason, failure_code, instruction
+        cache_hit_rate, duration_ms, outcome, failure_reason, failure_code, instruction,
+        transport, corrections_applied, corrections_replayed, corrections_indeterminate,
+        safety_check_codes
       )
       VALUES (
         ${line.runId}, ${line.completedAt}, ${line.steps}, ${line.capHit}, ${line.tokensIn},
         ${line.tokensOut}, ${line.costUsd}, ${line.cacheHitRate}, ${line.durationMs},
-        ${line.outcome}, ${line.failureReason}, ${line.failureCode}, ${line.instruction}
+        ${line.outcome}, ${line.failureReason}, ${line.failureCode}, ${line.instruction},
+        ${line.transport}, ${line.correctionsApplied}, ${line.correctionsReplayed},
+        ${line.correctionsIndeterminate}, ${JSON.stringify(line.safetyCheckCodes)}
       )
       ON CONFLICT (run_id) DO NOTHING
     `
