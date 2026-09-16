@@ -50,6 +50,7 @@ describe('SqlMeterStore', () => {
     for (let run = 0; run < 3; run += 1) {
       const result = await meter.admit({
         visitorKey: 'visitor-a',
+        addressKey: 'address-a',
         reservationMicroUsd: usdToMicroUsd(1),
         byok: false
       })
@@ -57,6 +58,37 @@ describe('SqlMeterStore', () => {
     }
     const fourth = await meter.admit({
       visitorKey: 'visitor-a',
+      addressKey: 'address-a',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    expect(fourth).toEqual({
+      accepted: false,
+      code: 'free_limit_reached',
+      message: 'You have used all three free Layerhand runs.'
+    })
+  })
+
+  test('refuses a fourth free run from the same address behind a fresh visitor key each time (#115)', async () => {
+    // #29 intended the cookie and the address to each be their own limit,
+    // but a visitor key mixes the two together, so a fresh cookie alone
+    // used to reset what the address had already used. Three different
+    // visitor keys sharing one address now still refuse a fourth.
+    const { store: meter } = await store()
+
+    for (const visitorKey of ['visitor-a', 'visitor-b', 'visitor-c']) {
+      const result = await meter.admit({
+        visitorKey,
+        addressKey: 'address-shared',
+        reservationMicroUsd: usdToMicroUsd(1),
+        byok: false
+      })
+      expect(result.accepted).toBe(true)
+    }
+    const fourth = await meter.admit({
+      visitorKey: 'visitor-d',
+      addressKey: 'address-shared',
       reservationMicroUsd: usdToMicroUsd(1),
       byok: false
     })
@@ -73,6 +105,7 @@ describe('SqlMeterStore', () => {
     accepted(
       await meter.admit({
         visitorKey: 'visitor-a',
+        addressKey: 'address-a',
         reservationMicroUsd: usdToMicroUsd(2),
         byok: false
       })
@@ -80,6 +113,7 @@ describe('SqlMeterStore', () => {
 
     const result = await meter.admit({
       visitorKey: 'visitor-b',
+      addressKey: 'address-b',
       reservationMicroUsd: usdToMicroUsd(2),
       byok: false
     })
@@ -90,12 +124,18 @@ describe('SqlMeterStore', () => {
   test("refuses a reservation that the UTC day's spending leaves no room for", async () => {
     const { store: meter } = await store(3)
     const reservation = accepted(
-      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(2), byok: false })
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-a',
+        reservationMicroUsd: usdToMicroUsd(2),
+        byok: false
+      })
     )
     await meter.reconcile(reservation, usdToMicroUsd(2))
 
     const result = await meter.admit({
       visitorKey: 'visitor-b',
+      addressKey: 'address-b',
       reservationMicroUsd: usdToMicroUsd(2),
       byok: false
     })
@@ -112,6 +152,7 @@ describe('SqlMeterStore', () => {
 
     const result = await meter.admit({
       visitorKey: 'visitor-a',
+      addressKey: 'address-a',
       reservationMicroUsd: usdToMicroUsd(3),
       byok: false
     })
@@ -127,11 +168,13 @@ describe('SqlMeterStore', () => {
     const { database, store: meter } = await store(1)
     const first = await meter.admit({
       visitorKey: 'visitor-a',
+      addressKey: 'address-a',
       reservationMicroUsd: usdToMicroUsd(5),
       byok: true
     })
     const second = await meter.admit({
       visitorKey: 'visitor-a',
+      addressKey: 'address-a',
       reservationMicroUsd: usdToMicroUsd(5),
       byok: true
     })
@@ -139,9 +182,11 @@ describe('SqlMeterStore', () => {
     expect(accepted(first).freeTier).toBe(false)
     expect(accepted(second).freeTier).toBe(false)
     const visitorUsage = await database`SELECT * FROM visitor_usage`
+    const addressUsage = await database`SELECT * FROM address_usage`
     const dailyUsage = await database`SELECT * FROM daily_usage`
     const reservations = await database`SELECT * FROM meter_reservations`
     expect([...visitorUsage]).toEqual([])
+    expect([...addressUsage]).toEqual([])
     expect([...dailyUsage]).toEqual([])
     expect([...reservations]).toEqual([])
   })
@@ -151,6 +196,7 @@ describe('SqlMeterStore', () => {
     const reservation = accepted(
       await meter.admit({
         visitorKey: 'visitor-a',
+        addressKey: 'address-a',
         reservationMicroUsd: usdToMicroUsd(4),
         byok: false
       })
@@ -162,7 +208,12 @@ describe('SqlMeterStore', () => {
     const usage = await database`SELECT spent_microusd, reserved_microusd FROM daily_usage`
     expect([...usage]).toEqual([{ spent_microusd: 1_250_000, reserved_microusd: 0 }])
     // Only the $1.25 spent still counts, so the rest of the $10 fits exactly.
-    const rest = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(8.75), byok: false })
+    const rest = await meter.admit({
+      visitorKey: 'visitor-b',
+      addressKey: 'address-b',
+      reservationMicroUsd: usdToMicroUsd(8.75),
+      byok: false
+    })
     expect(rest.accepted).toBe(true)
   })
 
@@ -171,6 +222,7 @@ describe('SqlMeterStore', () => {
     const reservation = accepted(
       await meter.admit({
         visitorKey: 'visitor-a',
+        addressKey: 'address-a',
         reservationMicroUsd: usdToMicroUsd(1),
         byok: false
       })
@@ -181,17 +233,64 @@ describe('SqlMeterStore', () => {
 
     const visitors = await database`SELECT accepted_free_runs FROM visitor_usage`
     expect([...visitors]).toEqual([{ accepted_free_runs: 0 }])
+    const addresses = await database`SELECT accepted_free_runs FROM address_usage`
+    expect([...addresses]).toEqual([{ accepted_free_runs: 0 }])
     const usage = await database`SELECT spent_microusd, reserved_microusd FROM daily_usage`
     expect([...usage]).toEqual([{ spent_microusd: 0, reserved_microusd: 0 }])
     expect(
       (
         await meter.admit({
           visitorKey: 'visitor-a',
+          addressKey: 'address-a',
           reservationMicroUsd: usdToMicroUsd(1),
           byok: false
         })
       ).accepted
     ).toBe(true)
+  })
+
+  test('releasing one visitor at a shared address frees that address for another', async () => {
+    // The symmetric case of the release test above: two different visitor
+    // keys at the same address, and releasing one gives the address's own
+    // count back rather than only the visitor's (#115).
+    const { store: meter } = await store(10)
+    const reservation = accepted(
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-shared',
+        reservationMicroUsd: usdToMicroUsd(1),
+        byok: false
+      })
+    )
+    for (let run = 0; run < 2; run += 1) {
+      accepted(
+        await meter.admit({
+          visitorKey: 'visitor-b',
+          addressKey: 'address-shared',
+          reservationMicroUsd: usdToMicroUsd(1),
+          byok: false
+        })
+      )
+    }
+    // The address has now accepted three runs (one for visitor-a, two for
+    // visitor-b), so a fourth from either visitor refuses.
+    const beforeRelease = await meter.admit({
+      visitorKey: 'visitor-c',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    await meter.release(reservation)
+    const afterRelease = await meter.admit({
+      visitorKey: 'visitor-c',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    expect(beforeRelease).toMatchObject({ accepted: false, code: 'free_limit_reached' })
+    expect(afterRelease.accepted).toBe(true)
   })
 
   test('serializes concurrent reservations at the daily ceiling', async () => {
@@ -200,11 +299,13 @@ describe('SqlMeterStore', () => {
     const results = await Promise.all([
       meter.admit({
         visitorKey: 'visitor-a',
+        addressKey: 'address-a',
         reservationMicroUsd: usdToMicroUsd(2),
         byok: false
       }),
       meter.admit({
         visitorKey: 'visitor-b',
+        addressKey: 'address-b',
         reservationMicroUsd: usdToMicroUsd(2),
         byok: false
       })
@@ -217,13 +318,26 @@ describe('SqlMeterStore', () => {
   test('stops counting a reservation once no run could still be spending it', async () => {
     let now = NOW
     const { store: meter } = await store(3, () => now)
-    accepted(await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false }))
+    accepted(
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-a',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
+    )
 
     now = later(RESERVATION_LIFETIME_MS - 1)
-    const whileHeld = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    const whileHeld = await meter.admit({
+      visitorKey: 'visitor-b',
+      addressKey: 'address-b',
+      reservationMicroUsd: usdToMicroUsd(3),
+      byok: false
+    })
     now = later(RESERVATION_LIFETIME_MS)
     const onceExpired = await meter.admit({
       visitorKey: 'visitor-c',
+      addressKey: 'address-c',
       reservationMicroUsd: usdToMicroUsd(3),
       byok: false
     })
@@ -236,7 +350,12 @@ describe('SqlMeterStore', () => {
     let now = NOW
     const { store: meter } = await store(3, () => now)
     const waited = accepted(
-      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-a',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
     )
 
     // It waits in line past its reservation's lifetime, then starts.
@@ -246,6 +365,7 @@ describe('SqlMeterStore', () => {
     now = later(RESERVATION_LIFETIME_MS + 60_000 + RUN_CEILING_MS)
     const whileSpending = await meter.admit({
       visitorKey: 'visitor-b',
+      addressKey: 'address-b',
       reservationMicroUsd: usdToMicroUsd(3),
       byok: false
     })
@@ -258,11 +378,21 @@ describe('SqlMeterStore', () => {
     let now = NOW
     const { store: meter } = await store(3, () => now)
     const waited = accepted(
-      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-a',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
     )
     now = later(RESERVATION_LIFETIME_MS)
     const tookTheRoom = accepted(
-      await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+      await meter.admit({
+        visitorKey: 'visitor-b',
+        addressKey: 'address-b',
+        reservationMicroUsd: usdToMicroUsd(3),
+        byok: false
+      })
     )
 
     const whileHeld = await meter.renew(waited)
@@ -283,8 +413,13 @@ describe('SqlMeterStore', () => {
       const died = new SQL(databaseUrl)
       await applyMigrations(died)
       const before = new SqlMeterStore(died, usdToMicroUsd(9), () => NOW)
-      for (const visitorKey of ['visitor-a', 'visitor-b', 'visitor-c']) {
-        accepted(await before.admit({ visitorKey, reservationMicroUsd: usdToMicroUsd(3), byok: false }))
+      const visitors: Array<[string, string]> = [
+        ['visitor-a', 'address-a'],
+        ['visitor-b', 'address-b'],
+        ['visitor-c', 'address-c']
+      ]
+      for (const [visitorKey, addressKey] of visitors) {
+        accepted(await before.admit({ visitorKey, addressKey, reservationMicroUsd: usdToMicroUsd(3), byok: false }))
       }
       await died.close()
 
@@ -294,12 +429,14 @@ describe('SqlMeterStore', () => {
       const after = new SqlMeterStore(restarted, usdToMicroUsd(9), () => now)
       const soonAfter = await after.admit({
         visitorKey: 'visitor-d',
+        addressKey: 'address-d',
         reservationMicroUsd: usdToMicroUsd(3),
         byok: false
       })
       now = later(RESERVATION_LIFETIME_MS)
       const onceExpired = await after.admit({
         visitorKey: 'visitor-e',
+        addressKey: 'address-e',
         reservationMicroUsd: usdToMicroUsd(3),
         byok: false
       })
@@ -320,9 +457,24 @@ describe('SqlMeterStore', () => {
       VALUES (${'2026-09-15'}, ${usdToMicroUsd(1)}, ${usdToMicroUsd(1)})
     `
 
-    const tooLarge = await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(2), byok: false })
-    const fits = await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(1), byok: false })
-    const pastSpend = await meter.admit({ visitorKey: 'visitor-c', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    const tooLarge = await meter.admit({
+      visitorKey: 'visitor-a',
+      addressKey: 'address-a',
+      reservationMicroUsd: usdToMicroUsd(2),
+      byok: false
+    })
+    const fits = await meter.admit({
+      visitorKey: 'visitor-b',
+      addressKey: 'address-b',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+    const pastSpend = await meter.admit({
+      visitorKey: 'visitor-c',
+      addressKey: 'address-c',
+      reservationMicroUsd: usdToMicroUsd(3),
+      byok: false
+    })
 
     // The $1 it holds comes back when its run ends, so a run it holds back waits.
     expect(tooLarge).toEqual(BUDGET_RESERVED)

@@ -224,6 +224,7 @@ export class RunRoutes {
     }
     const admissionRequest = {
       visitorKey: identity.visitorKey,
+      addressKey: identity.addressKey,
       reservationMicroUsd: this.#dependencies.freeRunReservationMicroUsd,
       byok: apiKey !== undefined
     }
