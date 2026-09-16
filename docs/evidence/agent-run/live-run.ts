@@ -3,7 +3,7 @@
 // `computer` tool. Browserbase's browser loads the Photopea host page from a
 // deployed Layerhand, as PUBLIC_URL would give it.
 //
-//   bun --env-file=<path to .env> run docs/evidence/agent-run/live-run.ts <public URL> [image] [--step-cap 40] [--budget 8]
+//   bun --env-file=<path to .env> run docs/evidence/agent-run/live-run.ts <public URL> [image] [--profile three-edit] [--step-cap 40] [--budget 8]
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
@@ -11,14 +11,7 @@ import { parseArgs } from 'node:util'
 import type { RunEvent } from '../../../src/agent/contract'
 import { liveAgentRun } from '../../../src/server/agent-run'
 import { BrowserbaseClient } from '../../../src/server/browserbase-client'
-
-// The three-edit instruction spike A0 measured.
-const INSTRUCTION = [
-  'Make three edits to this photograph, each on its own layer with a name that says what it does:',
-  '1. Brighten it with a Levels, Curves, or Brightness/Contrast adjustment layer.',
-  '2. Warm its colours with a Photo Filter or Color Balance adjustment layer.',
-  '3. Darken the corners into a soft vignette on a new layer.'
-].join('\n')
+import { agentRunProfile, evaluateAgentRunAcceptance } from './profiles'
 
 // The run ceiling (docs/TRD.md § One ceiling: fifteen minutes).
 const CEILING_MS = 15 * 60_000
@@ -27,12 +20,16 @@ const { values, positionals } = parseArgs({
   args: Bun.argv.slice(2),
   allowPositionals: true,
   options: {
+    profile: { type: 'string', default: 'three-edit' },
     'step-cap': { type: 'string', default: '40' },
     budget: { type: 'string', default: '8' }
   }
 })
 const [publicUrl, imageArgument] = positionals
-if (!publicUrl) throw new Error('Usage: live-run.ts <public URL> [image] [--step-cap 40] [--budget 8]')
+if (!publicUrl) {
+  throw new Error('Usage: live-run.ts <public URL> [image] [--profile three-edit] [--step-cap 40] [--budget 8]')
+}
+const profile = agentRunProfile(values.profile)
 const openAiApiKey = process.env.OPENAI_API_KEY
 const browserbaseApiKey = process.env.BROWSERBASE_API_KEY
 if (!openAiApiKey || !browserbaseApiKey) throw new Error('OPENAI_API_KEY and BROWSERBASE_API_KEY are required')
@@ -73,7 +70,7 @@ const managed = liveAgentRun(
   {
     image: new Uint8Array(await readFile(imagePath)),
     filename: basename(imagePath),
-    instruction: INSTRUCTION,
+    instruction: profile.instruction,
     stepCap: Number(values['step-cap']),
     budgetUsd: Number(values.budget),
     apiKey: openAiApiKey
@@ -125,15 +122,26 @@ if (browserbase.sessionId) {
 
 const last = events.at(-1)
 const cost = events.findLast((event) => event.type === 'cost')
+const outcome = last?.type === 'done' ? (last.result.complete ? 'complete' : 'incomplete') : 'failed'
+const steps = events.filter((event) => event.type === 'step').length
+const cacheHitRate = managed.metrics().cacheHitRate
+const acceptance = evaluateAgentRunAcceptance(profile, {
+  outcome,
+  steps,
+  cacheHitRate,
+  browserReleased: browserbase.releasedMs !== null && browserbaseStatus === 'COMPLETED'
+})
 const summary = {
   label: 'Live run of liveAgentRun: GPT-6 Astra, computer tool, Browserbase, deployed /photopea-host',
+  profile: profile.name,
+  instruction: profile.instruction,
   image: basename(imagePath),
   publicUrl,
   stepCap: Number(values['step-cap']),
   budgetUsd: Number(values.budget),
-  outcome: last?.type === 'done' ? (last.result.complete ? 'complete' : 'incomplete') : 'failed',
+  outcome,
   stopReason: managed.metrics().stopReason,
-  steps: events.filter((event) => event.type === 'step').length,
+  steps,
   durationMs: last?.ms ?? at(),
   // Measured from the start of the run: the session request, and the first frame of the opened image.
   browserbase: {
@@ -146,9 +154,11 @@ const summary = {
   firstStepMs: events.find((event) => event.type === 'step')?.ms ?? null,
   frames,
   cost: cost?.type === 'cost' ? { usd: cost.usd, tokensIn: cost.tokensIn, tokensOut: cost.tokensOut } : null,
-  cacheHitRate: managed.metrics().cacheHitRate,
+  cacheHitRate,
+  acceptance,
   layers: last?.type === 'done' ? last.result.layers : null,
   errors: events.flatMap((event) => (event.type === 'error' ? [event.reason] : []))
 }
 await writeFile(resolve(output, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`)
 console.log(JSON.stringify(summary, null, 2))
+if (acceptance && !acceptance.passed) process.exitCode = 1
