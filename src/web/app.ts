@@ -88,12 +88,14 @@ const landingContext: LandingContext = {
   brandHeader: () => brandHeader()
 }
 
+// The wording matches the server's in src/editor/image-upload.ts, so a file
+// refused here reads the same as one refused there.
 function validateFile(file: File): string | undefined {
   const lowerName = file.name.toLowerCase()
   const supportedName = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png')
   const supportedType = file.type === 'image/jpeg' || file.type === 'image/png'
-  if (!supportedName || !supportedType) return 'Choose a JPEG or PNG image.'
-  if (file.size > MAX_IMAGE_BYTES) return 'The upload exceeds the 20 MB limit.'
+  if (!supportedName || !supportedType) return 'Only JPEG and PNG images are supported.'
+  if (file.size > MAX_IMAGE_BYTES) return 'Image exceeds the 20 MB limit.'
   return undefined
 }
 
