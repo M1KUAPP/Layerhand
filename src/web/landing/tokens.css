@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../assets/fonts/newsreader-v26-latin-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/geist-v5-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../assets/fonts/geist-v5-latin-600.woff2') format('woff2');
+}
+
+:root {
+  --paper: #f3f0e8;
+  --color-bg-chrome: #11110f;
+  --color-bg-subtle: #e9e5da;
+  --accent: #c7ff4a;
+  --color-bg-inverse: #11110f;
+  --ink: #11110f;
+  --color-text-secondary: #4e4d49;
+  --color-text-tertiary: #5f5e59;
+  --color-text-on-accent: #11110f;
+  --rule: #cfccc3;
+  --color-border-strong: #11110f;
+  --mark-muted: #9d9b94;
+
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-exit: 150ms;
+  --duration-swap: 200ms;
+  --duration-drawer: 400ms;
+  --duration-enter: 700ms;
+  --stagger-block: 100ms;
+  --stagger-word: 80ms;
+
+  --font-display: 'Newsreader', Arial, Helvetica, sans-serif;
+  --font-ui: 'Geist', Arial, Helvetica, sans-serif;
+
+  --text-display-h1: 500 clamp(3rem, 8vw, 88px) / 78px var(--font-display);
+  --text-display-h2: 500 28px / 28px var(--font-display);
+  --text-ui-lede: 400 16px / 24px var(--font-ui);
+  --text-ui-body: 400 15px / 20px var(--font-ui);
+  --text-ui-small: 400 13px / 18px var(--font-ui);
+  --text-ui-label: 600 13px / 16px var(--font-ui);
+  --text-ui-eyebrow: 600 11.5px / 14px var(--font-ui);
+  --text-ui-micro: 600 11px / 13px var(--font-ui);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #11110f;
+    --color-bg-subtle: #1c1c19;
+    --color-bg-inverse: #f3f0e8;
+    --ink: #f3f0e8;
+    --color-text-secondary: #b6b3aa;
+    --color-text-tertiary: #9d9b94;
+    --rule: #3d3c38;
+    --color-border-strong: #f3f0e8;
+  }
+}
