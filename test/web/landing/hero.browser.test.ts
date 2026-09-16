@@ -33,7 +33,7 @@ describeBrowser('landing hero in Chromium', () => {
   beforeAll(async () => {
     application = await startTestApplication()
     browser = await chromium.launch({ headless: true })
-  })
+  }, 30_000)
 
   afterAll(async () => {
     try {
@@ -41,7 +41,7 @@ describeBrowser('landing hero in Chromium', () => {
     } finally {
       await application?.close()
     }
-  })
+  }, 30_000)
 
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
