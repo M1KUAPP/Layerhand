@@ -13,9 +13,15 @@ describe('retryWaitMs', () => {
     ])
   })
 
-  test('never waits less than the server asked', () => {
-    expect(retryWaitMs(0, 3_000, 0.5)).toBe(3_000)
+  test('waits at least as long as the server asked, with the jitter on top, so runs told the same wait come back apart', () => {
+    expect(retryWaitMs(0, 3_000, 0)).toBe(3_000)
+    expect(retryWaitMs(0, 3_000, 1)).toBe(3_500)
     expect(retryWaitMs(4, 3_000, 1)).toBe(16_000)
+  })
+
+  test('never waits longer than thirty seconds, jitter included', () => {
+    expect(retryWaitMs(0, 29_800, 1)).toBe(30_000)
+    expect(retryWaitMs(5, 30_000, 1)).toBe(30_000)
   })
 
   test('gives up after six retries, or when the server asks for a longer wait than any retry makes', () => {
