@@ -259,6 +259,58 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 10_000)
 
+  test('does not pull a scrolled-up notices list back down on an unrelated tick', async () => {
+    // A slow interval keeps the run in progress for several seconds, so
+    // there is room to send corrections and observe an unrelated tick
+    // without the script (5 steps) ending the run first.
+    const slow = await startTestApplication({ fakeRunIntervalMs: 1_500 })
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, slow.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+
+      const field = page.getByRole('textbox', { name: 'Correct the next action' })
+      const send = page.getByRole('button', { name: 'Send correction' })
+      const corrections = [
+        'Keep the label unchanged',
+        'Warm the shadow slightly',
+        'Do not touch the reflection',
+        'Preserve the original crop',
+        'Keep the packaging color exact',
+        'Leave the backdrop untouched'
+      ]
+      for (const correction of corrections) {
+        await field.fill(correction)
+        await send.click()
+        await page.getByText(`Correction applied: ${correction}`).waitFor({ timeout: 3_000 })
+      }
+
+      const notices = page.locator('#run-notices')
+      // Six acknowledgements overflow the box's bounded height (styles.css),
+      // so scrolling away from the bottom is meaningful.
+      expect(await notices.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true)
+
+      // Read the current step and reset the scroll position in one call, so
+      // no tick can land between the read and the reset.
+      const currentStep = await page.evaluate(() => {
+        const stepText = document.querySelector('#run-step')?.textContent ?? ''
+        const container = document.querySelector<HTMLElement>('#run-notices')
+        if (container) container.scrollTop = 0
+        return Number(/Step (\d+) of/.exec(stepText)?.[1] ?? 0)
+      })
+
+      // Wait for the next step/frame/cost tick, which touches no notice, and
+      // confirm it did not pull the scrolled-up view back to the newest one.
+      await page.getByText(`Step ${currentStep + 1} of`, { exact: false }).waitFor({ timeout: 3_000 })
+      expect(await notices.evaluate((el) => el.scrollTop)).toBe(0)
+    } finally {
+      await page.close()
+      await slow.close()
+    }
+  }, 20_000)
+
   test('captures waitlist email and enforces the exact desktop boundary', async () => {
     const page = await browser.newPage({ viewport: { width: 1279, height: 800 } })
     try {
