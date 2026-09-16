@@ -578,6 +578,19 @@ function renderLayer(layer: LayerInfo): HTMLLIElement {
   return item
 }
 
+function renderRestoring(): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  fragment.append(brandHeader())
+  const section = node('section', 'restoring-state')
+  section.append(
+    eyebrow('Run in progress'),
+    node('h1', undefined, 'Reconnecting to your run…'),
+    description('The live view resumes in a moment.')
+  )
+  fragment.append(section)
+  return fragment
+}
+
 function renderError(current: Extract<ClientState, { view: 'error' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
   fragment.append(brandHeader())
@@ -611,6 +624,9 @@ function render(): void {
     case 'input':
       root.append(renderInput())
       break
+    case 'restoring':
+      root.append(renderRestoring())
+      break
     case 'running':
       root.append(renderRunning(state))
       break
@@ -634,29 +650,54 @@ function followRun(runId: string): void {
   )
 }
 
+// One dropped stream is often a blip, so the snapshot that restores the view
+// is retried before the run is declared unreachable.
+const RECONNECT_ATTEMPTS = 3
+
 async function reconnectRun(runId: string): Promise<void> {
   if (reconnecting || state.view !== 'running') return
   reconnecting = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 160))
-    const snapshot = await api.snapshot(runId)
-    dispatch({ type: 'snapshot', snapshot })
-  } catch {
+    for (let attempt = 1; attempt <= RECONNECT_ATTEMPTS; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 160 * attempt))
+      if (state.view !== 'running') return
+      try {
+        const snapshot = await api.snapshot(runId)
+        dispatch({ type: 'snapshot', snapshot })
+        return
+      } catch {
+        // Try again; the run keeps going whether or not the page is watching.
+      }
+    }
     dispatch({ type: 'connection_failed', message: 'The live connection could not be restored.' })
   } finally {
     reconnecting = false
   }
 }
 
+function stillRestoring(runId: string): boolean {
+  return state.view === 'restoring' && state.runId === runId
+}
+
 async function restoreRun(runId: string): Promise<void> {
+  dispatch({ type: 'restoring', runId })
   root.ariaBusy = 'true'
   try {
     const snapshot = await api.snapshot(runId)
-    dispatch({ type: 'snapshot', snapshot })
-    if (snapshot.status === 'running') followRun(runId)
+    if (stillRestoring(runId)) {
+      dispatch({
+        type: 'snapshot',
+        snapshot,
+        instruction: sessionStorage.getItem(INSTRUCTION_STORAGE_KEY)
+      })
+      if (snapshot.status === 'running') followRun(runId)
+    }
   } catch (error) {
-    sessionStorage.removeItem(RUN_STORAGE_KEY)
-    dispatch({ type: 'connection_failed', message: publicMessage(error) })
+    if (stillRestoring(runId)) {
+      sessionStorage.removeItem(RUN_STORAGE_KEY)
+      sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+      dispatch({ type: 'connection_failed', message: publicMessage(error) })
+    }
   } finally {
     root.ariaBusy = 'false'
   }

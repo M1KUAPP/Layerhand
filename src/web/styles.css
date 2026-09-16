@@ -455,7 +455,8 @@ legend,
 
 .result-copy,
 .layer-list,
-.error-state {
+.error-state,
+.restoring-state {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -464,7 +465,8 @@ legend,
 }
 
 .result-copy h1,
-.error-state h1 {
+.error-state h1,
+.restoring-state h1 {
   font-size: clamp(3rem, 4.2vw, 4.8rem);
 }
 
@@ -500,7 +502,8 @@ legend,
   text-transform: capitalize;
 }
 
-.error-state {
+.error-state,
+.restoring-state {
   min-height: calc(100dvh - 72px);
   justify-content: center;
 }
