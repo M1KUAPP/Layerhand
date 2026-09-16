@@ -22,7 +22,14 @@ export interface ModelTurn {
   narration: string
   /** The actions to carry out, in order. */
   actions: ComputerAction[]
+  /** Every response the call was billed for, added together. */
   usage: TokenUsage
+  /**
+   * The response the call ended on, when the call was billed for more than
+   * one, as a steered call is. The next call continues from that response
+   * alone, so the spend cap estimates it from this (NFR-2).
+   */
+  lastResponseUsage?: TokenUsage
   /**
    * Whether the model considers the edit finished once these actions, usually
    * none, are carried out. A turn that is not done is a step even without

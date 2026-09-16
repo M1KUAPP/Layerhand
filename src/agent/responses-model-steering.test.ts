@@ -110,15 +110,15 @@ const computerCall = (callId: string) => ({
   actions: [CLICK],
   pending_safety_checks: []
 })
-const completed = (id: string, output: Json[] = []) => ({
+const completed = (id: string, output: Json[] = [], usage: Json = USAGE) => ({
   type: 'response.completed',
   stream_id: 'layerhand',
-  response: { id, status: 'completed', output, usage: USAGE }
+  response: { id, status: 'completed', output, usage }
 })
-const steeredAway = (id: string) => ({
+const steeredAway = (id: string, usage: Json = USAGE) => ({
   type: 'response.incomplete',
   stream_id: 'layerhand',
-  response: { id, status: 'incomplete', incomplete_details: { reason: 'steered' }, output: [], usage: USAGE }
+  response: { id, status: 'incomplete', incomplete_details: { reason: 'steered' }, output: [], usage }
 })
 const accepted = (steerId: string, parent: string) => ({
   type: 'response.steer.accepted',
@@ -265,6 +265,29 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(continuation.previous_response_id).toBe('resp_2')
     expect(correctionsIn(continuation.input)).toEqual([])
     expect(model.steering).toEqual({ available: true, applied: 1, indeterminate: 0 })
+  })
+
+  test('reports the response a steered step ended on apart from the responses it was billed for', async () => {
+    const server = scriptedSocketServer()
+    const { model } = socketModel(server.url)
+
+    const { turn, connection } = await steerFirstResponse(model, server)
+    connection.send(accepted('steer_1', 'resp_1'))
+    connection.send(steeredAway('resp_1', { input_tokens: 5_800, input_tokens_details: { cached_tokens: 4_300 } }))
+    connection.send(created('resp_2'))
+    connection.send(
+      completed('resp_2', [said('Masking around the shadow'), computerCall('call_2')], {
+        input_tokens: 5_950,
+        input_tokens_details: { cached_tokens: 5_800 },
+        output_tokens: 120
+      })
+    )
+
+    // The next call continues from resp_2 alone, so the spend cap estimates it from resp_2.
+    expect(await turn).toMatchObject({
+      usage: { inputTokens: 11_750, cachedInputTokens: 10_100, outputTokens: 120 },
+      lastResponseUsage: { inputTokens: 5_950, cachedInputTokens: 5_800, outputTokens: 120 }
+    })
   })
 
   test('a steer accepted while its response needs tool output rides the continuation, and is not replayed', async () => {
