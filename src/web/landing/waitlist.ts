@@ -133,12 +133,13 @@ export function renderWaitlist(context: LandingContext): HTMLElement {
   wordmark.style.cssText = 'font: var(--text-ui-label); color: var(--ink);'
   footer.append(wordmark)
 
-  const credit1 = node('p', 'waitlist__credit', 'Built on ')
+  const credit1 = node('p', 'waitlist__credit', 'Built on GPT-6 Astra for the ')
   credit1.style.cssText = 'font: var(--text-ui-small); color: var(--color-text-secondary);'
   const link1 = node('a', 'waitlist__link', 'GPT-6 Astra Challenge')
   link1.href = 'https://www.producthunt.com/contests/gpt-6-astra-challenge'
   link1.style.cssText = 'color: inherit; text-decoration: underline;'
   credit1.append(link1)
+  credit1.append(document.createTextNode('.'))
   footer.append(credit1)
 
   const credit2 = node('p', 'waitlist__credit', 'Layerhand drives ')
