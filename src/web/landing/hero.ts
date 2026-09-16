@@ -36,7 +36,9 @@ function enter<T extends HTMLElement>(element: T, index: number): T {
 
 export function renderHero(context: LandingContext): HTMLElement {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-  const hero = node('section', 'hero')
+  // landing-grid is the foundation's structural hook for the hero; the
+  // section's own styling hangs off .hero.
+  const hero = node('section', 'hero landing-grid')
   hero.dataset.section = 'hero'
   hero.setAttribute('aria-labelledby', 'hero-title')
 
