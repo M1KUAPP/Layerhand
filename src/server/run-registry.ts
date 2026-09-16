@@ -75,7 +75,12 @@ interface Subscriber {
 interface StoredRun {
   runId: string
   instruction: string
-  managedRun: ManagedRun
+  /**
+   * The run itself, and what settles it, until the run has ended. A finished
+   * run keeps only what replay and its snapshot need, so its upload and all
+   * else it held go with it (#101).
+   */
+  managedRun?: ManagedRun
   onTerminal?: (run: TerminalRun) => void | Promise<void>
   startedAt: number
   terminalAt?: number
@@ -88,6 +93,12 @@ interface StoredRun {
   finalized: boolean
   terminal: Promise<void>
   resolveTerminal: () => void
+}
+
+type LiveRun = StoredRun & { managedRun: ManagedRun }
+
+function isLive(run: StoredRun): run is LiveRun {
+  return !run.finalized && run.managedRun !== undefined
 }
 
 export class RunRegistryError extends Error {
@@ -176,7 +187,7 @@ export class RunRegistry {
       resolveTerminal
     }
     this.#runs.set(runId, run)
-    void this.#pump(run)
+    void this.#pump(run, managedRun)
     return copySnapshot(run.snapshot)
   }
 
@@ -241,7 +252,7 @@ export class RunRegistry {
    */
   async close(graceMs = SHUTDOWN_GRACE_MS): Promise<void> {
     this.#closed = true
-    const running = () => [...this.#runs.values()].filter((run) => !run.finalized)
+    const running = () => [...this.#runs.values()].filter(isLive)
 
     // Each phase is bounded as a whole, because a cancel or an abandon can
     // itself wait on a provider that has stopped answering.
@@ -277,14 +288,14 @@ export class RunRegistry {
     }
   }
 
-  async #pump(run: StoredRun): Promise<void> {
+  async #pump(run: StoredRun, managedRun: ManagedRun): Promise<void> {
     try {
-      for await (const incoming of run.managedRun.handle.events) {
+      for await (const incoming of managedRun.handle.events) {
         if (run.finalized) break
         const event: RunEvent = incoming.type === 'started' ? { ...incoming, runId: run.runId } : incoming
         this.#append(run, event)
         if (event.type === 'done' || (event.type === 'error' && !event.recoverable)) {
-          await this.#finalize(run)
+          await this.#finalize(run, managedRun)
           return
         }
       }
@@ -294,7 +305,7 @@ export class RunRegistry {
           reason: 'The run stopped unexpectedly.',
           recoverable: false
         })
-        await this.#finalize(run)
+        await this.#finalize(run, managedRun)
       }
     } catch {
       if (!run.finalized) {
@@ -303,7 +314,7 @@ export class RunRegistry {
           reason: 'The run stopped unexpectedly.',
           recoverable: false
         })
-        await this.#finalize(run)
+        await this.#finalize(run, managedRun)
       }
     }
   }
@@ -361,7 +372,7 @@ export class RunRegistry {
     }
   }
 
-  async #finalize(run: StoredRun): Promise<void> {
+  async #finalize(run: StoredRun, managedRun: ManagedRun): Promise<void> {
     if (run.finalized) return
     run.finalized = true
     run.terminalAt = this.#now()
@@ -373,7 +384,7 @@ export class RunRegistry {
 
     let metrics: ManagedRunMetrics
     try {
-      metrics = run.managedRun.metrics()
+      metrics = managedRun.metrics()
     } catch {
       metrics = { cacheHitRate: null, stopReason: 'failed' }
     }
@@ -399,8 +410,10 @@ export class RunRegistry {
       }
     } finally {
       try {
-        run.managedRun.releaseSecrets()
+        managedRun.releaseSecrets()
       } finally {
+        run.managedRun = undefined
+        run.onTerminal = undefined
         run.resolveTerminal()
       }
     }
@@ -413,9 +426,9 @@ export class RunRegistry {
     return run
   }
 
-  #requiredRunning(runId: string): StoredRun {
+  #requiredRunning(runId: string): LiveRun {
     const run = this.#required(runId)
-    if (run.finalized || run.snapshot.status !== 'running') {
+    if (!isLive(run) || run.snapshot.status !== 'running') {
       throw new RunRegistryError('run_ended', 'The run has already ended.')
     }
     return run
