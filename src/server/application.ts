@@ -21,12 +21,23 @@ const APPLICATION_CSP = [
   "connect-src 'self'",
   "font-src 'self' https://use.hugeicons.com",
   "form-action 'self'",
+  "frame-ancestors 'none'",
   'frame-src https://www.photopea.com https://*.browserbase.com',
   "img-src 'self' data: blob: https:",
   "object-src 'none'",
   "script-src 'self'",
   "style-src 'self' https://use.hugeicons.com"
 ].join('; ')
+
+/**
+ * What the page and every file it loads are served with, as the API's
+ * responses are: no other site may frame the page, which holds the field for
+ * a visitor's own key (#114).
+ */
+export const SECURITY_HEADERS: Readonly<Record<string, string>> = {
+  ...BASE_SECURITY_HEADERS,
+  'content-security-policy': APPLICATION_CSP
+}
 
 const PHOTOPEA_HOST_CSP = [
   "default-src 'none'",
