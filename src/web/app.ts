@@ -5,6 +5,7 @@ import { renderLanding, type LandingContext } from './landing/index'
 import { formatCredits, initialClientState, reduceClientState, type ClientAction, type ClientState } from './state'
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
+const INSTRUCTION_STORAGE_KEY = 'layerhand.instruction'
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024
 const IMAGE_UPLOAD_ERROR_CODES = new Set([
   'unsupported_image_format',
@@ -372,7 +373,8 @@ function renderInput(): DocumentFragment {
       selectedFile = undefined
       releaseSelectedPreview()
       sessionStorage.setItem(RUN_STORAGE_KEY, started.runId)
-      dispatch({ type: 'started', runId: started.runId })
+      sessionStorage.setItem(INSTRUCTION_STORAGE_KEY, submittedInstruction)
+      dispatch({ type: 'started', runId: started.runId, instruction: submittedInstruction })
       followRun(started.runId)
     } catch (error) {
       if (isImageUploadError(error)) {
@@ -398,19 +400,22 @@ function renderInput(): DocumentFragment {
 }
 
 function progressRail(progress: Extract<ClientState, { view: 'running' }>['progress']): HTMLElement {
-  const rail = node('aside', 'progress-rail', 'Run status')
+  const rail = node('aside', 'progress-rail')
+  const title = node('p', 'rail-title', 'Run status')
   const metrics = node('dl')
-  const entries = [
-    ['step', 'Step', `${progress.steps} / ${progress.cap ?? '?'}`],
-    ['credits', 'Credits', formatCredits(progress.costUsd)],
+  const entries: [id: string, term: string, detail: string][] = []
+  if (progress.instruction) entries.push(['instruction', 'Instruction', progress.instruction])
+  entries.push(
+    ['step', 'Step', `Step ${progress.steps} of ${progress.cap ?? '?'}`],
+    ['credits', 'Spend', formatCredits(progress.costUsd)],
     ['action', 'Action', progress.narration ?? 'Opening the editor']
-  ]
+  )
   for (const [id, term, detail] of entries) {
     const value = node('dd', undefined, detail)
     value.id = `run-${id}`
     metrics.append(node('dt', undefined, term), value)
   }
-  rail.replaceChildren(metrics)
+  rail.append(title, metrics)
   return rail
 }
 
@@ -494,10 +499,10 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   const notices = root.querySelector<HTMLElement>('#run-notices')
   if (!step || !credits || !action || !cancel || !frame || !notices) return
 
-  step.textContent = `${current.progress.steps} / ${current.progress.cap ?? '?'}`
+  step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
   credits.textContent = formatCredits(current.progress.costUsd)
   action.textContent = current.progress.narration ?? 'Opening the editor'
-  cancel.textContent = current.progress.cancelRequested ? 'Cancelling...' : 'Cancel and keep work'
+  cancel.textContent = current.progress.cancelRequested ? 'Cancelling…' : 'Cancel and keep work'
   cancel.disabled = current.progress.cancelRequested
 
   if (current.progress.frameUrl) {
