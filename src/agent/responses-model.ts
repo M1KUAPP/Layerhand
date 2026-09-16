@@ -273,9 +273,11 @@ export class ResponsesModel implements AgentModel {
   #previousResponseId: string | undefined
   #pending: PendingCall | undefined
   #safetyChecksAcknowledged = 0
+  readonly #safetyCheckCodes: string[] = []
   readonly #ledger = new SteerLedger()
   #socket: ResponsesSocket | undefined
   #socketTried = false
+  #socketOpened = false
   // Corrections are numbered in the order the loop acknowledged them: steer()
   // offers them in that order, and calls pass them in that order.
   #offered = 0
@@ -308,20 +310,33 @@ export class ResponsesModel implements AgentModel {
     return this.#safetyChecksAcknowledged
   }
 
+  /** Codes of the safety checks the unattended run acknowledged, in the order it saw them (NFR-8). */
+  get safetyCheckCodes(): readonly string[] {
+    return this.#safetyCheckCodes
+  }
+
   /** Whether a correction offered now would steer the response in flight. */
   get steerable(): boolean {
     return this.#socket?.steerable ?? false
   }
 
+  /** Whether this run's calls went over the WebSocket, once opened, or stayed on HTTP (NFR-8). */
+  get transport(): ModelTransport {
+    return this.#socketOpened ? 'websocket' : 'http'
+  }
+
   /**
    * Whether native steering is still possible for this run, how many
-   * corrections it delivered, and how many settlements the connection could
-   * not decide, which were replayed.
+   * corrections it delivered, how many it handed back for replay
+   * (indeterminate ones included), and how many settlements the connection
+   * could not decide, which were replayed too.
    */
-  get steering(): { available: boolean; applied: number; indeterminate: number } {
+  get steering(): { available: boolean; applied: number; replayed: number; indeterminate: number } {
+    const applied = this.#ledger.applied().length
     return {
       available: (this.#socket?.usable ?? false) && this.#ledger.nativeAvailable,
-      applied: this.#ledger.applied().length,
+      applied,
+      replayed: this.#ledger.total - applied,
       indeterminate: this.#ledger.indeterminate
     }
   }
@@ -353,7 +368,12 @@ export class ResponsesModel implements AgentModel {
     const offered = corrections.map((correction, index) => ({ correction, id: this.#steered.get(first + index) }))
     const apiKey = this.#apiKey()
     const pending = this.#pending
-    if (pending?.kind === 'computer') this.#safetyChecksAcknowledged += pending.safetyChecks.length
+    if (pending?.kind === 'computer') {
+      this.#safetyChecksAcknowledged += pending.safetyChecks.length
+      for (const check of pending.safetyChecks) {
+        this.#safetyCheckCodes.push((isObject(check) && safeCode(check.code)) || 'unknown')
+      }
+    }
     // A correction one attempt carried goes with every later one: an attempt that failed delivered nothing.
     let carried = offered.map(() => false)
     const input = (continuationOf: string | undefined) => {
@@ -433,6 +453,7 @@ export class ResponsesModel implements AgentModel {
       this.#socketTried = true
       try {
         const socket = await openResponsesSocket(this.#options.socketEndpoint, apiKey, this.#options.connectTimeoutMs)
+        this.#socketOpened = true
         this.#socket = new ResponsesSocket(socket, this.#ledger, {
           successorTimeoutMs: this.#options.successorTimeoutMs,
           // A step answers with traffic as it goes, so silence for a whole call timeout is no answer.

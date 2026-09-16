@@ -201,5 +201,6 @@ describe('SteerLedger', () => {
     expect(applied).toEqual(['one', 'three', 'four'])
     expect([...applied, ...replayed].sort()).toEqual([...texts].sort())
     expect(ledger.outstanding()).toEqual([])
+    expect(ledger.total).toBe(texts.length)
   })
 })
