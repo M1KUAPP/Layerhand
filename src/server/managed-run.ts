@@ -8,6 +8,12 @@ export interface ManagedRunMetrics {
   stopReason: RunStopReason
   /** For a failed run, what it failed on. Never shown to the page. */
   failure?: RunFailure
+  /** Whether the run's calls went over the WebSocket or stayed on HTTP; absent when the model has none (NFR-8). */
+  transport?: 'http' | 'websocket'
+  /** How native steering settled the corrections it saw; absent when the model has none (NFR-8). */
+  steering?: { applied: number; replayed: number; indeterminate: number }
+  /** Codes of the safety checks the run acknowledged automatically; absent when the model has none (NFR-8). */
+  safetyCheckCodes?: readonly string[]
 }
 
 export interface ManagedRun {

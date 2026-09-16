@@ -89,8 +89,33 @@ describe('run log', () => {
       outcome: 'complete',
       failureReason: null,
       failureCode: null,
-      instruction: 'Remove the background'
+      instruction: 'Remove the background',
+      transport: 'http',
+      correctionsApplied: 0,
+      correctionsReplayed: 0,
+      correctionsIndeterminate: 0,
+      safetyCheckCodes: []
     })
+  })
+
+  test('records the transport, how corrections settled, and the safety checks acknowledged (NFR-8)', () => {
+    const run = terminalRun({
+      metrics: {
+        cacheHitRate: 0.85,
+        stopReason: 'complete',
+        transport: 'websocket',
+        steering: { applied: 2, replayed: 1, indeterminate: 1 },
+        safetyCheckCodes: ['malicious_instructions', 'malicious_instructions']
+      }
+    })
+
+    const line = runLogLine(run)
+
+    expect(line.transport).toBe('websocket')
+    expect(line.correctionsApplied).toBe(2)
+    expect(line.correctionsReplayed).toBe(1)
+    expect(line.correctionsIndeterminate).toBe(1)
+    expect(line.safetyCheckCodes).toEqual(['malicious_instructions', 'malicious_instructions'])
   })
 
   test('names what a failed run failed on, and calls an unexplained failure run_failed', () => {
@@ -269,5 +294,40 @@ describe('run log', () => {
 
     const rows = await database`SELECT run_id, outcome, failure_code FROM run_log`
     expect(rows).toEqual([{ run_id: 'run-1', outcome: 'failed', failure_code: 'run_failed' }])
+  })
+
+  test('stores the transport, the corrections tally, and the safety check codes (NFR-8)', async () => {
+    const database = new SQL(':memory:')
+    databases.push(database)
+    await applyMigrations(database)
+    const store = new SqlRunLogStore(database)
+
+    await store.append(
+      runLogLine(
+        terminalRun({
+          metrics: {
+            cacheHitRate: 0.85,
+            stopReason: 'complete',
+            transport: 'websocket',
+            steering: { applied: 2, replayed: 1, indeterminate: 1 },
+            safetyCheckCodes: ['malicious_instructions']
+          }
+        })
+      )
+    )
+
+    const rows = await database`
+      SELECT transport, corrections_applied, corrections_replayed, corrections_indeterminate, safety_check_codes
+        FROM run_log
+    `
+    expect(rows).toEqual([
+      {
+        transport: 'websocket',
+        corrections_applied: 2,
+        corrections_replayed: 1,
+        corrections_indeterminate: 1,
+        safety_check_codes: '["malicious_instructions"]'
+      }
+    ])
   })
 })
