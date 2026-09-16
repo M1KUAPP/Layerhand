@@ -1,4 +1,5 @@
 import samplePhotoUrl from './assets/sample-photo.png'
+import type { RunStopReason } from '../agent/contract'
 import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
 import './footer'
@@ -529,6 +530,27 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   replaceNotices(notices, current.progress)
 }
 
+// The true reason a run isn't complete (FR-12, FR-13), not always the step
+// cap: a model failure states none, because it did not stop on any cap.
+function resultOutcomeText(outcome: RunStopReason): string {
+  switch (outcome) {
+    case 'complete':
+      return 'The requested retouch completed.'
+    case 'cancelled':
+      return 'You cancelled the run. Layerhand kept the work completed so far.'
+    case 'shutdown':
+      return 'The service restarted before the run finished. Layerhand kept the work completed so far.'
+    case 'step_cap':
+      return 'The step cap was reached. Layerhand kept the work completed so far.'
+    case 'spend_cap':
+      return 'The spend limit was reached. Layerhand kept the work completed so far.'
+    case 'time_limit':
+      return 'The time limit was reached. Layerhand kept the work completed so far.'
+    case 'failed':
+      return 'Layerhand kept the work completed so far.'
+  }
+}
+
 function renderResult(current: Extract<ClientState, { view: 'result' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
   const another = button('Retouch another', 'text-button')
@@ -542,13 +564,7 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
     current.outcome === 'complete' ? 'Your layered file is ready.' : 'Your partial layered file is ready.'
   const title = node('h1', undefined, titleText)
   title.id = 'result-title'
-  const outcome =
-    current.outcome === 'complete'
-      ? 'The requested retouch completed.'
-      : current.outcome === 'cancelled'
-        ? 'You cancelled the run. Layerhand kept the work completed so far.'
-        : 'The step cap was reached. Layerhand kept the work completed so far.'
-  copy.append(eyebrow('Retouch result'), title, description(outcome))
+  copy.append(eyebrow('Retouch result'), title, description(resultOutcomeText(current.outcome)))
 
   const recap = node('dl', 'result-recap')
   if (current.progress.instruction) {
