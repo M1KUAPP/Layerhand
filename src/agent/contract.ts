@@ -20,11 +20,17 @@ export type RunEvent =
   | { type: 'done'; result: RunResult }
   | { type: 'error'; reason: string; recoverable: boolean }
 
+// Why a run isn't complete, or that it is. Set by the managed run that wraps
+// the loop with the step cap, the spend cap, the time limit, a cancel, and a
+// server shutdown; a bare loop result leaves it out.
+export type RunStopReason = 'complete' | 'step_cap' | 'spend_cap' | 'time_limit' | 'shutdown' | 'cancelled' | 'failed'
+
 export interface RunResult {
   psdUrl: string
   previewUrl: string
   layers: LayerInfo[]
-  complete: boolean // false if the step cap ended it, FR-12
+  complete: boolean // false if the run stopped before finishing, FR-12
+  stopReason?: RunStopReason // step cap, spend cap, time limit, shutdown, or cancel
 }
 
 export interface RunHandle {

@@ -56,6 +56,7 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
   const underlying = fakeRun(request, { intervalMs })
   let stopReason: RunStopReason = 'complete'
   let cancelled = false
+  let shuttingDown = false
 
   const handle: RunHandle = {
     events: {
@@ -63,7 +64,15 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
         for await (const event of underlying.events) {
           if (event.type === 'error' && !event.recoverable) stopReason = 'failed'
           if (event.type === 'done') {
-            stopReason = cancelled ? 'cancelled' : event.result.complete ? 'complete' : 'step_cap'
+            stopReason = shuttingDown
+              ? 'shutdown'
+              : cancelled
+                ? 'cancelled'
+                : event.result.complete
+                  ? 'complete'
+                  : 'step_cap'
+            yield { ...event, result: { ...event.result, stopReason } }
+            continue
           }
           yield event
         }
@@ -82,6 +91,11 @@ function managedFakeRun(request: RunRequest, intervalMs: number, serverApiKey?: 
     metrics: () => ({ cacheHitRate: null, stopReason }),
     releaseSecrets() {
       request.apiKey = undefined
+    },
+    async shutdown() {
+      shuttingDown = true
+      stopReason = 'shutdown'
+      await underlying.cancel()
     }
   }
 }
