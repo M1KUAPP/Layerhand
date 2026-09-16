@@ -58,8 +58,9 @@ docs/evidence/**/output/
 !.env.example
 
 # Graphify
-graphify-out/.graphify_*
-graphify-out/cache/
-graphify-out/????-??-??/
-graphify-out/cost.json
-graphify-out/manifest.json
+# The star is required: a bare graphify-out/ excludes the directory, and a
+# negation cannot re-include a file whose parent directory is excluded.
+graphify-out/*
+!graphify-out/GRAPH_REPORT.md
+!graphify-out/graph.html
+!graphify-out/graph.json
