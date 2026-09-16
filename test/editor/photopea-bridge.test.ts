@@ -5,6 +5,7 @@ import {
   type PhotopeaMessage,
   type PhotopeaTransport
 } from '../../src/editor'
+import { FILE_TRANSFER_MS_PER_MIB } from '../../src/editor/photopea-bridge'
 
 class MemoryTransport implements PhotopeaTransport {
   readonly viewport = { width: 1440, height: 900 }
@@ -294,6 +295,47 @@ describe('PhotopeaBridge', () => {
       await expect(bridge.runScript('slow();')).rejects.toMatchObject({ code: 'photopea_timeout' })
       expect(budgets).toEqual([100, 80, 45])
       expect(transport.reloads).toBe(1)
+    } finally {
+      now.mockRestore()
+    }
+  })
+
+  test.each([
+    ['a 4 MiB file', 'completes', 4 * 2 ** 20],
+    ['a 1 KiB file', 'times out', 2 ** 10]
+  ])('gives %s time to leave the page in proportion to its size, and %s', async (_label, outcome, byteLength) => {
+    let clock = 1000
+    const now = spyOn(Date, 'now').mockImplementation(() => clock)
+    const transport = new MemoryTransport()
+    const budgets: number[] = []
+    const file = new Uint8Array(byteLength)
+    // The file arrives 150 ms into a 100 ms budget, as a large export read out of a hosted browser would.
+    const responses = [
+      { elapsed: 150, message: { type: 'bytes', value: file } },
+      { elapsed: 10, message: { type: 'text', value: 'sentinel-1' } }
+    ] satisfies Array<{ elapsed: number; message: PhotopeaMessage }>
+    transport.nextMessage = async (timeoutMs) => {
+      budgets.push(timeoutMs)
+      const response = responses.shift()!
+      clock += response.elapsed
+      return response.message
+    }
+    const bridge = new PhotopeaBridge(transport, {
+      commandTimeoutMs: 100,
+      createSentinel: () => 'sentinel-1'
+    })
+
+    try {
+      const command = bridge.runScript('app.activeDocument.saveToOE("psd");')
+      if (outcome === 'completes') {
+        expect(await command).toEqual([{ type: 'bytes', value: file }])
+        expect(budgets).toEqual([100, 100 - 150 + 4 * FILE_TRANSFER_MS_PER_MIB])
+        expect(transport.reloads).toBe(0)
+      } else {
+        await expect(command).rejects.toMatchObject({ code: 'photopea_timeout' })
+        expect(budgets).toEqual([100])
+        expect(transport.reloads).toBe(1)
+      }
     } finally {
       now.mockRestore()
     }

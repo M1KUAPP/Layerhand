@@ -2,6 +2,13 @@ import { PHOTOPEA_CONFIGURATION, type PhotopeaMessage, type PhotopeaTransport } 
 
 const DEFAULT_COMMAND_TIMEOUT_MS = 30_000
 
+/**
+ * What a command's wait grows by for each MiB of file it receives. Reading a
+ * file out of a hosted browser takes time in proportion to its size, and a
+ * wait that runs out reloads the editor and loses the document (#100).
+ */
+export const FILE_TRANSFER_MS_PER_MIB = 1_000
+
 export type PhotopeaProtocolErrorCode = 'photopea_timeout' | 'photopea_protocol_error'
 
 export class PhotopeaProtocolError extends Error {
@@ -15,7 +22,10 @@ export class PhotopeaProtocolError extends Error {
 }
 
 export interface PhotopeaBridgeOptions {
-  /** Message-wait budget; excludes navigation, sends, and awaited reload cleanup. */
+  /**
+   * Message-wait budget, grown for each file received; excludes navigation,
+   * sends, and awaited reload cleanup.
+   */
   readonly commandTimeoutMs?: number
   readonly createSentinel?: () => string
 }
@@ -78,7 +88,7 @@ export class PhotopeaBridge {
 
   async #waitForText(value: string): Promise<PhotopeaMessage[]> {
     const messages: PhotopeaMessage[] = []
-    const deadline = Date.now() + this.#commandTimeoutMs
+    let deadline = Date.now() + this.#commandTimeoutMs
 
     while (true) {
       const remainingMs = deadline - Date.now()
@@ -89,6 +99,9 @@ export class PhotopeaBridge {
         message = await this.#transport.nextMessage(remainingMs)
       } catch {
         return this.#throwTimeout()
+      }
+      if (message.type === 'bytes') {
+        deadline += Math.floor((message.value.byteLength / 2 ** 20) * FILE_TRANSFER_MS_PER_MIB)
       }
       if (Date.now() >= deadline) return this.#throwTimeout()
       if (message.type === 'text' && message.value === value) return messages
