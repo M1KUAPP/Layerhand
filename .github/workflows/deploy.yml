@@ -115,6 +115,12 @@ jobs:
       # hold that file even once, and runs can end together. 4 GiB is the most
       # Cloud Run allows one CPU.
       #
+      # --min-instances 1, from the September 17 freeze through the ranking
+      # window's close, September 18 at 11:59pm PT: scale-to-zero cost a cold
+      # /health 8.7 seconds against well under two seconds warm, which risks
+      # NFR-3's five-second budget right after the deploy that caused it.
+      # Return it to 0 once the window closes (#112).
+      #
       # FREE_DAILY_BUDGET_USD=10 is a deploy-time placeholder, not the agreed
       # ceiling. The server's OpenAI key is the human's personal balance, so $10
       # bounds it to $10 a day, and admits three concurrent free runs at the $3
@@ -143,7 +149,7 @@ jobs:
             --service-account "$RUNTIME_SERVICE_ACCOUNT" \
             --no-cpu-throttling \
             --memory 4Gi \
-            --min-instances 0 \
+            --min-instances 1 \
             --max-instances 1 \
             --timeout 3600 \
             --allow-unauthenticated \
