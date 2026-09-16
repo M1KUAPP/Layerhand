@@ -15,10 +15,7 @@ const runtime = await createLaunchRuntime({
 server = Bun.serve({
   port: Number(process.env.PORT ?? 3000),
   maxRequestBodySize: MAX_RUN_REQUEST_BODY_BYTES,
-  routes: pageRoutes(web, {
-    publicUrl: process.env.PUBLIC_URL,
-    selfOrigin: () => `http://127.0.0.1:${server?.port}`
-  }),
+  routes: await pageRoutes(web, { publicUrl: process.env.PUBLIC_URL }),
   fetch: runtime.application.fetch
 })
 
