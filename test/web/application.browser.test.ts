@@ -102,6 +102,28 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 30_000)
 
+  test('shows the whole photo in the drop zone and keeps Start in the first viewport', async () => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 1280, height: 800 }
+    ]) {
+      const page = await browser.newPage({ viewport })
+      try {
+        await openInput(page, application.origin)
+
+        const preview = page.locator('.drop-zone .selected-preview')
+        await expect(preview.count()).resolves.toBe(1)
+        expect(await preview.evaluate((element) => getComputedStyle(element).objectFit)).toBe('contain')
+
+        const box = await page.getByRole('button', { name: 'Start retouching' }).boundingBox()
+        expect(box).not.toBeNull()
+        expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height)
+      } finally {
+        await page.close()
+      }
+    }
+  })
+
   test('cancels and keeps a partial layered result', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     try {

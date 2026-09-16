@@ -250,7 +250,7 @@ function renderInput(): DocumentFragment {
   instruction.id = 'instruction'
   instruction.name = 'instruction'
   instruction.maxLength = 500
-  instruction.rows = 4
+  instruction.rows = 3
   instruction.required = true
   instruction.placeholder = 'Describe the finished photograph and what must stay unchanged.'
   instruction.value = draftInstruction
