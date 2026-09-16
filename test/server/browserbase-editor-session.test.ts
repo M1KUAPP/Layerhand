@@ -3,7 +3,7 @@ import type { BrowserContext, Page, Route, WebSocketRoute } from 'playwright-cor
 
 import type { CreatePhotopeaEditorSessionOptions } from '../../src/editor/photopea-editor-session'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import { PHOTOPEA_ORIGIN } from '../../src/editor/photopea-transport'
+import { PHOTOPEA_ASSET_ORIGIN, PHOTOPEA_ORIGIN } from '../../src/editor/photopea-transport'
 import {
   browserbaseEditorSession,
   type BrowserbaseEditorSession,
@@ -183,6 +183,7 @@ describe('Browserbase editor session', () => {
     const cases = [
       [`${HOST_URL}?run=one`, 'fulfilled'],
       [`${PHOTOPEA_ORIGIN}/#editor`, 'fulfilled'],
+      [`${PHOTOPEA_ASSET_ORIGIN}/code/pp/current.js`, 'fulfilled'],
       ['https://www.photopea.com.evil.test/collect', 'aborted'],
       ['https://tracker.test/collect', 'aborted']
     ] as const
@@ -203,6 +204,7 @@ describe('Browserbase editor session', () => {
     const cases = [
       ['wss://layerhand.test/live', 'connected'],
       ['wss://www.photopea.com/socket', 'connected'],
+      ['wss://vecpea.com/socket', 'closed'],
       ['wss://www.photopea.com.evil.test/socket', 'closed'],
       ['wss://tracker.test/socket', 'closed']
     ] as const

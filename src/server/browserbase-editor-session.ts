@@ -7,7 +7,7 @@
 import { chromium, type Page } from 'playwright-core'
 
 import { createPhotopeaEditorSession, type CreatePhotopeaEditorSessionOptions } from '../editor/photopea-editor-session'
-import { PHOTOPEA_ORIGIN } from '../editor/photopea-transport'
+import { PHOTOPEA_ASSET_ORIGIN, PHOTOPEA_ORIGIN } from '../editor/photopea-transport'
 import type { EditorSession, Viewport } from '../editor/session'
 import type { BrowserbaseSession } from './browserbase-client'
 
@@ -71,14 +71,15 @@ function comparableOrigin(rawUrl: string): string | undefined {
 }
 
 async function installNetworkAllowList(page: Page, hostUrl: string): Promise<void> {
-  const allowedOrigins = new Set([new URL(hostUrl).origin, PHOTOPEA_ORIGIN])
-  const allowed = (url: string) => {
+  const interactiveOrigins = new Set([new URL(hostUrl).origin, PHOTOPEA_ORIGIN])
+  const httpOrigins = new Set([...interactiveOrigins, PHOTOPEA_ASSET_ORIGIN])
+  const allowed = (url: string, origins: ReadonlySet<string>) => {
     const origin = comparableOrigin(url)
-    return origin !== undefined && allowedOrigins.has(origin)
+    return origin !== undefined && origins.has(origin)
   }
   const context = page.context()
   await context.route('**/*', async (route) => {
-    if (!allowed(route.request().url())) return route.abort('blockedbyclient')
+    if (!allowed(route.request().url(), httpOrigins)) return route.abort('blockedbyclient')
     // Both `continue` and fulfilled redirects can follow later hops without
     // routing them again, so only a final response is returned to Chromium.
     const response = await route.fetch({ maxRedirects: 0 })
@@ -87,7 +88,7 @@ async function installNetworkAllowList(page: Page, hostUrl: string): Promise<voi
     return route.fulfill({ response })
   })
   await context.routeWebSocket('**/*', (route) => {
-    if (allowed(route.url())) {
+    if (allowed(route.url(), interactiveOrigins)) {
       route.connectToServer()
       return
     }
