@@ -75,7 +75,7 @@ export function managedAgentRun(
         if (error instanceof ModelUnavailableError) modelUnavailable = true
         throw error
       })
-      spend.add(turn.usage)
+      spend.add(turn.usage, turn.lastResponseUsage)
       cachedInputTokens += turn.usage.cachedInputTokens
       if ((!turn.done || turn.actions.length > 0) && !turn.narration.trim()) missingNarration = true
       return turn

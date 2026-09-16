@@ -33,6 +33,23 @@ describe('Spend', () => {
     expect(spend.wouldPass(5.99)).toBe(true)
   })
 
+  test('estimates the next call from the response the last call ended on, but bills every response', () => {
+    const spend = new Spend({ usdPerInputToken: 0.01, usdPerCachedInputToken: 0.001, usdPerOutputToken: 0.1 })
+    spend.add({ inputTokens: 100, cachedInputTokens: 0, outputTokens: 10 })
+    // A steered call: the response steered away, then the one that answered.
+    spend.add(
+      { inputTokens: 230, cachedInputTokens: 0, outputTokens: 15 },
+      { inputTokens: 120, cachedInputTokens: 0, outputTokens: 10 }
+    )
+    // $2, then $3.80, spent. The next call continues from the answer alone, so
+    // it is taken to send 140 tokens, none of them cached, and to write 10: $2.40.
+    expect(spend.usd).toBeCloseTo(5.8, 9)
+    expect(spend.tokensIn).toBe(330)
+    expect(spend.tokensOut).toBe(25)
+    expect(spend.wouldPass(8.21)).toBe(false)
+    expect(spend.wouldPass(8.19)).toBe(true)
+  })
+
   test('lets a run reach its cap exactly, but not pass it', () => {
     const spend = new Spend({ usdPerInputToken: 1, usdPerCachedInputToken: 0, usdPerOutputToken: 0 })
     spend.add({ inputTokens: 10, cachedInputTokens: 0, outputTokens: 0 })
