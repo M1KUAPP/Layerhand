@@ -593,6 +593,108 @@ describe('managed agent run', () => {
     })
   })
 
+  describe('with native steering', () => {
+    const tokens = (input: number, cached: number, output: number) => ({
+      input_tokens: input,
+      input_tokens_details: { cached_tokens: cached },
+      output_tokens: output
+    })
+    const answer = (id: string, usage: object) => ({
+      type: 'response.completed',
+      response: {
+        id,
+        output: [
+          { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: 'Retouching the product' }] },
+          { type: 'computer_call', call_id: `call_${id}`, actions: [{ type: 'wait' }], pending_safety_checks: [] }
+        ],
+        usage
+      }
+    })
+
+    /**
+     * GPT-6 Astra over a stand-in for the Responses API WebSocket. Each call's
+     * input grows by 1,500 tokens, as a screenshot history does, with all but
+     * the newest read from the cache, and each answer writes 200 tokens. Call
+     * `steerAt` waits for a correction, which the server applies natively.
+     */
+    function steerableAstra(steerAt: number) {
+      const input = (call: number) => 2_700 + 1_500 * (call - 1)
+      let calls = 0
+      let reached!: () => void
+      const steerable = new Promise<void>((resolve) => (reached = resolve))
+      const server = Bun.serve({
+        port: 0,
+        hostname: '127.0.0.1',
+        fetch: (request, server) =>
+          server.upgrade(request) ? undefined : new Response('Upgrade required', { status: 426 }),
+        websocket: {
+          message(ws, message) {
+            const send = (event: object) => void ws.send(JSON.stringify(event))
+            const event = JSON.parse(String(message))
+            if (event.type === 'response.create') {
+              calls += 1
+              send({ type: 'response.created', response: { id: `resp_${calls}`, output: [] } })
+              if (calls === steerAt) return reached()
+              send(answer(`resp_${calls}`, tokens(input(calls), calls === 1 ? 0 : input(calls - 1), 200)))
+            } else if (event.type === 'response.steer') {
+              const steered = String(event.previous_response_id)
+              send({ type: 'response.steer.accepted', steer: { id: 'steer_1', previous_response_id: steered } })
+              send({
+                type: 'response.incomplete',
+                response: {
+                  id: steered,
+                  incomplete_details: { reason: 'steered' },
+                  output: [],
+                  usage: tokens(input(calls), input(calls - 1), 100)
+                }
+              })
+              send({ type: 'response.created', response: { id: `${steered}_successor`, output: [] } })
+              send(answer(`${steered}_successor`, tokens(input(calls) + 150, input(calls), 200)))
+            }
+          }
+        }
+      })
+      const model = new ResponsesModel({
+        apiKey: 'sk-user-secret-value',
+        instruction: 'Remove the background',
+        stepCap: 40,
+        mechanism: 'computer',
+        transport: 'websocket',
+        socketEndpoint: `ws://127.0.0.1:${server.port}/v1/responses`,
+        fetch: (async () => {
+          throw new Error('The run left the socket')
+        }) as unknown as typeof globalThis.fetch,
+        sleep: async () => undefined
+      })
+      /** Resolves once call `steerAt` is being generated, so a correction steers it. */
+      const inFlight = async () => {
+        await steerable
+        for (let tries = 0; tries < 400 && !model.steerable; tries += 1) await Bun.sleep(5)
+        expect(model.steerable).toBe(true)
+      }
+      return { model, inFlight, stop: () => void server.stop(true) }
+    }
+
+    test('a run steered at step 30 still reaches step 38 under a $3 spend cap', async () => {
+      const astra = steerableAstra(30)
+      try {
+        const { managed } = await run({ stepCap: 40, budgetUsd: 3 }, undefined, astra.model)
+        await astra.inFlight()
+        await managed.handle.steer('Keep the shadow')
+
+        const events = await finish(managed)
+
+        // Without the correction, the same run stops at the $3 cap after step 39.
+        expect(events.filter((event) => event.type === 'step').length).toBeGreaterThanOrEqual(38)
+        expect(events.filter((event) => event.type === 'error')).toEqual([])
+        expect(managed.metrics().stopReason).toBe('spend_cap')
+        expect(astra.model.steering).toMatchObject({ applied: 1, indeterminate: 0 })
+      } finally {
+        astra.stop()
+      }
+    })
+  })
+
   test('reports missing narration as failed at the final step', async () => {
     const { managed } = await run({ stepCap: 1 }, undefined, blankNarrationModel)
 

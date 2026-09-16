@@ -6,7 +6,7 @@
 // WebSocket it also steers the response in flight (docs/TRD.md § Steering). A
 // call that meets a rate limit, a server error, or no answer is sent again.
 import type { Button, ComputerAction, Pt } from '../editor/session'
-import { ModelUnavailableError, type AgentModel, type ModelTurn, type Observation } from './model'
+import { ModelUnavailableError, type AgentModel, type ModelTurn, type Observation, type TokenUsage } from './model'
 import { openResponsesSocket, ResponsesSocket, type SteeringEvent } from './responses-socket'
 import { retryAfterMs, retryWaitMs, sleep } from './retry'
 import { SteerLedger } from './steer-ledger'
@@ -230,6 +230,18 @@ async function errorCode(response: Response): Promise<string | undefined> {
     return safeCode(isObject(body) && isObject(body.error) ? body.error.code : undefined)
   } catch {
     return undefined
+  }
+}
+
+/** What one response reports it used. */
+function usageOf(response: Json): TokenUsage {
+  const count = (value: unknown) => (typeof value === 'number' ? value : 0)
+  const used = isObject(response.usage) ? response.usage : {}
+  const details = isObject(used.input_tokens_details) ? used.input_tokens_details : {}
+  return {
+    inputTokens: count(used.input_tokens),
+    cachedInputTokens: count(details.cached_tokens),
+    outputTokens: count(used.output_tokens)
   }
 }
 
@@ -502,16 +514,16 @@ export class ResponsesModel implements AgentModel {
 
     this.#previousResponseId = String(last.id)
     this.#pending = pending
-    const count = (value: unknown) => (typeof value === 'number' ? value : 0)
     const usage = { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 }
     for (const response of responses) {
-      const used = isObject(response.usage) ? response.usage : {}
-      const details = isObject(used.input_tokens_details) ? used.input_tokens_details : {}
-      usage.inputTokens += count(used.input_tokens)
-      usage.cachedInputTokens += count(details.cached_tokens)
-      usage.outputTokens += count(used.output_tokens)
+      const used = usageOf(response)
+      usage.inputTokens += used.inputTokens
+      usage.cachedInputTokens += used.cachedInputTokens
+      usage.outputTokens += used.outputTokens
     }
-    return { narration, actions, usage, done: pending === undefined }
+    // The next call continues from the last response alone, and the spend cap estimates it from that.
+    const lastResponse = responses.length > 1 ? { lastResponseUsage: usageOf(last) } : {}
+    return { narration, actions, usage, ...lastResponse, done: pending === undefined }
   }
 
   #input(screenshot: Uint8Array, corrections: string[]): object[] {
