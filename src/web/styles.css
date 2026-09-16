@@ -339,14 +339,13 @@ legend,
 }
 
 .examples {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem 0.5rem;
   margin-bottom: 0.25rem;
 }
 
 .example-button {
-  max-width: 31ch;
   padding: 0.25rem 0.55rem;
   border: 1px solid var(--rule);
   color: var(--color-text-secondary);
