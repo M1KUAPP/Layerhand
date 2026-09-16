@@ -94,6 +94,17 @@ const REPORTED = new Set([
   'error'
 ])
 
+/**
+ * A failed response carries an error code but no HTTP status, so the code
+ * stands in for one. A server error, or no code at all, is 500 and a rate
+ * limit 429, both worth sending again; any other code, such as a prompt the
+ * API refused, is a refusal, 400.
+ */
+function failedResponseStatus(code: unknown): number {
+  if (!code || code === 'server_error') return 500
+  return code === 'rate_limit_exceeded' ? 429 : 400
+}
+
 function hasToolCall(response: Json): boolean {
   const output = Array.isArray(response.output) ? response.output : []
   return output.some((item) => isObject(item) && (item.type === 'computer_call' || item.type === 'function_call'))
@@ -266,8 +277,7 @@ export class ResponsesSocket {
         return this.#ended(response, event.type === 'response.incomplete')
       case 'response.failed': {
         const error = response && isObject(response.error) ? response.error : {}
-        const status = typeof event.status === 'number' ? event.status : 500
-        return this.#fail({ status, code: error.code })
+        return this.#fail({ status: failedResponseStatus(error.code), code: error.code })
       }
       case 'error': {
         const error = isObject(event.error) ? event.error : {}
