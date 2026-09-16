@@ -1,19 +1,42 @@
-// The page and its link preview banners (#30). Bun serves the bundled page at
-// PAGE_SHELL_PATH, and "/" fetches it from this same server to add the preview
-// tags, whose URLs must be absolute and come from the public address.
+// The page and its link preview banners (#30). "/" serves the bundled page
+// with the preview tags added, whose URLs must be absolute and come from the
+// public address. The page's files are served from routes made here rather
+// than by Bun's routes for an HTML import, which cannot add a header (#114).
 import type { HTMLBundle } from 'bun'
+import { posix } from 'node:path'
 
 import ogImageDarkPath from '../web/assets/og-image-dark.png'
 import ogImagePath from '../web/assets/og-image.png'
 import { SOCIAL_IMAGE_PATHS, withSocialMeta } from './social-meta'
 
-export const PAGE_SHELL_PATH = '/page-shell'
-
 export interface PageRouteOptions {
   /** The address link previews point at. The request's own origin unless set. */
   publicUrl?: string
-  /** Where this server can reach itself, to fetch the bundled page. */
-  selfOrigin(): string
+}
+
+interface PageFile {
+  /** The file's place in the bundle, which is also its address from "/". */
+  path: string
+  body: Blob
+  headers: Record<string, string>
+}
+
+async function bundledFiles(page: HTMLBundle): Promise<PageFile[]> {
+  // `bun run build` bundles the page ahead of time. The server runs from the
+  // build's directory and reads the files there, as Bun's own routes do, and
+  // refuses to start without them, as those routes did.
+  if (page.files) {
+    return Promise.all(
+      page.files.map(async ({ path, headers }) => {
+        const body = Bun.file(path)
+        if (!(await body.exists())) throw new Error(`The page's bundled file ${path} is missing`)
+        return { path, body, headers }
+      })
+    )
+  }
+  // Run from source, the page is bundled once, as the server starts.
+  const { outputs } = await Bun.build({ entrypoints: [page.index], target: 'browser' })
+  return outputs.map((output) => ({ path: output.path, body: output, headers: { 'content-type': output.type } }))
 }
 
 // The icon file arrives with the brand assets on another branch. The import
@@ -29,13 +52,17 @@ async function favicon(): Promise<Response> {
   }
 }
 
-export function pageRoutes(page: HTMLBundle, { publicUrl, selfOrigin }: PageRouteOptions) {
+export async function pageRoutes(page: HTMLBundle, { publicUrl }: PageRouteOptions = {}) {
+  const files = await bundledFiles(page)
+  const html = files.find((file) => file.path.endsWith('.html'))!
   return {
-    [PAGE_SHELL_PATH]: page,
-    '/': async (request: Request) => {
-      const shell = await fetch(new URL(PAGE_SHELL_PATH, selfOrigin()))
-      return withSocialMeta(shell, publicUrl ?? new URL(request.url).origin)
-    },
+    ...Object.fromEntries(
+      files
+        .filter((file) => file !== html)
+        .map((file) => [posix.join('/', file.path), new Response(file.body, { headers: file.headers })])
+    ),
+    '/': (request: Request) =>
+      withSocialMeta(new Response(html.body, { headers: html.headers }), publicUrl ?? new URL(request.url).origin),
     '/favicon.ico': favicon,
     [SOCIAL_IMAGE_PATHS.light]: Bun.file(ogImagePath),
     [SOCIAL_IMAGE_PATHS.dark]: Bun.file(ogImageDarkPath)
