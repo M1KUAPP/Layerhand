@@ -95,6 +95,7 @@ function renderLanding(): DocumentFragment {
   const start = button('Retouch a photo', 'button button-accent')
   start.addEventListener('click', () => dispatch({ type: 'edit' }))
   copy.append(start)
+  copy.append(node('p', 'field-hint', 'Uploads are deleted within 24 hours.'))
 
   const media = node('div', 'landing-media')
   const wedge = node('div', 'wedge')
@@ -284,9 +285,10 @@ function renderInput(): DocumentFragment {
   fileStatus.setAttribute('role', 'alert')
   const fileHint = node('p', 'field-hint', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
   fileHint.id = 'source-image-hint'
+  const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
   input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
   if (fileError) input.setAttribute('aria-invalid', 'true')
-  fileField.append(legend, dropZone, fileHint, fileStatus)
+  fileField.append(legend, dropZone, fileHint, retentionNotice, fileStatus)
 
   const sample = button('Use the sample photograph', 'text-button sample-button')
   sample.dataset.action = 'sample'
