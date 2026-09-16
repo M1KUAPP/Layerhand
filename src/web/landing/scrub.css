@@ -39,6 +39,10 @@
   border: 1px solid var(--rule);
 }
 
+.scrub__picture {
+  display: contents;
+}
+
 .scrub__poster,
 .scrub__video,
 .scrub__canvas {
