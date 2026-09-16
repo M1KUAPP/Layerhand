@@ -120,6 +120,36 @@ describe('launch runtime', () => {
     }
   })
 
+  test('queues a run past MAX_CONCURRENT_RUNS, and starts it once a slot frees', async () => {
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', MAX_CONCURRENT_RUNS: '1' },
+      clientAddress: () => '203.0.113.20',
+      // Slow enough that the first run is still going when the second arrives.
+      fakeRunIntervalMs: 60_000,
+      writeRunLog: () => undefined
+    })
+    const snapshot = async (runId: string) =>
+      (await runtime.application.fetch(new Request(`http://layerhand.test/api/runs/${runId}`))).json()
+
+    try {
+      const first = (await (await runtime.application.fetch(runRequest())).json()) as { runId: string }
+      const second = (await (await runtime.application.fetch(runRequest())).json()) as { runId: string }
+      expect(await snapshot(first.runId)).toMatchObject({ status: 'running' })
+      expect(await snapshot(second.runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
+
+      await runtime.application.fetch(
+        new Request(`http://layerhand.test/api/runs/${first.runId}/cancel`, { method: 'POST' })
+      )
+      for await (const { event } of runtime.registry.events(second.runId)) if (event.type === 'started') break
+
+      const started = await snapshot(second.runId)
+      expect(started).toMatchObject({ status: 'running' })
+      expect(started.queuePosition).toBeUndefined()
+    } finally {
+      await runtime.close()
+    }
+  })
+
   test('fails closed when production configuration is absent', async () => {
     await expect(
       createLaunchRuntime({
