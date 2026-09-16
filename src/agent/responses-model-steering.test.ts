@@ -138,10 +138,10 @@ const rateLimitedEvent = {
   stream_id: 'layerhand',
   error: { type: 'invalid_request_error', code: 'rate_limit_exceeded', message: `Limit reached for ${KEY}` }
 }
-const failedResponse = (id: string) => ({
+const failedResponse = (id: string, error: Json = { code: 'server_error' }) => ({
   type: 'response.failed',
   stream_id: 'layerhand',
-  response: { id, status: 'failed', error: { code: 'server_error', message: `Failed for ${KEY}` }, output: [] }
+  response: { id, status: 'failed', error: { ...error, message: `Failed for ${KEY}` }, output: [] }
 })
 const steerFailed = (parent: string, code: string) => ({
   type: 'response.steer.failed',
@@ -497,9 +497,38 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(String((failure as Error).message)).not.toContain(KEY)
   })
 
+  test('a response that fails as a refusal fails the step at once, and nothing is sent again', async () => {
+    const server = scriptedSocketServer()
+    const waits: number[] = []
+    const { model, http } = socketModel(server.url, { sleep: async (ms) => void waits.push(ms) })
+
+    const outcome = model.next(observe(), signal()).catch((error: unknown) => error)
+    const connection = await server.connections.next()
+    await connection.received.next()
+    connection.send(created('resp_1'))
+    connection.send(failedResponse('resp_1', { code: 'invalid_prompt' }))
+    const sentAgain = await Promise.race([
+      connection.received.next().then(() => true),
+      Bun.sleep(100).then(() => false)
+    ])
+
+    expect(sentAgain).toBe(false)
+    const failure = await outcome
+    expect(failure).toBeInstanceOf(ResponsesApiError)
+    expect(failure).toMatchObject({ status: 400, code: 'invalid_prompt' })
+    expect(String((failure as Error).message)).not.toContain(KEY)
+    expect(waits).toEqual([])
+    expect(http.sent).toEqual([])
+  })
+
   test.each([
     ['a rate limit', [rateLimitedEvent]],
-    ['a failed response', [created('resp_failed'), failedResponse('resp_failed')]]
+    ['a response failed with server_error', [created('resp_failed'), failedResponse('resp_failed')]],
+    [
+      'a response failed with rate_limit_exceeded',
+      [created('resp_failed'), failedResponse('resp_failed', { code: 'rate_limit_exceeded' })]
+    ],
+    ['a response failed with no code', [created('resp_failed'), failedResponse('resp_failed', {})]]
   ])('a step that meets %s is sent again on the same socket, which stays open for steering', async (_, failure) => {
     const server = scriptedSocketServer()
     const waits: number[] = []
