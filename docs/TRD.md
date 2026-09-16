@@ -1181,14 +1181,15 @@ Deploying from day 0 is deliberate: the first deployment is the one
 most likely to eat an afternoon, and finding that out on day 5 is how
 launches get missed.
 
-The service has **2 GiB** of memory, set by `--memory` in
+The service has **4 GiB** of memory, set by `--memory` in
 `.github/workflows/deploy.yml`, and its one instance holds every run. On
 September 17, twenty runs at once against a local server in scripted mode,
 the recorded editor and a scripted model, with an 840 KB frame every second
 and every page reloading once, peaked at **679 MiB** resident. Before only
-the latest frame was kept, the same load peaked at 1,863 MiB. 2 GiB is
-three times the peak, because the figure leaves out what only real runs do
-in this process. Their browsers run at Browserbase, but each screenshot and
+the latest frame was kept, the same load peaked at 1,863 MiB. The memory
+is several times the peak, because the figure leaves out what only real
+runs do in this process, above all a large export, which alone takes about
+1.1 GiB (the issue #100 export result, below). Their browsers run at Browserbase, but each screenshot and
 export arrives here over CDP as base64 to be decoded, each model call
 carries a screenshot, and an upload can be 20 MB rather than the 1.7 MB
 sample photograph the runs sent. Nor does it cover a viewer on a slow
