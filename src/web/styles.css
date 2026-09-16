@@ -461,6 +461,7 @@ legend,
 .progress-rail {
   padding: 1.5rem;
   border-left: 1px solid var(--ink);
+  overflow-y: auto;
   font-size: 0;
 }
 
