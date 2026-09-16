@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 
+import type { RunStopReason } from '../../src/agent/contract'
 import type { RunSnapshot } from '../../src/server/run-registry'
-import { initialClientState, reduceClientState, formatCredits } from '../../src/web/state'
+import { initialClientState, reduceClientState, formatCredits, resultOutcomeText } from '../../src/web/state'
 
 const result = {
   psdUrl: '/result.psd',
@@ -179,8 +180,8 @@ describe('client run reducer', () => {
     expect(state).toMatchObject({ view: 'result', outcome: 'failed' })
   })
 
-  test('agrees with a reload for a spend-cap stop and for a shutdown', () => {
-    for (const stopReason of ['spend_cap', 'shutdown'] as const) {
+  test('agrees with a reload for a spend-cap stop, a shutdown, and a time limit', () => {
+    for (const stopReason of ['spend_cap', 'shutdown', 'time_limit'] as const) {
       let live = reduceClientState(initialClientState(), {
         type: 'started',
         runId: 'run-1',
@@ -262,5 +263,38 @@ describe('client run reducer', () => {
   test('formats running USD cost as stable display credits', () => {
     expect(formatCredits(0)).toBe('0.00 credits')
     expect(formatCredits(0.21105)).toBe('0.21 credits')
+  })
+
+  test('states the true stop reason for every outcome, never defaulting to the step cap (#125)', () => {
+    const expected: Record<RunStopReason, string> = {
+      complete: 'The requested retouch completed.',
+      cancelled: 'You cancelled the run. Layerhand kept the work completed so far.',
+      shutdown: 'The service restarted before the run finished. Layerhand kept the work completed so far.',
+      step_cap: 'The step cap was reached. Layerhand kept the work completed so far.',
+      spend_cap: 'The spend limit was reached. Layerhand kept the work completed so far.',
+      time_limit: 'The time limit was reached. Layerhand kept the work completed so far.',
+      failed: 'Layerhand kept the work completed so far.'
+    }
+    const reasons = Object.keys(expected) as RunStopReason[]
+    for (const reason of reasons) {
+      expect(resultOutcomeText(reason)).toBe(expected[reason])
+    }
+
+    // Only the run that actually hit the step cap should mention it (#125);
+    // the rest name their own cap or, for shutdown and failed, none at all.
+    for (const reason of reasons) {
+      if (reason !== 'step_cap') expect(resultOutcomeText(reason)).not.toContain('step cap')
+    }
+    expect(resultOutcomeText('spend_cap')).toContain('spend limit')
+    expect(resultOutcomeText('shutdown')).not.toMatch(/you|cap/i)
+    expect(resultOutcomeText('failed')).not.toMatch(/cap/i)
+
+    // A result an older server sent with no stop reason resolves to 'failed'
+    // before resultOutcomeText ever sees it (the reducer fallback tested
+    // above), so it gets the same cap-free text as an explicit failure.
+    const noReasonSnapshot = runningSnapshot({ status: 'incomplete', result: { ...result, complete: false } })
+    const state = reduceClientState(initialClientState(), { type: 'snapshot', snapshot: noReasonSnapshot })
+    expect(state).toMatchObject({ view: 'result', outcome: 'failed' })
+    expect(resultOutcomeText('failed')).toBe(expected.failed)
   })
 })

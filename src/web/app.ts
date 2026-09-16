@@ -1,10 +1,16 @@
 import samplePhotoUrl from './assets/sample-photo.png'
-import type { RunStopReason } from '../agent/contract'
 import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
 import './footer'
 import { renderLanding, type LandingContext } from './landing/index'
-import { formatCredits, initialClientState, reduceClientState, type ClientAction, type ClientState } from './state'
+import {
+  formatCredits,
+  initialClientState,
+  reduceClientState,
+  resultOutcomeText,
+  type ClientAction,
+  type ClientState
+} from './state'
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
 const INSTRUCTION_STORAGE_KEY = 'layerhand.instruction'
@@ -528,27 +534,6 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
     if (image.src !== current.progress.frameUrl) image.src = current.progress.frameUrl
   }
   replaceNotices(notices, current.progress)
-}
-
-// The true reason a run isn't complete (FR-12, FR-13), not always the step
-// cap: a model failure states none, because it did not stop on any cap.
-function resultOutcomeText(outcome: RunStopReason): string {
-  switch (outcome) {
-    case 'complete':
-      return 'The requested retouch completed.'
-    case 'cancelled':
-      return 'You cancelled the run. Layerhand kept the work completed so far.'
-    case 'shutdown':
-      return 'The service restarted before the run finished. Layerhand kept the work completed so far.'
-    case 'step_cap':
-      return 'The step cap was reached. Layerhand kept the work completed so far.'
-    case 'spend_cap':
-      return 'The spend limit was reached. Layerhand kept the work completed so far.'
-    case 'time_limit':
-      return 'The time limit was reached. Layerhand kept the work completed so far.'
-    case 'failed':
-      return 'Layerhand kept the work completed so far.'
-  }
 }
 
 function renderResult(current: Extract<ClientState, { view: 'result' }>): DocumentFragment {
