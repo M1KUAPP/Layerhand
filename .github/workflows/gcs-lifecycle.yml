@@ -1,0 +1,52 @@
+# Prints the artifacts bucket's live lifecycle rule, and applies the rule
+# committed at .github/gcs-lifecycle.json first when asked (#117). Manual
+# only: it never runs on push, so it cannot affect a deploy. Authentication
+# mirrors deploy.yml's Workload Identity Federation.
+name: Bucket lifecycle
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply .github/gcs-lifecycle.json to the bucket first
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ID: layerhand-astra-2026
+  WORKLOAD_IDENTITY_PROVIDER: projects/732371853772/locations/global/workloadIdentityPools/github/providers/github
+  DEPLOYER: deployer@layerhand-astra-2026.iam.gserviceaccount.com
+  BUCKET: layerhand-artifacts-732371853772
+
+jobs:
+  lifecycle:
+    name: Read the bucket's lifecycle rule
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Apply the committed lifecycle rule
+        if: inputs.apply
+        run: |
+          gcloud storage buckets update "gs://$BUCKET" \
+            --project "$PROJECT_ID" \
+            --lifecycle-file=.github/gcs-lifecycle.json
+      - name: Print the bucket's live lifecycle rule
+        run: |
+          gcloud storage buckets describe "gs://$BUCKET" \
+            --project "$PROJECT_ID" \
+            --format="default(lifecycle_config)"
