@@ -97,6 +97,12 @@ jobs:
       # continues in the background after POST /api/runs returns. One instance
       # at most, because run state lives in that process's memory.
       #
+      # --memory 4Gi, because the service holds each run's exported files. One
+      # export of the largest upload FR-1 allows, a 312 MiB PSD, raised a
+      # process's resident memory by about 1.1 GiB (#100). The default 512 MiB
+      # cannot hold that file even once, and runs can end together. 4 GiB is
+      # the most Cloud Run allows one CPU.
+      #
       # FREE_DAILY_BUDGET_USD=10 is a deploy-time placeholder, not the agreed
       # ceiling. The server's OpenAI key is the human's personal balance, so $10
       # bounds it to $10 a day, and admits three concurrent free runs at the $3
@@ -129,6 +135,7 @@ jobs:
             --image "$IMAGE" \
             --service-account "$RUNTIME_SERVICE_ACCOUNT" \
             --no-cpu-throttling \
+            --memory 4Gi \
             --min-instances 0 \
             --max-instances 1 \
             --timeout 3600 \
