@@ -82,10 +82,13 @@ async function installNetworkAllowList(page: Page, hostUrl: string): Promise<voi
     if (!allowed(route.request().url(), httpOrigins)) return route.abort('blockedbyclient')
     // Both `continue` and fulfilled redirects can follow later hops without
     // routing them again, so only a final response is returned to Chromium.
-    const response = await route.fetch({ maxRedirects: 0 })
+    // A fetch that cannot reach an allowed host aborts the request instead
+    // of leaving it unfulfilled until the page's own navigation times out.
+    const response = await route.fetch({ maxRedirects: 0 }).catch(() => undefined)
+    if (!response) return route.abort('failed')
     const status = response.status()
     if (status >= 300 && status < 400 && status !== 304) return route.abort('blockedbyclient')
-    return route.fulfill({ response })
+    return route.fulfill({ response }).catch(() => route.abort('failed'))
   })
   await context.routeWebSocket('**/*', (route) => {
     if (allowed(route.url(), interactiveOrigins)) {
