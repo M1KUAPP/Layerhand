@@ -171,7 +171,12 @@ export function testRunContract(subject: RunContractSubject): void {
         const { result } = endOf(events, 'done')
         expect(result.complete).toBe(false)
         expect(result.layers.length).toBeGreaterThan(0)
-        expect(ofType(events, 'error').some((error) => error.recoverable)).toBe(true)
+        // The run log takes a stopped run's last recoverable error as why it stopped.
+        expect(ofType(events, 'error').at(-1)).toEqual({
+          type: 'error',
+          reason: 'The model stopped answering, so the run stopped',
+          recoverable: true
+        })
       },
       timeoutMs
     )
