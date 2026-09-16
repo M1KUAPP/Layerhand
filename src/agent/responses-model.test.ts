@@ -363,7 +363,10 @@ describe('ResponsesModel retries', () => {
     const turn = await retrying(fetch, { sleep }).next(observe(['Keep the shadow']), signal())
 
     expect(turn).toMatchObject({ done: true, usage: { inputTokens: 2_000 } })
-    expect(waits).toEqual([3_000])
+    // At least the three seconds asked, with up to half a second of jitter on top.
+    expect(waits).toHaveLength(1)
+    expect(waits[0]).toBeGreaterThanOrEqual(3_000)
+    expect(waits[0]).toBeLessThanOrEqual(3_500)
     expect(sent).toHaveLength(2)
     expect(sent[1]!.body).toEqual(sent[0]!.body)
   })
