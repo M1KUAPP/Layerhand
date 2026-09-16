@@ -1,6 +1,12 @@
-# Runs the deterministic TypeScript suite. Live Chrome and Photopea tests are
-# opt-in through LAYERHAND_CHROME_INTEGRATION, so they cannot block a pull
-# request on third-party UI or network availability.
+# Runs the deterministic TypeScript suite, plus the fake-backed application
+# browser test (RUN_BROWSER_TESTS) against the runner's installed Google
+# Chrome (#119). live-frames.browser.test.ts stays out of this run: it
+# reproducibly hangs past its own timeout on a reload mid-run, which traces
+# to the still-open #101 and #113, not to this workflow. Live Chrome against
+# real Photopea and the network are a separate concern again: they are
+# opt-in through LAYERHAND_CHROME_INTEGRATION and run on a schedule instead
+# (browser-integration.yml), so neither suite can block a pull request on
+# third-party UI or network availability.
 name: Test
 
 on:
@@ -19,4 +25,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun test
+      - run: bun test test/web/application.browser.test.ts
+        env:
+          RUN_BROWSER_TESTS: '1'
       - run: bun run typecheck
