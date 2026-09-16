@@ -2,6 +2,20 @@ import { describe, expect, test } from 'bun:test'
 
 const htmlFile = Bun.file(new URL('../../src/web/index.html', import.meta.url))
 const cssFile = Bun.file(new URL('../../src/web/styles.css', import.meta.url))
+const cssSource = async () =>
+  (
+    await Promise.all(
+      [
+        'styles.css',
+        'landing/tokens.css',
+        'landing/hero.css',
+        'landing/scrub.css',
+        'landing/drawer.css',
+        'landing/glass.css',
+        'landing/waitlist.css'
+      ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
+    )
+  ).join('\n')
 const appSource = async () =>
   (
     await Promise.all(
@@ -87,16 +101,19 @@ describe('Layerhand workbench markup', () => {
   })
 
   test('uses the approved visual tokens, hard geometry, and restrained motion', async () => {
-    const css = await cssFile.text()
+    const css = await cssSource()
 
     expect(css).toContain('--ink: #11110f')
     expect(css).toContain('--paper: #f3f0e8')
-    expect(css).toContain('--muted: #9d9b94')
+    expect(css).toContain('--mark-muted: #9d9b94')
     expect(css).toContain('--accent: #c7ff4a')
     expect(css).toContain('@media (max-width: 1279px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
     expect(css).not.toContain('gradient')
     expect(css).not.toContain('border-radius')
-    for (const duration of css.matchAll(/(\d+)ms/g)) expect(Number(duration[1])).toBeLessThanOrEqual(180)
+    // The landing's motion vocabulary exceeds 180 ms by design; the cap
+    // stays on the workbench shell.
+    const shell = await cssFile.text()
+    for (const duration of shell.matchAll(/(\d+)ms/g)) expect(Number(duration[1])).toBeLessThanOrEqual(180)
   })
 })
