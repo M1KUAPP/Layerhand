@@ -85,6 +85,7 @@ jobs:
     environment: production
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -96,6 +97,28 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PUBLIC_URL: ${{ env.PUBLIC_URL }}
         run: bun run docs/evidence/agent-run/deployed-run.ts "$PUBLIC_URL" --profile cache-acceptance
+      - name: Authenticate for failure diagnostics
+        if: steps.agent-loop.outcome == 'failure'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - name: Set up gcloud for failure diagnostics
+        if: steps.agent-loop.outcome == 'failure'
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Capture sanitized failure diagnostic
+        if: steps.agent-loop.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          output="docs/evidence/agent-run/output"
+          latest_summary="$(find "$output" -name summary.json | sort | tail -n 1)"
+          run_id="$(bun -e 'const value = await Bun.file(Bun.argv[2]).json(); console.log(value.runId ?? "")' "$latest_summary")"
+          if [ -n "$run_id" ]; then
+            gcloud logging read \
+              "resource.type=cloud_run_revision AND jsonPayload.event=run_failed AND jsonPayload.runId=$run_id" \
+              --project "$PROJECT_ID" --limit 1 --freshness 15m --format json \
+              > "$output/cloud-run-failure.json"
+          fi
       - name: Publish agent loop summary
         if: always()
         run: |
