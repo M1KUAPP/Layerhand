@@ -22,7 +22,7 @@ afterEach(async () => {
  * A runtime whose scripted runs stay in flight, so their reservations stay
  * held. Each free run reserves the spend cap.
  */
-async function runtimeWithBudget(dailyBudgetUsd: number, spendCapUsd: number) {
+async function runtimeWithBudget(dailyBudgetUsd: number, spendCapUsd: number, fakeRunIntervalMs = 60_000) {
   const runtime = await createLaunchRuntime({
     env: {
       NODE_ENV: 'development',
@@ -30,7 +30,7 @@ async function runtimeWithBudget(dailyBudgetUsd: number, spendCapUsd: number) {
       FREE_RUN_SPEND_CAP_USD: String(spendCapUsd)
     },
     clientAddress: () => '203.0.113.40',
-    fakeRunIntervalMs: 60_000,
+    fakeRunIntervalMs,
     writeRunLog: () => undefined
   })
   const runIds: string[] = []
@@ -54,8 +54,10 @@ async function runtimeWithBudget(dailyBudgetUsd: number, spendCapUsd: number) {
     const cookie = response.headers.get('set-cookie')?.split(';')[0] ?? options.cookie
     return { status: response.status, body, cookie }
   }
+  const snapshot = async (runId: string | undefined) =>
+    (await runtime.application.fetch(new Request(`http://layerhand.test/api/runs/${runId}`))).json()
 
-  return { start }
+  return { start, snapshot, runtime }
 }
 
 // The deployed $3 cap, and the $8 cap of NFR-2 that the TRD's first worked example uses.
@@ -78,21 +80,35 @@ describe('metering limits, hit through HTTP', () => {
 
   // docs/TRD.md § Size the daily ceiling: each free run reserves the spend
   // cap, so a ceiling must cover twenty reservations to admit one full wave.
+  // A run held back only by what runs in flight reserved waits for it (NFR-4).
   test.each(SPEND_CAPS)(
-    'a ceiling of nineteen $%d reservations refuses the twentieth concurrent free run',
+    'a ceiling of nineteen $%d reservations holds the twentieth concurrent free run in line',
     async (spendCapUsd) => {
-      const { start } = await runtimeWithBudget(19 * spendCapUsd, spendCapUsd)
+      const { start, snapshot } = await runtimeWithBudget(19 * spendCapUsd, spendCapUsd)
 
       const statuses: number[] = []
       for (let run = 0; run < 19; run++) statuses.push((await start()).status)
       const twentieth = await start()
 
       expect(statuses).toEqual(Array(19).fill(201))
-      expect(twentieth.status).toBe(429)
-      expect(twentieth.body.code).toBe('daily_budget_reached')
-      expect(twentieth.body.message).toBeString()
+      expect(twentieth.status).toBe(201)
+      expect(await snapshot(twentieth.body.runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
     }
   )
+
+  test("refuses a free run with a stated message once the day's spending leaves no room for it", async () => {
+    // Runs that finish at once, so what the first spends is counted rather than reserved.
+    const { start, runtime } = await runtimeWithBudget(0.5, 0.3, 1)
+
+    const first = await start()
+    await runtime.registry.waitForTerminal(first.body.runId!)
+    const second = await start()
+
+    expect(first.status).toBe(201)
+    expect(second.status).toBe(429)
+    expect(second.body.code).toBe('daily_budget_reached')
+    expect(second.body.message).toBeString()
+  })
 
   test.each(SPEND_CAPS)(
     'a ceiling of twenty $%d reservations admits a full wave of twenty concurrent free runs',
@@ -107,21 +123,21 @@ describe('metering limits, hit through HTTP', () => {
   )
 
   test('the deployed $10 ceiling admits three concurrent free runs at the $3 reservation', async () => {
-    const { start } = await runtimeWithBudget(10, 3)
+    const { start, snapshot } = await runtimeWithBudget(10, 3)
 
     const statuses: number[] = []
     for (let run = 0; run < 3; run++) statuses.push((await start()).status)
     const fourth = await start()
 
     expect(statuses).toEqual([201, 201, 201])
-    expect(fourth.body.code).toBe('daily_budget_reached')
+    expect(await snapshot(fourth.body.runId)).toMatchObject({ status: 'queued' })
   })
 
   test.each(SPEND_CAPS)(
     "a user's own key still starts runs past both the free allowance and a ceiling of three $%d reservations",
     async (spendCapUsd) => {
       // Three reservations fill the ceiling exactly.
-      const { start } = await runtimeWithBudget(3 * spendCapUsd, spendCapUsd)
+      const { start, snapshot } = await runtimeWithBudget(3 * spendCapUsd, spendCapUsd)
 
       const first = await start()
       await start({ cookie: first.cookie })
@@ -131,7 +147,7 @@ describe('metering limits, hit through HTTP', () => {
       const withKeyAtCeiling = await start({ apiKey: 'sk-visitor-own-key-000000' })
       const withKeyAfterAllowance = await start({ cookie: first.cookie, apiKey: 'sk-visitor-own-key-000000' })
 
-      expect(ceilingHit.body.code).toBe('daily_budget_reached')
+      expect(await snapshot(ceilingHit.body.runId)).toMatchObject({ status: 'queued' })
       expect(freeRunsSpent.body.code).toBe('free_limit_reached')
       expect(withKeyAtCeiling.status).toBe(201)
       expect(withKeyAfterAllowance.status).toBe(201)

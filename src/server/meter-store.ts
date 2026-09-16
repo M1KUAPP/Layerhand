@@ -28,7 +28,12 @@ export type AdmissionResult =
   | { accepted: true; reservation: MeterReservation }
   | {
       accepted: false
-      code: 'free_limit_reached' | 'daily_budget_reached'
+      /**
+       * `budget_reserved` is a run that would fit what the day has spent, and
+       * is held back only by what runs in flight reserved, which comes back
+       * as they end. It waits for that rather than being refused (NFR-4).
+       */
+      code: 'free_limit_reached' | 'daily_budget_reached' | 'budget_reserved'
       message: string
     }
 
@@ -57,6 +62,12 @@ const DAILY_LIMIT: Exclude<AdmissionResult, { accepted: true }> = {
   accepted: false,
   code: 'daily_budget_reached',
   message: "Today's free-run budget is used up. Add your own OpenAI API key to continue."
+}
+
+const BUDGET_RESERVED: Exclude<AdmissionResult, { accepted: true }> = {
+  accepted: false,
+  code: 'budget_reserved',
+  message: 'Free runs in progress have reserved the rest of the budget, so this run waits for one to finish.'
 }
 
 function assertMicroUsd(value: number, label: string): void {
@@ -134,7 +145,15 @@ export class SqlMeterStore implements MeterStore {
                 AND meter_reservations.reserved_at > ${liveSince}
             ) + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
         `
-        if (days.length === 0) throw new AdmissionDenied(DAILY_LIMIT)
+        if (days.length === 0) {
+          // Reservations come back as their runs end; spending does not.
+          const unreserved = await transaction`
+            SELECT day_utc FROM daily_usage
+            WHERE day_utc = ${reservation.dayUtc}
+              AND daily_usage.spent_microusd + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
+          `
+          throw new AdmissionDenied(unreserved.length > 0 ? BUDGET_RESERVED : DAILY_LIMIT)
+        }
 
         await transaction`
           INSERT INTO meter_reservations (reservation_id, day_utc, reserved_microusd, reserved_at)
