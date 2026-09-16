@@ -113,32 +113,5 @@ export function renderWaitlist(context: LandingContext): HTMLElement {
   section.append(form)
   root.append(section)
 
-  const footer = node('footer', 'waitlist__footer')
-  footer.setAttribute('data-section', 'footer')
-
-  const wordmark = node('p', 'waitlist__wordmark', 'Layerhand')
-  footer.append(wordmark)
-
-  const credit1 = node('p', 'waitlist__credit', 'Built on GPT-6 Astra for the ')
-  const link1 = node('a', 'waitlist__link', 'GPT-6 Astra Challenge')
-  link1.href = 'https://www.producthunt.com/contests/gpt-6-astra-challenge'
-  credit1.append(link1)
-  credit1.append(document.createTextNode('.'))
-  footer.append(credit1)
-
-  const credit2 = node('p', 'waitlist__credit', 'Layerhand drives ')
-  const link2a = node('a', 'waitlist__link', 'Photopea')
-  link2a.href = 'https://www.photopea.com/'
-  credit2.append(link2a)
-  credit2.append(', a web image editor, and is not affiliated with it.')
-  footer.append(credit2)
-
-  const source = node('a', 'waitlist__source', '')
-  source.href = 'https://github.com/M1KUAPP/astra'
-  source.append(icon('github'), document.createTextNode('Source on GitHub'))
-  footer.append(source)
-
-  root.append(footer)
-
   return root
 }
