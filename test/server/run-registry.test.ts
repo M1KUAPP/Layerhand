@@ -36,6 +36,26 @@ async function collect<T>(events: AsyncIterable<T>): Promise<T[]> {
   return collected
 }
 
+const STARTED: RunEvent = { type: 'started', runId: 'private', viewport: { width: 1440, height: 900 } }
+
+// The largest mean frame docs/TRD.md § Frames measured, as the server
+// publishes it: a PNG in a data URL.
+const FRAME_PNG_BYTES = 840_000
+const frame = (n: number): RunEvent => ({
+  type: 'frame',
+  pngUrl: `data:image/png;base64,${Buffer.alloc(FRAME_PNG_BYTES, n).toString('base64')}`
+})
+const FRAME_URL_LENGTH = (frame(0) as Extract<RunEvent, { type: 'frame' }>).pngUrl.length
+
+/** A run that shows the editor `frames` times, taking a step after each, then finishes. */
+function framedRun(frames: number): RunEvent[] {
+  const steps = Array.from({ length: frames }, (_, i): RunEvent[] => [
+    frame(i + 1),
+    { type: 'step', n: i + 1, cap: 40, narration: `Retouching, pass ${i + 1}` }
+  ])
+  return [STARTED, ...steps.flat(), { type: 'done', result: RESULT }]
+}
+
 describe('RunRegistry', () => {
   test('pumps once, rewrites the public run id, and replays ordered events', async () => {
     let iterations = 0
@@ -84,6 +104,39 @@ describe('RunRegistry', () => {
     const resumed = await collect(registry.events('run-1', 0))
 
     expect(resumed.map((entry) => entry.id)).toEqual([1, 2])
+  })
+
+  test('replays only the latest frame, on a reload and after a last event id alike', async () => {
+    const registry = new RunRegistry()
+    registry.register({ runId: 'run-1', instruction: 'Retouch this', managedRun: scriptedRun(framedRun(3)) })
+    await registry.waitForTerminal('run-1')
+
+    const reload = await collect(registry.events('run-1'))
+    const reconnect = await collect(registry.events('run-1', 2))
+
+    // Frames 1 and 2 were replaced, so ids 1 and 3 are gaps.
+    expect(reload.map((entry) => entry.id)).toEqual([0, 2, 4, 5, 6, 7])
+    expect(reload.filter((entry) => entry.event.type === 'frame')).toEqual([{ id: 5, event: frame(3) }])
+    expect(reconnect.map((entry) => entry.id)).toEqual([4, 5, 6, 7])
+    expect((await registry.getSnapshot('run-1'))?.lastEventId).toBe(7)
+  })
+
+  test('keeps no more of a finished run than its latest frame and its other events', async () => {
+    const registry = new RunRegistry()
+    registry.register({ runId: 'run-1', instruction: 'Retouch this', managedRun: scriptedRun(framedRun(20)) })
+    await registry.waitForTerminal('run-1')
+
+    const replay = await collect(registry.events('run-1'))
+    const snapshot = await registry.getSnapshot('run-1')
+    // The snapshot's frame is the replayed frame, so each distinct frame counts once.
+    const frames = new Set(replay.flatMap(({ event }) => (event.type === 'frame' ? [event.pngUrl] : [])))
+    if (snapshot?.frameUrl) frames.add(snapshot.frameUrl)
+    const frameBytes = [...frames].reduce((total, url) => total + url.length, 0)
+    const otherBytes =
+      JSON.stringify(replay.filter(({ event }) => event.type !== 'frame')).length +
+      JSON.stringify({ ...snapshot, frameUrl: null }).length
+
+    expect(frameBytes + otherBytes).toBeLessThan(FRAME_URL_LENGTH + 64 * 1024)
   })
 
   test('keeps recoverable errors in history without ending the run', async () => {
