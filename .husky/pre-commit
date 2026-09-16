@@ -1,1 +1,1 @@
-graphify update . && (bunx prettier --write --log-level=warn graphify-out || true) && bunx lint-staged
+bunx lint-staged
