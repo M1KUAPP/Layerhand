@@ -145,6 +145,33 @@ describe('RunRegistry queue', () => {
     expect((await registry.getSnapshot('waiter'))?.status).toBe('running')
   })
 
+  test('tries runs told to wait again only when a run ends, and stops at the first still told to wait', async () => {
+    const registry = new RunRegistry({ maxConcurrentRuns: 2 })
+    const first = enqueueInFlight(registry, 'first')
+    const tries: string[] = []
+    const enqueueWaiting = (runId: string) =>
+      registry.enqueue({
+        runId,
+        instruction: 'Retouch this',
+        start: async () => {
+          tries.push(runId)
+          return undefined
+        }
+      })
+    await enqueueWaiting('earlier')
+    await enqueueWaiting('later')
+    // A run joining the line changes nothing the waiting runs wait for.
+    await enqueueInFlight(registry, 'arriving').snapshot
+
+    expect(tries).toEqual(['earlier', 'later'])
+
+    first.finish()
+    while (tries.length < 3) await Bun.sleep(1)
+    await Bun.sleep(10)
+
+    expect(tries).toEqual(['earlier', 'later', 'earlier'])
+  })
+
   test('tries a run told to wait again after a while, even when no run ends', async () => {
     const registry = new RunRegistry({ retryWaitingMs: 5 })
     let ready = false

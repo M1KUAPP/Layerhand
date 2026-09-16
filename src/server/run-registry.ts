@@ -121,6 +121,8 @@ interface StoredRun {
   start?: () => Promise<ManagedRun | undefined>
   /** Whether a start is in flight, which holds a slot until it settles. */
   starting: boolean
+  /** Whether the run's last start said it cannot start yet. */
+  toldToWait: boolean
   /** Whether the run is in flight and so counts against the cap. */
   holdsSlot: boolean
   startedAt: number
@@ -202,6 +204,7 @@ export class RunRegistry {
   #slotsInUse = 0
   #startPass: Promise<void> | undefined
   #startPassAgain = false
+  #retryToldToWait = false
   #retryTimer: ReturnType<typeof setTimeout> | undefined
   #closed = false
 
@@ -409,6 +412,7 @@ export class RunRegistry {
       instruction,
       onTerminal,
       starting: false,
+      toldToWait: false,
       holdsSlot: false,
       startedAt: this.#now(),
       history: [],
@@ -434,21 +438,30 @@ export class RunRegistry {
   /**
    * Starts waiting runs in order while slots are free. One pass runs at a
    * time, and a pass asked for during one runs after it, so no run is missed.
+   * A run told to wait is tried again only by a pass asked for with
+   * `retryToldToWait`, when a run has ended or a while has passed.
    */
-  #startWaiting(): Promise<void> {
+  #startWaiting(retryToldToWait = false): Promise<void> {
     this.#startPassAgain = true
+    if (retryToldToWait) this.#retryToldToWait = true
     this.#startPass ??= (async () => {
       // Never settles synchronously, so the pass is stored before it clears itself.
       await undefined
       try {
         while (this.#startPassAgain) {
           this.#startPassAgain = false
+          let retry = this.#retryToldToWait
+          this.#retryToldToWait = false
           for (const run of [...this.#queue]) {
             if (this.#closed || this.#slotsInUse >= this.#maxConcurrentRuns) break
             // A run told to wait keeps its place, and the runs behind it may
             // still start: a free run waiting for reserved budget must not
             // hold up a run whose own reservation is what it waits for.
-            if (run.start) await this.#tryStart(run, run.start)
+            if (!run.start || (run.toldToWait && !retry)) continue
+            await this.#tryStart(run, run.start)
+            // Runs behind one still told to wait would be told the same, and
+            // must not go ahead of it, so they are not asked this time.
+            if (run.toldToWait) retry = false
           }
         }
         this.#renumber()
@@ -472,6 +485,7 @@ export class RunRegistry {
       refusal = error instanceof RunStartRefused ? error.message : START_FAILED
     }
     run.starting = false
+    run.toldToWait = !managedRun && refusal === undefined && !run.cancelRequested
     this.#slotsInUse -= 1
 
     if (managedRun) {
@@ -517,7 +531,7 @@ export class RunRegistry {
     if (this.#slotsInUse >= this.#maxConcurrentRuns) return
     this.#retryTimer = setTimeout(() => {
       this.#retryTimer = undefined
-      void this.#startWaiting()
+      void this.#startWaiting(true)
     }, this.#retryWaitingMs)
     this.#retryTimer.unref?.()
   }
@@ -640,7 +654,7 @@ export class RunRegistry {
           run.holdsSlot = false
           this.#slotsInUse -= 1
         }
-        void this.#startWaiting()
+        void this.#startWaiting(true)
       }
     }
   }
