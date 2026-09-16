@@ -230,6 +230,12 @@ work to keep, and its free run is given back. A run whose start fails ends
 the same way, with a stated reason, rather than failing the request that
 queued it.
 
+In agent mode, a user's own key is checked before anything is stored,
+reserved, or opened for its run, by listing OpenAI's models with it, which
+costs nothing. A key OpenAI refuses gets 400 `invalid_api_key`, and a check
+OpenAI does not answer gets 503 `api_key_unchecked`, to be tried again. The
+fake and scripted modes open no browser, so they check nothing.
+
 ## Fakes first
 
 The first thing each stream produces is a fake of its own contract, not
