@@ -56,6 +56,27 @@ function framedRun(frames: number): RunEvent[] {
   return [STARTED, ...steps.flat(), { type: 'done', result: RESULT }]
 }
 
+/**
+ * Registers a run that holds an upload, as a real run's request does, and
+ * returns a weak reference to the upload, so the caller holds none of its own.
+ */
+function registerRunHoldingUpload(registry: RunRegistry, runId: string): WeakRef<Uint8Array> {
+  const request = { image: new Uint8Array(1024 * 1024) }
+  const managedRun = scriptedRun([STARTED, { type: 'done', result: RESULT }], {
+    release: () => void request.image.byteLength
+  })
+  registry.register({ runId, instruction: 'Retouch this', managedRun })
+  return new WeakRef(request.image)
+}
+
+/** How many of the objects a full collection leaves alive. */
+async function survivors(references: WeakRef<object>[]): Promise<number> {
+  await Bun.sleep(0)
+  Bun.gc(true)
+  await Bun.sleep(0)
+  return references.filter((reference) => reference.deref() !== undefined).length
+}
+
 describe('RunRegistry', () => {
   test('pumps once, rewrites the public run id, and replays ordered events', async () => {
     let iterations = 0
@@ -137,6 +158,18 @@ describe('RunRegistry', () => {
       JSON.stringify({ ...snapshot, frameUrl: null }).length
 
     expect(frameBytes + otherBytes).toBeLessThan(FRAME_URL_LENGTH + 64 * 1024)
+  })
+
+  test('lets go of finished runs, and with them the uploads they held', async () => {
+    const registry = new RunRegistry()
+    const runIds = Array.from({ length: 20 }, (_, i) => `run-${i}`)
+    const uploads = runIds.map((runId) => registerRunHoldingUpload(registry, runId))
+    await Promise.all(runIds.map((runId) => registry.waitForTerminal(runId)))
+
+    expect(await registry.getSnapshot('run-0')).toMatchObject({ status: 'complete' })
+    // Every upload stays while the registry holds its run. The collector scans
+    // the stack conservatively, so a stale pointer can still keep one or two.
+    expect(await survivors(uploads)).toBeLessThanOrEqual(2)
   })
 
   test('keeps recoverable errors in history without ending the run', async () => {
