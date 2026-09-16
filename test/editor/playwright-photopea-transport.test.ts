@@ -141,6 +141,29 @@ describe('Playwright Photopea transport', () => {
     expect(page.messages).toEqual([{ type: 'text', value: 'after the file' }])
   })
 
+  test('reads a file whose size is an exact multiple of the slice size, with no trailing empty slice', async () => {
+    const page = createPageFake()
+    const exported = Uint8Array.from({ length: FILE_SLICE_BYTES * 2 }, (_, index) => (index * 13) % 256)
+    page.messages.push({ type: 'bytes', value: exported })
+    const sliceCalls: unknown[] = []
+    const evaluate = page.evaluate
+    page.evaluate = async (callback: Function, argument?: unknown) => {
+      if (Array.isArray(argument)) sliceCalls.push(argument)
+      return evaluate(callback, argument)
+    }
+    const transport = new PlaywrightPhotopeaTransport(page as unknown as Page, {
+      hostUrl: 'http://127.0.0.1:4123/editor'
+    })
+
+    const message = await transport.nextMessage(750)
+
+    expect(message).toEqual({ type: 'bytes', value: exported })
+    expect(sliceCalls).toEqual([
+      [0, FILE_SLICE_BYTES],
+      [FILE_SLICE_BYTES, FILE_SLICE_BYTES * 2]
+    ])
+  })
+
   test('rejects a file slice that is not exactly the base64 of its bytes', async () => {
     // The page's slice of Uint8Array.of(1, 2, 3) is AQID: short, long, padded early, or not text at all.
     for (const value of [['x'], new Array(2), [1, 2, 3], undefined, 'AQI', 'AQID!', 'AQ=D', 'AQIDBA==']) {
