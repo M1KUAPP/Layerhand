@@ -130,8 +130,8 @@ describeBrowser('launch application in Google Chrome', () => {
       await expect(page.locator('#app').isVisible()).resolves.toBe(true)
 
       await page.getByRole('textbox', { name: 'Email address' }).fill('AlaskanTuna@Example.COM')
-      await page.getByRole('button', { name: 'Join waitlist' }).click()
-      await page.getByText('You are on the list.').waitFor()
+      await page.getByRole('button', { name: 'Email me the recording' }).click()
+      await page.getByText('Thanks. The recording will come to that address.').waitFor()
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
       expect(await page.locator('.drop-zone').getAttribute('tabindex')).toBe('0')
     } finally {
