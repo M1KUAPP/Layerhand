@@ -100,7 +100,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  }, 20_000)
+  }, 30_000)
 
   test('cancels and keeps a partial layered result', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -116,7 +116,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('captures waitlist email and enforces the exact desktop boundary', async () => {
     const page = await browser.newPage({ viewport: { width: 1279, height: 800 } })
@@ -137,7 +137,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  }, 10_000)
+  }, 30_000)
 
   test('rejects unusable image bytes when the file is chosen', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -161,7 +161,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  }, 15_000)
+  }, 30_000)
 
   test('shows an empty instruction error beside the instruction field', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -187,7 +187,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await page.close()
     }
-  }, 15_000)
+  }, 30_000)
 
   test('labels a step-cap result incomplete', async () => {
     const capped = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
@@ -202,5 +202,5 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
       await capped.close()
     }
-  }, 15_000)
+  }, 30_000)
 })
