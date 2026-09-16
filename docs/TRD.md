@@ -1313,7 +1313,8 @@ successful boot is cached, while a failed attempt permits a fresh host.
 Installed-Chrome tests with a local host confirm fresh initialization on
 repeated transport boots and that cleanup messages cannot satisfy a retry.
 The bridge's `commandTimeoutMs` bounds each message wait, excluding
-navigation, message delivery, and awaited reload cleanup.
+navigation, message delivery, and awaited reload cleanup. Each file a
+command receives adds a second a MiB to that wait (#100).
 
 A subsequent same-page decode regression established that Photopea can
 finish processing a truncated file without creating a document. The loader
@@ -1354,13 +1355,36 @@ encodes inside the page. The test checks SHA-256 digests taken in the page
 as each of its four files arrived against the bytes returned.
 
 That measurement is local. Over a CDP WebSocket, as a hosted session
-connects, Playwright caps one message at 256 MiB, about 192 MiB of file
-once encoded, and a larger message closes the connection. The sample
-exported at about 5.8 bytes a pixel. At that ratio a 6000x6000 upload,
-which FR-1 allows, passes the cap before any retouching, and a 6000x4000
-upload passes it with one full-size raster layer. Content moves the ratio,
-but until files are read out of the page in slices, exports of the largest
-uploads are likely to fail from a hosted session.
+connects, Playwright closes the connection on any message over 256 MiB,
+about 192 MiB of file once encoded, and the bridge reported the closed
+connection as a timeout, so the run lost its file (#100). The transport now
+reads each export out of the page in 4 MiB slices and decodes each straight
+into the file, and the bridge's wait grows by a second for each MiB of file
+a command receives.
+
+Issue #100 export result (2026-09-17, Google Chrome 153.0.8010.48): the
+opt-in `test/editor/photopea-large-export.integration.test.ts` reaches
+installed Chrome over `connectOverCDP`, as a hosted session is reached. It
+opened a generated 6000x6000 JPEG, the largest image FR-1 allows, added one
+full-size layer over the original, as a retouch leaves, and exported it
+through the production session in the loop's order. The 326,811,965-byte
+PSD, 311.7 MiB, matched the digest taken in the page. Each of the two PSD
+exports, the second after the copied layer was renamed, took about 4.9
+seconds from the request to its last byte, about two of them Photopea
+building the file, and the whole export took 13.5 seconds. Before the
+change the same test failed within 10.5 seconds, reported as a Photopea
+timeout.
+
+The export raised the test process's resident memory from 527 MiB to a
+peak of 1,585 MiB: about 1.1 GiB, or 3.4 times the file. The exporter and
+the session each hand out copies of the file, and the collector reclaims
+what a read leaves behind late. Before slices were decoded in place and
+the exporter dropped two copies of its own, the peak was 2,188 MiB. Each
+further full-size layer at 6000x6000 adds about 100 MiB to the file. The
+deploy set no memory, which on Cloud Run defaults to 512 MiB, too little to
+hold this file once, so the service now runs with 4 GiB. The hosted
+browser's own memory and a hosted connection's transfer rate remain
+unmeasured.
 
 B0 no longer gates anything. It was written when the licence question
 was open; it is
