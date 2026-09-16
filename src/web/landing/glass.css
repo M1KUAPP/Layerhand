@@ -13,6 +13,13 @@
   place-items: center;
 }
 
+/* The canvas joins the flat svg while three loads and replaces it once the
+   glass has drawn. Sharing one cell keeps the svg from shrinking to make
+   room, and the page from scrolling to follow it. */
+.glass__object > * {
+  grid-area: 1 / 1;
+}
+
 .glass__canvas {
   display: block;
   width: 100%;
