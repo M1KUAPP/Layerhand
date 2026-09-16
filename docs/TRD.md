@@ -162,8 +162,13 @@ alike:
   `recoverable` is false, and nothing follows. A recoverable error is
   reported and the run carries on.
 - `complete` is false whenever the run stopped before the agent
-  finished: at the step cap, at the spend cap, or on cancel. The result
-  still carries the layers made so far (FR-12, FR-13).
+  finished: at the step cap, at the spend cap, on cancel, or because the
+  model stopped answering. The result still carries the layers made so
+  far (FR-12, FR-13).
+- A model call that still fails once its retries have run out ends the
+  run as a cap does, not as a failure: a recoverable error says the model
+  stopped answering, and `done` follows with the file made so far. The
+  team took this decision on September 16, while completing #104.
 - A correction is acknowledged within three seconds (FR-21). Once the
   run has ended, `steer()` rejects and `cancel()` changes nothing.
 
