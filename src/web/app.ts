@@ -1,6 +1,7 @@
 import samplePhotoUrl from './assets/sample-photo.png'
 import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
+import './footer'
 import { renderLanding, type LandingContext } from './landing/index'
 import { formatCredits, initialClientState, reduceClientState, type ClientAction, type ClientState } from './state'
 

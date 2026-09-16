@@ -168,6 +168,29 @@ h2 {
   color: inherit;
 }
 
+/* The page folds over the footer. Once footer.ts has measured it, the
+   footer is fixed to the floor behind the page, and the page reserves its
+   height as a bottom margin, so the footer is uncovered only as the last
+   screen of the page scrolls away. Without the script, and in print, where
+   a fixed footer would repeat on every sheet, it stays in flow. */
+@media screen {
+  :root[data-footer='curtain'] #app {
+    position: relative;
+    z-index: 1;
+    margin-bottom: var(--footer-h);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  :root[data-footer='curtain'] .site-footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+  }
+}
+
 @media (max-width: 1279px) {
   .site-footer {
     grid-template-columns: 1fr;
