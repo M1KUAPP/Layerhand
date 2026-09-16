@@ -107,15 +107,26 @@ describeBrowser('landing drawer in Chromium', () => {
           expect(await rows.nth(index).locator('.drawer__layer-name').textContent()).toBe(name)
         }
         expect(await rows.nth(0).getAttribute('data-kind')).toBe('raster')
-        expect(await rows.nth(0).locator('.drawer__layer-mask').count()).toBe(0)
+        expect(await rows.nth(0).locator('.drawer__layer-mask').textContent()).toBe('')
         expect(await rows.nth(1).getAttribute('data-kind')).toBe('adjustment')
         expect(await rows.nth(1).locator('.drawer__layer-mask').textContent()).toBe('With mask')
         expect(await rows.nth(2).getAttribute('data-kind')).toBe('adjustment')
         expect(await rows.nth(2).locator('.drawer__layer-mask').textContent()).toBe('With mask')
         expect(await rows.nth(3).getAttribute('data-kind')).toBe('raster')
+        expect(await rows.nth(3).locator('.drawer__layer-mask').textContent()).toBe('')
         expect(await rows.nth(3).locator('.drawer__layer-note').textContent()).toBe(
           'Shaped by the correction sent mid-run: “Keep the vignette very subtle, and leave the middle of the photograph untouched.”'
         )
+        const columns = await rows.evaluateAll((elements) =>
+          elements.map((row) => ({
+            kind: row.querySelector('.drawer__layer-kind')?.getBoundingClientRect().x,
+            mask: row.querySelector('.drawer__layer-mask')?.getBoundingClientRect().x
+          }))
+        )
+        for (const { kind, mask } of columns) {
+          expect(kind).toBe(columns[0]?.kind)
+          expect(mask).toBe(columns[0]?.mask)
+        }
         expect(await isFocused(sheet.locator('.drawer__close'))).toBe(true)
       } finally {
         await page.close()

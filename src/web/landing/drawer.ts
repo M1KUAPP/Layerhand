@@ -45,11 +45,11 @@ function renderLayer(layer: DrawerLayer): HTMLElement {
     node('span', 'drawer__layer-name', layer.name),
     node('span', 'drawer__layer-kind', layer.kind === 'raster' ? 'Raster layer' : 'Adjustment layer')
   )
-  if (layer.mask) {
-    const mask = node('span', 'drawer__layer-mask')
-    mask.append(icon('hgi-layer-mask-01'), 'With mask')
-    row.append(mask)
-  }
+  // The mask cell stays empty on raster rows so the column still lines
+  // up across every row of the sheet.
+  const mask = node('span', 'drawer__layer-mask')
+  if (layer.mask) mask.append(icon('hgi-layer-mask-01'), 'With mask')
+  row.append(mask)
   if (layer.note) {
     const note = node('p', 'drawer__layer-note')
     note.append(icon('hgi-message-edit-01'), layer.note)
