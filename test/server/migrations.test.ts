@@ -40,6 +40,7 @@ describe('launch persistence migrations', () => {
     `
     expect(tables.map((row: { name: string }) => row.name)).toEqual([
       'daily_usage',
+      'meter_reservations',
       'run_log',
       'visitor_usage',
       'waitlist_emails'
@@ -55,6 +56,9 @@ describe('launch persistence migrations', () => {
     )
     await expectConstraint(
       database`INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd) VALUES (${'2026-09-15'}, ${0}, ${-1})`
+    )
+    await expectConstraint(
+      database`INSERT INTO meter_reservations (reservation_id, day_utc, reserved_microusd, reserved_at) VALUES (${'reservation'}, ${'2026-09-15'}, ${0}, ${'2026-09-15T00:00:00.000Z'})`
     )
     await database`INSERT INTO waitlist_emails (email, created_at) VALUES (${'Ada@Example.com'}, ${'2026-09-15T00:00:00.000Z'})`
     await expectConstraint(
