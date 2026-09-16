@@ -50,7 +50,7 @@ Temporary Items
 .superpowers/
 dist/
 node_modules/
-/artifacts/reliability/
+artifacts/reliability/
 docs/evidence/**/output/
 
 # Environment
