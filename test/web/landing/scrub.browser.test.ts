@@ -114,6 +114,8 @@ describeBrowser('landing scrub section in Chromium', () => {
       try {
         const section = page.locator('[data-section="scrub"]')
         expect(await section.locator('.scrub__poster').count()).toBe(1)
+        const still = await section.locator('.scrub__poster').evaluate((img) => (img as HTMLImageElement).currentSrc)
+        expect(still).toContain('scrub-end')
         expect(await section.locator('video').count()).toBe(0)
         expect(await section.locator('canvas').count()).toBe(0)
         const position = await section
