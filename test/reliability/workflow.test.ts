@@ -116,7 +116,7 @@ describe('reliability workflow contract', () => {
     expect(dispatch.inputs.task).toMatchObject({
       required: true,
       type: 'choice',
-      options: ['agent-loop-acceptance', 'browserbase-probe', 'reliability']
+      options: ['agent-loop-acceptance', 'agent-loop-diagnostics', 'browserbase-probe', 'reliability']
     })
     expect(job).toBeDefined()
     expect(job?.if).toBe("github.event_name == 'workflow_dispatch' && inputs.task == 'agent-loop-acceptance'")
@@ -189,6 +189,21 @@ describe('reliability workflow contract', () => {
     expect(runStep?.run).toContain('"$PUBLIC_URL/photopea-host"')
     expect(runStep?.env?.BROWSERBASE_API_KEY).toBe('${{ secrets.BROWSERBASE_API_KEY }}')
     expect(runStep?.env).not.toHaveProperty('OPENAI_API_KEY')
+  })
+
+  test('manual diagnostics read only one sanitized failure by run id', async () => {
+    const source = await Bun.file(new URL('../../.github/workflows/reliability.yml', import.meta.url)).text()
+    const workflow = Bun.YAML.parse(source) as WorkflowDefinition
+    const job = workflow.jobs.agent_loop_diagnostics
+
+    expect(workflow.on.workflow_dispatch.inputs.run_id).toMatchObject({ required: false, type: 'string' })
+    expect(job?.if).toContain("inputs.task == 'agent-loop-diagnostics'")
+    expect(job?.if).toContain("inputs.run_id != ''")
+    expect(job?.permissions).toEqual({ contents: 'read', 'id-token': 'write' })
+    const runStep = job?.steps.find((step) => step.name === 'Read sanitized run failure')
+    expect(runStep?.run).toContain('jsonPayload.event=run_failed')
+    expect(runStep?.run).toContain('jsonPayload.runId="${{ inputs.run_id }}"')
+    expect(runStep?.run).not.toContain('secrets versions access')
   })
 
   test('summary step handles missing artifacts/reliability directory without error', async () => {
