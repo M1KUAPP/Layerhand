@@ -48,8 +48,8 @@ Temporary Items
 .worktrees/
 .playwright-cli/
 .superpowers/
-node_modules/
 dist/
+node_modules/
 /artifacts/reliability/
 docs/evidence/**/output/
 
@@ -58,8 +58,8 @@ docs/evidence/**/output/
 !.env.example
 
 # Graphify
+graphify-out/.graphify_*
 graphify-out/cache/
 graphify-out/????-??-??/
 graphify-out/cost.json
-graphify-out/.graphify_*
 graphify-out/manifest.json
