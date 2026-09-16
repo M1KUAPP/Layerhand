@@ -84,15 +84,22 @@ describe('readConfig', () => {
 })
 
 describe('readRunLimits', () => {
-  test('defaults to 40 steps and a $3 spend cap', () => {
-    expect(readRunLimits({})).toEqual({ stepCap: 40, freeRunSpendCapUsd: 3 })
+  test('defaults to 40 steps, a $3 spend cap, and twenty runs at once', () => {
+    expect(readRunLimits({})).toEqual({ stepCap: 40, freeRunSpendCapUsd: 3, maxConcurrentRuns: 20 })
   })
 
-  test('reads both limits from the environment', () => {
-    expect(readRunLimits({ RUN_STEP_CAP: '25', FREE_RUN_SPEND_CAP_USD: '2.50' })).toEqual({
+  test('reads every limit from the environment', () => {
+    expect(readRunLimits({ RUN_STEP_CAP: '25', FREE_RUN_SPEND_CAP_USD: '2.50', MAX_CONCURRENT_RUNS: '12' })).toEqual({
       stepCap: 25,
-      freeRunSpendCapUsd: 2.5
+      freeRunSpendCapUsd: 2.5,
+      maxConcurrentRuns: 12
     })
+  })
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5'])('rejects invalid MAX_CONCURRENT_RUNS %s without echoing it', (value) => {
+    expect(() => readRunLimits({ MAX_CONCURRENT_RUNS: value })).toThrow(
+      'MAX_CONCURRENT_RUNS must be a positive integer'
+    )
   })
 
   test.each(['0', '-1', '1.5', 'NaN', ' 5', '99999999999999999999'])(

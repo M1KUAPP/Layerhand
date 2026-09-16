@@ -36,13 +36,6 @@ export interface RunRouteDependencies {
   runsPaused?: boolean
 }
 
-class RunStartError extends Error {
-  constructor() {
-    super('The run could not be started.')
-    this.name = 'RunStartError'
-  }
-}
-
 class RequestTooLargeError extends Error {
   constructor() {
     super('The upload exceeds the 20 MB request limit.')
@@ -136,9 +129,6 @@ export class RunRoutes {
     } catch (error) {
       if (error instanceof RequestTooLargeError) return apiError('request_too_large', error.message, 413)
       if (error instanceof RunRegistryError) return registryError(error)
-      if (error instanceof RunStartError) {
-        return apiError('run_start_failed', 'The run could not be started. Try again in a moment.', 500)
-      }
       if (error instanceof ImageUploadError) return apiError(error.code, error.message, 400)
       if (error instanceof WaitlistEmailError || error instanceof VisitorIdentityError) {
         const code = error instanceof WaitlistEmailError ? error.code : 'invalid_visitor'
@@ -217,18 +207,11 @@ export class RunRoutes {
     if (!admission.accepted) {
       return json(admission, 429, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
     }
-
-    // A session warmed for this visitor and this image starts the run with the
-    // editor already open. Anything else leaves the run to start cold. The
-    // image is hashed only when there is an upload that could match it.
+    const { reservation } = admission
     const uploadIdValue = form.get('uploadId')
     const uploadId = typeof uploadIdValue === 'string' ? uploadIdValue : undefined
-    const pool = this.#dependencies.warmSessions
-    const warmSession =
-      pool && uploadId ? pool.claim(uploadId, identity.visitorKey, await imageDigest(upload.bytes)) : undefined
 
     let artifactKey: string | undefined
-    let managedRun: ManagedRun | undefined
     try {
       const artifact = await this.#dependencies.artifactStore.put({
         kind: 'upload',
@@ -245,29 +228,30 @@ export class RunRoutes {
         budgetUsd: this.#dependencies.freeRunReservationMicroUsd / 1_000_000,
         apiKey
       }
-      try {
-        managedRun = await this.#dependencies.runFactory(runRequest, warmSession)
-      } catch {
-        // Starting a run can fail on our side, as when an editor session cannot be created.
-        throw new RunStartError()
-      }
+      let started = false
       const runId = this.#dependencies.idGenerator()
-      this.#dependencies.registry.register({
+      // Past the cap on concurrent runs, the run waits in line and starts by itself (NFR-4).
+      await this.#dependencies.registry.enqueue({
         runId,
         instruction,
-        managedRun,
+        start: async () => {
+          const managedRun = await this.#startRun(runRequest, uploadId, identity.visitorKey)
+          started = true
+          return managedRun
+        },
         onTerminal: async ({ snapshot, metrics }) => {
           try {
-            // A run that failed without spending anything never used its free
-            // run, so it is given back rather than reconciled at $0 (#116).
-            // The manager's stopReason, not the snapshot's status, says so: a
-            // run whose model call fails can still end with a `done` event
-            // and an incomplete result, so its status reads `incomplete`
-            // even though the manager counts it as failed.
-            if (metrics.stopReason === 'failed' && snapshot.costUsd === 0) {
-              await this.#dependencies.meterStore.release(admission.reservation)
+            // A run that never started, or failed without spending anything,
+            // never used its free run, so it is given back rather than
+            // reconciled at $0 (#116). The manager's stopReason, not the
+            // snapshot's status, says a run failed: a run whose model call
+            // fails can still end with a `done` event and an incomplete
+            // result, so its status reads `incomplete` even though the
+            // manager counts it as failed.
+            if (!started || (metrics.stopReason === 'failed' && snapshot.costUsd === 0)) {
+              await this.#dependencies.meterStore.release(reservation)
             } else {
-              await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
+              await this.#dependencies.meterStore.reconcile(reservation, usdToMicroUsd(snapshot.costUsd))
             }
           } finally {
             await this.#dependencies.artifactStore.delete(runArtifactKey)
@@ -276,22 +260,7 @@ export class RunRoutes {
       })
       return json({ runId }, 201, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
     } catch (error) {
-      // A warm session no run ever took bills until the provider times it out,
-      // so it is released here however the start failed. A run that exists owns
-      // it instead, and releases it as it ends.
-      if (!managedRun) await warmSession?.abandon().catch(() => undefined)
-      if (managedRun) {
-        try {
-          await managedRun.handle.cancel()
-        } catch {
-          // Continue local cleanup after a failed start.
-        }
-        try {
-          managedRun.releaseSecrets()
-        } catch {
-          // Continue releasing quota after a failed start.
-        }
-      }
+      // Nothing was registered, so nothing else will release what this run held.
       if (artifactKey) {
         try {
           await this.#dependencies.artifactStore.delete(artifactKey)
@@ -299,7 +268,26 @@ export class RunRoutes {
           // The provider lifecycle remains a backstop; quota still must be released.
         }
       }
-      await this.#dependencies.meterStore.release(admission.reservation)
+      await this.#dependencies.meterStore.release(reservation)
+      throw error
+    }
+  }
+
+  /**
+   * Starts a run that holds a slot. A session warmed for this visitor and this
+   * image is claimed only now, so a run waiting in line holds no browser, and
+   * one the pool has released since leaves the run to start cold. The image is
+   * hashed only when there is an upload that could match it.
+   */
+  async #startRun(request: RunRequest, uploadId: string | undefined, visitorKey: string): Promise<ManagedRun> {
+    const pool = this.#dependencies.warmSessions
+    const warmSession =
+      pool && uploadId ? pool.claim(uploadId, visitorKey, await imageDigest(request.image)) : undefined
+    try {
+      return await this.#dependencies.runFactory(request, warmSession)
+    } catch (error) {
+      // A claimed session that no run took bills until the provider times it out.
+      await warmSession?.abandon().catch(() => undefined)
       throw error
     }
   }
