@@ -8,11 +8,12 @@ import { createLaunchRuntime } from '../../src/server/runtime'
 
 const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
 
-function runRequest(): Request {
+function runRequest(apiKey?: string): Request {
   const form = new FormData()
   form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
   form.set('filename', 'source.png')
   form.set('instruction', 'Remove the background')
+  if (apiKey) form.set('apiKey', apiKey)
   return new Request('http://layerhand.test/api/runs', { method: 'POST', body: form })
 }
 
@@ -145,6 +146,34 @@ describe('launch runtime', () => {
       const started = await snapshot(second.runId)
       expect(started).toMatchObject({ status: 'running' })
       expect(started.queuePosition).toBeUndefined()
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test("checks a user's own key with OpenAI in agent mode before a browser is opened for it", async () => {
+    const requested: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: {
+        NODE_ENV: 'development',
+        RUN_MODE: 'agent',
+        BROWSERBASE_API_KEY: 'browserbase-test-key',
+        PUBLIC_URL: 'http://layerhand.test'
+      },
+      clientAddress: () => '203.0.113.20',
+      openAiFetch: async (input) => {
+        requested.push(String(input))
+        return Response.json({ error: { message: 'Incorrect API key provided' } }, { status: 401 })
+      },
+      writeRunLog: () => undefined
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest('sk-mistyped-key-000000'))
+
+      expect(response.status).toBe(400)
+      expect(((await response.json()) as { code: string }).code).toBe('invalid_api_key')
+      expect(requested).toEqual(['https://api.openai.com/v1/models'])
     } finally {
       await runtime.close()
     }

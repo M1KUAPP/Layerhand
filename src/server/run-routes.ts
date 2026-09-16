@@ -4,6 +4,7 @@ import type { ArtifactStore } from './artifact-store'
 import type { ManagedRun } from './managed-run'
 import type { MeterStore } from './meter-store'
 import { usdToMicroUsd } from './meter-store'
+import type { OpenAiKeyCheck } from './openai-key'
 import { RunRegistry, RunRegistryError, RunStartRefused } from './run-registry'
 import { VisitorIdentityError, establishVisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
@@ -34,6 +35,8 @@ export interface RunRouteDependencies {
   warmSessions?: WarmSessionPool
   /** Refuses new runs and upload warming while true, for a launch-day emergency (#118). */
   runsPaused?: boolean
+  /** Checks a user's own key with OpenAI, when the run mode opens a browser for it. */
+  checkApiKey?: (apiKey: string) => Promise<OpenAiKeyCheck>
 }
 
 class RequestTooLargeError extends Error {
@@ -199,6 +202,19 @@ export class RunRoutes {
     const identity = await this.#visitor(request)
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
+    const cookie = identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+    // A key OpenAI will not take is turned away before anything is stored,
+    // reserved, or opened for its run.
+    const keyCheck =
+      apiKey && this.#dependencies.checkApiKey ? await this.#dependencies.checkApiKey(apiKey) : 'accepted'
+    if (keyCheck === 'refused') {
+      const message = 'OpenAI did not accept this API key. Check the key and try again.'
+      return json({ code: 'invalid_api_key', message }, 400, cookie)
+    }
+    if (keyCheck === 'unchecked') {
+      const message = 'OpenAI could not be reached to check this API key. Try again in a moment.'
+      return json({ code: 'api_key_unchecked', message }, 503, cookie)
+    }
     const admissionRequest = {
       visitorKey: identity.visitorKey,
       reservationMicroUsd: this.#dependencies.freeRunReservationMicroUsd,
@@ -208,7 +224,7 @@ export class RunRoutes {
     // A free run held back only by budget that runs in flight reserved waits
     // in line for it, and is admitted when its turn comes (NFR-4).
     if (!admission.accepted && admission.code !== 'budget_reserved') {
-      return json(admission, 429, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
+      return json(admission, 429, cookie)
     }
     let reservation = admission.accepted ? admission.reservation : undefined
     const uploadIdValue = form.get('uploadId')
@@ -271,7 +287,7 @@ export class RunRoutes {
           }
         }
       })
-      return json({ runId }, 201, identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined)
+      return json({ runId }, 201, cookie)
     } catch (error) {
       // Nothing was registered, so nothing else will release what this run held.
       if (artifactKey) {
