@@ -1,4 +1,4 @@
-import type { RunEvent, RunResult } from '../agent/contract'
+import type { RunEvent, RunResult, RunStopReason } from '../agent/contract'
 import { cloneLayerTree } from '../editor/layer-tree'
 import type { ManagedRun, ManagedRunMetrics } from './managed-run'
 
@@ -42,6 +42,11 @@ export interface RunSnapshot {
   recoverableErrors: string[]
   result?: RunResult
   failureReason?: string
+  /**
+   * Set alongside `result`: the true reason the run ended (step cap, spend
+   * cap, time limit, shutdown, cancel, or that it completed).
+   */
+  stopReason?: RunStopReason
 }
 
 export interface TerminalRun {
@@ -261,7 +266,8 @@ export class RunRegistry {
         running().map(async (run) => {
           run.cancelRequested = true
           try {
-            await run.managedRun.handle.cancel()
+            // Shutdown gets its own outcome (#112) when the managed run can tell it apart from a cancel.
+            await (run.managedRun.shutdown ? run.managedRun.shutdown() : run.managedRun.handle.cancel())
           } catch {
             // The abandon below still stops the bill.
           }
@@ -365,6 +371,7 @@ export class RunRegistry {
       case 'done':
         snapshot.result = copyResult(event.result)
         snapshot.status = run.cancelRequested ? 'cancelled' : event.result.complete ? 'complete' : 'incomplete'
+        snapshot.stopReason = event.result.stopReason
         break
       case 'error':
         if (event.recoverable) snapshot.recoverableErrors.push(event.reason)

@@ -58,6 +58,7 @@ export function managedAgentRun(
   let calls = 0
   let cachedInputTokens = 0
   let cancelled = false
+  let shuttingDown = false
   let timedOut = false
   let missingNarration = false
   // The loop ends such a run as a cap does, but the run log still counts it as failed.
@@ -91,6 +92,7 @@ export function managedAgentRun(
   }
 
   const stoppedBy = (complete: boolean, endedAfterCeiling: boolean): RunStopReason => {
+    if (shuttingDown) return 'shutdown'
     if (cancelled) return 'cancelled'
     if (missingNarration || modelUnavailable) return 'failed'
     if (complete) return 'complete'
@@ -147,7 +149,11 @@ export function managedAgentRun(
     events: {
       async *[Symbol.asyncIterator](): AsyncIterator<RunEvent> {
         for await (const event of underlying.events) {
-          if (event.type === 'done') stopReason = stoppedBy(event.result.complete, noteEnd())
+          if (event.type === 'done') {
+            stopReason = stoppedBy(event.result.complete, noteEnd())
+            yield { ...event, result: { ...event.result, stopReason } }
+            continue
+          }
           if (event.type === 'error' && !event.recoverable && noteEnd()) stopReason = 'time_limit'
           yield event
         }
@@ -173,7 +179,11 @@ export function managedAgentRun(
     releaseSecrets() {
       request.apiKey = undefined
     },
-    abandon: () => abandon()
+    abandon: () => abandon(),
+    async shutdown() {
+      shuttingDown = true
+      await underlying.cancel()
+    }
   }
 }
 
