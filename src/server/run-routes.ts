@@ -251,7 +251,13 @@ export class RunRoutes {
         managedRun,
         onTerminal: async ({ snapshot }) => {
           try {
-            await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
+            // A run that failed without spending anything never used its free
+            // run, so it is given back rather than reconciled at $0 (#116).
+            if (snapshot.status === 'failed' && snapshot.costUsd === 0) {
+              await this.#dependencies.meterStore.release(admission.reservation)
+            } else {
+              await this.#dependencies.meterStore.reconcile(admission.reservation, usdToMicroUsd(snapshot.costUsd))
+            }
           } finally {
             await this.#dependencies.artifactStore.delete(runArtifactKey)
           }
