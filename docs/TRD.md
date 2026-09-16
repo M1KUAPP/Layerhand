@@ -343,18 +343,22 @@ scripted model. How the loop applies the rules above:
   the model's screenshots, as [Frames](#frames) describes.
 
 `ResponsesModel` sends a call again rather than let one error end the run
-(#104). A call that meets HTTP 429 or 5xx, a failed connection, a failed
-step over the WebSocket, or no answer within its own timeout is retried,
-over the same socket when it has one:
+(#104). A call that meets a rate limit, a server error, a failed
+connection, or no answer within its own timeout is retried, over the same
+socket when it has one. Over HTTP, and in a WebSocket `error` event, a rate
+limit is status 429 and a server error 5xx. A failed response over the
+WebSocket carries only an error code, so `rate_limit_exceeded` counts as a
+rate limit, and `server_error`, or no code at all, as a server error:
 
 - **The timeout** gives each attempt one minute. Over HTTP it bounds the
   request to its whole response; over the WebSocket it bounds a step's
   silence, because a response sends traffic as it goes. Recorded runs
   spent 3 to 20 seconds a step, the editor's actions included.
-- **The wait** doubles from one second up to thirty, half of it jittered
-  so that runs rate-limited together come back apart, and is never
-  shorter than `retry-after`. A cancel or the run's ceiling ends it at
-  once.
+- **The wait** follows a backoff that doubles from one second up to
+  thirty. It is half the backoff, or `retry-after` when that is longer,
+  plus up to the other half at random, so that runs rate-limited together
+  come back apart even when told the same wait, and it never passes
+  thirty seconds. A cancel or the run's ceiling ends it at once.
 - **Giving up** comes after six retries, whose waits add up to between
   thirty seconds and a minute unless `retry-after` asks for more, or at
   once when the server asks for a wait longer than thirty seconds. The
@@ -362,8 +366,10 @@ over the same socket when it has one:
   a cap does: it reports a correction left unsent, says the model stopped
   answering, and publishes the file made so far. The run log still
   records it as `failed`, with `model_call_failed`.
-- **A refusal is not retried.** Any other 400-class status, a missing
-  key, or a malformed action fails the run as before.
+- **A refusal is not retried**, on either transport. Any other 400-class
+  status or error code, such as `invalid_prompt`; a rate limit for an
+  exhausted quota, `insufficient_quota`, which no wait clears; a missing
+  key; or a malformed action fails the run at once, as before.
 
 ### Screenshots
 
