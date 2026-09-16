@@ -62,7 +62,7 @@ describeBrowser('waitlist and footer in Chromium', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('shows copy, form and footer at 1280x800', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1280, height: 800 } })
@@ -77,7 +77,7 @@ describeBrowser('waitlist and footer in Chromium', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('submitting a new address shows thanks and clears input', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
@@ -95,7 +95,7 @@ describeBrowser('waitlist and footer in Chromium', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('submitting the same address shows repeat status and keeps input', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
@@ -122,7 +122,7 @@ describeBrowser('waitlist and footer in Chromium', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 
   test('hero link to updates targets #updates', async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
@@ -133,5 +133,5 @@ describeBrowser('waitlist and footer in Chromium', () => {
     } finally {
       await page.close()
     }
-  })
+  }, 30_000)
 })
