@@ -84,6 +84,22 @@ describe('SqlMeterStore', () => {
     })
   })
 
+  test("refuses the day's first free reservation when its reservation exceeds the daily ceiling", async () => {
+    const { store: meter } = await store(2)
+
+    const result = await meter.admit({
+      visitorKey: 'visitor-a',
+      reservationMicroUsd: usdToMicroUsd(3),
+      byok: false
+    })
+
+    expect(result).toEqual({
+      accepted: false,
+      code: 'daily_budget_reached',
+      message: "Today's free-run budget is used up. Add your own OpenAI API key to continue."
+    })
+  })
+
   test('lets BYOK runs bypass free and daily admission without database usage', async () => {
     const { database, store: meter } = await store(1)
     const first = await meter.admit({
