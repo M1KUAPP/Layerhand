@@ -14,6 +14,7 @@ const LONG_INSTRUCTION =
     .repeat(5)
     .slice(0, 450)
 const REAL_FRAME_URL = new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url)
+const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
 
 async function openInput(page: Page, origin: string): Promise<void> {
   await page.goto(origin)
@@ -397,6 +398,45 @@ describeBrowser('launch application in Google Chrome', () => {
       await expect(instruction.getAttribute('aria-invalid')).resolves.toBeNull()
     } finally {
       await page.close()
+    }
+  }, 30_000)
+
+  test('shows a queued run its place in line, lets it leave, and starts it without another click', async () => {
+    // One run at a time, each slow enough to stay in flight.
+    const busy = await startTestApplication({ fakeRunIntervalMs: 60_000, maxConcurrentRuns: 1 })
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+    const correction = page.getByRole('textbox', { name: 'Correct the next action' })
+    const startQueuedRun = async () => {
+      await openInput(page, busy.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Warm the highlights')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.getByText('Number 1 in line. The run starts on its own.').waitFor()
+    }
+    try {
+      // A run already in flight holds the only slot.
+      const form = new FormData()
+      form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
+      form.set('filename', 'source.png')
+      form.set('instruction', 'Remove the background')
+      const holding = (await (await fetch(`${busy.origin}/api/runs`, { method: 'POST', body: form })).json()) as {
+        runId: string
+      }
+
+      await startQueuedRun()
+      await expect(page.locator('#run-action').textContent()).resolves.toBe('Waiting to start')
+      await expect(correction.isDisabled()).resolves.toBe(true)
+      await page.getByRole('button', { name: 'Leave the queue' }).click()
+      await page.locator('[data-view="input"]').waitFor()
+      await page.waitForFunction(() => sessionStorage.getItem('layerhand.runId') === null)
+
+      await startQueuedRun()
+      await fetch(`${busy.origin}/api/runs/${holding.runId}/cancel`, { method: 'POST' })
+      await page.getByRole('button', { name: 'Cancel and keep work' }).waitFor()
+      await expect(page.getByText('Preparing the editor…').count()).resolves.toBe(1)
+      await expect(correction.isEnabled()).resolves.toBe(true)
+    } finally {
+      await page.close()
+      await busy.close()
     }
   }, 30_000)
 

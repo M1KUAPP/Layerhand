@@ -9,7 +9,8 @@ import {
   reduceClientState,
   resultOutcomeText,
   type ClientAction,
-  type ClientState
+  type ClientState,
+  type RunProgress
 } from './state'
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
@@ -400,6 +401,23 @@ function renderInput(): DocumentFragment {
   return fragment
 }
 
+// A run past the cap on concurrent runs waits in line with its place shown,
+// and starts by itself; until then it has no editor to show or correct (NFR-4).
+function actionText(progress: RunProgress): string {
+  return progress.queuePosition === null ? (progress.narration ?? 'Opening the editor') : 'Waiting to start'
+}
+
+function placeholderText(progress: RunProgress): string {
+  return progress.queuePosition === null
+    ? 'Preparing the editor…'
+    : `Number ${progress.queuePosition} in line. The run starts on its own.`
+}
+
+function cancelText(progress: RunProgress): string {
+  if (progress.cancelRequested) return 'Cancelling…'
+  return progress.queuePosition === null ? 'Cancel and keep work' : 'Leave the queue'
+}
+
 function progressRail(progress: Extract<ClientState, { view: 'running' }>['progress']): HTMLElement {
   const rail = node('aside', 'progress-rail')
   const title = node('p', 'rail-title', 'Run status')
@@ -409,7 +427,7 @@ function progressRail(progress: Extract<ClientState, { view: 'running' }>['progr
   entries.push(
     ['step', 'Step', `Step ${progress.steps} of ${progress.cap ?? '?'}`],
     ['credits', 'Spend', formatCredits(progress.costUsd)],
-    ['action', 'Action', progress.narration ?? 'Opening the editor']
+    ['action', 'Action', actionText(progress)]
   )
   for (const [id, term, detail] of entries) {
     const value = node('dd', undefined, detail)
@@ -437,13 +455,19 @@ function replaceNotices(container: HTMLElement, progress: Extract<ClientState, {
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
-  const cancel = button(current.progress.cancelRequested ? 'Cancelling…' : 'Cancel and keep work', 'text-button')
+  const cancel = button(cancelText(current.progress), 'text-button')
   cancel.id = 'cancel-run'
   cancel.disabled = current.progress.cancelRequested
   cancel.addEventListener('click', async () => {
+    // A run that leaves the queue has nothing to come back to after a reload.
+    const leavingQueue = state.view === 'running' && state.progress.queuePosition !== null
     dispatch({ type: 'cancel_requested' })
     try {
       await api.cancel(current.progress.runId)
+      if (leavingQueue) {
+        sessionStorage.removeItem(RUN_STORAGE_KEY)
+        sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+      }
     } catch (error) {
       dispatch({ type: 'connection_failed', message: publicMessage(error) })
     }
@@ -460,7 +484,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     image.alt = 'Current editor frame'
     frame.append(image)
   } else {
-    frame.append(node('p', 'frame-placeholder', 'Preparing the editor…'))
+    frame.append(node('p', 'frame-placeholder', placeholderText(current.progress)))
   }
   layout.append(frame, progressRail(current.progress))
 
@@ -478,6 +502,8 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   const correctionHint = node('p', 'field-hint', 'A correction steers the next action. It does not restart the run.')
   correctionHint.id = 'correction-hint'
   field.setAttribute('aria-describedby', correctionHint.id)
+  field.disabled = current.progress.queuePosition !== null
+  send.disabled = field.disabled
   correction.append(label, field, send, correctionHint)
   correction.addEventListener('submit', async (event) => {
     event.preventDefault()
@@ -516,13 +542,21 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   const cancel = root.querySelector<HTMLButtonElement>('#cancel-run')
   const frame = root.querySelector<HTMLElement>('#live-frame')
   const notices = root.querySelector<HTMLElement>('#run-notices')
-  if (!step || !credits || !action || !cancel || !frame || !notices) return
+  const field = root.querySelector<HTMLInputElement>('#correction')
+  const send = root.querySelector<HTMLButtonElement>('.correction-form button[type="submit"]')
+  if (!step || !credits || !action || !cancel || !frame || !notices || !field || !send) return
 
   step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
   credits.textContent = formatCredits(current.progress.costUsd)
-  action.textContent = current.progress.narration ?? 'Opening the editor'
-  cancel.textContent = current.progress.cancelRequested ? 'Cancelling…' : 'Cancel and keep work'
+  action.textContent = actionText(current.progress)
+  cancel.textContent = cancelText(current.progress)
   cancel.disabled = current.progress.cancelRequested
+  // Only when the run leaves the queue, so a correction being sent keeps its button disabled.
+  const queued = current.progress.queuePosition !== null
+  if (field.disabled !== queued) {
+    field.disabled = queued
+    send.disabled = queued
+  }
 
   if (current.progress.frameUrl) {
     let image = frame.querySelector('img')
@@ -532,6 +566,9 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
       frame.replaceChildren(image)
     }
     if (image.src !== current.progress.frameUrl) image.src = current.progress.frameUrl
+  } else {
+    const placeholder = frame.querySelector('.frame-placeholder')
+    if (placeholder) placeholder.textContent = placeholderText(current.progress)
   }
   replaceNotices(notices, current.progress)
 }
@@ -725,7 +762,7 @@ async function restoreRun(runId: string): Promise<void> {
         snapshot,
         instruction: sessionStorage.getItem(INSTRUCTION_STORAGE_KEY)
       })
-      if (snapshot.status === 'running') followRun(runId)
+      if (snapshot.status === 'running' || snapshot.status === 'queued') followRun(runId)
     }
   } catch (error) {
     if (stillRestoring(runId)) {
