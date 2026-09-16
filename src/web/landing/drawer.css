@@ -253,16 +253,23 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The shell clamps every reduced-motion transition to 0.01ms with
+     !important, so each cross-fade restores its own duration the same
+     way. */
   .drawer__scrim {
     transition: opacity var(--duration-swap);
+    transition-duration: var(--duration-swap) !important;
   }
 
   .drawer__sheet {
     translate: none;
     opacity: 0;
+    /* visibility as a timed property stays visible until the fade ends
+       on close and flips at once on open. */
     transition:
       opacity var(--duration-swap),
-      visibility 0s var(--duration-swap);
+      visibility var(--duration-swap);
+    transition-duration: var(--duration-swap) !important;
   }
 
   .drawer.is-open .drawer__sheet {
@@ -270,6 +277,7 @@
     opacity: 1;
     transition:
       opacity var(--duration-swap),
-      visibility 0s 0s;
+      visibility var(--duration-swap);
+    transition-duration: var(--duration-swap) !important;
   }
 }
