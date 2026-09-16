@@ -429,7 +429,7 @@ function replaceNotices(container: HTMLElement, progress: Extract<ClientState, {
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
-  const cancel = button(current.progress.cancelRequested ? 'Cancelling...' : 'Cancel and keep work', 'text-button')
+  const cancel = button(current.progress.cancelRequested ? 'Cancelling…' : 'Cancel and keep work', 'text-button')
   cancel.id = 'cancel-run'
   cancel.disabled = current.progress.cancelRequested
   cancel.addEventListener('click', async () => {
@@ -452,7 +452,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     image.alt = 'Current editor frame'
     frame.append(image)
   } else {
-    frame.append(node('p', 'frame-placeholder', 'Preparing the editor...'))
+    frame.append(node('p', 'frame-placeholder', 'Preparing the editor…'))
   }
   layout.append(frame, progressRail(current.progress))
 
@@ -622,8 +622,8 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
   const section = node('section', 'error-state')
   section.append(
     eyebrow('Run interrupted'),
-    node('h1', undefined, 'The workbench needs another try.'),
-    description(current.message)
+    node('h1', undefined, 'The retouching run stopped.'),
+    description(withFullStop(current.message))
   )
   const action = button(current.runId ? 'Reconnect to run' : 'Choose another photograph', 'button button-accent')
   action.addEventListener('click', () => {
@@ -736,6 +736,10 @@ function publicMessage(error: unknown): string {
   }
   if (error instanceof Error && !error.message.toLowerCase().includes('secret')) return error.message
   return 'The request could not be completed.'
+}
+
+function withFullStop(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`
 }
 
 document.documentElement.dataset.application = 'layerhand'
