@@ -80,6 +80,9 @@ describe('Layerhand workbench markup', () => {
     expect(app).toContain("'Spend'")
     expect(app).toContain('For example: keep the label unchanged')
     expect(app).toContain('It does not restart the run.')
+    expect(app).toContain('Download flattened PNG')
+    expect(app).toContain('Download links expire after one hour.')
+    expect(app).toContain('layer-hidden')
     expect(app.indexOf("image.className = 'result-preview'")).toBeLessThan(
       app.indexOf("layers.className = 'layer-list'")
     )

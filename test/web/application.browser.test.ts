@@ -97,6 +97,15 @@ describeBrowser('launch application in Google Chrome', () => {
         await layerList.locator(':scope > li', { hasText: 'Retouching group' }).locator(':scope > ol').count()
       ).toBe(1)
 
+      // Editors show the top layer first; the contract sends bottom to top.
+      const topLayers = layerList.locator(':scope > li')
+      expect(await topLayers.first().textContent()).toContain('Reflections removed')
+      expect(await topLayers.last().textContent()).toContain('Original photograph')
+
+      await page.getByRole('link', { name: 'Download flattened PNG' }).waitFor()
+      await page.getByText('Download links expire after one hour.').waitFor()
+      expect(await page.locator('.result-recap').textContent()).toContain(EXAMPLE)
+
       const pendingDownload = page.waitForEvent('download')
       await page.getByRole('link', { name: 'Download layered PSD' }).click()
       const download = await pendingDownload
