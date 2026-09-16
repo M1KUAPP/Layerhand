@@ -21,7 +21,7 @@ describeBrowser('launch application in Google Chrome', () => {
   beforeAll(async () => {
     application = await startTestApplication({ fakeRunIntervalMs: 1_000 })
     browser = await chromium.launch({ channel: 'chrome', headless: true })
-  })
+  }, 30_000)
 
   afterAll(async () => {
     try {
@@ -29,7 +29,7 @@ describeBrowser('launch application in Google Chrome', () => {
     } finally {
       await application?.close()
     }
-  })
+  }, 30_000)
 
   test('runs, steers, reloads without replay duplicates, and downloads a PSD', async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
