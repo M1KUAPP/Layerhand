@@ -17,8 +17,12 @@ export const STREAM_ID = 'layerhand'
 export type StepResult =
   /** The step's responses in order. The last is the one the next step continues from. */
   | { responses: Json[] }
-  /** The response failed, with a status and the provider's error code, never its message. */
-  | { failed: { status: number; code: unknown } }
+  /**
+   * The response failed, with a status and the provider's error code, never
+   * its message. `responses` are the ones that ended before it did: the step
+   * may be sent again, but those were billed and still have to be counted.
+   */
+  | { failed: { status: number; code: unknown }; responses: Json[] }
   /**
    * The connection failed first, and every unsettled steer has been settled
    * for replay. `responses` are the ones that ended before it did: the step is
@@ -333,7 +337,7 @@ export class ResponsesSocket {
     const step = this.#step
     if (!step) return
     if (step.continuationOf) this.#ledger.continuationFailed(step.continuationOf)
-    step.settle({ failed })
+    step.settle({ failed, responses: step.responses })
   }
 
   /** A refused steer can leave an ended response owed nothing, and then no successor is coming. */

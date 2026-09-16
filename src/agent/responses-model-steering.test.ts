@@ -544,6 +544,26 @@ describe('ResponsesModel over a WebSocket', () => {
     expect(correctionsIn(again.input)).toEqual(['Correction from the user: Keep the shadow'])
   })
 
+  test('counts the responses a step ended before it failed, because they were billed', async () => {
+    const server = scriptedSocketServer()
+    const { model } = socketModel(server.url, { sleep: async () => undefined })
+
+    const { turn, connection } = await steerFirstResponse(model, server)
+    connection.send(accepted('steer_1', 'resp_1'))
+    connection.send(steeredAway('resp_1'))
+    connection.send(created('resp_2'))
+    connection.send(failedResponse('resp_2'))
+    await connection.received.next()
+    connection.send(created('resp_3'))
+    connection.send(completed('resp_3', [said('Masking around the shadow'), computerCall('call_3')]))
+
+    // The steered response and the one that answered the call sent again were both billed.
+    expect(await turn).toMatchObject({
+      narration: 'Masking around the shadow',
+      usage: { inputTokens: 4_000, cachedInputTokens: 3_000, outputTokens: 240 }
+    })
+  })
+
   test('a step with no traffic for a whole call timeout is sent again over HTTP', async () => {
     const server = scriptedSocketServer()
     const { model, http } = socketModel(server.url, { callTimeoutMs: 30 }, [
