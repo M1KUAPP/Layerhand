@@ -23,32 +23,23 @@ mkdir -p "$LANDING"
 
 # --- scrub clip -------------------------------------------------------------
 # 1280x720, 4 s at 30 fps, silent. The photograph is scaled and centre-
-# cropped to fill the frame edge to edge, then stacked as three full-frame
-# sheets: the untinted base, a copy overlaid with #C7FF4A at 0.25 alpha and
-# a copy overlaid with #11110F at 0.20 alpha. Each sheet carries a 2 px
-# #11110F outline that fades in over the first second, and the two upper
-# sheets fade in with it, so frame zero stays the plain photograph. Over
-# four seconds with a cubic ease-out the middle sheet slides 48 px up and
-# 80 px right and the top sheet twice as far; the frame clips them, so
-# their far edges leave a gap where the sheet below shows.
+# cropped to fill the frame edge to edge and stays put as the bottom
+# sheet, still and whole for the entire clip. Above it sit two full-
+# frame translucent planes: the accent #C7FF4A at 0.3 alpha and the ink
+# #11110F at 0.18 alpha, each carrying a 2 px #11110F outline at full
+# alpha. Both sheets fade in over the first second, outlines included,
+# so frame zero is the plain photograph. Over four seconds with a cubic
+# ease-out they slide up and right on the diagonal: the middle sheet
+# ends 48 px up and 80 px right and the top sheet twice as far, so their
+# far edges leave the frame, which is intended.
 GRAPH="$(mktemp)"
 trap 'rm -f "$GRAPH"' EXIT
 cat >"$GRAPH" <<'GRAPH_EOF'
 [0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720[photo];
-[photo]split=3[base][midsrc][topsrc];
-color=c=0xC7FF4A@0.25:s=1280x720:d=4:r=30,format=rgba[tintm];
-color=c=0x11110F@0.20:s=1280x720:d=4:r=30,format=rgba[tintt];
-[midsrc][tintm]overlay=0:0[midraw];
-[topsrc][tintt]overlay=0:0[topraw];
-[midraw]format=rgba,fade=t=in:st=0:d=1:alpha=1[mid];
-[topraw]format=rgba,fade=t=in:st=0:d=1:alpha=1[top];
-color=c=black@0:s=1280x720:d=4:r=30,format=rgba,drawbox=x=0:y=0:w=1280:h=720:c=0x11110F:t=2:replace=1,fade=t=in:st=0:d=1:alpha=1[ol];
-[ol]split=3[olb][olm][olt];
-[base][olb]overlay=0:0[v0];
-[v0][mid]overlay=x='round(80*(1-pow(1-t/4,3)))':y='round(-48*(1-pow(1-t/4,3)))'[v1];
-[v1][olm]overlay=x='round(80*(1-pow(1-t/4,3)))':y='round(-48*(1-pow(1-t/4,3)))'[v2];
-[v2][top]overlay=x='round(160*(1-pow(1-t/4,3)))':y='round(-96*(1-pow(1-t/4,3)))'[v3];
-[v3][olt]overlay=x='round(160*(1-pow(1-t/4,3)))':y='round(-96*(1-pow(1-t/4,3)))'[vout]
+color=c=0xC7FF4A@0.3:s=1280x720:d=4:r=30,format=rgba,drawbox=x=0:y=0:w=1280:h=720:c=0x11110F:t=2:replace=1,fade=t=in:st=0:d=1:alpha=1[mid];
+color=c=0x11110F@0.18:s=1280x720:d=4:r=30,format=rgba,drawbox=x=0:y=0:w=1280:h=720:c=0x11110F:t=2:replace=1,fade=t=in:st=0:d=1:alpha=1[top];
+[photo][mid]overlay=x='round(80*(1-pow(1-t/4,3)))':y='round(-48*(1-pow(1-t/4,3)))'[v1];
+[v1][top]overlay=x='round(160*(1-pow(1-t/4,3)))':y='round(-96*(1-pow(1-t/4,3)))'[vout]
 GRAPH_EOF
 
 # All-intra keyframes for instant seeking while scrubbing. Raise the CRF in
