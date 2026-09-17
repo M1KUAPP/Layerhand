@@ -479,4 +479,89 @@ describeBrowser('launch application in Google Chrome', () => {
       await capped.close()
     }
   }, 30_000)
+
+  test('disables the correction field and cancel button once a cancel is requested (#123)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+
+      // Hold the cancel request open so the run cannot actually end, and the
+      // disabled state can be observed without racing the result view.
+      await page.route('**/api/runs/*/cancel', () => {})
+      await page.getByRole('button', { name: 'Cancel and keep work' }).click()
+
+      await expect(page.getByRole('textbox', { name: 'Correct the next action' }).isDisabled()).resolves.toBe(true)
+      await expect(page.getByRole('button', { name: 'Send correction' }).isDisabled()).resolves.toBe(true)
+      await expect(page.getByRole('button', { name: 'Cancelling…' }).isDisabled()).resolves.toBe(true)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('shows an inline notice and keeps the running view when a correction is refused (#123)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+
+      await page.route('**/api/runs/*/steer', (route) =>
+        route.fulfill({
+          status: 409,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            code: 'run_ended',
+            message: 'The run is finishing, so the correction was not applied.'
+          })
+        })
+      )
+      await page.getByRole('textbox', { name: 'Correct the next action' }).fill('Keep the label unchanged')
+      await page.getByRole('button', { name: 'Send correction' }).click()
+
+      await page.getByText('The run is finishing, so the correction was not applied.').waitFor()
+      await expect(page.locator('[data-view="running"]').count()).resolves.toBe(1)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('keeps the result when a correction is refused after done (#123)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+
+      // The correction's response is held until after the cancel below has
+      // already ended the run, reproducing the race the issue describes.
+      let releaseSteer: (() => void) | undefined
+      const steerHeld = new Promise<void>((resolve) => {
+        releaseSteer = resolve
+      })
+      await page.route('**/api/runs/*/steer', async (route) => {
+        await steerHeld
+        await route.fulfill({
+          status: 409,
+          contentType: 'application/json',
+          body: JSON.stringify({ code: 'run_ended', message: 'The run has already ended.' })
+        })
+      })
+
+      await page.getByRole('textbox', { name: 'Correct the next action' }).fill('Keep the label unchanged')
+      await page.getByRole('button', { name: 'Send correction' }).click()
+      await page.getByRole('button', { name: 'Cancel and keep work' }).click()
+      await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
+
+      releaseSteer?.()
+      await page.getByText('The run has already ended.').waitFor()
+      await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
 })
