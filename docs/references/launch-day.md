@@ -243,14 +243,34 @@ gcloud logging read \
 
 Swap `429` for `403` or `413` to find the other two, and the response
 body's `code` field tells the checks apart without opening a payload.
-None is configurable by environment variable; each is a constant in
-`src/server/run-routes.ts`, so lowering one is a code change and a
-deploy, not a hand-edit to the running service.
+The origin check and the JSON body cap are not configurable; each is a
+constant in `src/server/run-routes.ts`, so lowering either is a code
+change and a deploy. The two rate limits are:
 
-The free-run allowance (FR-35, three runs) is unrelated to these four but
-worth knowing alongside them: it is now checked against the address as
-well as the signed cookie, each in its own table, so a visitor who clears
-their cookie no longer also resets what their address has already used.
+| Variable                          | Now | What it bounds                        |
+| --------------------------------- | --- | ------------------------------------- |
+| `REQUESTS_PER_VISITOR_PER_MINUTE` | 10  | Requests to one endpoint, per visitor |
+| `REQUESTS_PER_ADDRESS_PER_MINUTE` | 60  | Requests to one endpoint, per address |
+
+Change them the same way as
+[the numbers above](#changing-a-limit-in-a-hurry): `gcloud run services
+update` with `--update-env-vars`. Like those, this makes a new revision
+and restarts the container, ending the runs in flight.
+
+The free-run allowance (FR-35, three runs a visitor) is unrelated to
+these two but worth knowing alongside them: it is now also checked
+against the address, in its own table, so a visitor who clears their
+cookie no longer also resets what their address has already used. The
+address's own allowance resets daily rather than for its lifetime, and
+defaults higher than the visitor's three, so an office, a carrier, or a
+conference network sharing one address is not locked out once three
+people on it have run something:
+
+| Variable                        | Now | What it bounds                          |
+| ------------------------------- | --- | --------------------------------------- |
+| `FREE_RUNS_PER_ADDRESS_PER_DAY` | 10  | Free runs from one address, per UTC day |
+
+Changing it restarts the container the same way.
 
 ## Rotating the server key
 
