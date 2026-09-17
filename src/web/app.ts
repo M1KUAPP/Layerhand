@@ -36,6 +36,13 @@ const EXAMPLES = [
   'Clean the reflections without changing the label.',
   'Warm the highlights and keep the background neutral.'
 ]
+const RUN_GUIDE_STEPS = [
+  'Choose a photograph',
+  'Say what you want',
+  'Watch it work, and correct it',
+  'Download the layered PSD'
+]
+const RUN_FACTS = ['Three free runs', 'Uploads deleted within 24 hours', 'Your key is never stored']
 const VIEW_FOCUS_TARGETS: Record<ClientState['view'], string> = {
   landing: '#hero-title',
   input: '#input-title',
@@ -82,6 +89,12 @@ function button(text: string, className = 'button'): HTMLButtonElement {
 
 function icon(name: string): HTMLElement {
   const result = node('i', `hgi-stroke ${name}`)
+  result.setAttribute('aria-hidden', 'true')
+  return result
+}
+
+function fieldNumber(text: string): HTMLElement {
+  const result = node('span', 'field-number', text)
   result.setAttribute('aria-hidden', 'true')
   return result
 }
@@ -245,6 +258,50 @@ async function chooseSample(): Promise<void> {
   chooseFile(new File([blob], 'layerhand-sample.png', { type: 'image/png' }), '[data-action="sample"]')
 }
 
+type RunGuideState = 'done' | 'current' | 'upcoming'
+
+// Steps one and two tick off as the photograph and the instruction are
+// filled in; the last two can only finish once the run has started.
+function runGuideStates(): RunGuideState[] {
+  const done = [selectedFile !== undefined, draftInstruction.trim().length > 0, false, false]
+  const firstOpen = done.indexOf(false)
+  return done.map((isDone, index) => (isDone ? 'done' : index === firstOpen ? 'current' : 'upcoming'))
+}
+
+// Typing must not re-render the form, so the guide tracks the draft
+// through the DOM instead.
+function updateInputProgress(): void {
+  const states = runGuideStates()
+  root.querySelectorAll<HTMLElement>('.run-guide__step').forEach((step, index) => {
+    step.dataset.state = states[index] ?? 'upcoming'
+  })
+}
+
+function renderRunGuide(): HTMLElement {
+  const guide = node('ol', 'run-guide')
+  const states = runGuideStates()
+  for (const [index, label] of RUN_GUIDE_STEPS.entries()) {
+    const step = node('li', 'run-guide__step')
+    step.dataset.state = states[index] ?? 'upcoming'
+    const mark = node('span', 'run-guide__mark')
+    mark.setAttribute('aria-hidden', 'true')
+    mark.append(icon('hgi-tick-02'))
+    step.append(mark, node('span', 'run-guide__label', label))
+    guide.append(step)
+  }
+  return guide
+}
+
+function renderRunFacts(): HTMLElement {
+  const facts = node('ul', 'run-facts')
+  for (const fact of RUN_FACTS) {
+    const item = node('li')
+    item.append(icon('hgi-tick-02'), fact)
+    facts.append(item)
+  }
+  return facts
+}
+
 function renderInput(): DocumentFragment {
   const fragment = document.createDocumentFragment()
   const back = button('Back', 'button back-button')
@@ -261,12 +318,13 @@ function renderInput(): DocumentFragment {
   const title = node('h1', undefined, 'Give the agent one clear direction.')
   title.id = 'input-title'
   title.tabIndex = -1
-  intro.append(title, description('The result remains editable.'))
+  intro.append(title, description('The result remains editable.'), renderRunGuide(), renderRunFacts())
 
   const form = node('form', 'run-form')
   form.noValidate = true
   const fileField = node('fieldset', 'file-field')
   const legend = node('legend', undefined, 'Source photograph')
+  legend.prepend(fieldNumber('01'))
   const dropZone = node('label', 'drop-zone')
   dropZone.htmlFor = 'source-image'
   const input = node('input', 'file-input')
@@ -275,7 +333,7 @@ function renderInput(): DocumentFragment {
   input.type = 'file'
   input.accept = 'image/jpeg,image/png,.jpg,.jpeg,.png'
   input.required = true
-  dropZone.append(input)
+  dropZone.append(input, icon('hgi-upload-01'))
   if (selectedPreviewUrl) {
     const preview = node('img', 'selected-preview')
     preview.src = selectedPreviewUrl
@@ -310,7 +368,9 @@ function renderInput(): DocumentFragment {
   input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
   if (fileError) input.setAttribute('aria-invalid', 'true')
   const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
-  fileField.append(legend, dropZone, fileHint, retentionNotice, fileStatus)
+  const fileMain = node('div', 'file-field-main')
+  const fileNotes = node('div', 'file-field-notes')
+  fileNotes.append(fileHint, retentionNotice, fileStatus)
 
   const sample = button('Use the sample photograph', 'sample-button')
   const sampleThumb = node('img', 'sample-thumb')
@@ -328,15 +388,17 @@ function renderInput(): DocumentFragment {
       render('[data-action="sample"]')
     }
   })
-  fileField.append(sample)
+  fileMain.append(dropZone, sample)
+  fileField.append(legend, fileMain, fileNotes)
 
   const instructionLabel = node('label', 'field-label', 'Retouching instruction')
   instructionLabel.htmlFor = 'instruction'
+  instructionLabel.prepend(fieldNumber('02'))
   const instruction = node('textarea')
   instruction.id = 'instruction'
   instruction.name = 'instruction'
   instruction.maxLength = 500
-  instruction.rows = 3
+  instruction.rows = 2
   instruction.required = true
   instruction.placeholder = 'Describe the finished photograph and what must stay unchanged.'
   instruction.value = draftInstruction
@@ -345,6 +407,7 @@ function renderInput(): DocumentFragment {
   instruction.addEventListener('input', () => {
     draftInstruction = instruction.value
     instructionCount.textContent = `${instruction.value.length} / 500`
+    updateInputProgress()
     if (instructionError) {
       instructionError = undefined
       instruction.removeAttribute('aria-invalid')
@@ -370,6 +433,7 @@ function renderInput(): DocumentFragment {
       instructionError = undefined
       instruction.removeAttribute('aria-invalid')
       instructionStatus.textContent = ''
+      updateInputProgress()
       instruction.focus()
     })
     examples.append(exampleButton)
@@ -377,6 +441,7 @@ function renderInput(): DocumentFragment {
 
   const keyLabel = node('label', 'field-label', 'OpenAI API key (optional)')
   keyLabel.htmlFor = 'api-key'
+  keyLabel.prepend(fieldNumber('03'))
   const keyInput = node('input')
   keyInput.id = 'api-key'
   keyInput.name = 'apiKey'
@@ -400,6 +465,7 @@ function renderInput(): DocumentFragment {
   const submit = button('Start retouching', 'button button-accent')
   submit.id = 'start-run'
   submit.type = 'submit'
+  submit.append(icon('hgi-arrow-right-01'))
   submit.setAttribute('aria-describedby', error.id)
   form.append(
     fileField,
@@ -470,7 +536,11 @@ function renderInput(): DocumentFragment {
       root.ariaBusy = 'false'
     }
   })
-  section.append(intro, form)
+  const board = node('div', 'workbench-board')
+  const card = node('div', 'workbench-card')
+  card.append(form)
+  board.append(card)
+  section.append(intro, board)
   fragment.append(section)
   return fragment
 }
