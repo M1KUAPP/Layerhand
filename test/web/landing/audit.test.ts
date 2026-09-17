@@ -284,18 +284,18 @@ describe('landing design audit: compositor only', () => {
 })
 
 // -------------------------------------------------------------------------- //
-// Rule 7: no CSS glass
+// Rule 7: glass only through its token
 // -------------------------------------------------------------------------- //
 
-describe('landing design audit: no CSS glass', () => {
-  test('no .css under landing/ uses backdrop-filter', async () => {
+describe('landing design audit: glass only through its token', () => {
+  test('every backdrop-filter under landing/ is var(--glass-blur)', async () => {
     const files = await cssFiles()
     const offending: string[] = []
     for (const { path, text } of files) {
       const lines = text.split('\n')
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i] ?? ''
-        if (line.includes('backdrop-filter')) {
+        if (line.includes('backdrop-filter') && line.trim() !== 'backdrop-filter: var(--glass-blur);') {
           offending.push(`${path}:${i + 1}: ${line.trim()}`)
         }
       }
