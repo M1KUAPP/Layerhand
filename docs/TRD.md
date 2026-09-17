@@ -191,15 +191,16 @@ alike:
 
 Owned by the web stream.
 
-| Method | Path                   | Purpose                       |
-| ------ | ---------------------- | ----------------------------- |
-| `POST` | `/api/runs`            | Start a run, returns `runId`  |
-| `GET`  | `/api/runs/:id/events` | Server-sent `RunEvent` stream |
-| `POST` | `/api/runs/:id/steer`  | Send a correction             |
-| `POST` | `/api/runs/:id/cancel` | Stop, keep the partial result |
-| `GET`  | `/api/runs/:id`        | Current state, for reconnect  |
-| `POST` | `/api/uploads`         | Warm an editor for an image   |
-| `POST` | `/api/waitlist`        | Email capture (FR-31)         |
+| Method | Path                        | Purpose                        |
+| ------ | --------------------------- | ------------------------------ |
+| `POST` | `/api/runs`                 | Start a run, returns `runId`   |
+| `GET`  | `/api/runs/:id/events`      | Server-sent `RunEvent` stream  |
+| `POST` | `/api/runs/:id/steer`       | Send a correction              |
+| `POST` | `/api/runs/:id/cancel`      | Stop, keep the partial result  |
+| `GET`  | `/api/runs/:id`             | Current state, for reconnect   |
+| `POST` | `/api/uploads`              | Warm an editor for an image    |
+| `POST` | `/api/waitlist`             | Email capture (FR-31)          |
+| `GET`  | `/plugins/marketplace.json` | Claude Code plugin marketplace |
 
 Server-sent events rather than WebSockets for the browser leg: the
 stream is one-directional, corrections go over a normal `POST`, and SSE
@@ -244,6 +245,40 @@ gets 400 `invalid_api_key`. A key it knows but that may not list models, a
 A check OpenAI does not answer within four seconds, inside NFR-3's five,
 gets 503 `api_key_unchecked`, to be tried again. The fake and scripted
 modes open no browser, so they check nothing.
+
+#### Clients other than the page
+
+`POST /api/runs` returns `{ runId, runToken }` (#136). The run token is
+HMAC-SHA256 of `run:${runId}` under `SESSION_SECRET`, encoded as base64url
+without padding, and verified in constant time. Nothing is stored: the secret
+alone proves the token. Steering and cancelling via `POST /api/runs/:id/steer`
+and `POST /api/runs/:id/cancel` require `Authorization: Bearer <runToken>`,
+checked before reading the body or looking up the run. A request without an
+`Authorization` header or not using `Bearer` receives 401 `run_token_required`,
+and a token that does not verify for that id receives 403 `run_token_refused`.
+Reading a run through `GET /api/runs/:id` and `GET /api/runs/:id/events` stays
+open by id alone, because the watch link needs them.
+
+A request carrying a non-empty `X-Layerhand-Client` header marks a bundle
+request. A header value longer than 64 characters is refused with 400
+`invalid_client`. A bundle request to `POST /api/runs` without an `apiKey` is
+refused with 400 `api_key_required`, checked after form validation and before
+checking the key with OpenAI.
+
+At most `MAX_CLIENT_RUNS_PER_ADDRESS` bundle runs, default 2, may be queued or
+running at once for one `addressKey`. One more is refused with 429
+`client_runs_exceeded`. The in-memory count in `RunRoutes` checks and
+increments without an `await` between them, and releases the slot on terminal
+completion or on any path that exits without enqueuing the run. Runs from the
+page without the header do not count toward this cap.
+
+The watch link `/?watch=<runId>` opens the page straight into that run's live
+view in a view-only state, without the correction field, send button, or cancel
+button. The watched run is not written to `sessionStorage`. When the run ends,
+the result view and downloads appear as usual.
+
+`layerhand-mcp` in `packages/layerhand-mcp/` is the client, specified in
+[the agent bundle spec](/docs/superpowers/specs/agent-bundle.md).
 
 ## Fakes first
 
