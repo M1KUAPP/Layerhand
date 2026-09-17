@@ -10,11 +10,9 @@ test('the landing still has an agent install section after the waitlist', async 
   expect(landing).toMatch(/renderWaitlist\(context\),\s*renderInstall\(\)/)
 })
 
-test('the install section says coming soon and does not advertise unpublished npm commands', async () => {
+test('the install section points at the dedicated MCP page instead of coming soon', async () => {
   const install = await installFile.text()
 
-  expect(install).toContain('Coming soon')
-  expect(install).not.toContain('npx -y layerhand-mcp')
-  expect(install).not.toContain('claude plugin marketplace add')
-  expect(install).not.toContain('codex mcp add')
+  expect(install).toContain('/mcp')
+  expect(install).not.toContain('Coming soon')
 })

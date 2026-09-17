@@ -198,14 +198,16 @@ describe('page routes', () => {
     const response = await fetch(new URL('/plugins/marketplace.json', server.url))
     const body = (await response.json()) as {
       name: string
-      plugins: { source: { package: string } }[]
+      plugins: { source: { source: string; url: string; package?: string } }[]
     }
 
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toStartWith('application/json')
     expectSecurityHeadersPreserved(response)
     expect(body.name).toBe('layerhand')
-    expect(body.plugins[0]?.source.package).toBe('layerhand-mcp')
+    expect(body.plugins[0]?.source.source).toBe('archive')
+    expect(body.plugins[0]?.source.url).toBe('https://layerhand.test/plugins/layerhand.zip')
+    expect(body.plugins[0]?.source.package).toBeUndefined()
   })
 
   test('serves the files the page loads', async () => {

@@ -1,0 +1,138 @@
+.mcp {
+  min-height: 100dvh;
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font: var(--text-ui-body);
+}
+
+.mcp__header {
+  display: flex;
+  height: 72px;
+  align-items: center;
+  padding: 0 36px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font: var(--text-ui-label);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.wordmark__mark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+  font: 500 22px / 1 var(--font-display);
+}
+
+.mcp__main {
+  max-width: 760px;
+  padding: 64px 36px 96px;
+}
+
+.mcp__title {
+  margin: 0;
+  font: var(--text-display-section);
+  letter-spacing: -0.045em;
+}
+
+.mcp__lede {
+  max-width: 52ch;
+  margin: 24px 0 0;
+  color: var(--color-text-secondary);
+  font: var(--text-ui-lede);
+}
+
+.mcp__prompt {
+  margin-top: 48px;
+}
+
+.mcp__prompt-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.mcp__prompt-title,
+.mcp__manuals-title {
+  margin: 0;
+  font: var(--text-ui-label);
+}
+
+.mcp__copy {
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-inverse);
+  color: var(--paper);
+  font: var(--text-ui-label);
+  cursor: pointer;
+}
+
+.mcp__copy:hover,
+.mcp__copy:focus-visible {
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+}
+
+.mcp pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-subtle);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font: var(--text-ui-small);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.mcp__manuals {
+  margin-top: 56px;
+}
+
+.mcp__manuals-note {
+  max-width: 52ch;
+  margin: 12px 0 24px;
+  color: var(--color-text-secondary);
+}
+
+.mcp details {
+  border-top: 1px solid var(--rule);
+}
+
+.mcp details:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.mcp summary {
+  padding: 16px 0;
+  font: var(--text-ui-label);
+  cursor: pointer;
+}
+
+.mcp details pre {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1279px) {
+  .mcp__header,
+  .mcp__main {
+    padding-inline: 16px;
+  }
+
+  .mcp__main {
+    padding-top: 40px;
+  }
+}
