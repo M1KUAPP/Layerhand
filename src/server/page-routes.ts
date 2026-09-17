@@ -7,6 +7,7 @@
 // route so a page edit shows up without a restart.
 import type { HTMLBundle } from 'bun'
 import { posix } from 'node:path'
+import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 
 import ogImageDarkPath from '../web/assets/og-image-dark.png'
 import ogImagePath from '../web/assets/og-image.png'
@@ -73,6 +74,137 @@ async function favicon(): Promise<Response> {
 // table alone has.
 type PageRoute = Response | HTMLBundle | ((request: Request) => Response | Promise<Response>)
 
+type SelectedEncoding = 'br' | 'gzip' | 'identity' | 'not-acceptable'
+
+const BROTLI_OPTIONS = {
+  params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5 }
+}
+
+const QVALUE = /^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/
+
+function quality(params: string[]): number {
+  let result = 1
+  let seen = false
+  for (const param of params) {
+    const separator = param.indexOf('=')
+    const name = (separator === -1 ? param : param.slice(0, separator)).trim()
+    if (name.toLowerCase() !== 'q') continue
+    if (seen) return 0
+    seen = true
+    const value = separator === -1 ? undefined : param.slice(separator + 1).trim()
+    if (!value || !QVALUE.test(value)) return 0
+    result = Number(value)
+  }
+  return result
+}
+
+function parseAcceptEncoding(header: string | null): SelectedEncoding {
+  if (!header) return 'identity'
+
+  let qBr: number | undefined
+  let qGzip: number | undefined
+  let qIdentity: number | undefined
+  let qWildcard: number | undefined
+
+  for (const part of header.split(',')) {
+    const trimmed = part.trim()
+    if (!trimmed) continue
+    const [encodingRaw, ...params] = trimmed.split(';')
+    if (!encodingRaw) continue
+    const encoding = encodingRaw.trim().toLowerCase()
+    const q = quality(params)
+    if (encoding === 'br') {
+      qBr = q
+    } else if (encoding === 'gzip') {
+      qGzip = q
+    } else if (encoding === 'identity') {
+      qIdentity = q
+    } else if (encoding === '*') {
+      qWildcard = q
+    }
+  }
+
+  const effectiveBr = qBr ?? qWildcard ?? 0
+  const effectiveGzip = qGzip ?? qWildcard ?? 0
+  const effectiveIdentity = qIdentity ?? (qWildcard === 0 ? 0 : 1)
+
+  const preferredCompression = effectiveBr >= effectiveGzip ? 'br' : 'gzip'
+  const preferredCompressionQuality = Math.max(effectiveBr, effectiveGzip)
+  if (qIdentity !== undefined && effectiveIdentity > preferredCompressionQuality) return 'identity'
+  if (preferredCompressionQuality > 0) return preferredCompression
+
+  return effectiveIdentity > 0 ? 'identity' : 'not-acceptable'
+}
+
+function varyByAcceptEncoding(init: HeadersInit): Headers {
+  const headers = new Headers(init)
+  const vary = headers.get('vary')
+  const values = vary
+    ? vary
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+    : []
+  if (!values.some((value) => value === '*' || value.toLowerCase() === 'accept-encoding')) {
+    values.push('Accept-Encoding')
+    headers.set('vary', values.join(', '))
+  }
+  return headers
+}
+
+function isCompressibleText(path: string, contentType?: string): boolean {
+  const extension = posix.extname(path).toLowerCase()
+  if (
+    extension === '.html' ||
+    extension === '.js' ||
+    extension === '.mjs' ||
+    extension === '.css' ||
+    extension === '.svg'
+  ) {
+    return true
+  }
+  if (contentType) {
+    const type = contentType.toLowerCase()
+    return (
+      type.startsWith('text/html') ||
+      type.startsWith('text/javascript') ||
+      type.startsWith('application/javascript') ||
+      type.startsWith('text/css') ||
+      type.startsWith('image/svg+xml')
+    )
+  }
+  return false
+}
+
+async function precomputeTextFileRoute(file: PageFile): Promise<PageRoute> {
+  const uncompressed = Buffer.from(await file.body.arrayBuffer())
+  const br = brotliCompressSync(uncompressed, BROTLI_OPTIONS)
+  const gzip = gzipSync(uncompressed)
+
+  const headers = varyByAcceptEncoding({
+    ...file.headers,
+    ...SECURITY_HEADERS
+  })
+  headers.delete('content-length')
+
+  const brHeaders = new Headers(headers)
+  brHeaders.set('content-encoding', 'br')
+  brHeaders.set('content-length', String(br.byteLength))
+  const gzipHeaders = new Headers(headers)
+  gzipHeaders.set('content-encoding', 'gzip')
+  gzipHeaders.set('content-length', String(gzip.byteLength))
+  const identityHeaders = new Headers(headers)
+  identityHeaders.set('content-length', String(uncompressed.byteLength))
+
+  return (request: Request) => {
+    const encoding = parseAcceptEncoding(request.headers.get('accept-encoding'))
+    if (encoding === 'br') return new Response(br, { headers: brHeaders })
+    if (encoding === 'gzip') return new Response(gzip, { headers: gzipHeaders })
+    if (encoding === 'not-acceptable') return new Response(null, { status: 406, headers })
+    return new Response(uncompressed, { headers: identityHeaders })
+  }
+}
+
 export async function pageRoutes(
   page: HTMLBundle,
   { publicUrl }: PageRouteOptions = {}
@@ -101,14 +233,46 @@ export async function pageRoutes(
   const files = await bundledFiles(page)
   const html = files.find((file) => file.path.endsWith('.html'))
   if (!html) throw new Error("The page's bundled HTML file is missing")
+
+  const staticRoutes = await Promise.all(
+    files
+      .filter((file) => file !== html)
+      .map(async (file): Promise<[string, PageRoute]> => {
+        const routePath = posix.join('/', file.path)
+        if (isCompressibleText(file.path, file.headers['content-type'])) {
+          return [routePath, await precomputeTextFileRoute(file)]
+        }
+        return [routePath, securedResponse(file.body, file.headers)]
+      })
+  )
+
   return {
-    ...Object.fromEntries(
-      files
-        .filter((file) => file !== html)
-        .map((file) => [posix.join('/', file.path), securedResponse(file.body, file.headers)])
-    ),
-    '/': (request: Request) =>
-      withSocialMeta(securedResponse(html.body, html.headers), publicUrl ?? new URL(request.url).origin),
+    ...Object.fromEntries(staticRoutes),
+    '/': async (request: Request) => {
+      const publicOrigin = publicUrl ?? new URL(request.url).origin
+      const uncompressedResponse = withSocialMeta(securedResponse(html.body, html.headers), publicOrigin)
+      const uncompressedBytes = Buffer.from(await uncompressedResponse.arrayBuffer())
+
+      const headers = varyByAcceptEncoding(uncompressedResponse.headers)
+      headers.delete('content-length')
+
+      const encoding = parseAcceptEncoding(request.headers.get('accept-encoding'))
+      if (encoding === 'br') {
+        const compressed = brotliCompressSync(uncompressedBytes, BROTLI_OPTIONS)
+        headers.set('content-encoding', 'br')
+        headers.set('content-length', String(compressed.byteLength))
+        return new Response(compressed, { headers })
+      }
+      if (encoding === 'gzip') {
+        const compressed = gzipSync(uncompressedBytes)
+        headers.set('content-encoding', 'gzip')
+        headers.set('content-length', String(compressed.byteLength))
+        return new Response(compressed, { headers })
+      }
+      if (encoding === 'not-acceptable') return new Response(null, { status: 406, headers })
+      headers.set('content-length', String(uncompressedBytes.byteLength))
+      return new Response(uncompressedBytes, { headers })
+    },
     ...banners
   }
 }
