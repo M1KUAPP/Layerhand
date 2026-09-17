@@ -566,7 +566,7 @@ describe('runAgent', () => {
     const events = await collect(handle)
     await Promise.all(steers)
     expect(ofType(events, 'error')).toEqual([
-      { type: 'error', reason: 'The run stopped before a correction reached the agent', recoverable: true }
+      { type: 'error', reason: 'The run stopped before correction 1 reached the agent.', recoverable: true }
     ])
     expect(resultOf(events).complete).toBe(false)
   })
@@ -658,7 +658,7 @@ describe('runAgent', () => {
     await Promise.all(steers)
     // The run log takes a stopped run's last recoverable error as its reason.
     expect(ofType(events, 'error').map((event) => event.reason)).toEqual([
-      'The run stopped before a correction reached the agent',
+      'The run stopped before correction 1 reached the agent.',
       STOPPED_ANSWERING
     ])
     expect(resultOf(events).complete).toBe(false)
@@ -745,6 +745,106 @@ describe('runAgent', () => {
     expect(ofType(events, 'error')).toMatchObject([{ type: 'error', recoverable: true }])
     expect(resultOf(events).complete).toBe(false)
   })
+
+  test('names every correction a cancel leaves unsent, by number, so the page can tell which (#124)', async () => {
+    let handle!: RunHandle
+    const steers: Promise<void>[] = []
+    const run = await fixture(RETOUCH, (call) => {
+      if (call !== 0) return
+      steers.push(handle.steer('keep the shadow'), handle.steer('warmer'))
+      void handle.cancel()
+    })
+    handle = runAgent(request, run)
+    const events = await collect(handle)
+    await Promise.all(steers)
+    expect(ofType(events, 'correction_ack')).toHaveLength(2)
+    expect(ofType(events, 'error')).toEqual([
+      { type: 'error', reason: 'The run stopped before corrections 1 and 2 reached the agent.', recoverable: true }
+    ])
+    expect(resultOf(events).complete).toBe(false)
+  })
+
+  // Mirrors ResponsesSocket.steer(): a correction gets no native steer while
+  // no response is being generated (before response.created, or between a
+  // steered response and its successor); one sent while a response is being
+  // generated is settled applied once that call answers. This can leave an
+  // earlier correction still queued while a later one has already reached
+  // the agent, so refuseCorrections() must name exactly the stranded
+  // number(s), never just "the last N" (#124).
+  function nativeInterleavingModel(hooks: {
+    beforeCreated?: (call: number) => void
+    whileGenerating?: (call: number) => void
+  }): AgentModel {
+    let generating = false
+    let inFlight: { applied: boolean }[] = []
+    let calls = 0
+    return {
+      async next(_observation, signal) {
+        const call = calls++
+        inFlight = []
+        generating = false
+        hooks.beforeCreated?.(call)
+        generating = true
+        hooks.whileGenerating?.(call)
+        await new Promise<void>((resolve, reject) => {
+          if (signal.aborted) return reject(signal.reason)
+          const timer = setTimeout(resolve, 0)
+          signal.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timer)
+              reject(signal.reason)
+            },
+            { once: true }
+          )
+        })
+        for (const steer of inFlight) steer.applied = true
+        generating = false
+        return step(`Step ${call + 1}`)
+      },
+      steer() {
+        if (!generating) return undefined
+        const steer = { applied: false }
+        inFlight.push(steer)
+        return steer
+      }
+    }
+  }
+
+  for (const variant of ['cap', 'cancel'] as const) {
+    test(`names only the correction with no native steer, not the one applied after it (${variant}) (#124)`, async () => {
+      let handle!: RunHandle
+      const steers: Promise<void>[] = []
+      const run = await fixture()
+      const model = nativeInterleavingModel({
+        beforeCreated: (call) => {
+          if (call === 0) steers.push(handle.steer('A: sent before response.created'))
+        },
+        whileGenerating: (call) => {
+          if (call === 0) steers.push(handle.steer('B: natively applied'))
+        }
+      })
+      if (variant === 'cancel') {
+        const act = run.session.act.bind(run.session)
+        run.session.act = async (actions) => {
+          void handle.cancel()
+          return act(actions)
+        }
+      }
+      handle = runAgent(variant === 'cap' ? { ...request, stepCap: 1 } : request, { ...run, model })
+      const events = await collect(handle)
+      await Promise.all(steers)
+      expect(ofType(events, 'correction_ack')).toEqual([
+        { type: 'correction_ack', text: 'A: sent before response.created' },
+        { type: 'correction_ack', text: 'B: natively applied' }
+      ])
+      // Correction 1 (A) never reached the agent; correction 2 (B) did, so
+      // the error must name only 1, not "the last one" (which would be 2).
+      expect(ofType(events, 'error')).toEqual([
+        { type: 'error', reason: 'The run stopped before correction 1 reached the agent.', recoverable: true }
+      ])
+    })
+  }
 
   test('does not act on a turn that returns after a cancel', async () => {
     let handle!: RunHandle
