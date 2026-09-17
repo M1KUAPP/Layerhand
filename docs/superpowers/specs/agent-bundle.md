@@ -218,7 +218,8 @@ All inside `packages/layerhand-mcp/`, so one npm package carries them:
 - `.claude-plugin/plugin.json` and `.mcp.json`: the Claude Code plugin. The
   server runs as `node ${CLAUDE_PLUGIN_ROOT}/dist/layerhand-mcp.js`.
 - `plugin.json` and `mcp.json`: the Codex plugin, in the Agent Plugins
-  format. The server runs as `npx -y layerhand-mcp`.
+  format. The server runs as `npx -y` of the hosted tarball at
+  `/plugins/layerhand-mcp.tgz`.
 - `README.md`: install for Claude Code and Codex, the variables above, and
   what a run costs the user.
 

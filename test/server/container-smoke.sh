@@ -25,6 +25,14 @@ docker run --detach --env NODE_ENV=development --name "$container" \
 for _ in {1..30}; do
   if response="$(curl --fail --silent "http://127.0.0.1:${port}/health")"; then
     [[ "$response" == '{"status":"ok","database":"ready"}' ]]
+    mcp="$(curl --fail --silent "http://127.0.0.1:${port}/mcp")"
+    echo "$mcp" | grep -q 'id="setup-prompt"'
+    marketplace="$(curl --fail --silent "http://127.0.0.1:${port}/plugins/marketplace.json")"
+    echo "$marketplace" | grep -q '"source":"archive"'
+    zip_bytes="$(curl --fail --silent "http://127.0.0.1:${port}/plugins/layerhand.zip" | wc -c)"
+    tgz_bytes="$(curl --fail --silent "http://127.0.0.1:${port}/plugins/layerhand-mcp.tgz" | wc -c)"
+    [[ "$zip_bytes" -gt 1024 ]]
+    [[ "$tgz_bytes" -gt 1024 ]]
     exit
   fi
   sleep 0.2

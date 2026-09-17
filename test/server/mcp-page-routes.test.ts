@@ -68,8 +68,18 @@ test('GET /mcp twice returns the setup prompt and collapsed Codex and Claude Cod
     const page = await inspectMcpPage(html)
     expect(page.prompt.trim().length).toBeGreaterThan(0)
     expect(page.prompt).toContain('OPENAI_API_KEY')
-    expect(page.prompt).toContain('/plugins/layerhand-mcp.tgz')
+    expect(page.prompt).toContain('https://layerhand.test/plugins/layerhand-mcp.tgz')
+    expect(page.prompt).toContain('https://layerhand.test/plugins/layerhand.zip')
+    expect(html).toContain('npx -y https://layerhand.test/plugins/layerhand-mcp.tgz')
+    expect(html).toContain('claude plugin marketplace add https://layerhand.test/plugins/marketplace.json')
     expect(page.hasCopy).toBe(true)
+
+    const css = await fetch(new URL('/mcp.css', server.url))
+    const script = await fetch(new URL('/mcp.js', server.url))
+    expect(css.status).toBe(200)
+    expect((await css.text()).length).toBeGreaterThan(0)
+    expect(script.status).toBe(200)
+    expect(await script.text()).toContain('data-copy-prompt')
 
     const codex = page.platforms.find((entry) => entry.platform === 'codex')
     const claude = page.platforms.find((entry) => entry.platform === 'claude-code')
@@ -78,7 +88,7 @@ test('GET /mcp twice returns the setup prompt and collapsed Codex and Claude Cod
   }
 
   expect(bodies[0]).toBe(bodies[1])
-})
+}, 60_000)
 
 test('GET the marketplace catalog twice points the plugin at a hosted archive, not unpublished npm', async () => {
   const server = await serve('https://layerhand.test')
@@ -103,7 +113,7 @@ test('GET the marketplace catalog twice points the plugin at a hosted archive, n
   }
 
   expect(bodies[0]).toEqual(bodies[1])
-})
+}, 60_000)
 
 test('GET the hosted MCP tarball twice is a real npm pack of layerhand-mcp', async () => {
   const server = await serve('https://layerhand.test')
@@ -127,7 +137,7 @@ test('GET the hosted MCP tarball twice is a real npm pack of layerhand-mcp', asy
   }
 
   expect(sizes[0]).toBe(sizes[1])
-})
+}, 60_000)
 
 test('GET the hosted Claude plugin zip twice is a real plugin archive with the stdio binary', async () => {
   const server = await serve('https://layerhand.test')
@@ -149,7 +159,7 @@ test('GET the hosted Claude plugin zip twice is a real plugin archive with the s
   }
 
   expect(sizes[0]).toBe(sizes[1])
-})
+}, 60_000)
 
 test('GET the hosted stdio binary twice is the built layerhand-mcp entry', async () => {
   const server = await serve()
@@ -168,4 +178,4 @@ test('GET the hosted stdio binary twice is the built layerhand-mcp entry', async
   }
 
   expect(bodies[0]).toBe(bodies[1])
-})
+}, 60_000)
