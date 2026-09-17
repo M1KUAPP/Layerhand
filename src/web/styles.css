@@ -157,16 +157,17 @@ h2 {
     box-shadow var(--duration-swap) var(--ease-settle);
 }
 
-/* Over the hero the bar has no ground of its own, so the hero runs to the
-   top edge on arrival. Once the page moves (scroll.ts) it takes the paper,
-   a little translucent, and its rule. */
-.site-header[data-over='hero'] {
+/* A bar marked data-over has no ground of its own at the top of the page,
+   so what is under it runs to the top edge on arrival. Once the page moves
+   (scroll.ts) it turns to glass and takes back its rule. */
+.site-header[data-over] {
   background-color: transparent;
   box-shadow: inset 0 -1px 0 transparent;
 }
 
-:root[data-scrolled='true'] .site-header[data-over='hero'] {
-  background-color: color-mix(in oklab, var(--paper) 94%, transparent);
+:root[data-scrolled='true'] .site-header[data-over] {
+  background-color: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
   box-shadow: inset 0 -1px 0 var(--rule);
 }
 
