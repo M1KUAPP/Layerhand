@@ -1,41 +1,57 @@
 .waitlist__section {
   display: grid;
-  grid-template-columns: 0.8fr 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: 24px;
+  row-gap: 2rem;
   align-items: end;
-  padding: 4rem 36px;
-  border-top: 1px solid var(--rule);
+  padding: 120px 36px;
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+}
+
+.waitlist__copy {
+  grid-column: 1 / 7;
+}
+
+.waitlist__form {
+  grid-column: 7 / 13;
 }
 
 .waitlist__eyebrow {
-  margin-bottom: 0.75rem;
-  color: var(--color-text-tertiary);
+  margin-bottom: 16px;
+  color: var(--color-text-on-accent);
   font: var(--text-ui-eyebrow);
   letter-spacing: 0.13em;
   text-transform: uppercase;
 }
 
 .waitlist__title {
-  color: var(--ink);
-  font: var(--text-display-h2);
+  text-wrap: balance;
+  color: var(--color-text-on-accent);
+  font: var(--text-display-section);
+  font-size: 64px;
+  line-height: 58px;
+  letter-spacing: -0.05em;
 }
 
 .waitlist__body {
-  margin-top: 1rem;
-  color: var(--color-text-secondary);
+  max-width: 48ch;
+  margin-top: 24px;
+  color: var(--color-text-on-accent);
   font: var(--text-ui-lede);
 }
 
 .waitlist__form {
   display: flex;
+  padding-bottom: 6px;
   flex-direction: column;
   gap: 0;
 }
 
 .waitlist__label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: var(--ink);
+  margin-bottom: 10px;
+  color: var(--color-text-on-accent);
   font: var(--text-ui-label);
 }
 
@@ -47,11 +63,11 @@
 .waitlist__input {
   box-sizing: border-box;
   flex: 1;
-  height: 48px;
+  height: 56px;
   padding: 0 1rem;
-  border: 1px solid var(--color-border-strong);
-  background: var(--paper);
-  color: var(--ink);
+  border: 1px solid var(--color-text-on-accent);
+  background: var(--color-text-on-chrome);
+  color: var(--color-bg-chrome);
   font: var(--text-ui-body);
 }
 
@@ -61,18 +77,18 @@
 }
 
 .waitlist__input::placeholder {
-  color: var(--color-text-tertiary);
+  color: color-mix(in oklab, var(--color-bg-chrome) 55%, transparent);
 }
 
 .waitlist__submit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  height: 48px;
+  height: 56px;
   padding: 0 1.5rem;
-  border: none;
-  background: var(--color-bg-inverse);
-  color: var(--paper);
+  border: 1px solid var(--color-text-on-accent);
+  background: var(--color-bg-chrome);
+  color: var(--color-text-on-chrome);
   font: var(--text-ui-label);
   white-space: nowrap;
   cursor: pointer;
@@ -85,7 +101,7 @@
   gap: 0.4rem;
   min-height: 1.875rem;
   padding-top: 0.55rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-on-accent);
   font: var(--text-ui-small);
 }
 
@@ -107,7 +123,16 @@
 @media (max-width: 1279px) {
   .waitlist__section {
     grid-template-columns: 1fr;
-    padding-inline: 16px;
+    padding: 88px 16px;
+  }
+
+  .waitlist__copy,
+  .waitlist__form {
+    grid-column: 1;
+  }
+
+  .waitlist__title {
+    font: var(--text-display-section);
   }
 
   .waitlist__row {
