@@ -338,4 +338,57 @@ describe('client run reducer', () => {
     expect(state).toMatchObject({ view: 'result', outcome: 'failed' })
     expect(resultOutcomeText('failed')).toBe(expected.failed)
   })
+
+  test('shows a notice and keeps the running view when a refusal arrives before done (#123)', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, { type: 'cancel_requested' })
+    state = reduceClientState(state, {
+      type: 'action_refused',
+      message: 'The run is finishing, so the correction was not applied.'
+    })
+
+    expect(state).toMatchObject({
+      view: 'running',
+      progress: {
+        cancelRequested: true,
+        recoverableErrors: ['The run is finishing, so the correction was not applied.']
+      }
+    })
+  })
+
+  test('shows a notice and keeps the result when a refusal arrives after done (#123)', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
+    })
+    // The correction's response arrives only after the cancel already ended
+    // the run: the result must survive, not be replaced by an error (#123).
+    state = reduceClientState(state, { type: 'action_refused', message: 'The run has already ended.' })
+
+    expect(state).toMatchObject({
+      view: 'result',
+      outcome: 'cancelled',
+      result: { ...result, complete: false },
+      progress: { recoverableErrors: ['The run has already ended.'] }
+    })
+  })
+
+  test('ignores a refusal once the view has left the run entirely (#123)', () => {
+    const state = reduceClientState(initialClientState(), {
+      type: 'action_refused',
+      message: 'The run has already ended.'
+    })
+
+    expect(state).toEqual({ view: 'landing' })
+  })
 })
