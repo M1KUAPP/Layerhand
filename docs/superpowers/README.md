@@ -17,6 +17,9 @@ one engineer or one agent can work through in order.
 
 ## Specs
 
+- [Agent bundle](/docs/superpowers/specs/agent-bundle.md) — issue #136: the
+  run token, the client header, the MCP server, and the plugins that let
+  Codex and Claude Code start a run.
 - [Ten-image reliability suite design](/docs/superpowers/specs/ten-image-reliability-suite-design.md)
   — what the suite measures, when a case passes, and what the guarded nightly
   workflow publishes.
