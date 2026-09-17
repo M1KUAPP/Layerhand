@@ -223,15 +223,17 @@ All inside `packages/layerhand-mcp/`, so one npm package carries them:
   what a run costs the user.
 
 `src/server/claude-marketplace.json` is the marketplace, named `layerhand`,
-with one plugin, `layerhand`, whose source is the npm package. The server
-serves it at `GET /plugins/marketplace.json` with the security headers and
-`content-type: application/json`.
+with one plugin, `layerhand`, whose source is the hosted zip at
+`/plugins/layerhand.zip`. The server serves the catalog at
+`GET /plugins/marketplace.json` with the security headers and
+`content-type: application/json`, rewriting the archive URL to the public
+origin.
 
 The one-line installs:
 
 ```sh
 claude plugin marketplace add https://<host>/plugins/marketplace.json && claude plugin install layerhand@layerhand
-codex mcp add layerhand --env OPENAI_API_KEY="$OPENAI_API_KEY" -- npx -y layerhand-mcp
+codex mcp add layerhand --env OPENAI_API_KEY="$OPENAI_API_KEY" -- npx -y https://<host>/plugins/layerhand-mcp.tgz
 ```
 
 A Codex plugin marketplace needs a public repository, and this one is
@@ -239,14 +241,15 @@ private, so Codex installs the MCP server directly until it is public.
 
 ## The website
 
-A section on the landing page, after the waitlist, titled "Run it from your
-agent". Until `layerhand-mcp` is on npm and one real Astra run on each host
-has passed, it says "Coming soon." rather than the commands, plus "Bring
-your own OpenAI key. The run happens on Layerhand, with GPT-6 Astra driving
-the editor." Once those two are done, it shows the two commands above, each
-with a copy button, the host taken from `location.origin`. It lives in
-`src/web/landing/install.ts` and `install.css`, uses only the tokens in
-`tokens.css`, and follows `docs/DESIGN.md`.
+A dedicated page at `/mcp` holds a copy-paste setup prompt for Codex, Claude
+Code, and other MCP hosts, with the per-platform commands collapsed in
+`<details>` sections. The landing's "Run it from your agent" block, after
+the waitlist, links there. The Claude marketplace at
+`GET /plugins/marketplace.json` points at a hosted zip
+(`GET /plugins/layerhand.zip`), and the stdio package is at
+`GET /plugins/layerhand-mcp.tgz` and `GET /plugins/layerhand-mcp.js`, so
+install does not wait on npm. The page uses only the tokens in
+`tokens.css` and follows `docs/DESIGN.md`.
 
 ## Testing
 

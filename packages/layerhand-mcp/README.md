@@ -4,6 +4,9 @@ Layerhand is an agent that retouches a photograph inside a real image editor and
 returns a layered PSD. The loop, the editor, and the model run on Layerhand's
 server, with GPT-6 Astra driving the editor.
 
+The hosted files and a copy-paste setup prompt live at
+`https://layerhand-732371853772.us-central1.run.app/mcp`.
+
 ## Install in Claude Code
 
 ```sh
@@ -13,7 +16,7 @@ claude plugin marketplace add https://layerhand-732371853772.us-central1.run.app
 ## Install in Codex
 
 ```sh
-codex mcp add layerhand --env OPENAI_API_KEY="$OPENAI_API_KEY" -- npx -y layerhand-mcp
+codex mcp add layerhand --env OPENAI_API_KEY="$OPENAI_API_KEY" -- npx -y https://layerhand-732371853772.us-central1.run.app/plugins/layerhand-mcp.tgz
 ```
 
 ## Configuration

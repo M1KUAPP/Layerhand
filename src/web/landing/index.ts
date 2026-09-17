@@ -58,6 +58,7 @@ const NAV = [
   { href: '#layers', label: 'The layers' },
   { href: '#real-run', label: 'A real run' },
   { href: '#faq', label: 'FAQ' },
+  { href: '/mcp', label: 'MCP' },
   { href: '#updates', label: 'Updates' }
 ]
 
