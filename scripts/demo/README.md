@@ -100,7 +100,7 @@ and virtual environments. Dependencies stay out of `package.json`.
 export DEMO_DIR="${TMPDIR:-/tmp}/layerhand-demo"
 mkdir -p "$DEMO_DIR" && cd "$DEMO_DIR"
 bun add -d playwright
-bunx playwright install chromium   # or use system Chrome via DEMO_CHANNEL=chrome
+bunx playwright install chromium   # then record with DEMO_CHANNEL=chromium
 ```
 
 ### Chatterbox TTS for cloned voice (optional)
@@ -150,9 +150,14 @@ Records live UI interactions from the running application:
 ```sh
 export DEMO_DIR="${TMPDIR:-/tmp}/layerhand-demo"
 export DEMO_WEB="http://127.0.0.1:3000"
+export DEMO_CHANNEL=chromium
 
 node scripts/demo/record.mjs
 ```
+
+`DEMO_CHANNEL=chromium` uses the Chromium that the install step downloaded.
+Left unset, the recorder looks for an installed Google Chrome, and fails at
+launch on a machine without one.
 
 Outputs `$DEMO_DIR/capture.webm` and `$DEMO_DIR/beats.json`. Review standard
 output to confirm every target beat was marked. Before recording starts, the
