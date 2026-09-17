@@ -230,6 +230,12 @@ work to keep, and its free run is given back. A run whose start fails ends
 the same way, with a stated reason, rather than failing the request that
 queued it.
 
+At most twice as many runs as may be in flight wait. A submission that
+would wait in a full line gets 429 `queue_full` with a stated message,
+before anything is stored or reserved for it. A run that finds a free slot
+does not wait, so a run on a user's own key still starts while free runs
+fill the line waiting for budget.
+
 In agent mode, a user's own key is checked before anything is stored,
 reserved, or opened for its run, by listing OpenAI's models with it, which
 costs nothing. A key OpenAI refuses gets 400 `invalid_api_key`, and a check
