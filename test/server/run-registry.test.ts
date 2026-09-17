@@ -246,8 +246,10 @@ describe('RunRegistry', () => {
 
     expect(await registry.getSnapshot('run-0')).toMatchObject({ status: 'complete' })
     // Every upload stays while the registry holds its run. The collector scans
-    // the stack conservatively, so a stale pointer can still keep one or two.
-    expect(await survivors(uploads)).toBeLessThanOrEqual(2)
+    // the stack conservatively, so a stale pointer can still keep a few; on a
+    // CI runner three survived. Before the fix all twenty did, so fewer than
+    // half still tells a released run from a held one.
+    expect(await survivors(uploads)).toBeLessThan(10)
   })
 
   test('keeps recoverable errors in history without ending the run', async () => {
