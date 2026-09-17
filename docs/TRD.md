@@ -320,6 +320,16 @@ Photopea's scripting interface, its script dialog included. A spike run
 that scripts it is disqualified, whether its code reaches the interface
 or, in computer mode, it types `app.`, `echoToOE`, or `saveToOE`.
 
+**Production refuses such an action outright**, rather than merely
+disqualifying it after the fact. `src/agent/scripting-guard.ts` holds the
+one detector for that pattern, shared by the agent loop and the spike
+harness so the two cannot drift apart. The loop drops a matching `type`
+action before it reaches `session.act`: the model sees the editor
+unchanged next, as though the action had not been carried out, so it can
+drive the GUI instead, and the run carries on. The run log counts every
+refusal, and the reliability report fails a run that attempted one,
+whatever else it did, so a flagged run never counts towards NFR-1 (#109).
+
 **Code execution is the fallback.** Switching is one option in
 `ResponsesModel`, and its `run_code` code runs against the page before the
 loop takes the next screenshot. OpenAI's recommendation of it for Astra is
