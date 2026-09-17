@@ -26,3 +26,10 @@ jobs:
         env:
           RUN_BROWSER_TESTS: '1'
       - run: bun run typecheck
+      # layerhand-mcp (#136) installs and checks on its own, outside the root.
+      - run: bun install --frozen-lockfile
+        working-directory: packages/layerhand-mcp
+      - run: bun test
+        working-directory: packages/layerhand-mcp
+      - run: bun run typecheck
+        working-directory: packages/layerhand-mcp
