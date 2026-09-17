@@ -48,6 +48,9 @@ export type ClientAction =
   | { type: 'cancel_requested' }
   | { type: 'action_refused'; message: string }
   | { type: 'connection_failed'; message: string }
+  // A stated server answer (a `RunApiError`) rather than a dropped
+  // connection, so reconnecting would just repeat the same refusal (#126).
+  | { type: 'run_unavailable'; message: string }
   | { type: 'reset' }
 
 function emptyProgress(runId: string, instruction: string): RunProgress {
@@ -233,6 +236,8 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
         runId: state.view === 'running' ? state.progress.runId : state.view === 'restoring' ? state.runId : undefined,
         reconnectable: true
       }
+    case 'run_unavailable':
+      return { view: 'error', message: action.message, reconnectable: false }
     case 'reset':
       return initialClientState()
   }
