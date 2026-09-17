@@ -1,0 +1,15 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "layerhand",
+  "owner": { "name": "Layerhand" },
+  "description": "Layerhand for Claude Code: AI retouching that returns a layered PSD, not a flat JPEG.",
+  "plugins": [
+    {
+      "name": "layerhand",
+      "displayName": "Layerhand",
+      "description": "Retouch a photograph with GPT-6 Astra driving a real image editor, steer it mid-run, and get a layered PSD back.",
+      "source": { "source": "npm", "package": "layerhand-mcp", "version": "^0.1.0" },
+      "category": "productivity"
+    }
+  ]
+}
