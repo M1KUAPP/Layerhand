@@ -1,4 +1,5 @@
 import type { RunResult, RunStopReason } from '../agent/contract'
+import { strandedCorrectionNumbers } from '../agent/stranded-corrections'
 import type { RunSnapshot, RunStreamEvent } from '../server/run-registry'
 
 // The first step event reports the configured cap; until it arrives the
@@ -245,6 +246,34 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
 
 export function formatCredits(costUsd: number): string {
   return `${Math.max(0, costUsd).toFixed(2)} credits`
+}
+
+export interface CorrectionStatus {
+  text: string
+  /** False for a correction the run acknowledged but never reached the agent (FR-22). */
+  delivered: boolean
+}
+
+// The recoverable error naming which acknowledged corrections (1-based,
+// src/agent/stranded-corrections.ts) never reached the agent — a cancel or a
+// cap can strand one. Matched by exact number, not by trailing position:
+// native steering can leave an earlier correction still queued while a
+// later one has already been applied, so "the last N" is not always the
+// right N (#124).
+function strandedCorrectionPositions(recoverableErrors: readonly string[]): ReadonlySet<number> {
+  for (const message of recoverableErrors) {
+    const numbers = strandedCorrectionNumbers(message)
+    if (numbers) return new Set(numbers)
+  }
+  return new Set()
+}
+
+// Every correction the run acknowledged, marked with whether it reached the
+// agent, for the result view's list (#124). A correction's number is its
+// 1-based position in this list, matching how loop.ts numbers it.
+export function correctionStatuses(progress: RunProgress): CorrectionStatus[] {
+  const stranded = strandedCorrectionPositions(progress.recoverableErrors)
+  return progress.corrections.map((text, index) => ({ text, delivered: !stranded.has(index + 1) }))
 }
 
 // The true reason a run isn't complete (FR-12, FR-13), not always the step
