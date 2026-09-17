@@ -78,6 +78,12 @@
   font-size: 20px;
 }
 
+/* The open sheet's scrim covers the page; stop the page scrolling out
+   from under it. */
+html.drawer-open {
+  overflow: hidden;
+}
+
 .drawer__scrim {
   position: fixed;
   inset: -100px 0;
