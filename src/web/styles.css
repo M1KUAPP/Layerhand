@@ -456,6 +456,23 @@ html.drawer-open .to-top {
   color: var(--paper);
 }
 
+.back-button {
+  height: 40px;
+  min-height: 40px;
+  gap: 8px;
+  padding: 0 14px;
+  border-color: var(--color-border-strong);
+  background: var(--paper);
+}
+
+.back-button:hover {
+  background: var(--color-bg-subtle);
+}
+
+.back-button .hgi-stroke {
+  font-size: 1.25em;
+}
+
 .input-intro {
   display: flex;
   align-items: flex-start;
