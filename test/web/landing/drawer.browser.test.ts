@@ -73,6 +73,24 @@ describeBrowser('landing drawer in Chromium', () => {
     }
   }, 30_000)
 
+  test(`locks the page behind the open sheet at 390x844`, async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      const hasClass = () => page.evaluate(() => document.documentElement.classList.contains('drawer-open'))
+      expect(await hasClass()).toBe(false)
+      await page.getByRole('button', { name: 'Show the layers' }).click()
+      await page.locator('#drawer-sheet').waitFor({ state: 'visible' })
+      expect(await hasClass()).toBe(true)
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden')
+      await page.keyboard.press('Escape')
+      await page.locator('#drawer-sheet').waitFor({ state: 'hidden' })
+      expect(await hasClass()).toBe(false)
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('visible')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
 
