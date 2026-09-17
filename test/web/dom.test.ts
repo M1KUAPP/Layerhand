@@ -34,11 +34,11 @@ const appSource = async () =>
 const landingFile = (name: string) => Bun.file(new URL(`../../src/web/landing/${name}`, import.meta.url))
 
 describe('Layerhand workbench markup', () => {
-  test('keeps one accessible live application root and a desktop boundary', async () => {
+  test('keeps the application root outside live regions and a desktop boundary', async () => {
     const html = await htmlFile.text()
 
     expect(html).toContain('<main id="app"')
-    expect(html).toContain('aria-live="polite"')
+    expect(html).not.toContain('aria-live')
     expect(html).toContain('id="desktop-required"')
     expect(html).toContain('This workbench requires a desktop at least 1280 pixels wide.')
     expect(html).toContain('rel="icon"')
