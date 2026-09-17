@@ -502,7 +502,7 @@ function replaceNotices(container: HTMLElement, progress: Extract<ClientState, {
   container.replaceChildren()
   for (const message of progress.recoverableErrors) container.append(node('p', 'notice', message))
   for (const message of progress.corrections) {
-    container.append(node('p', 'correction-ack', `Correction applied: ${message}`))
+    container.append(node('p', 'correction-ack', `Correction received: ${message}`))
   }
   // The container has a bounded height (styles.css); keep the newest
   // acknowledgement in view rather than the oldest, but only when the list
@@ -520,7 +520,7 @@ function announceNewCorrections(
   if (corrections.length > announcedCount) {
     announcer.textContent = corrections
       .slice(announcedCount)
-      .map((message) => `Correction applied: ${message}`)
+      .map((message) => `Correction received: ${message}`)
       .join(' ')
   }
   announcer.dataset.announcedCount = String(corrections.length)
