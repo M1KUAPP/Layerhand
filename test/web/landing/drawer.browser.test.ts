@@ -108,7 +108,7 @@ describeBrowser('landing drawer in Chromium', () => {
       const page = await openLanding(browser, application.origin, { viewport })
       try {
         const section = page.locator('section.drawer#real-run[data-section="drawer"]')
-        expect(await section.locator('dl.drawer__stats .drawer__stat-value').allTextContents()).toEqual([
+        expect(await section.locator('dl.drawer__stats .drawer__stat-count').allTextContents()).toEqual([
           '16',
           '3 min 13 s',
           '194 ms',
