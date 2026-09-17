@@ -80,6 +80,12 @@ function button(text: string, className = 'button'): HTMLButtonElement {
   return result
 }
 
+function icon(name: string): HTMLElement {
+  const result = node('i', `hgi-stroke ${name}`)
+  result.setAttribute('aria-hidden', 'true')
+  return result
+}
+
 function brandHeader(trailingAction?: HTMLButtonElement): HTMLElement {
   const header = node('header', 'site-header')
   const brand = node('button', 'wordmark')
@@ -241,7 +247,8 @@ async function chooseSample(): Promise<void> {
 
 function renderInput(): DocumentFragment {
   const fragment = document.createDocumentFragment()
-  const back = button('Back', 'text-button')
+  const back = button('Back', 'button back-button')
+  back.prepend(icon('hgi-arrow-left-01'))
   back.addEventListener('click', () => dispatch({ type: 'reset' }))
   const header = brandHeader(back)
   header.dataset.over = 'page'
