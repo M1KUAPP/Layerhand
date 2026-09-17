@@ -6,6 +6,7 @@ import { renderLanding, type LandingContext } from './landing/index'
 import {
   formatCredits,
   initialClientState,
+  isCurrentRun,
   reduceClientState,
   resultOutcomeText,
   type ClientAction,
@@ -480,6 +481,9 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
       // A request that never reached the server at all (a `RunApiError` is
       // only thrown for a server's stated refusal) is a real connection
       // loss, which the run's own "connection lost" error view handles.
+      // A slow request that settles once the view has moved to a different
+      // run must not be attributed to that run either.
+      if (!isCurrentRun(state, current.progress.runId)) return
       dispatch(
         error instanceof RunApiError
           ? { type: 'action_refused', message: publicMessage(error) }
@@ -539,11 +543,15 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
       // A request that never reached the server at all (a `RunApiError` is
       // only thrown for a server's stated refusal) is a real connection
       // loss, which the run's own "connection lost" error view handles.
-      dispatch(
-        error instanceof RunApiError
-          ? { type: 'action_refused', message: publicMessage(error) }
-          : { type: 'connection_failed', message: publicMessage(error) }
-      )
+      // A slow request that settles once the view has moved to a different
+      // run must not be attributed to that run either.
+      if (isCurrentRun(state, current.progress.runId)) {
+        dispatch(
+          error instanceof RunApiError
+            ? { type: 'action_refused', message: publicMessage(error) }
+            : { type: 'connection_failed', message: publicMessage(error) }
+        )
+      }
     } finally {
       // A cancel requested while this was in flight must stay disabled;
       // read the live state rather than the render this closure captured.
