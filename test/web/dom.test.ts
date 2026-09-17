@@ -11,7 +11,7 @@ const cssSource = async () =>
         'landing/shell.css',
         'landing/hero.css',
         'landing/steps.css',
-        'landing/scrub.css',
+        'landing/switcher.css',
         'landing/drawer.css',
         'landing/glass.css',
         'landing/waitlist.css'
@@ -26,7 +26,7 @@ const appSource = async () =>
         'landing/index.ts',
         'landing/hero.ts',
         'landing/steps.ts',
-        'landing/scrub.ts',
+        'landing/switcher.ts',
         'landing/drawer.ts',
         'landing/glass.ts',
         'landing/waitlist.ts'
@@ -131,8 +131,10 @@ describe('Layerhand workbench markup', () => {
     expect(css).toContain('--accent: #c7ff4a')
     expect(css).toContain('@media (max-width: 1279px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
-    // A gradient function draws one thing only: the hero's hairline grid.
-    expect(css.replace(/\.hero-shell \{[^}]*\}/, '')).not.toContain('gradient')
+    // Gradient functions draw two things only, both named in DESIGN.md: the
+    // hero's hairline grid and the layer switcher's illustration.
+    const switcher = await landingFile('switcher.css').text()
+    expect(css.replace(switcher, '').replace(/\.hero-shell \{[^}]*\}/, '')).not.toContain('gradient')
     expect(css).not.toContain('border-radius')
     // The landing's motion vocabulary exceeds 180 ms by design; the cap
     // stays on the workbench shell.

@@ -388,7 +388,7 @@ describe('page routes', () => {
 
     expect(binaryRoutes.png.length).toBeGreaterThan(0)
     expect(binaryRoutes.jpeg.length).toBeGreaterThan(0)
-    expect(binaryRoutes.video.length).toBeGreaterThan(0)
+    // The landing has loaded no video since the scrub clip went; one it loads again is still checked below.
 
     for (const { type, url } of targets) {
       const uncompressed = await fetch(url, { headers: { 'accept-encoding': 'identity' } })
