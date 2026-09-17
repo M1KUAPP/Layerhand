@@ -232,6 +232,47 @@ describe('SqlMeterStore', () => {
     expect(onceExpired.accepted).toBe(true)
   })
 
+  test('counts a reservation from the start of its run, however long the run waited in line', async () => {
+    let now = NOW
+    const { store: meter } = await store(3, () => now)
+    const waited = accepted(
+      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    )
+
+    // It waits in line past its reservation's lifetime, then starts.
+    now = later(RESERVATION_LIFETIME_MS + 60_000)
+    const renewed = await meter.renew(waited)
+    // It still holds the budget for as long as a run can spend.
+    now = later(RESERVATION_LIFETIME_MS + 60_000 + RUN_CEILING_MS)
+    const whileSpending = await meter.admit({
+      visitorKey: 'visitor-b',
+      reservationMicroUsd: usdToMicroUsd(3),
+      byok: false
+    })
+
+    expect(renewed.accepted).toBe(true)
+    expect(whileSpending).toEqual(BUDGET_RESERVED)
+  })
+
+  test('makes a reservation that stopped counting while its run waited fit the ceiling again', async () => {
+    let now = NOW
+    const { store: meter } = await store(3, () => now)
+    const waited = accepted(
+      await meter.admit({ visitorKey: 'visitor-a', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    )
+    now = later(RESERVATION_LIFETIME_MS)
+    const tookTheRoom = accepted(
+      await meter.admit({ visitorKey: 'visitor-b', reservationMicroUsd: usdToMicroUsd(3), byok: false })
+    )
+
+    const whileHeld = await meter.renew(waited)
+    await meter.reconcile(tookTheRoom, usdToMicroUsd(1))
+    const onceSpent = await meter.renew(waited)
+
+    expect(whileHeld).toEqual(BUDGET_RESERVED)
+    expect(onceSpent).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
+  })
+
   test('admits free runs again once the reservations of a server that died without reconciling them expire', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'layerhand-meter-'))
     const databaseUrl = `sqlite://${join(directory, 'layerhand.db')}`

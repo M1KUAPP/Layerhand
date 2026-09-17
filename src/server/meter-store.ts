@@ -39,6 +39,13 @@ export type AdmissionResult =
 
 export interface MeterStore {
   admit(request: AdmissionRequest): Promise<AdmissionResult>
+  /**
+   * Counts a reservation from now, as its run starts, so a run that waited in
+   * line stays counted for as long as it spends. One that stopped counting
+   * while it waited must fit the ceiling again, and is answered as an
+   * admission is.
+   */
+  renew(reservation: MeterReservation): Promise<AdmissionResult>
   reconcile(reservation: MeterReservation, actualMicroUsd: number): Promise<void>
   release(reservation: MeterReservation): Promise<void>
 }
@@ -125,35 +132,7 @@ export class SqlMeterStore implements MeterStore {
         `
         if (visitors.length === 0) throw new AdmissionDenied(FREE_LIMIT)
 
-        // Writing the day's row holds it until this transaction ends, so
-        // admissions to one day take turns, and the check that follows counts
-        // every reservation made before this one.
-        await transaction`
-          INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd)
-          VALUES (${reservation.dayUtc}, 0, 0)
-          ON CONFLICT (day_utc) DO UPDATE SET spent_microusd = daily_usage.spent_microusd
-        `
-        // The row's reserved_microusd is what revisions from before
-        // meter_reservations reserved. Nothing adds to it now, but runs of
-        // theirs still in flight give it back, so it still counts.
-        const days = await transaction`
-          SELECT day_utc FROM daily_usage
-          WHERE day_utc = ${reservation.dayUtc}
-            AND daily_usage.spent_microusd + daily_usage.reserved_microusd + (
-              SELECT COALESCE(SUM(meter_reservations.reserved_microusd), 0) FROM meter_reservations
-              WHERE meter_reservations.day_utc = ${reservation.dayUtc}
-                AND meter_reservations.reserved_at > ${liveSince}
-            ) + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
-        `
-        if (days.length === 0) {
-          // Reservations come back as their runs end; spending does not.
-          const unreserved = await transaction`
-            SELECT day_utc FROM daily_usage
-            WHERE day_utc = ${reservation.dayUtc}
-              AND daily_usage.spent_microusd + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
-          `
-          throw new AdmissionDenied(unreserved.length > 0 ? BUDGET_RESERVED : DAILY_LIMIT)
-        }
+        await this.#assertRoom(transaction, reservation, liveSince)
 
         await transaction`
           INSERT INTO meter_reservations (reservation_id, day_utc, reserved_microusd, reserved_at)
@@ -166,6 +145,31 @@ export class SqlMeterStore implements MeterStore {
     }
 
     this.#active.set(reservation, reservationId)
+    return { accepted: true, reservation }
+  }
+
+  async renew(reservation: MeterReservation): Promise<AdmissionResult> {
+    const reservationId = this.#active.get(reservation)
+    // A run on the user's own key reserved nothing, and one given back holds nothing.
+    if (reservationId === undefined) return { accepted: true, reservation }
+    const now = this.#now()
+    const liveSince = new Date(now.getTime() - RESERVATION_LIFETIME_MS).toISOString()
+    try {
+      await this.#inTransaction(async (transaction) => {
+        const counted = await transaction`
+          SELECT reservation_id FROM meter_reservations
+          WHERE reservation_id = ${reservationId} AND reserved_at > ${liveSince}
+        `
+        if (counted.length === 0) await this.#assertRoom(transaction, reservation, liveSince)
+        await transaction`
+          UPDATE meter_reservations SET reserved_at = ${now.toISOString()}
+          WHERE reservation_id = ${reservationId}
+        `
+      })
+    } catch (error) {
+      if (error instanceof AdmissionDenied) return error.result
+      throw error
+    }
     return { accepted: true, reservation }
   }
 
@@ -202,6 +206,39 @@ export class SqlMeterStore implements MeterStore {
     } catch (error) {
       this.#active.set(reservation, reservationId)
       throw error
+    }
+  }
+
+  /** Refuses a reservation that does not fit the day beside every reservation still counted. */
+  async #assertRoom(transaction: TransactionSQL, reservation: MeterReservation, liveSince: string): Promise<void> {
+    // Writing the day's row holds it until this transaction ends, so
+    // admissions to one day take turns, and the check that follows counts
+    // every reservation made before this one.
+    await transaction`
+      INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd)
+      VALUES (${reservation.dayUtc}, 0, 0)
+      ON CONFLICT (day_utc) DO UPDATE SET spent_microusd = daily_usage.spent_microusd
+    `
+    // The row's reserved_microusd is what revisions from before
+    // meter_reservations reserved. Nothing adds to it now, but runs of
+    // theirs still in flight give it back, so it still counts.
+    const days = await transaction`
+      SELECT day_utc FROM daily_usage
+      WHERE day_utc = ${reservation.dayUtc}
+        AND daily_usage.spent_microusd + daily_usage.reserved_microusd + (
+          SELECT COALESCE(SUM(meter_reservations.reserved_microusd), 0) FROM meter_reservations
+          WHERE meter_reservations.day_utc = ${reservation.dayUtc}
+            AND meter_reservations.reserved_at > ${liveSince}
+        ) + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
+    `
+    if (days.length === 0) {
+      // Reservations come back as their runs end; spending does not.
+      const unreserved = await transaction`
+        SELECT day_utc FROM daily_usage
+        WHERE day_utc = ${reservation.dayUtc}
+          AND daily_usage.spent_microusd + ${reservation.reservedMicroUsd} <= ${this.#dailyCeilingMicroUsd}
+      `
+      throw new AdmissionDenied(unreserved.length > 0 ? BUDGET_RESERVED : DAILY_LIMIT)
     }
   }
 

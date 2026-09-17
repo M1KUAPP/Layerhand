@@ -40,6 +40,12 @@ class RecordingMeter implements MeterStore {
     return this.refuse ?? { accepted: true, reservation: this.reservation }
   }
 
+  async renew(reservation: MeterReservation): Promise<AdmissionResult> {
+    expect(reservation).toBe(this.reservation)
+    this.calls.push('renew')
+    return { accepted: true, reservation }
+  }
+
   async reconcile(reservation: MeterReservation, actualMicroUsd: number): Promise<void> {
     expect(reservation).toBe(this.reservation)
     this.calls.push(`reconcile:${actualMicroUsd}`)
@@ -350,6 +356,8 @@ describe('warming an editor before the run', () => {
     for await (const { event } of target.registry.events(runId)) if (event.type === 'started') break
 
     expect(target.claimed.map((session) => session?.id)).toEqual([undefined, 'warm-1'])
+    // Its reservation counts from when it started, not from when it joined the line.
+    expect(target.meter.calls).toEqual(['admit:false', 'renew', 'admit:false', 'reconcile:0', 'renew'])
     expect(target.warmSessions?.size).toBe(0)
     await target.registry.cancel(runId)
   })
@@ -636,7 +644,7 @@ describe('run HTTP contract', () => {
 
     expect(cancel.status).toBe(202)
     expect(target.runRequests).toHaveLength(1)
-    expect(target.meter.calls).toEqual(['admit:false', 'admit:false', 'release'])
+    expect(target.meter.calls).toEqual(['admit:false', 'renew', 'admit:false', 'release'])
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
     await target.registry.cancel(first.runId)
   })
