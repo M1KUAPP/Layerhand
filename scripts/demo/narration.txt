@@ -1,0 +1,15 @@
+# Narration is keyed to beats measured by record.mjs:
+# beat | offset_ms | text
+#
+# Keep one visible claim per line. manifest.py records the next visual boundary,
+# schedule.py rejects any voice line that crosses it, and subtitles.py derives
+# the on-screen words from the same manifest.
+
+landing | 100 | Most AI photo tools hand back flat pixels. Layerhand hands back a layered file.
+input | 100 | Drop in a photograph, and say what you want in plain words.
+running | 100 | An agent then operates a real image editor, live, while you watch.
+correction | 100 | Change your mind mid-run, and simply type a correction.
+applied | 100 | The work does not restart. The next actions bend around it.
+result | 100 | The finished retouch arrives with a flattened preview.
+layers | 100 | Behind it sit named layers, masks, and adjustments you can still edit.
+end | 100 | Download the PSD, and it is still yours to edit.
