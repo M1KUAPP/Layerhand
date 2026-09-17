@@ -1227,7 +1227,9 @@ again, and a run whose retries run out stops with its partial file, as
   and the manual `.github/workflows/gcs-lifecycle.yml` — triggered only
   by `workflow_dispatch`, never by push, and held for the same approval
   as a deploy — applies it on request and always prints the bucket's live
-  rule.
+  rule. It runs as the deployer service account, which needs
+  `storage.buckets.get` and `storage.buckets.update` on the bucket to do
+  either.
 - Two tighter guarantees sit in front of that day-old backstop: an
   upload is deleted from the bucket as soon as its run ends, and every
   download link — the PSD's and the preview's — expires after one hour
