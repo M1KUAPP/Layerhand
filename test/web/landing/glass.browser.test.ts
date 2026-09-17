@@ -71,6 +71,40 @@ describeBrowser('landing glass section in Chromium', () => {
     }
   }, 30_000)
 
+  test('aligns the three fact icons on one axis at 1440x900', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      const icons = page.locator('.glass__fact-icon')
+      expect(await icons.count()).toBe(3)
+      const boxes = await icons.evaluateAll((elements) =>
+        elements.map((element) => {
+          const box = element.getBoundingClientRect()
+          const before = getComputedStyle(element, '::before')
+          return {
+            x: box.x,
+            width: box.width,
+            height: box.height,
+            glyphWidth: Number.parseFloat(before.width) || box.width,
+            glyphHeight: Number.parseFloat(before.height) || box.height
+          }
+        })
+      )
+      expect(boxes[0]?.width).toBe(40)
+      expect(boxes[0]?.height).toBe(40)
+      for (const box of boxes) {
+        expect(Math.abs(box.x - boxes[0]!.x)).toBeLessThanOrEqual(1)
+        expect(box.width).toBe(boxes[0]!.width)
+        expect(box.height).toBe(boxes[0]!.height)
+        const glyphXPad = (box.width - box.glyphWidth) / 2
+        const glyphYPad = (box.height - box.glyphHeight) / 2
+        expect(Math.abs(glyphXPad - glyphYPad) < 8 || box.glyphWidth === 40).toBe(true)
+        expect(glyphXPad).toBeGreaterThanOrEqual(-1)
+      }
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
 
