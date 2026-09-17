@@ -144,7 +144,8 @@
 
 .hero__cta .hgi-stroke,
 .hero__updates .hgi-stroke,
-.hero__loop-toggle .hgi-stroke {
+.hero__loop-toggle .hgi-stroke,
+.hero__replay-toggle .hgi-stroke {
   font-size: 1.25em;
 }
 
@@ -292,10 +293,9 @@
   font: var(--text-ui-small);
 }
 
-.hero__loop-toggle {
+.hero__loop-toggle,
+.hero__replay-toggle {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
   display: inline-flex;
   height: 36px;
   align-items: center;
@@ -306,6 +306,124 @@
   color: var(--ink);
   cursor: pointer;
   font: var(--text-ui-label);
+}
+
+.hero__loop-toggle {
+  bottom: 16px;
+  left: 16px;
+}
+
+.hero__replay-toggle {
+  top: 12px;
+  right: 12px;
+}
+
+/* The replay: glass panels over the lower part of the still frame, so the
+   photograph's centre stays clear while the run plays again. */
+/* The replay fills the window below the pause toggle. The instruction and
+   the progress run along the bottom; the layer list sits top right, clear
+   of the chip that overlaps the window's lower corner. */
+.hero__replay {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 180px);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.hero__replay-prompt,
+.hero__replay-progress,
+.hero__replay-layers,
+.hero__replay-caption {
+  margin: 0;
+  border: 1px solid var(--color-border-on-chrome);
+  background-color: var(--glass-fill-chrome);
+  backdrop-filter: var(--glass-blur);
+  color: var(--color-text-on-chrome);
+}
+
+/* The instruction types upward like a transcript; the panel is capped so a
+   narrow window clips the oldest lines instead of covering the frame. */
+.hero__replay-prompt {
+  display: flex;
+  max-height: 132px;
+  grid-column: 1;
+  grid-row: 2 / 4;
+  align-items: flex-end;
+  padding: 10px 12px;
+  overflow: hidden;
+  font: var(--text-ui-micro);
+}
+
+/* Whole lines only, bottom-aligned, so the clip falls between two lines and
+   never through one. */
+.hero__replay-text {
+  display: flex;
+  max-height: 8lh;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.hero__replay-progress {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 10px 12px;
+  font: var(--text-ui-micro);
+}
+
+.hero__replay-bar {
+  display: block;
+  height: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+  background: var(--color-border-on-chrome);
+}
+
+.hero__replay-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  scale: var(--replay-progress, 0) 1;
+  transform-origin: 0 50%;
+}
+
+/* The layer stack, top first, the way the editor's panel lists it. */
+.hero__replay-layers {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  padding: 6px 0;
+  list-style: none;
+}
+
+/* Nothing to list until the run saves its first layer. */
+.hero__replay-layers:empty {
+  visibility: hidden;
+}
+
+.hero__replay-layers li {
+  padding: 5px 12px;
+  font: var(--text-ui-small);
+  white-space: nowrap;
+}
+
+.hero__replay-layers li + li {
+  box-shadow: inset 0 1px 0 var(--color-border-on-chrome);
+}
+
+.hero__replay-caption {
+  grid-column: 2;
+  grid-row: 3;
+  padding: 6px 10px;
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-micro);
 }
 
 /* The ticker: the band the body slides over last. */
@@ -443,6 +561,12 @@
     display: none;
   }
 
+  /* The window is too small for the overlay to stay readable. */
+  .hero__replay,
+  .hero__replay-toggle {
+    display: none;
+  }
+
   .hero__cta,
   .hero__updates {
     width: 100%;
@@ -468,6 +592,11 @@
   }
 
   .ticker__toggle {
+    display: none;
+  }
+
+  /* The replay holds its finished frame, so its pause control goes too. */
+  .hero__replay-toggle {
     display: none;
   }
 }
