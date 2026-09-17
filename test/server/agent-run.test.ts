@@ -33,6 +33,8 @@ async function agentRuntime(): Promise<LaunchRuntime> {
   return runtime
 }
 
+const runTokens = new Map<string, string>()
+
 async function startRun(runtime: LaunchRuntime): Promise<string> {
   const form = new FormData()
   form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
@@ -42,14 +44,16 @@ async function startRun(runtime: LaunchRuntime): Promise<string> {
     new Request('http://layerhand.test/api/runs', { method: 'POST', body: form })
   )
   expect(response.status).toBe(201)
-  return ((await response.json()) as { runId: string }).runId
+  const started = (await response.json()) as { runId: string; runToken: string }
+  runTokens.set(started.runId, started.runToken)
+  return started.runId
 }
 
 function steer(runtime: LaunchRuntime, runId: string, text: string): Promise<Response> {
   return runtime.application.fetch(
     new Request(`http://layerhand.test/api/runs/${runId}/steer`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${runTokens.get(runId)}` },
       body: JSON.stringify({ text })
     })
   )

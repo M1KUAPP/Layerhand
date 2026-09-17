@@ -78,6 +78,8 @@ export interface RunLimits {
   requestsPerVisitorPerMinute: number
   /** Requests one address may make of an endpoint in a minute (#115). */
   requestsPerAddressPerMinute: number
+  /** Bundle runs one address may have queued or running at once (#136). */
+  maxClientRunsPerAddress: number
 }
 
 // The live agent run needed 19 steps, so 40 leaves room; $3 is several times its $0.85.
@@ -93,7 +95,8 @@ export const DEFAULT_RUN_LIMITS: RunLimits = {
   maxConcurrentRuns: 20,
   freeRunsPerAddressPerDay: 10,
   requestsPerVisitorPerMinute: 10,
-  requestsPerAddressPerMinute: 60
+  requestsPerAddressPerMinute: 60,
+  maxClientRunsPerAddress: 2
 }
 
 /** The run limits, in every environment. Each is optional and has a default. */
@@ -122,7 +125,11 @@ export function readRunLimits(env: Environment): RunLimits {
     requestsPerAddressPerMinute:
       env.REQUESTS_PER_ADDRESS_PER_MINUTE === undefined
         ? DEFAULT_RUN_LIMITS.requestsPerAddressPerMinute
-        : parsePositiveInteger('REQUESTS_PER_ADDRESS_PER_MINUTE', env.REQUESTS_PER_ADDRESS_PER_MINUTE)
+        : parsePositiveInteger('REQUESTS_PER_ADDRESS_PER_MINUTE', env.REQUESTS_PER_ADDRESS_PER_MINUTE),
+    maxClientRunsPerAddress:
+      env.MAX_CLIENT_RUNS_PER_ADDRESS === undefined
+        ? DEFAULT_RUN_LIMITS.maxClientRunsPerAddress
+        : parsePositiveInteger('MAX_CLIENT_RUNS_PER_ADDRESS', env.MAX_CLIENT_RUNS_PER_ADDRESS)
   }
 }
 
