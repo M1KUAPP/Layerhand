@@ -54,4 +54,71 @@ describeBrowser('landing motion in Chromium', () => {
       await page.close()
     }
   }, 30_000)
+
+  test('the spotlight follows the pointer and moving to the ticker area and out of the shell removes data-spot', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      const shell = page.locator('.hero-shell')
+      await page.mouse.move(400, 400)
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => resolve())
+            })
+          })
+      )
+      expect(await shell.getAttribute('data-spot')).toBe('on')
+      const spotX = await shell.evaluate((element) => element.style.getPropertyValue('--spot-x'))
+      expect(spotX).toBe('400px')
+
+      const ticker = page.locator('.ticker')
+      await ticker.hover()
+      const steps = page.locator('.steps')
+      await steps.hover()
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => resolve())
+            })
+          })
+      )
+      expect(await shell.getAttribute('data-spot')).toBeNull()
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('a card lifts under the pointer at 1440x900', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 1440, height: 900 } })
+    try {
+      const card = page.locator('.steps__card').first()
+      await card.scrollIntoViewIfNeeded()
+      await page.waitForTimeout(1500)
+      await card.hover()
+      await page.waitForTimeout(300)
+      const translate = await card.evaluate((element) => getComputedStyle(element).translate)
+      expect(translate).toBe('0px -4px')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('under reduced motion, hovering the card leaves translate at none', async () => {
+    const page = await openLanding(browser, application.origin, {
+      viewport: { width: 1440, height: 900 },
+      reducedMotion: true
+    })
+    try {
+      const card = page.locator('.steps__card').first()
+      await card.scrollIntoViewIfNeeded()
+      await card.hover()
+      await page.waitForTimeout(300)
+      const translate = await card.evaluate((element) => getComputedStyle(element).translate)
+      expect(translate).toBe('none')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
 })

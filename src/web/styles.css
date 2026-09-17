@@ -9,6 +9,7 @@
 @import './landing/waitlist.css';
 @import './landing/install.css';
 @import './landing/reveal.css';
+@import './landing/pointer.css';
 
 :root {
   color: var(--ink);
