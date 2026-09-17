@@ -84,4 +84,11 @@ export async function applyMigrations(database: SQL): Promise<void> {
   } catch (error) {
     if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
   }
+  // Added the same way, for the same reason: how many actions a run refused
+  // for typing Photopea's scripting interface through the computer tool (#109).
+  try {
+    await database`ALTER TABLE run_log ADD COLUMN refused_actions INTEGER`
+  } catch (error) {
+    if (!/duplicate column|already exists/i.test(error instanceof Error ? error.message : String(error))) throw error
+  }
 }
