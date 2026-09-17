@@ -67,8 +67,10 @@ a:hover {
 }
 
 button:disabled {
-  cursor: wait;
-  opacity: 0.54;
+  border-color: var(--color-bg-disabled);
+  background-color: var(--color-bg-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
 }
 
 img,
@@ -445,6 +447,7 @@ html.drawer-open .to-top {
 
 .button-accent {
   background: var(--accent);
+  color: var(--color-text-on-accent);
 }
 
 .button-dark {
