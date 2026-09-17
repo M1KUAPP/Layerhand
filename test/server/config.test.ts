@@ -84,15 +84,34 @@ describe('readConfig', () => {
 })
 
 describe('readRunLimits', () => {
-  test('defaults to 40 steps, a $3 spend cap, and twenty runs at once', () => {
-    expect(readRunLimits({})).toEqual({ stepCap: 40, freeRunSpendCapUsd: 3, maxConcurrentRuns: 20 })
+  test('defaults to 40 steps, a $3 spend cap, twenty runs at once, ten free runs an address, and the rate limits (#115)', () => {
+    expect(readRunLimits({})).toEqual({
+      stepCap: 40,
+      freeRunSpendCapUsd: 3,
+      maxConcurrentRuns: 20,
+      freeRunsPerAddressPerDay: 10,
+      requestsPerVisitorPerMinute: 10,
+      requestsPerAddressPerMinute: 60
+    })
   })
 
   test('reads every limit from the environment', () => {
-    expect(readRunLimits({ RUN_STEP_CAP: '25', FREE_RUN_SPEND_CAP_USD: '2.50', MAX_CONCURRENT_RUNS: '12' })).toEqual({
+    expect(
+      readRunLimits({
+        RUN_STEP_CAP: '25',
+        FREE_RUN_SPEND_CAP_USD: '2.50',
+        MAX_CONCURRENT_RUNS: '12',
+        FREE_RUNS_PER_ADDRESS_PER_DAY: '15',
+        REQUESTS_PER_VISITOR_PER_MINUTE: '5',
+        REQUESTS_PER_ADDRESS_PER_MINUTE: '20'
+      })
+    ).toEqual({
       stepCap: 25,
       freeRunSpendCapUsd: 2.5,
-      maxConcurrentRuns: 12
+      maxConcurrentRuns: 12,
+      freeRunsPerAddressPerDay: 15,
+      requestsPerVisitorPerMinute: 5,
+      requestsPerAddressPerMinute: 20
     })
   })
 
@@ -114,6 +133,33 @@ describe('readRunLimits', () => {
     (value) => {
       expect(() => readRunLimits({ FREE_RUN_SPEND_CAP_USD: value })).toThrow(
         'FREE_RUN_SPEND_CAP_USD must be a positive decimal number'
+      )
+    }
+  )
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5'])(
+    'rejects invalid FREE_RUNS_PER_ADDRESS_PER_DAY %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ FREE_RUNS_PER_ADDRESS_PER_DAY: value })).toThrow(
+        'FREE_RUNS_PER_ADDRESS_PER_DAY must be a positive integer'
+      )
+    }
+  )
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5'])(
+    'rejects invalid REQUESTS_PER_VISITOR_PER_MINUTE %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ REQUESTS_PER_VISITOR_PER_MINUTE: value })).toThrow(
+        'REQUESTS_PER_VISITOR_PER_MINUTE must be a positive integer'
+      )
+    }
+  )
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5'])(
+    'rejects invalid REQUESTS_PER_ADDRESS_PER_MINUTE %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ REQUESTS_PER_ADDRESS_PER_MINUTE: value })).toThrow(
+        'REQUESTS_PER_ADDRESS_PER_MINUTE must be a positive integer'
       )
     }
   )

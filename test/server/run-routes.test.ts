@@ -8,12 +8,7 @@ import type { ManagedRun } from '../../src/server/managed-run'
 import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
-import {
-  MAX_JSON_BODY_BYTES,
-  PER_ADDRESS_RATE_LIMIT,
-  PER_VISITOR_RATE_LIMIT,
-  RunRoutes
-} from '../../src/server/run-routes'
+import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
 import type { OpenAiKeyCheck } from '../../src/server/openai-key'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
 import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
@@ -825,7 +820,14 @@ describe('event stream keep-alive', () => {
  * failure injection, or any of `fixture()`'s other knobs — just a working
  * HTTP surface with a controllable clock (#115).
  */
-function testRoutes(overrides: { now?: () => Date; publicOrigin?: string } = {}) {
+function testRoutes(
+  overrides: {
+    now?: () => Date
+    publicOrigin?: string
+    requestsPerVisitorPerMinute?: number
+    requestsPerAddressPerMinute?: number
+  } = {}
+) {
   const registry = new RunRegistry()
   const meter = new RecordingMeter()
   const artifacts = new RecordingArtifacts()
@@ -842,6 +844,12 @@ function testRoutes(overrides: { now?: () => Date; publicOrigin?: string } = {})
     now: overrides.now ?? (() => new Date('2026-09-15T12:00:00.000Z')),
     idGenerator: () => `public-run-${++nextId}`,
     ...(overrides.publicOrigin ? { publicOrigin: overrides.publicOrigin } : {}),
+    ...(overrides.requestsPerVisitorPerMinute !== undefined
+      ? { requestsPerVisitorPerMinute: overrides.requestsPerVisitorPerMinute }
+      : {}),
+    ...(overrides.requestsPerAddressPerMinute !== undefined
+      ? { requestsPerAddressPerMinute: overrides.requestsPerAddressPerMinute }
+      : {}),
     runFactory: (request) => ({
       handle: fakeRun(request, { intervalMs: 1 }),
       metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
@@ -950,13 +958,13 @@ describe('cross-origin protection (#115)', () => {
 })
 
 describe('rate limiting (#115)', () => {
-  test('refuses more than the per-visitor limit, and admits again once the window passes', async () => {
+  test('refuses more than the configured per-visitor limit, and admits again once the window passes', async () => {
     let now = new Date('2026-09-15T12:00:00.000Z')
-    const { app } = testRoutes({ now: () => now })
+    const { app } = testRoutes({ now: () => now, requestsPerVisitorPerMinute: 3, requestsPerAddressPerMinute: 100 })
     let cookie: string | undefined
     const statuses: number[] = []
 
-    for (let call = 0; call < PER_VISITOR_RATE_LIMIT + 1; call += 1) {
+    for (let call = 0; call < 4; call += 1) {
       const response = await app.fetch(waitlistRequest(cookie ? { cookie } : {}))
       cookie ??= visitorCookie(response)
       statuses.push(response.status)
@@ -964,50 +972,89 @@ describe('rate limiting (#115)', () => {
     now = new Date(now.getTime() + 60_000)
     const afterWindow = await app.fetch(waitlistRequest(cookie ? { cookie } : {}))
 
-    expect(statuses.slice(0, PER_VISITOR_RATE_LIMIT)).not.toContain(429)
+    expect(statuses.slice(0, 3)).not.toContain(429)
     expect(statuses.at(-1)).toBe(429)
     expect(afterWindow.status).not.toBe(429)
   })
 
-  test('refuses more than the per-address limit even behind a fresh visitor each time', async () => {
-    const { app } = testRoutes()
+  test('refuses more than the configured per-address limit even behind a fresh visitor each time', async () => {
+    const { app } = testRoutes({ requestsPerVisitorPerMinute: 100, requestsPerAddressPerMinute: 3 })
     const statuses: number[] = []
 
     // No cookie sent back, so each call is a different visitor at the one
     // stubbed address (#115).
-    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+    for (let call = 0; call < 4; call += 1) {
       statuses.push((await app.fetch(waitlistRequest())).status)
     }
 
-    expect(statuses.slice(0, PER_ADDRESS_RATE_LIMIT)).not.toContain(429)
+    expect(statuses.slice(0, 3)).not.toContain(429)
     expect(statuses.at(-1)).toBe(429)
   })
 
+  test('checks the visitor limit first, and does not spend the address budget once it already refused', async () => {
+    // Visitor limit 2, address limit 10. The third call from the same
+    // visitor is refused on the visitor's own count; if that refusal
+    // consumed an address slot too, only seven more distinct visitors
+    // would fit under the address's ten before an eleventh is refused,
+    // not eight (#115).
+    const { app } = testRoutes({ requestsPerVisitorPerMinute: 2, requestsPerAddressPerMinute: 10 })
+
+    const first = await app.fetch(waitlistRequest())
+    const cookie = visitorCookie(first)
+    const second = await app.fetch(waitlistRequest({ cookie }))
+    const overVisitorLimit = await app.fetch(waitlistRequest({ cookie }))
+
+    const fromOtherVisitors: number[] = []
+    for (let call = 0; call < 8; call += 1) fromOtherVisitors.push((await app.fetch(waitlistRequest())).status)
+    const overAddressLimit = await app.fetch(waitlistRequest())
+
+    expect(first.status).not.toBe(429)
+    expect(second.status).not.toBe(429)
+    expect(overVisitorLimit.status).toBe(429)
+    expect(fromOtherVisitors).not.toContain(429)
+    expect(overAddressLimit.status).toBe(429)
+  })
+
   test('states the reason and carries the visitor cookie on a refusal', async () => {
-    const { app } = testRoutes()
+    const { app } = testRoutes({ requestsPerVisitorPerMinute: 100, requestsPerAddressPerMinute: 3 })
     let last: Response | undefined
-    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) last = await app.fetch(waitlistRequest())
+    for (let call = 0; call < 4; call += 1) last = await app.fetch(waitlistRequest())
 
     expect(await last!.json()).toEqual({ code: 'rate_limited', message: 'Too many requests. Try again in a moment.' })
     expect(last!.headers.get('set-cookie')).toContain('HttpOnly')
   })
 
   test('also limits uploads and runs, independently of the waitlist', async () => {
-    const { app } = testRoutes()
+    const { app } = testRoutes({ requestsPerVisitorPerMinute: 100, requestsPerAddressPerMinute: 3 })
     const uploadStatuses: number[] = []
     const runStatuses: number[] = []
 
-    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+    for (let call = 0; call < 4; call += 1) {
       uploadStatuses.push(
         (await app.fetch(new Request('https://layerhand.test/api/uploads', { method: 'POST' }))).status
       )
     }
-    for (let call = 0; call < PER_ADDRESS_RATE_LIMIT + 1; call += 1) {
+    for (let call = 0; call < 4; call += 1) {
       runStatuses.push((await app.fetch(new Request('https://layerhand.test/api/runs', { method: 'POST' }))).status)
     }
 
     expect(uploadStatuses.at(-1)).toBe(429)
     expect(runStatuses.at(-1)).toBe(429)
+  })
+
+  test('defaults to ten requests per visitor and sixty per address a minute when not configured', async () => {
+    const { app } = testRoutes()
+    let cookie: string | undefined
+    const statuses: number[] = []
+
+    for (let call = 0; call < 11; call += 1) {
+      const response = await app.fetch(waitlistRequest(cookie ? { cookie } : {}))
+      cookie ??= visitorCookie(response)
+      statuses.push(response.status)
+    }
+
+    expect(statuses.slice(0, 10)).not.toContain(429)
+    expect(statuses.at(-1)).toBe(429)
   })
 })
 
