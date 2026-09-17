@@ -59,7 +59,8 @@ export function serializableReliabilitySummary(summary: ReliabilitySummary): Ser
       tokensIn: result.tokensIn,
       tokensOut: result.tokensOut,
       cacheHitRate: result.cacheHitRate,
-      failureCode: result.failureCode
+      failureCode: result.failureCode,
+      refusedActions: result.refusedActions
     }))
   }
 }
