@@ -640,6 +640,62 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 30_000)
 
+  test('offers to start over when the run has aged out of the registry, not a reconnect that repeats the same refusal (#126)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    const runId = 'expired-fixture-126'
+    try {
+      await page.goto(application.origin)
+      // A stated server answer (a `RunApiError`), unlike a dropped
+      // connection: the snapshot request reaches the server and it
+      // refuses, so reconnecting would just repeat the same 404 (#126).
+      await page.route(`**/api/runs/${runId}`, (route) =>
+        route.fulfill({
+          status: 404,
+          contentType: 'application/json',
+          body: JSON.stringify({ code: 'run_not_found', message: 'The requested run does not exist.' })
+        })
+      )
+      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.reload()
+
+      await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
+      await page.getByText('The requested run does not exist.').waitFor()
+      expect(await page.getByRole('button', { name: 'Reconnect to run' }).count()).toBe(0)
+      await page.getByRole('button', { name: 'Start a new retouch' }).waitFor()
+      await page.waitForFunction(() => sessionStorage.getItem('layerhand.runId') === null)
+
+      // The run the registry no longer has must not come back on a
+      // further reload (#126).
+      await page.reload()
+      await page.getByRole('button', { name: 'Retouch a photo' }).waitFor()
+      expect(await page.getByRole('heading', { name: 'The retouching run stopped.' }).count()).toBe(0)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('keeps the stored run id after a network failure on reload, so a reconnect can still restore it (#126)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    const runId = 'network-blip-fixture-126'
+    try {
+      await page.goto(application.origin)
+      // The request never reaches the server at all, unlike the stated
+      // refusal above: a run possibly still going on the server must stay
+      // reachable from a later reload (FR-14), so the stored id survives.
+      await page.route(`**/api/runs/${runId}`, (route) => route.abort())
+      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.reload()
+
+      await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
+      await page.getByText('The server could not be reached. Check your connection and try again.').waitFor()
+      await page.getByRole('button', { name: 'Reconnect to run' }).waitFor()
+      expect(await page.getByRole('button', { name: 'Start a new retouch' }).count()).toBe(0)
+      expect(await page.evaluate(() => sessionStorage.getItem('layerhand.runId'))).toBe(runId)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   test('clears the stored run for "Retouch another", so a reload does not restore the old result (#126)', async () => {
     const fast = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
