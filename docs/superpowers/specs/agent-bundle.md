@@ -240,11 +240,13 @@ private, so Codex installs the MCP server directly until it is public.
 ## The website
 
 A section on the landing page, after the waitlist, titled "Run it from your
-agent". It shows the two commands above, each with a copy button, the host
-taken from `location.origin`, and one line under them: "Bring your own OpenAI
-key. The run happens on Layerhand, with GPT-6 Astra driving the editor." It
-lives in `src/web/landing/install.ts` and `install.css`, uses only the tokens
-in `tokens.css`, and follows `docs/DESIGN.md`.
+agent". Until `layerhand-mcp` is on npm and one real Astra run on each host
+has passed, it says "Coming soon." rather than the commands, plus "Bring
+your own OpenAI key. The run happens on Layerhand, with GPT-6 Astra driving
+the editor." Once those two are done, it shows the two commands above, each
+with a copy button, the host taken from `location.origin`. It lives in
+`src/web/landing/install.ts` and `install.css`, uses only the tokens in
+`tokens.css`, and follows `docs/DESIGN.md`.
 
 ## Testing
 
