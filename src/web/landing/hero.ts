@@ -1,4 +1,4 @@
-import samplePhotoUrl from '../assets/sample-photo.png'
+import samplePhotoUrl from '../assets/sample-photo-poster.jpg'
 
 import type { LandingContext } from './index'
 
