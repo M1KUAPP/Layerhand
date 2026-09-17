@@ -1,14 +1,28 @@
+import editorFrameUrl from '../assets/landing/editor-frame.jpg'
 import samplePhotoUrl from '../assets/sample-photo-poster.jpg'
 
 import type { LandingContext } from './index'
 
-// Empty until the demo loop is recorded; while it is, the plate shows the
-// poster with its caption instead of the video and its toggle.
+// Empty until the demo loop is recorded; while it is, the window shows the
+// last frame of a real run instead of the video and its toggle.
 const LOOP_URL = ''
 
 const TITLE_LINES = [
   ['A', 'layered', 'PSD,'],
   ['not', 'a', 'flat', 'JPEG.']
+]
+
+const FACTS = ['Three free runs', 'No account needed', 'Uploads deleted within 24 hours']
+
+// Claims the page makes in full further down, repeated as a moving band.
+const TICKER = [
+  'Named layers',
+  'Editable masks',
+  'Adjustment layers',
+  'Correct it mid-run',
+  'Driven in Photopea',
+  'Built on GPT-6 Astra',
+  'Opens in Photoshop'
 ]
 
 function node<K extends keyof HTMLElementTagNameMap>(
@@ -34,6 +48,54 @@ function enter<T extends HTMLElement>(element: T, index: number): T {
   return element
 }
 
+function renderWindow(reducedMotion: MediaQueryList): HTMLElement {
+  const window_ = node('div', 'hero__window')
+  const bar = node('div', 'hero__bar')
+  bar.setAttribute('aria-hidden', 'true')
+  bar.append(
+    node('span', 'hero__bar-dots'),
+    node('span', 'hero__bar-title', 'sample-photo.png · Photopea, driven by Layerhand')
+  )
+  const screen = node('div', 'hero__screen')
+  window_.append(bar, screen)
+
+  if (LOOP_URL) {
+    const video = node('video', 'hero__photo')
+    video.muted = true
+    video.loop = true
+    video.playsInline = true
+    video.autoplay = true
+    if (reducedMotion.matches) video.autoplay = false
+    video.poster = samplePhotoUrl
+    video.src = LOOP_URL
+    video.setAttribute('aria-label', 'Silent demo of Layerhand retouching a photograph in Photopea')
+    const toggle = node('button', 'hero__loop-toggle')
+    toggle.type = 'button'
+    const toggleIcon = icon('hgi-pause')
+    const toggleText = node('span', undefined, 'Pause')
+    toggle.append(toggleIcon, toggleText)
+    const showToggle = (playing: boolean): void => {
+      toggleIcon.className = `hgi-stroke ${playing ? 'hgi-pause' : 'hgi-play'}`
+      toggleText.textContent = playing ? 'Pause' : 'Play'
+      toggle.setAttribute('aria-label', playing ? 'Pause the demo' : 'Play the demo')
+    }
+    toggle.addEventListener('click', () => {
+      if (video.paused) void video.play()
+      else video.pause()
+      showToggle(!video.paused)
+    })
+    showToggle(video.autoplay)
+    screen.append(video, toggle)
+  } else {
+    const photo = node('img', 'hero__photo')
+    photo.src = editorFrameUrl
+    photo.alt =
+      'Photopea at the end of a Layerhand run on the sample photograph of a blue glass bottle. Its Layers panel lists Darken corners softly, Warm colours, Brighten photograph and Original photograph.'
+    screen.append(photo)
+  }
+  return window_
+}
+
 export function renderHero(context: LandingContext): HTMLElement {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   // landing-grid is the foundation's structural hook for the hero; the
@@ -43,7 +105,12 @@ export function renderHero(context: LandingContext): HTMLElement {
   hero.setAttribute('aria-labelledby', 'hero-title')
 
   const copy = node('div', 'hero__copy')
-  copy.append(enter(node('p', 'hero__eyebrow', 'AI retouching'), 0))
+  const eyebrow = enter(node('p', 'hero__eyebrow'), 0)
+  eyebrow.append(
+    node('span', 'hero__eyebrow-label', 'AI retouching'),
+    node('span', 'hero__eyebrow-note', 'Built on GPT-6 Astra')
+  )
+  copy.append(eyebrow)
 
   const title = node('h1', 'hero__title')
   title.id = 'hero-title'
@@ -81,70 +148,47 @@ export function renderHero(context: LandingContext): HTMLElement {
   cta.addEventListener('click', () => context.startRun())
   const updates = node('a', 'hero__updates', '')
   updates.href = '#updates'
-  const updatesText = node('span', 'hero__updates-text', 'Get launch updates by email')
-  updates.append(updatesText, icon('hgi-arrow-down-01'))
+  updates.append(node('span', 'hero__updates-text', 'Get launch updates by email'), icon('hgi-arrow-down-01'))
+  const facts = node('ul', 'hero__facts')
+  for (const fact of FACTS) {
+    const item = node('li', 'hero__fact')
+    item.append(icon('hgi-tick-02'), fact)
+    facts.append(item)
+  }
   actions.append(
     cta,
     updates,
-    node('p', 'hero__note', 'Three free runs. No account needed. Uploads are deleted within 24 hours.'),
+    facts,
     node('p', 'hero__note-desktop', 'The workbench needs a desktop at least 1280 px wide.')
   )
   copy.append(actions)
 
   const media = enter(node('div', 'hero__media'), 2)
   const plate = node('figure', 'hero__plate')
-  const window_ = node('div', 'hero__window')
-  if (LOOP_URL) {
-    const video = node('video', 'hero__photo')
-    video.muted = true
-    video.loop = true
-    video.playsInline = true
-    video.autoplay = true
-    if (reducedMotion.matches) video.autoplay = false
-    video.poster = samplePhotoUrl
-    video.src = LOOP_URL
-    video.setAttribute('aria-label', 'Silent demo of Layerhand retouching a photograph in Photopea')
-    const toggle = node('button', 'hero__loop-toggle')
-    toggle.type = 'button'
-    const toggleIcon = icon('hgi-pause')
-    const toggleText = node('span', undefined, 'Pause')
-    toggle.append(toggleIcon, toggleText)
-    const showToggle = (playing: boolean): void => {
-      toggleIcon.className = `hgi-stroke ${playing ? 'hgi-pause' : 'hgi-play'}`
-      toggleText.textContent = playing ? 'Pause' : 'Play'
-      toggle.setAttribute('aria-label', playing ? 'Pause the demo' : 'Play the demo')
-    }
-    toggle.addEventListener('click', () => {
-      if (video.paused) void video.play()
-      else video.pause()
-      showToggle(!video.paused)
-    })
-    showToggle(video.autoplay)
-    window_.append(video, toggle)
-    plate.append(window_)
-  } else {
-    const photo = node('img', 'hero__photo')
-    photo.src = samplePhotoUrl
-    photo.alt =
-      'Unretouched studio photograph of a cobalt-blue glass bottle with a brushed-metal cap on a creased paper backdrop.'
-    window_.append(photo)
-    plate.append(
-      window_,
-      node(
-        'figcaption',
-        'hero__caption',
-        'Before retouching: the sample photograph, which you can try in the workbench.'
-      )
+  const steps = node('p', 'hero__chip hero__chip--steps')
+  steps.setAttribute('aria-hidden', 'true')
+  steps.append(icon('hgi-layers-01'), node('strong', undefined, '4 named layers'), ' in 13 steps')
+  const steer = node('p', 'hero__chip hero__chip--steer')
+  steer.setAttribute('aria-hidden', 'true')
+  steer.append(icon('hgi-message-edit-01'), 'Correct it while it works')
+  plate.append(
+    renderWindow(reducedMotion),
+    steps,
+    steer,
+    node(
+      'figcaption',
+      'hero__caption',
+      'The last frame of a real run on the sample photograph, which you can try in the workbench.'
     )
-  }
+  )
   media.append(plate)
 
-  // One write per frame at most; under reduced motion nothing drifts.
+  // One write per frame at most; under reduced motion nothing drifts. The
+  // hero is pinned, so progress is how far the page has slid over it.
   let scheduled = false
   const drift = (): void => {
     scheduled = false
-    const top = hero.getBoundingClientRect().top + window.scrollY
-    const progress = Math.min(1, Math.max(0, (window.scrollY - top) / hero.offsetHeight))
+    const progress = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)))
     hero.style.setProperty('--hero-progress', String(progress))
   }
   window.addEventListener(
@@ -159,4 +203,34 @@ export function renderHero(context: LandingContext): HTMLElement {
 
   hero.append(copy, media)
   return hero
+}
+
+export function renderTicker(): HTMLElement {
+  const band = node('div', 'ticker')
+  const track = node('div', 'ticker__track')
+  // Rendered twice because the loop moves by half its width; the copy is
+  // hidden from assistive technology so the claims are read once.
+  for (const copy of [0, 1]) {
+    const list = node('ul', 'ticker__list')
+    if (copy === 1) list.setAttribute('aria-hidden', 'true')
+    for (const claim of TICKER) list.append(node('li', 'ticker__item', claim))
+    track.append(list)
+  }
+
+  // Moving text that runs past five seconds needs a way to stop it
+  // (WCAG 2.2.2), whatever the motion setting.
+  const toggle = node('button', 'ticker__toggle')
+  toggle.type = 'button'
+  const toggleIcon = icon('hgi-pause')
+  toggle.append(toggleIcon)
+  const show = (paused: boolean): void => {
+    band.dataset.paused = String(paused)
+    toggleIcon.className = `hgi-stroke ${paused ? 'hgi-play' : 'hgi-pause'}`
+    toggle.setAttribute('aria-label', paused ? 'Play the moving list' : 'Pause the moving list')
+  }
+  toggle.addEventListener('click', () => show(band.dataset.paused !== 'true'))
+  show(false)
+
+  band.append(track, toggle)
+  return band
 }

@@ -1,14 +1,43 @@
+/* The hero and its ticker are one screen, pinned at z-index 0, and the
+   landing body after them is opaque at z-index 1, so the rest of the page
+   slides up over the pair like a sheet laid on top. The shell pulls itself
+   up under the bar, which is clear until the page moves. */
+.hero-shell {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  /* Taller only when the content cannot fit one screen; clipping the
+     headline to hold the height would be worse. */
+  min-height: fit-content;
+  flex-direction: column;
+  margin-top: -72px;
+  /* The artboard: a faint grid the bar is clear over until the page moves. */
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--rule) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--rule) 60%, transparent) 1px, transparent 1px);
+  background-position: -1px -1px;
+  background-size: 64px 64px;
+}
+
+.landing-body {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+}
+
 .hero {
   --hero-progress: 0;
   display: grid;
-  min-height: 100vh;
-  min-height: 100dvh;
+  flex: 1 0 auto;
   align-content: center;
   align-items: center;
   grid-template-columns: repeat(12, 1fr);
   column-gap: 24px;
-  padding: 64px 36px;
-  overflow: hidden;
+  padding: 120px 36px 64px;
 }
 
 .hero__copy {
@@ -20,11 +49,30 @@
 }
 
 .hero__eyebrow {
-  margin-bottom: 20px;
-  color: var(--color-text-tertiary);
+  display: inline-flex;
+  align-items: stretch;
+  margin-bottom: 28px;
+  border: 1px solid var(--rule);
+  background: var(--color-bg-subtle);
   font: var(--text-ui-eyebrow);
   letter-spacing: 0.13em;
   text-transform: uppercase;
+}
+
+.hero__eyebrow-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+}
+
+.hero__eyebrow-note {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--color-text-secondary);
 }
 
 .hero__title {
@@ -44,45 +92,54 @@
 }
 
 .hero__lede {
-  max-width: 46ch;
+  max-width: 44ch;
   margin-bottom: 40px;
   color: var(--color-text-secondary);
-  font: var(--text-ui-lede);
+  font: var(--text-ui-lede-large);
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px 28px;
+  gap: 16px;
+}
+
+.hero__cta,
+.hero__updates {
+  display: inline-flex;
+  height: 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 22px;
+  border: 1px solid var(--color-border-strong);
+  cursor: pointer;
+  font: var(--text-ui-label);
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-swap) var(--ease-settle),
+    color var(--duration-swap) var(--ease-settle);
 }
 
 .hero__cta {
-  display: inline-flex;
-  height: 48px;
-  align-items: center;
-  gap: 8px;
-  padding: 0 20px;
-  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-inverse);
+  color: var(--paper);
+}
+
+.hero__cta:hover {
   background: var(--accent);
   color: var(--color-text-on-accent);
-  cursor: pointer;
-  font: var(--text-ui-label);
-  white-space: nowrap;
 }
 
 .hero__updates {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  background: transparent;
   color: var(--ink);
-  font: var(--text-ui-label);
-  text-decoration: none;
 }
 
-.hero__updates-text {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.hero__updates:hover {
+  background: var(--color-bg-subtle);
 }
 
 .hero__cta .hgi-stroke,
@@ -91,7 +148,29 @@
   font-size: 1.25em;
 }
 
-.hero__note,
+.hero__facts {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero__fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font: var(--text-ui-small);
+}
+
+.hero__fact .hgi-stroke {
+  font-size: 16px;
+  color: var(--ink);
+}
+
 .hero__note-desktop {
   flex-basis: 100%;
   color: var(--color-text-secondary);
@@ -100,32 +179,115 @@
 
 .hero__media {
   min-width: 0;
-  grid-column: 7 / 13;
+  grid-column: 8 / 13;
 }
 
+/* The plate drifts as the body slides over the hero, and the two chips
+   above it drift faster, so the window reads as one layer among three. */
 .hero__plate {
-  translate: 0 calc(var(--hero-progress) * 4%);
+  position: relative;
+  margin: 0;
+  translate: 0 calc(var(--hero-progress) * -6%);
+}
+
+/* The accent sheet under the window: the layer it sits on. */
+.hero__plate::before {
+  position: absolute;
+  top: 24px;
+  right: -24px;
+  bottom: 40px;
+  left: 24px;
+  z-index: -1;
+  background: var(--accent);
+  content: '';
 }
 
 .hero__window {
   position: relative;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-band);
+}
+
+.hero__bar {
+  display: flex;
+  height: 32px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-micro);
+  letter-spacing: 0.02em;
+}
+
+/* Three squares, drawn by one element and its shadows. */
+.hero__bar-dots {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  margin-right: 24px;
+  background: var(--color-border-on-chrome);
+  box-shadow:
+    12px 0 0 var(--color-border-on-chrome),
+    24px 0 0 var(--color-border-on-chrome);
+}
+
+.hero__bar-title {
   overflow: hidden;
-  aspect-ratio: 3 / 2;
-  border: 1px solid var(--rule);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero__screen {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
 }
 
 .hero__photo {
   position: absolute;
-  top: -10%;
-  left: 0;
+  inset: 0;
   width: 100%;
-  height: 120%;
+  height: 100%;
   object-fit: cover;
-  translate: 0 calc(var(--hero-progress) * 8%);
+}
+
+.hero__chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-strong);
+  font: var(--text-ui-small);
+  white-space: nowrap;
+  translate: 0 calc(var(--hero-progress) * -60%);
+}
+
+.hero__chip .hgi-stroke {
+  font-size: 18px;
+}
+
+.hero__chip--steps {
+  top: 56px;
+  left: -40px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.hero__chip--steer {
+  right: -16px;
+  bottom: 72px;
+  background: var(--color-bg-band);
+  color: var(--color-text-on-chrome);
+}
+
+.hero__chip--steer .hgi-stroke {
+  color: var(--accent);
 }
 
 .hero__caption {
-  margin-top: 12px;
+  margin-top: 56px;
   color: var(--color-text-tertiary);
   font: var(--text-ui-small);
 }
@@ -146,10 +308,84 @@
   font: var(--text-ui-label);
 }
 
+/* The ticker: the band the body slides over last. */
+.ticker {
+  position: relative;
+  display: flex;
+  height: 56px;
+  flex: none;
+  align-items: center;
+  overflow: hidden;
+  background: var(--color-bg-band);
+  color: var(--color-text-on-chrome-secondary);
+}
+
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-slide 48s linear infinite;
+}
+
+.ticker:hover .ticker__track,
+.ticker:focus-within .ticker__track,
+.ticker[data-paused='true'] .ticker__track {
+  animation-play-state: paused;
+}
+
+.ticker__list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 32px;
+  padding-right: 32px;
+  font: var(--text-ui-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ticker__item::after {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  content: '';
+}
+
+.ticker__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  width: 56px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  box-shadow: inset 1px 0 0 var(--color-border-on-chrome);
+  background: var(--color-bg-band);
+  color: var(--color-text-on-chrome);
+  cursor: pointer;
+}
+
+.ticker__toggle .hgi-stroke {
+  font-size: 18px;
+}
+
+@keyframes ticker-slide {
+  to {
+    translate: -50% 0;
+  }
+}
+
 @media (pointer: coarse) {
   .hero__updates {
     padding-block: 14px;
-    margin-block: -14px;
   }
 }
 
@@ -160,31 +396,78 @@
 }
 
 @media (max-width: 1279px) {
+  .hero-shell {
+    position: relative;
+    height: auto;
+  }
+
   .hero {
-    min-height: 0;
     align-items: start;
     grid-template-columns: 1fr;
-    row-gap: 48px;
-    padding: 48px 16px;
+    row-gap: 56px;
+    padding: 112px 16px 72px;
   }
 
   .hero__title {
     line-height: calc(78 / 88);
   }
 
-  body:has(.hero) .site-header {
-    padding-inline: 16px;
-  }
-
   .hero__copy,
   .hero__media {
     grid-column: 1 / -1;
+  }
+
+  .hero__plate::before {
+    top: 16px;
+    right: -8px;
+    left: 16px;
+  }
+
+  .hero__chip--steps {
+    top: 48px;
+    left: 8px;
+  }
+
+  .hero__chip--steer {
+    right: 8px;
+    bottom: 64px;
+  }
+
+  .hero__caption {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 519px) {
+  .hero__chip--steps {
+    display: none;
+  }
+
+  .hero__cta,
+  .hero__updates {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media print {
+  .ticker__toggle {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero__plate,
-  .hero__photo {
+  .hero__chip {
     translate: none;
+  }
+
+  /* Still, and so nothing left to pause. */
+  .ticker__track {
+    animation: none;
+  }
+
+  .ticker__toggle {
+    display: none;
   }
 }
