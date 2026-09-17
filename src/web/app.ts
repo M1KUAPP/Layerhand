@@ -17,6 +17,7 @@ import {
 } from './state'
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
+const RUN_TOKEN_STORAGE_KEY = 'layerhand.runToken'
 const INSTRUCTION_STORAGE_KEY = 'layerhand.instruction'
 // Leaving mid-run does not cancel it (that is what Cancel is for); this is
 // only a guard against leaving by accident while it is still spending (#126).
@@ -133,10 +134,20 @@ document.querySelector('#desktop-required-updates')?.addEventListener('click', (
 
 // The stored run must not be replayed once it can no longer help: after a
 // failure, once its result was collected for another retouch, or once
-// fetching it has failed outright (#126).
-function clearStoredRun(): void {
+// fetching it has failed outright (#126). Clearing by id keeps a watched
+// run, which is never stored, from wiping another run's stored id and token.
+function clearStoredRun(runId: string): void {
+  if (sessionStorage.getItem(RUN_STORAGE_KEY) !== runId) return
   sessionStorage.removeItem(RUN_STORAGE_KEY)
+  sessionStorage.removeItem(RUN_TOKEN_STORAGE_KEY)
   sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+}
+
+// The token the run's start answer carried, kept next to the stored run id
+// and sent with every steer and cancel. Only an owned run's controls ask
+// for it, so a missing one cannot be reached here.
+function runToken(): string {
+  return sessionStorage.getItem(RUN_TOKEN_STORAGE_KEY) ?? ''
 }
 
 function description(text: string): HTMLParagraphElement {
@@ -431,6 +442,7 @@ function renderInput(): DocumentFragment {
       selectedFile = undefined
       releaseSelectedPreview()
       sessionStorage.setItem(RUN_STORAGE_KEY, started.runId)
+      sessionStorage.setItem(RUN_TOKEN_STORAGE_KEY, started.runToken)
       sessionStorage.setItem(INSTRUCTION_STORAGE_KEY, submittedInstruction)
       dispatch({ type: 'started', runId: started.runId, instruction: submittedInstruction })
       followRun(started.runId)
@@ -533,32 +545,38 @@ function announceNewCorrections(
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
-  const cancel = button(cancelText(current.progress), 'text-button')
-  cancel.id = 'cancel-run'
-  cancel.disabled = current.progress.cancelRequested
-  cancel.addEventListener('click', async () => {
-    // A run that leaves the queue has nothing to come back to after a reload.
-    const leavingQueue = state.view === 'running' && state.progress.queuePosition !== null
-    dispatch({ type: 'cancel_requested' })
-    try {
-      await api.cancel(current.progress.runId)
-      if (leavingQueue) clearStoredRun()
-    } catch (error) {
-      // A refused cancel does not end the run: the running view or the
-      // result stays on screen, with the refusal shown as a notice (#123).
-      // A request that never reached the server at all (a `RunApiError` is
-      // only thrown for a server's stated refusal) is a real connection
-      // loss, which the run's own "connection lost" error view handles.
-      // A slow request that settles once the view has moved to a different
-      // run must not be attributed to that run either.
-      if (!isCurrentRun(state, current.progress.runId)) return
-      dispatch(
-        error instanceof RunApiError
-          ? { type: 'action_refused', message: publicMessage(error) }
-          : { type: 'connection_failed', message: publicMessage(error) }
-      )
-    }
-  })
+  // A watched run shows no controls: the agent that started it steers and
+  // cancels, and a stored run left by an older page has no token to send.
+  const viewOnly = current.progress.viewOnly
+  let cancel: HTMLButtonElement | undefined
+  if (!viewOnly) {
+    cancel = button(cancelText(current.progress), 'text-button')
+    cancel.id = 'cancel-run'
+    cancel.disabled = current.progress.cancelRequested
+    cancel.addEventListener('click', async () => {
+      // A run that leaves the queue has nothing to come back to after a reload.
+      const leavingQueue = state.view === 'running' && state.progress.queuePosition !== null
+      dispatch({ type: 'cancel_requested' })
+      try {
+        await api.cancel(current.progress.runId, runToken())
+        if (leavingQueue) clearStoredRun(current.progress.runId)
+      } catch (error) {
+        // A refused cancel does not end the run: the running view or the
+        // result stays on screen, with the refusal shown as a notice (#123).
+        // A request that never reached the server at all (a `RunApiError` is
+        // only thrown for a server's stated refusal) is a real connection
+        // loss, which the run's own "connection lost" error view handles.
+        // A slow request that settles once the view has moved to a different
+        // run must not be attributed to that run either.
+        if (!isCurrentRun(state, current.progress.runId)) return
+        dispatch(
+          error instanceof RunApiError
+            ? { type: 'action_refused', message: publicMessage(error) }
+            : { type: 'connection_failed', message: publicMessage(error) }
+        )
+      }
+    })
+  }
   fragment.append(brandHeader(cancel))
 
   const layout = node('section', 'running-layout')
@@ -575,6 +593,31 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   }
   layout.append(frame, progressRail(current.progress))
 
+  const correction = viewOnly
+    ? node('p', 'watching-note', 'You are watching this run. Corrections come from the agent that started it.')
+    : correctionForm(current)
+
+  const notices = node('div', 'run-notices')
+  notices.id = 'run-notices'
+  replaceNotices(notices, current.progress)
+  const correctionAnnouncer = node('p', 'sr-only')
+  correctionAnnouncer.id = 'correction-announcer'
+  correctionAnnouncer.setAttribute('aria-live', 'polite')
+  correctionAnnouncer.setAttribute('aria-atomic', 'true')
+  correctionAnnouncer.dataset.announcedCount = String(current.progress.corrections.length)
+
+  // A grid row sized only by min-height grows to fit an oversized child (a
+  // real frame, not fakeRun's tiny placeholder), pushing the form and the
+  // notices below it off screen. A fixed-height flex shell keeps the three
+  // parts within the viewport instead: running-layout is the only part that
+  // flexes.
+  const shell = node('div', 'running-shell')
+  shell.append(layout, correction, notices, correctionAnnouncer)
+  fragment.append(shell)
+  return fragment
+}
+
+function correctionForm(current: Extract<ClientState, { view: 'running' }>): HTMLFormElement {
   const correction = node('form', 'correction-form')
   correction.dataset.form = 'correction'
   const label = node('label', 'field-label', 'Correct the next action')
@@ -603,7 +646,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     if (!text) return
     send.disabled = true
     try {
-      await api.steer(current.progress.runId, text)
+      await api.steer(current.progress.runId, runToken(), text)
       field.value = ''
     } catch (error) {
       // A refused correction does not end the run: the running view or the
@@ -626,25 +669,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
       send.disabled = state.view === 'running' && state.progress.cancelRequested
     }
   })
-
-  const notices = node('div', 'run-notices')
-  notices.id = 'run-notices'
-  replaceNotices(notices, current.progress)
-  const correctionAnnouncer = node('p', 'sr-only')
-  correctionAnnouncer.id = 'correction-announcer'
-  correctionAnnouncer.setAttribute('aria-live', 'polite')
-  correctionAnnouncer.setAttribute('aria-atomic', 'true')
-  correctionAnnouncer.dataset.announcedCount = String(current.progress.corrections.length)
-
-  // A grid row sized only by min-height grows to fit an oversized child (a
-  // real frame, not fakeRun's tiny placeholder), pushing the form and the
-  // notices below it off screen. A fixed-height flex shell keeps the three
-  // parts within the viewport instead: running-layout is the only part that
-  // flexes.
-  const shell = node('div', 'running-shell')
-  shell.append(layout, correction, notices, correctionAnnouncer)
-  fragment.append(shell)
-  return fragment
+  return correction
 }
 
 function updateRunning(current: Extract<ClientState, { view: 'running' }>): void {
@@ -657,28 +682,33 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   const frame = root.querySelector<HTMLElement>('#live-frame')
   const notices = root.querySelector<HTMLElement>('#run-notices')
   const correctionAnnouncer = root.querySelector<HTMLElement>('#correction-announcer')
-  if (!step || !credits || !action || !cancel || !field || !send || !frame || !notices || !correctionAnnouncer) {
+  if (!step || !credits || !action || !frame || !notices || !correctionAnnouncer) {
     return
   }
 
   step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
   credits.textContent = formatCredits(current.progress.costUsd)
   action.textContent = actionText(current.progress)
-  cancel.textContent = cancelText(current.progress)
-  cancel.disabled = current.progress.cancelRequested
-  // Only when the run leaves the queue, so a correction being sent keeps its button disabled.
-  const queued = current.progress.queuePosition !== null
-  if (field.disabled !== queued) {
-    field.disabled = queued
-    send.disabled = queued
+  // A watched run renders no cancel or correction controls to update.
+  if (cancel) {
+    cancel.textContent = cancelText(current.progress)
+    cancel.disabled = current.progress.cancelRequested
   }
-  // Only latches on: a correction already in flight manages send.disabled
-  // itself, and must not be re-enabled here once cancelling has started.
-  // Applied after the queue toggle above so a cancel always wins, even for
-  // a run that was still queued when cancelled (#123).
-  if (current.progress.cancelRequested) {
-    field.disabled = true
-    send.disabled = true
+  if (field && send) {
+    // Only when the run leaves the queue, so a correction being sent keeps its button disabled.
+    const queued = current.progress.queuePosition !== null
+    if (field.disabled !== queued) {
+      field.disabled = queued
+      send.disabled = queued
+    }
+    // Only latches on: a correction already in flight manages send.disabled
+    // itself, and must not be re-enabled here once cancelling has started.
+    // Applied after the queue toggle above so a cancel always wins, even for
+    // a run that was still queued when cancelled (#123).
+    if (current.progress.cancelRequested) {
+      field.disabled = true
+      send.disabled = true
+    }
   }
 
   if (current.progress.frameUrl) {
@@ -702,7 +732,7 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   const another = button('Retouch another', 'text-button')
   another.addEventListener('click', () => {
     // Otherwise a reload before the next run starts restores this one (#126).
-    clearStoredRun()
+    clearStoredRun(current.progress.runId)
     dispatch({ type: 'edit' })
   })
   fragment.append(brandHeader(another))
@@ -816,7 +846,7 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
   action.addEventListener('click', () => {
     if (reconnectId) void restoreRun(reconnectId)
     else {
-      clearStoredRun()
+      if (current.runId) clearStoredRun(current.runId)
       dispatch({ type: 'edit' })
     }
   })
@@ -906,6 +936,12 @@ function stillRestoring(runId: string): boolean {
 }
 
 async function restoreRun(runId: string): Promise<void> {
+  // A `?watch=` link always watches, and so does a stored run an older page
+  // left without its token: either way the controls stay out, and a watched
+  // run is never written to sessionStorage.
+  const watched = new URLSearchParams(location.search).get('watch') === runId
+  const stored = sessionStorage.getItem(RUN_STORAGE_KEY) === runId
+  const viewOnly = watched || !stored || sessionStorage.getItem(RUN_TOKEN_STORAGE_KEY) === null
   dispatch({ type: 'restoring', runId })
   root.ariaBusy = 'true'
   try {
@@ -914,7 +950,8 @@ async function restoreRun(runId: string): Promise<void> {
       dispatch({
         type: 'snapshot',
         snapshot,
-        instruction: sessionStorage.getItem(INSTRUCTION_STORAGE_KEY)
+        instruction: stored ? sessionStorage.getItem(INSTRUCTION_STORAGE_KEY) : null,
+        viewOnly
       })
       if (snapshot.status === 'running' || snapshot.status === 'queued') followRun(runId)
     }
@@ -927,7 +964,7 @@ async function restoreRun(runId: string): Promise<void> {
       // refusal. Anything else never reached the server, so the id
       // survives for a later reload to retry (#126).
       if (error instanceof RunApiError) {
-        clearStoredRun()
+        clearStoredRun(runId)
         dispatch({ type: 'run_unavailable', message: publicMessage(error) })
       } else {
         dispatch({ type: 'connection_failed', message: publicMessage(error) })
@@ -954,5 +991,9 @@ function withFullStop(text: string): string {
 
 document.documentElement.dataset.application = 'layerhand'
 render()
+// A `?watch=` link opens that run's live view straight away, ahead of any
+// stored run.
+const watchRun = new URLSearchParams(location.search).get('watch')
 const storedRun = sessionStorage.getItem(RUN_STORAGE_KEY)
-if (storedRun) void restoreRun(storedRun)
+if (watchRun) void restoreRun(watchRun)
+else if (storedRun) void restoreRun(storedRun)
