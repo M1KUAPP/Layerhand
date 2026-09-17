@@ -1,0 +1,22 @@
+:root[data-reveal='on'] [data-reveal='pending'] {
+  opacity: 0;
+  translate: 0 12px;
+  filter: blur(4px);
+}
+
+:root[data-reveal='on'] [data-reveal='in'] {
+  transition:
+    opacity var(--duration-enter) var(--ease-reveal),
+    translate var(--duration-enter) var(--ease-reveal),
+    filter var(--duration-enter) var(--ease-reveal);
+  transition-delay: calc(var(--reveal-i, 0) * var(--stagger-block));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    translate: none;
+    filter: none;
+    transition: none;
+  }
+}
