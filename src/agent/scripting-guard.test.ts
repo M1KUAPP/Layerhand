@@ -17,6 +17,13 @@ describe('isScriptedTyping', () => {
     expect(isScriptedTyping(typed('Warm highlights'))).toBe(false)
   })
 
+  test.each(['Shop the app.', 'our app. today'])(
+    'does not flag ordinary text that happens to contain "app.": %s',
+    (text) => {
+      expect(isScriptedTyping(typed(text))).toBe(false)
+    }
+  )
+
   test('does not flag a non-type action', () => {
     expect(isScriptedTyping(CLICK)).toBe(false)
   })
