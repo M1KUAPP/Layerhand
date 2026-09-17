@@ -7,6 +7,7 @@ import { usdToMicroUsd } from './meter-store'
 import type { OpenAiKeyCheck } from './openai-key'
 import { RateLimiter } from './rate-limiter'
 import { RunRegistry, RunRegistryError, RunStartRefused } from './run-registry'
+import { createRunToken, verifyRunToken } from './run-token'
 import { VisitorIdentityError, establishVisitorIdentity, type VisitorIdentity } from './visitor-identity'
 import { WaitlistEmailError, type WaitlistStore } from './waitlist-store'
 import { imageDigest, type WarmEditorSession, type WarmSessionPool } from './warm-session-pool'
@@ -33,6 +34,10 @@ export const MAX_JSON_BODY_BYTES = 4 * 1024
 const RATE_LIMIT_WINDOW_MS = 60_000
 const DEFAULT_PER_VISITOR_RATE_LIMIT = 10
 const DEFAULT_PER_ADDRESS_RATE_LIMIT = 60
+// A bundle request names its agent host in X-Layerhand-Client (#136); a
+// header longer than this is refused rather than trusted.
+const MAX_CLIENT_HEADER_LENGTH = 64
+const DEFAULT_MAX_CLIENT_RUNS_PER_ADDRESS = 2
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -65,6 +70,8 @@ export interface RunRouteDependencies {
   requestsPerVisitorPerMinute?: number
   /** Requests one address may make of an endpoint in a minute (#115). */
   requestsPerAddressPerMinute?: number
+  /** Bundle runs one address may have queued or running at once (#136). */
+  maxClientRunsPerAddress?: number
 }
 
 class RequestTooLargeError extends Error {
@@ -210,6 +217,9 @@ export class RunRoutes {
   readonly #uploadLimiter: EndpointLimiter
   readonly #runLimiter: EndpointLimiter
   readonly #waitlistLimiter: EndpointLimiter
+  /** Bundle runs queued or in flight per address, as the rate limiter keeps its counts (#136). */
+  readonly #clientRuns = new Map<string, number>()
+  readonly #maxClientRunsPerAddress: number
 
   constructor(dependencies: RunRouteDependencies) {
     this.#dependencies = dependencies
@@ -219,6 +229,7 @@ export class RunRoutes {
     this.#uploadLimiter = createEndpointLimiter(now, perVisitor, perAddress)
     this.#runLimiter = createEndpointLimiter(now, perVisitor, perAddress)
     this.#waitlistLimiter = createEndpointLimiter(now, perVisitor, perAddress)
+    this.#maxClientRunsPerAddress = dependencies.maxClientRunsPerAddress ?? DEFAULT_MAX_CLIENT_RUNS_PER_ADDRESS
   }
 
   async handle(request: Request): Promise<Response | undefined> {
@@ -251,7 +262,7 @@ export class RunRoutes {
       if (request.method === 'GET' && !action) return await this.#snapshot(runId)
       if (request.method === 'GET' && action === 'events') return this.#events(runId, request)
       if (request.method === 'POST' && action === 'steer') return await this.#steer(runId, request)
-      if (request.method === 'POST' && action === 'cancel') return await this.#cancel(runId)
+      if (request.method === 'POST' && action === 'cancel') return await this.#cancel(runId, request)
       return apiError('method_not_allowed', 'This endpoint does not accept that method.', 405)
     } catch (error) {
       if (error instanceof RequestTooLargeError) return apiError('request_too_large', error.message, 413)
@@ -315,6 +326,12 @@ export class RunRoutes {
   }
 
   async #start(request: Request): Promise<Response> {
+    const client = request.headers.get('x-layerhand-client')
+    if (client !== null && client.length > MAX_CLIENT_HEADER_LENGTH) {
+      return apiError('invalid_client', 'The X-Layerhand-Client header must be 64 characters or fewer.', 400)
+    }
+    // A bundle request is capped per address and must run on the visitor's own key (#136).
+    const bundle = client !== null && client.length > 0
     const identity = await this.#visitor(request)
     const limited = this.#checkRateLimit(this.#runLimiter, identity)
     if (limited) return limited
@@ -339,6 +356,10 @@ export class RunRoutes {
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
     const cookie = identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+    if (bundle && apiKey === undefined) {
+      const message = 'Runs from an agent need your own OpenAI API key.'
+      return json({ code: 'api_key_required', message }, 400, cookie)
+    }
     // A run that would wait in a full line is turned away before anything is
     // stored, reserved, or checked for it (NFR-4).
     if (this.#dependencies.registry.lineFull()) return json(QUEUE_FULL, 429, cookie)
@@ -372,6 +393,29 @@ export class RunRoutes {
     const uploadIdValue = form.get('uploadId')
     const uploadId = typeof uploadIdValue === 'string' ? uploadIdValue : undefined
 
+    // A bundle run holds one of its address's few slots from here until the
+    // run ends. The check and the take stay synchronous, so two requests
+    // arriving together cannot both pass (#136).
+    let releaseClientRun: (() => void) | undefined
+    if (bundle) {
+      const inFlight = this.#clientRuns.get(identity.addressKey) ?? 0
+      if (inFlight >= this.#maxClientRunsPerAddress) {
+        // The reservation this request was admitted with goes back with the refusal.
+        if (reservation) await this.#dependencies.meterStore.release(reservation)
+        const message = `This address already has ${this.#maxClientRunsPerAddress} runs going from an agent. Wait for one to finish.`
+        return json({ code: 'client_runs_exceeded', message }, 429, cookie)
+      }
+      this.#clientRuns.set(identity.addressKey, inFlight + 1)
+      let held = true
+      releaseClientRun = () => {
+        if (!held) return
+        held = false
+        const remaining = (this.#clientRuns.get(identity.addressKey) ?? 1) - 1
+        if (remaining > 0) this.#clientRuns.set(identity.addressKey, remaining)
+        else this.#clientRuns.delete(identity.addressKey)
+      }
+    }
+
     let artifactKey: string | undefined
     try {
       const artifact = await this.#dependencies.artifactStore.put({
@@ -391,6 +435,7 @@ export class RunRoutes {
       }
       let started = false
       const runId = this.#dependencies.idGenerator()
+      const runToken = await createRunToken(this.#dependencies.sessionSecret, runId)
       // Past the cap on concurrent runs, the run waits in line and starts by itself (NFR-4).
       await this.#dependencies.registry.enqueue({
         runId,
@@ -410,6 +455,8 @@ export class RunRoutes {
           return managedRun
         },
         onTerminal: async ({ snapshot, metrics }) => {
+          // The address's bundle slot goes back whatever else follows (#136).
+          releaseClientRun?.()
           try {
             // A run that never got its budget holds nothing to give back.
             if (!reservation) return
@@ -430,9 +477,10 @@ export class RunRoutes {
           }
         }
       })
-      return json({ runId }, 201, cookie)
+      return json({ runId, runToken }, 201, cookie)
     } catch (error) {
       // Nothing was registered, so nothing else will release what this run held.
+      releaseClientRun?.()
       if (artifactKey) {
         try {
           await this.#dependencies.artifactStore.delete(artifactKey)
@@ -517,7 +565,26 @@ export class RunRoutes {
     })
   }
 
+  /**
+   * The proof that a steer or cancel comes from whoever started the run,
+   * checked before the body is read or the run is looked up, so a refusal
+   * says nothing about whether the run exists (#136).
+   */
+  async #runTokenRefusal(runId: string, request: Request): Promise<Response | undefined> {
+    const header = request.headers.get('authorization')
+    const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : undefined
+    if (!token) {
+      return apiError('run_token_required', 'This run needs its token to be steered or cancelled.', 401)
+    }
+    if (!(await verifyRunToken(this.#dependencies.sessionSecret, runId, token))) {
+      return apiError('run_token_refused', 'This token does not belong to this run.', 403)
+    }
+    return undefined
+  }
+
   async #steer(runId: string, request: Request): Promise<Response> {
+    const refused = await this.#runTokenRefusal(runId, request)
+    if (refused) return refused
     const body = await boundedJson(request, MAX_JSON_BODY_BYTES)
     const text = body.text
     if (typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
@@ -527,7 +594,9 @@ export class RunRoutes {
     return json({ accepted: true }, 202)
   }
 
-  async #cancel(runId: string): Promise<Response> {
+  async #cancel(runId: string, request: Request): Promise<Response> {
+    const refused = await this.#runTokenRefusal(runId, request)
+    if (refused) return refused
     await this.#dependencies.registry.cancel(runId)
     return json({ accepted: true }, 202)
   }
