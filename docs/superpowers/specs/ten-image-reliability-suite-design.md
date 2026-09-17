@@ -132,15 +132,21 @@ or frame data.
 ## Nightly workflow and spending guard
 
 `.github/workflows/reliability.yml` supports `workflow_dispatch` and a nightly
-schedule. The paid job runs only when the repository variable
-`RELIABILITY_ENABLED` is exactly `true`. It reads credentials from repository
-secrets, runs the single command, appends the Markdown report to
-`GITHUB_STEP_SUMMARY`, and uploads the result directory even when fewer than
-eight cases pass.
+schedule. The scheduled paid job runs only when the repository variable
+`RELIABILITY_ENABLED` is exactly `true`. An explicit manual dispatch with
+`task=reliability` runs regardless of that variable and may select a
+non-default ref. Both paths enter the protected `production` environment and
+wait for one of its required reviewers; repository administrators cannot
+bypass that gate. Approval authorizes the suite's maximum spend. The job reads
+`BROWSERBASE_API_KEY` from a repository secret and fetches `OPENAI_API_KEY`
+from Google Secret Manager through Workload Identity Federation. It runs the
+single command, appends the Markdown report to `GITHUB_STEP_SUMMARY`, and
+uploads the result directory even when fewer than eight cases pass.
 
-The guard ships disabled. Enabling it is an explicit team action because ten
-runs can spend up to ten times the per-run cap. Scheduled workflows run only
-from the default branch, so the feature branch cannot start a paid run.
+The schedule guard ships disabled. Enabling it or manually dispatching the
+reliability task makes a paid run eligible for approval because ten runs can
+spend up to ten times the per-run cap. Scheduled workflows use the default
+branch; manual dispatches can run the workflow from another selected ref.
 
 ## Testing strategy
 

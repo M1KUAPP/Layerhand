@@ -11,6 +11,7 @@ Contents:
 1.  [Run locally](#run-locally)
 1.  [Verify](#verify)
 1.  [Browserbase probe](#browserbase-probe)
+1.  [Reliability suite](#reliability-suite)
 1.  [Container](#container)
 1.  [Deploy](#deploy)
 1.  [Architecture](#architecture)
@@ -53,7 +54,9 @@ bash test/server/container-smoke.sh
 ```
 
 Tests requiring live providers are opt-in and skip without their explicit
-environment variables.
+environment variables. `RUN_BROWSER_TESTS=1` runs the fake-backed page tests
+in installed Google Chrome. `LAYERHAND_CHROME_INTEGRATION=1` runs the separate
+installed-Chrome tests against real Photopea and the network allow-list.
 
 ## Browserbase probe
 
@@ -87,9 +90,12 @@ Results are written beneath `artifacts/reliability/<timestamp>/` as
 The command outputs a terminal summary and exits with code 0 only when at least
 eight of the ten cases pass (NFR-1).
 
-In automated CI and scheduled nightly workflows, paid execution is guarded by
-the repository variable `RELIABILITY_ENABLED == 'true'`. Normal pull-request CI
-never invokes live providers or creates paid sessions.
+The scheduled paid workflow runs only when the repository variable
+`RELIABILITY_ENABLED == 'true'`. An explicit workflow dispatch with
+`task=reliability` bypasses that guard and may target a selected branch. Both
+paths still wait for a required reviewer in the protected `production`
+environment; approving the job authorizes the suite's $80 maximum spend.
+Normal pull-request CI never invokes live providers or creates paid sessions.
 
 ## Container
 
@@ -139,8 +145,9 @@ and the launch freeze holds from Thursday evening, September 17.
     browser loads `/photopea-host` from it. `fake` and `scripted` are for
     development;
   - `FREE_DAILY_BUDGET_USD`, a placeholder of 10 until the ceiling is
-    agreed (#29). It bounds the server's OpenAI key, a personal balance, to
-    $10 a day;
+    agreed (#29). It bounds admission and metering for deployed HTTP runs
+    to $10 a day. The reliability suite uses the same personal OpenAI key
+    outside that counter and can spend up to $80 per invocation;
   - `RUN_STEP_CAP`, 40, and `FREE_RUN_SPEND_CAP_USD`, 3: the model calls one
     run may make, and what it may spend. A free run reserves its spend cap
     from the daily ceiling.

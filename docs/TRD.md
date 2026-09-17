@@ -1213,7 +1213,7 @@ The deployed service reserves `FREE_RUN_SPEND_CAP_USD`, $3, so its $10
 placeholder ceiling admits three concurrent free runs while a fourth waits,
 and one full wave would need 20 × $3 = $60.
 
-**Proposed: $230 a day**, for kymil04 to confirm on day 4 from A2's
+**Proposed: $230 a day**, for kymil4 to confirm on day 4 from A2's
 measurement. It is not yet agreed. The reservation always equals the spend
 cap, because reserving less would undercount a run heading for it.
 `test/server/limits.test.ts` pins the arithmetic at the $3 and the $8
@@ -1335,10 +1335,12 @@ Proportionate to six days, and concentrated where being wrong is
 expensive.
 
 1.  **The ten-image set** (NFR-1). Ten real photographs with a written
-    instruction and a written expectation each. Run nightly from day 2.
-    This is the number the launch decision is made on, and it is the
-    only test that can stop the launch. The day-2 go/no-go is a
-    separate, lower bar: one scripted three-edit sequence, end to end.
+    instruction and a written expectation each. The guarded nightly
+    schedule has not produced a result. Issue #96 owns a run at the
+    deployed caps and another on the frozen build before the launch
+    decision. This is the number that decision is made on, and it is the
+    only test that can stop the launch. The day-2 go/no-go was a separate,
+    lower bar: one scripted three-edit sequence, end to end.
 1.  **PSD validation** (FR-25 to FR-27), automated: parse the exported
     file, assert layer count, assert every name is human, assert at
     least one editable mask or adjustment exists. Then, manually and
@@ -1459,8 +1461,10 @@ not in a separate probe. The run is in the
   reported it `COMPLETED`.
 - **Bun version.** Playwright's `connectOverCDP` never connects under Bun
   1.3.14. It works under Bun 1.4.2, the version production runs.
-- **Not yet confirmed:** the read-only live view. The run publishes its own
-  frames and does not use Browserbase's live view.
+- **Read-only view, confirmed September 15:** the visitor never receives a
+  Browserbase view at all. The event stream publishes captured PNG frames
+  rendered as an `<img>`, so it has no input channel into the session, and
+  no provider address appears in the events. Issue #22 records the check.
 
 **Warm against cold, September 15:** warming an editor while the
 instruction is typed (#70) was measured the same way, on the deployed
@@ -1591,8 +1595,8 @@ was open; it is
 purchase with a signup lead time. Nobody should re-litigate the terms
 on day 0, and nobody should reach for the kill switch over them.
 
-A0 and A4 are the two that can still change the plan, which is why both
-are day-0 despite being short.
+A4 can still change the plan, which is why it remains a day-0 item despite
+being short. A0 is answered above and no longer belongs in that set.
 
 **B1 result, September 15:** passed. The retained run reports a 13,442-byte JPEG
 sent through `postMessage` and preserves the exact input plus its 1,412,711-byte
