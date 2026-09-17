@@ -243,7 +243,9 @@ function renderInput(): DocumentFragment {
   const fragment = document.createDocumentFragment()
   const back = button('Back', 'text-button')
   back.addEventListener('click', () => dispatch({ type: 'reset' }))
-  fragment.append(brandHeader(back))
+  const header = brandHeader(back)
+  header.dataset.over = 'page'
+  fragment.append(header)
 
   const section = node('section', 'input-grid')
   section.setAttribute('aria-labelledby', 'input-title')
