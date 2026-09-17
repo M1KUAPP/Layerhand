@@ -6,6 +6,7 @@
 @import './landing/drawer.css';
 @import './landing/glass.css';
 @import './landing/waitlist.css';
+@import './landing/install.css';
 
 :root {
   color: var(--ink);
