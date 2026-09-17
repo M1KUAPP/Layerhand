@@ -13,7 +13,7 @@ describeBrowser('waitlist in Chromium', () => {
 
   beforeAll(async () => {
     application = await startTestApplication({ fakeRunIntervalMs: 1_000 })
-    browser = await chromium.launch({ headless: true })
+    browser = await chromium.launch({ channel: 'chrome', headless: true })
   }, 30_000)
 
   afterAll(async () => {
@@ -123,6 +123,24 @@ describeBrowser('waitlist in Chromium', () => {
       const updatesLink = page.locator('a[href="#updates"]')
       await expect(updatesLink.count()).resolves.toBeGreaterThan(0)
       await expect(updatesLink.first().getAttribute('href')).resolves.toBe('#updates')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  // NFR-7, amended by #128: below 1280 px the landing page and the
+  // waitlist render, with no sideways scroll down to 390 px.
+  test('renders the form below 1280 px with no sideways scroll at 390x844', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(false)
+      await expect(page.getByRole('textbox', { name: 'Email address' }).isVisible()).resolves.toBe(true)
+      await expect(page.getByRole('button', { name: 'Email me the recording' }).isVisible()).resolves.toBe(true)
+      const result = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth
+      }))
+      expect(result.scrollWidth).toBe(result.innerWidth)
     } finally {
       await page.close()
     }
