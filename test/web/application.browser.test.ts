@@ -16,8 +16,16 @@ const LONG_INSTRUCTION =
 const REAL_FRAME_URL = new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url)
 const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
 
-async function openInput(page: Page, origin: string): Promise<void> {
+// A click on the sticky hero while it still enters is retried with a forced
+// scroll, which slides the landing over the button for good, so a test that
+// clicks into the hero waits for the entrance to finish first.
+async function gotoLanding(page: Page, origin: string): Promise<void> {
   await page.goto(origin)
+  await page.locator('html[data-enter="done"]').waitFor()
+}
+
+async function openInput(page: Page, origin: string): Promise<void> {
+  await gotoLanding(page, origin)
   await page.getByRole('button', { name: 'Retouch a photo' }).click()
   await page.getByRole('button', { name: 'Use the sample photograph' }).click()
   await page.getByAltText('Selected source: layerhand-sample.png').waitFor()
@@ -54,7 +62,7 @@ describeBrowser('launch application in Google Chrome', () => {
   test('runs, steers, reloads without replay duplicates, and downloads a PSD', async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     try {
-      await page.goto(application.origin)
+      await gotoLanding(page, application.origin)
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
       await page.getByRole('button', { name: EXAMPLE }).click()
       await expect(page.getByRole('textbox', { name: 'Retouching instruction' }).inputValue()).resolves.toBe(EXAMPLE)
@@ -143,7 +151,7 @@ describeBrowser('launch application in Google Chrome', () => {
   test('scopes live announcements and keeps focus through the core flow', async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     try {
-      await page.goto(application.origin)
+      await gotoLanding(page, application.origin)
       await expect(page.locator('#app').getAttribute('aria-live')).resolves.toBeNull()
       await expect(page.locator('#desktop-required').getAttribute('role')).resolves.toBeNull()
       await expect(page.locator('.waitlist__status').getAttribute('role')).resolves.toBeNull()
@@ -412,7 +420,7 @@ describeBrowser('launch application in Google Chrome', () => {
   test('captures waitlist email below 1280 px and enforces the exact desktop boundary for the workbench', async () => {
     const page = await browser.newPage({ viewport: { width: 1279, height: 800 } })
     try {
-      await page.goto(application.origin)
+      await gotoLanding(page, application.origin)
       // The landing page itself is not desktop-gated (NFR-7, #128).
       await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(false)
       await expect(page.locator('#app').isVisible()).resolves.toBe(true)
@@ -456,7 +464,7 @@ describeBrowser('launch application in Google Chrome', () => {
   test('offers a way back from the desktop gate on a phone', async () => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
     try {
-      await page.goto(application.origin)
+      await gotoLanding(page, application.origin)
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
 
       await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(true)
@@ -476,7 +484,7 @@ describeBrowser('launch application in Google Chrome', () => {
   test('rejects unusable image bytes when the file is chosen', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     try {
-      await page.goto(application.origin)
+      await gotoLanding(page, application.origin)
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
       await page.getByText('JPEG or PNG, up to 20 MB and 6000 px on the long edge.').waitFor()
 
