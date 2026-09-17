@@ -22,6 +22,8 @@ export interface RunProgress {
   cancelRequested: boolean
   /** While the run waits for a slot, its place in line (NFR-4). */
   queuePosition: number | null
+  /** A watched run (a `?watch=` link, or a stored run with no stored token) shows no controls. */
+  viewOnly: boolean
 }
 
 export type ClientState =
@@ -44,7 +46,7 @@ export type ClientAction =
   | { type: 'edit' }
   | { type: 'started'; runId: string; instruction: string }
   | { type: 'restoring'; runId: string }
-  | { type: 'snapshot'; snapshot: RunSnapshot; instruction?: string | null }
+  | { type: 'snapshot'; snapshot: RunSnapshot; instruction?: string | null; viewOnly?: boolean }
   | { type: 'event'; id: number; event: RunStreamEvent }
   | { type: 'cancel_requested' }
   | { type: 'action_refused'; message: string }
@@ -69,11 +71,12 @@ function emptyProgress(runId: string, instruction: string): RunProgress {
     recoverableErrors: [],
     lastEventId: -1,
     cancelRequested: false,
-    queuePosition: null
+    queuePosition: null,
+    viewOnly: false
   }
 }
 
-function progressFromSnapshot(snapshot: RunSnapshot, instruction: string | null): RunProgress {
+function progressFromSnapshot(snapshot: RunSnapshot, instruction: string | null, viewOnly: boolean): RunProgress {
   return {
     runId: snapshot.runId,
     instruction,
@@ -88,11 +91,12 @@ function progressFromSnapshot(snapshot: RunSnapshot, instruction: string | null)
     recoverableErrors: [...snapshot.recoverableErrors],
     lastEventId: snapshot.lastEventId,
     cancelRequested: snapshot.status === 'cancelled',
-    queuePosition: snapshot.queuePosition ?? null
+    queuePosition: snapshot.queuePosition ?? null,
+    viewOnly
   }
 }
 
-function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): ClientState {
+function fromSnapshot(snapshot: RunSnapshot, instruction: string | null, viewOnly: boolean): ClientState {
   if (snapshot.status === 'failed') {
     return {
       view: 'error',
@@ -101,7 +105,7 @@ function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): Client
       reconnectable: false
     }
   }
-  const progress = progressFromSnapshot(snapshot, instruction)
+  const progress = progressFromSnapshot(snapshot, instruction, viewOnly)
   if (snapshot.status === 'running' || snapshot.status === 'queued') return { view: 'running', progress }
   if (!snapshot.result) {
     return {
@@ -220,7 +224,10 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
     case 'snapshot':
       return fromSnapshot(
         action.snapshot,
-        action.instruction ?? (state.view === 'running' ? state.progress.instruction : null)
+        action.instruction ?? (state.view === 'running' ? state.progress.instruction : null),
+        // A reconnect snapshot carries no flag: the run keeps the one it
+        // was restored with rather than regaining controls mid-watch.
+        action.viewOnly ?? (state.view === 'running' || state.view === 'result' ? state.progress.viewOnly : false)
       )
     case 'event':
       return state.view === 'running' ? reduceEvent(state, action.id, action.event) : state
