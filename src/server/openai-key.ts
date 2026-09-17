@@ -6,7 +6,8 @@
 type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 
 const MODELS_ENDPOINT = 'https://api.openai.com/v1/models'
-const CHECK_TIMEOUT_MS = 10_000
+// Inside NFR-3's five seconds for a run to start, so a slow answer cannot use them all.
+const CHECK_TIMEOUT_MS = 4_000
 
 /** `unchecked` is a check that OpenAI did not answer, which says nothing about the key. */
 export type OpenAiKeyCheck = 'accepted' | 'refused' | 'unchecked'
