@@ -9,6 +9,7 @@ import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } 
 import { usdToMicroUsd } from '../../src/server/meter-store'
 import { RunRegistry } from '../../src/server/run-registry'
 import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
+import { createRunToken, verifyRunToken } from '../../src/server/run-token'
 import type { OpenAiKeyCheck } from '../../src/server/openai-key'
 import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
 import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
@@ -110,6 +111,31 @@ function visitorCookie(response: Response): string {
   return (response.headers.get('set-cookie') ?? '').split(';')[0] ?? ''
 }
 
+/** A run start from the bundle: the client header, and the visitor's own key as agents must send (#136). */
+function bundleRequest(client = 'layerhand-mcp/0.1.0') {
+  const request = startRequest({ apiKey: 'sk-agent-own-key-000000' })
+  request.headers.set('x-layerhand-client', client)
+  return request
+}
+
+function steerRequest(runId: string, runToken?: string) {
+  return new Request(`https://layerhand.test/api/runs/${runId}/steer`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(runToken ? { authorization: `Bearer ${runToken}` } : {})
+    },
+    body: JSON.stringify({ text: 'Keep the label unchanged' })
+  })
+}
+
+function cancelRequest(runId: string, runToken?: string) {
+  return new Request(`https://layerhand.test/api/runs/${runId}/cancel`, {
+    method: 'POST',
+    ...(runToken ? { headers: { authorization: `Bearer ${runToken}` } } : {})
+  })
+}
+
 /** A warm editor session that records only what the routes do with it. */
 function warmSessionStub(id: string) {
   let abandoned = 0
@@ -174,6 +200,7 @@ function fixture(
     retryWaitingMs?: number
     runIntervalMs?: number
     checkApiKey?: (apiKey: string) => Promise<OpenAiKeyCheck>
+    maxClientRunsPerAddress?: number
   } = {}
 ) {
   const meter = overrides.meter ?? new RecordingMeter()
@@ -212,6 +239,9 @@ function fixture(
     now: () => new Date('2026-09-15T12:00:00.000Z'),
     idGenerator: () => `public-run-${++nextId}`,
     runsPaused: overrides.paused,
+    ...(overrides.maxClientRunsPerAddress === undefined
+      ? {}
+      : { maxClientRunsPerAddress: overrides.maxClientRunsPerAddress }),
     runFactory(request, warmSession) {
       claimed.push(warmSession)
       if (failRunFactory) return Promise.reject(new Error('run factory failed'))
@@ -387,7 +417,7 @@ describe('run HTTP contract', () => {
     const text = await response.text()
 
     expect(response.status).toBe(201)
-    expect(JSON.parse(text)).toEqual({ runId: 'public-run-1' })
+    expect(JSON.parse(text)).toEqual({ runId: 'public-run-1', runToken: expect.any(String) })
     expect(text).not.toContain(sentinel)
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
     expect(target.meter.calls[0]).toBe('admit:true')
@@ -686,10 +716,13 @@ describe('run HTTP contract', () => {
   test('gives back the free run and the upload of a run that leaves the queue', async () => {
     const target = fixture({ maxConcurrentRuns: 1, runIntervalMs: 60_000 })
     const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
-    const second = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+    const second = (await (await target.app.fetch(startRequest())).json()) as { runId: string; runToken: string }
 
     const cancel = await target.app.fetch(
-      new Request(`https://layerhand.test/api/runs/${second.runId}/cancel`, { method: 'POST' })
+      new Request(`https://layerhand.test/api/runs/${second.runId}/cancel`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${second.runToken}` }
+      })
     )
     await target.registry.waitForTerminal(second.runId)
 
@@ -703,12 +736,12 @@ describe('run HTTP contract', () => {
   test('replays SSE, returns snapshots, and exposes steering and cancellation', async () => {
     const target = fixture()
     const start = await target.app.fetch(startRequest())
-    const { runId } = (await start.json()) as { runId: string }
+    const { runId, runToken } = (await start.json()) as { runId: string; runToken: string }
 
     const steer = await target.app.fetch(
       new Request(`https://layerhand.test/api/runs/${runId}/steer`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${runToken}` },
         body: JSON.stringify({ text: 'Keep the label unchanged' })
       })
     )
@@ -729,7 +762,10 @@ describe('run HTTP contract', () => {
     expect(eventText).toContain('"type":"done"')
 
     const cancel = await target.app.fetch(
-      new Request(`https://layerhand.test/api/runs/${runId}/cancel`, { method: 'POST' })
+      new Request(`https://layerhand.test/api/runs/${runId}/cancel`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${runToken}` }
+      })
     )
     expect(cancel.status).toBe(409)
     expect((await cancel.json()).code).toBe('run_ended')
@@ -1087,12 +1123,12 @@ describe('JSON body size cap (#115)', () => {
   test('refuses an oversized steer body before parsing it', async () => {
     const { app, registry } = testRoutes()
     const start = await app.fetch(startRequest())
-    const { runId } = (await start.json()) as { runId: string }
+    const { runId, runToken } = (await start.json()) as { runId: string; runToken: string }
 
     const response = await app.fetch(
       new Request(`https://layerhand.test/api/runs/${runId}/steer`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${runToken}` },
         body: 'x'.repeat(MAX_JSON_BODY_BYTES + 1)
       })
     )
@@ -1107,5 +1143,167 @@ describe('JSON body size cap (#115)', () => {
     const response = await app.fetch(waitlistRequest())
 
     expect(response.status).toBe(201)
+  })
+})
+
+describe('run token (#136)', () => {
+  test('answers a start with the run id and a token that verifies for it', async () => {
+    const target = fixture()
+
+    const response = await target.app.fetch(startRequest())
+    const body = (await response.json()) as { runId: string; runToken: string }
+
+    expect(response.status).toBe(201)
+    expect(await verifyRunToken('session-secret', body.runId, body.runToken)).toBe(true)
+    await target.registry.cancel(body.runId)
+  })
+
+  test('refuses a steer sent without the run token', async () => {
+    const target = fixture()
+    const { runId } = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+
+    const response = await target.app.fetch(steerRequest(runId))
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
+      code: 'run_token_required',
+      message: 'This run needs its token to be steered or cancelled.'
+    })
+    await target.registry.cancel(runId)
+  })
+
+  test("refuses a steer bearing another run's token", async () => {
+    const target = fixture()
+    const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string; runToken: string }
+    const second = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+
+    const response = await target.app.fetch(steerRequest(second.runId, first.runToken))
+
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
+      code: 'run_token_refused',
+      message: 'This token does not belong to this run.'
+    })
+    await target.registry.cancel(first.runId)
+    await target.registry.cancel(second.runId)
+  })
+
+  test("refuses a cancel bearing another run's token, and the run goes on", async () => {
+    const target = fixture({ runIntervalMs: 60_000 })
+    const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string; runToken: string }
+    const second = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
+
+    const response = await target.app.fetch(cancelRequest(second.runId, first.runToken))
+
+    expect(response.status).toBe(403)
+    expect(await response.json()).toMatchObject({ code: 'run_token_refused' })
+    expect(await target.registry.getSnapshot(second.runId)).toMatchObject({ status: 'running' })
+    await target.registry.cancel(first.runId)
+    await target.registry.cancel(second.runId)
+  })
+
+  test('answers a verified token for an unknown run id with run_not_found', async () => {
+    const target = fixture()
+    const runToken = await createRunToken('session-secret', 'no-such-run')
+
+    const response = await target.app.fetch(steerRequest('no-such-run', runToken))
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toMatchObject({ code: 'run_not_found' })
+  })
+})
+
+describe('the bundle client header (#136)', () => {
+  test('refuses a bundle start that carries no OpenAI key', async () => {
+    const target = fixture()
+    const request = startRequest()
+    request.headers.set('x-layerhand-client', 'layerhand-mcp/0.1.0')
+
+    const response = await target.app.fetch(request)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      code: 'api_key_required',
+      message: 'Runs from an agent need your own OpenAI API key.'
+    })
+    expect(target.meter.calls).toEqual([])
+    expect(target.runRequests).toEqual([])
+  })
+
+  test('refuses a client header longer than 64 characters', async () => {
+    const target = fixture()
+
+    const response = await target.app.fetch(bundleRequest('x'.repeat(65)))
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({ code: 'invalid_client' })
+  })
+})
+
+describe('the per-address cap on bundle runs (#136)', () => {
+  test('refuses a third bundle run from one address while the cap of two is full', async () => {
+    const target = fixture({ maxClientRunsPerAddress: 2, runIntervalMs: 60_000 })
+    const first = await target.app.fetch(bundleRequest())
+    const second = await target.app.fetch(bundleRequest())
+    const firstId = ((await first.json()) as { runId: string }).runId
+    const secondId = ((await second.json()) as { runId: string }).runId
+
+    const refused = await target.app.fetch(bundleRequest())
+
+    expect(first.status).toBe(201)
+    expect(second.status).toBe(201)
+    expect(refused.status).toBe(429)
+    const body = (await refused.json()) as { code: string; message: string }
+    expect(body.code).toBe('client_runs_exceeded')
+    expect(body.message).toContain('2 runs')
+    await target.registry.cancel(firstId)
+    await target.registry.cancel(secondId)
+  })
+
+  test('still starts a page run from an address whose bundle cap is full', async () => {
+    const target = fixture({ maxClientRunsPerAddress: 2, runIntervalMs: 60_000 })
+    const first = (await (await target.app.fetch(bundleRequest())).json()) as { runId: string }
+    const second = (await (await target.app.fetch(bundleRequest())).json()) as { runId: string }
+
+    const refused = await target.app.fetch(bundleRequest())
+    const page = await target.app.fetch(startRequest())
+
+    expect(refused.status).toBe(429)
+    expect(page.status).toBe(201)
+    const { runId } = (await page.json()) as { runId: string }
+    await target.registry.cancel(first.runId)
+    await target.registry.cancel(second.runId)
+    await target.registry.cancel(runId)
+  })
+
+  test("starts a new bundle run once one of the address's runs has ended", async () => {
+    const target = fixture({ maxClientRunsPerAddress: 2, runIntervalMs: 60_000 })
+    const first = (await (await target.app.fetch(bundleRequest())).json()) as { runId: string }
+    const second = (await (await target.app.fetch(bundleRequest())).json()) as { runId: string }
+
+    const refused = await target.app.fetch(bundleRequest())
+    await target.registry.cancel(first.runId)
+    await target.registry.waitForTerminal(first.runId)
+    const after = await target.app.fetch(bundleRequest())
+
+    expect(refused.status).toBe(429)
+    expect(after.status).toBe(201)
+    const { runId } = (await after.json()) as { runId: string }
+    await target.registry.cancel(second.runId)
+    await target.registry.cancel(runId)
+  })
+
+  test('gives the slot back when a bundle start fails before the run is queued', async () => {
+    const target = fixture({ maxClientRunsPerAddress: 1 })
+    target.artifacts.failPut = true
+
+    const failed = await target.app.fetch(bundleRequest())
+    target.artifacts.failPut = false
+    const retry = await target.app.fetch(bundleRequest())
+
+    expect(failed.status).toBe(400)
+    expect(retry.status).toBe(201)
+    const { runId } = (await retry.json()) as { runId: string }
+    await target.registry.cancel(runId)
   })
 })

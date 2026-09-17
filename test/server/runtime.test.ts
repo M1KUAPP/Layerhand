@@ -133,13 +133,19 @@ describe('launch runtime', () => {
       (await runtime.application.fetch(new Request(`http://layerhand.test/api/runs/${runId}`))).json()
 
     try {
-      const first = (await (await runtime.application.fetch(runRequest())).json()) as { runId: string }
+      const first = (await (await runtime.application.fetch(runRequest())).json()) as {
+        runId: string
+        runToken: string
+      }
       const second = (await (await runtime.application.fetch(runRequest())).json()) as { runId: string }
       expect(await snapshot(first.runId)).toMatchObject({ status: 'running' })
       expect(await snapshot(second.runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
 
       await runtime.application.fetch(
-        new Request(`http://layerhand.test/api/runs/${first.runId}/cancel`, { method: 'POST' })
+        new Request(`http://layerhand.test/api/runs/${first.runId}/cancel`, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${first.runToken}` }
+        })
       )
       for await (const { event } of runtime.registry.events(second.runId)) if (event.type === 'started') break
 

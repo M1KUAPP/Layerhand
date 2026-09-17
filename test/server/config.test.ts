@@ -91,7 +91,8 @@ describe('readRunLimits', () => {
       maxConcurrentRuns: 20,
       freeRunsPerAddressPerDay: 10,
       requestsPerVisitorPerMinute: 10,
-      requestsPerAddressPerMinute: 60
+      requestsPerAddressPerMinute: 60,
+      maxClientRunsPerAddress: 2
     })
   })
 
@@ -103,7 +104,8 @@ describe('readRunLimits', () => {
         MAX_CONCURRENT_RUNS: '12',
         FREE_RUNS_PER_ADDRESS_PER_DAY: '15',
         REQUESTS_PER_VISITOR_PER_MINUTE: '5',
-        REQUESTS_PER_ADDRESS_PER_MINUTE: '20'
+        REQUESTS_PER_ADDRESS_PER_MINUTE: '20',
+        MAX_CLIENT_RUNS_PER_ADDRESS: '4'
       })
     ).toEqual({
       stepCap: 25,
@@ -111,9 +113,19 @@ describe('readRunLimits', () => {
       maxConcurrentRuns: 12,
       freeRunsPerAddressPerDay: 15,
       requestsPerVisitorPerMinute: 5,
-      requestsPerAddressPerMinute: 20
+      requestsPerAddressPerMinute: 20,
+      maxClientRunsPerAddress: 4
     })
   })
+
+  test.each(['0', '-1', '1.5', 'NaN', ' 5'])(
+    'rejects invalid MAX_CLIENT_RUNS_PER_ADDRESS %s without echoing it',
+    (value) => {
+      expect(() => readRunLimits({ MAX_CLIENT_RUNS_PER_ADDRESS: value })).toThrow(
+        'MAX_CLIENT_RUNS_PER_ADDRESS must be a positive integer'
+      )
+    }
+  )
 
   test.each(['0', '-1', '1.5', 'NaN', ' 5'])('rejects invalid MAX_CONCURRENT_RUNS %s without echoing it', (value) => {
     expect(() => readRunLimits({ MAX_CONCURRENT_RUNS: value })).toThrow(
