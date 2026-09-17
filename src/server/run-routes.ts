@@ -27,10 +27,12 @@ export const MAX_JSON_BODY_BYTES = 4 * 1024
 // Requests one visitor, or one address, may make of uploads, runs, or
 // waitlist sign-ups in one rolling window, before launch traffic gets a
 // chance to hammer an endpoint that costs money (#115). Each endpoint keeps
-// its own count, so a burst on one does not spend another's budget.
-export const RATE_LIMIT_WINDOW_MS = 60_000
-export const PER_VISITOR_RATE_LIMIT = 10
-export const PER_ADDRESS_RATE_LIMIT = 30
+// its own count, so a burst on one does not spend another's budget. The
+// counts are configurable (RunRouteDependencies); these are the fallback for
+// a caller, such as a test, that does not set them.
+const RATE_LIMIT_WINDOW_MS = 60_000
+const DEFAULT_PER_VISITOR_RATE_LIMIT = 10
+const DEFAULT_PER_ADDRESS_RATE_LIMIT = 60
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -59,6 +61,10 @@ export interface RunRouteDependencies {
    * whenever it is set (#115).
    */
   publicOrigin?: string
+  /** Requests one visitor may make of an endpoint in a minute (#115). */
+  requestsPerVisitorPerMinute?: number
+  /** Requests one address may make of an endpoint in a minute (#115). */
+  requestsPerAddressPerMinute?: number
 }
 
 class RequestTooLargeError extends Error {
@@ -187,10 +193,10 @@ interface EndpointLimiter {
   readonly perAddress: RateLimiter
 }
 
-function createEndpointLimiter(now: () => number): EndpointLimiter {
+function createEndpointLimiter(now: () => number, perVisitor: number, perAddress: number): EndpointLimiter {
   return {
-    perVisitor: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: PER_VISITOR_RATE_LIMIT, now }),
-    perAddress: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: PER_ADDRESS_RATE_LIMIT, now })
+    perVisitor: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: perVisitor, now }),
+    perAddress: new RateLimiter({ windowMs: RATE_LIMIT_WINDOW_MS, max: perAddress, now })
   }
 }
 
@@ -208,9 +214,11 @@ export class RunRoutes {
   constructor(dependencies: RunRouteDependencies) {
     this.#dependencies = dependencies
     const now = () => dependencies.now().getTime()
-    this.#uploadLimiter = createEndpointLimiter(now)
-    this.#runLimiter = createEndpointLimiter(now)
-    this.#waitlistLimiter = createEndpointLimiter(now)
+    const perVisitor = dependencies.requestsPerVisitorPerMinute ?? DEFAULT_PER_VISITOR_RATE_LIMIT
+    const perAddress = dependencies.requestsPerAddressPerMinute ?? DEFAULT_PER_ADDRESS_RATE_LIMIT
+    this.#uploadLimiter = createEndpointLimiter(now, perVisitor, perAddress)
+    this.#runLimiter = createEndpointLimiter(now, perVisitor, perAddress)
+    this.#waitlistLimiter = createEndpointLimiter(now, perVisitor, perAddress)
   }
 
   async handle(request: Request): Promise<Response | undefined> {
@@ -289,11 +297,15 @@ export class RunRoutes {
     })
   }
 
-  /** A refusal when either the visitor or the address is over its limit, or `undefined` to proceed (#115). */
+  /**
+   * A refusal when either the visitor or the address is over its limit, or
+   * `undefined` to proceed. The visitor is checked first, and the address's
+   * budget is left untouched once the visitor alone already refuses (#115).
+   */
   #checkRateLimit(limiter: EndpointLimiter, identity: VisitorIdentity): Response | undefined {
-    const visitorOk = limiter.perVisitor.allow(identity.visitorKey)
-    const addressOk = limiter.perAddress.allow(identity.addressKey)
-    return visitorOk && addressOk ? undefined : rateLimitResponse(identity)
+    if (!limiter.perVisitor.allow(identity.visitorKey)) return rateLimitResponse(identity)
+    if (!limiter.perAddress.allow(identity.addressKey)) return rateLimitResponse(identity)
+    return undefined
   }
 
   async #start(request: Request): Promise<Response> {
