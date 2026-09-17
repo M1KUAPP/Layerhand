@@ -333,12 +333,14 @@ function renderInput(): DocumentFragment {
   input.type = 'file'
   input.accept = 'image/jpeg,image/png,.jpg,.jpeg,.png'
   input.required = true
-  dropZone.append(input, icon('hgi-upload-01'))
+  dropZone.append(input)
   if (selectedPreviewUrl) {
     const preview = node('img', 'selected-preview')
     preview.src = selectedPreviewUrl
     preview.alt = `Selected source: ${selectedFile?.name ?? 'photograph'}`
     dropZone.append(preview)
+  } else {
+    dropZone.append(icon('hgi-upload-01'))
   }
   const prompt = node(
     'span',
@@ -363,14 +365,19 @@ function renderInput(): DocumentFragment {
   })
   const fileStatus = node('p', 'field-error', fileError)
   fileStatus.id = 'source-image-error'
-  const fileHint = node('p', 'field-hint', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
+  const fileHint = node('span', 'drop-note', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
   fileHint.id = 'source-image-hint'
-  input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
+  const retentionNotice = node('span', 'drop-note', 'Uploads are deleted within 24 hours.')
+  retentionNotice.id = 'source-image-retention'
+  // The notes sit inside the drop zone, where the whole box opens the file
+  // picker, but stay out of the input's name: they reach it as its
+  // description instead.
+  const dropNotes = node('span', 'drop-notes')
+  dropNotes.setAttribute('aria-hidden', 'true')
+  dropNotes.append(fileHint, retentionNotice)
+  dropZone.append(dropNotes)
+  input.setAttribute('aria-describedby', `${fileHint.id} ${retentionNotice.id} ${fileStatus.id}`)
   if (fileError) input.setAttribute('aria-invalid', 'true')
-  const retentionNotice = node('p', 'field-hint', 'Uploads are deleted within 24 hours.')
-  const fileMain = node('div', 'file-field-main')
-  const fileNotes = node('div', 'file-field-notes')
-  fileNotes.append(fileHint, retentionNotice, fileStatus)
 
   const sample = button('Use the sample photograph', 'sample-button')
   const sampleThumb = node('img', 'sample-thumb')
@@ -388,8 +395,9 @@ function renderInput(): DocumentFragment {
       render('[data-action="sample"]')
     }
   })
-  fileMain.append(dropZone, sample)
-  fileField.append(legend, fileMain, fileNotes)
+  // The sample button follows the drop zone, so the file input comes first
+  // from the keyboard, and is drawn in the legend's row.
+  fileField.append(legend, dropZone, sample, fileStatus)
 
   const instructionLabel = node('label', 'field-label', 'Retouching instruction')
   instructionLabel.htmlFor = 'instruction'
@@ -415,15 +423,16 @@ function renderInput(): DocumentFragment {
       if (status) status.textContent = ''
     }
   })
-  const instructionMeta = node('div', 'instruction-meta')
+  const instructionHead = node('div', 'field-head')
+  instructionHead.append(instructionLabel, instructionCount)
   const instructionHint = node('p', 'field-hint', 'Try a precise direction')
   instructionHint.id = 'instruction-hint'
-  instructionMeta.append(instructionHint, instructionCount)
   const instructionStatus = node('p', 'field-error', instructionError)
   instructionStatus.id = 'instruction-error'
   instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionCount.id} ${instructionStatus.id}`)
   if (instructionError) instruction.setAttribute('aria-invalid', 'true')
   const examples = node('div', 'examples')
+  examples.append(instructionHint)
   for (const example of EXAMPLES) {
     const exampleButton = button(example, 'example-button')
     exampleButton.addEventListener('click', () => {
@@ -459,6 +468,8 @@ function renderInput(): DocumentFragment {
   const keyStatus = node('p', 'field-error', keyError)
   keyStatus.id = 'api-key-error'
   keyInput.setAttribute('aria-describedby', `${keyHint.id} ${keyStatus.id}`)
+  const keyHead = node('div', 'field-head')
+  keyHead.append(keyLabel, keyHint)
 
   const error = node('p', 'form-error', formError)
   error.id = 'run-form-error'
@@ -467,20 +478,14 @@ function renderInput(): DocumentFragment {
   submit.type = 'submit'
   submit.append(icon('hgi-arrow-right-01'))
   submit.setAttribute('aria-describedby', error.id)
-  form.append(
-    fileField,
-    instructionLabel,
-    instruction,
-    instructionMeta,
-    instructionStatus,
-    examples,
-    keyLabel,
-    keyInput,
-    keyHint,
-    keyStatus,
-    error,
-    submit
-  )
+  // Three groups and a footer, each ruled off from the one before it.
+  const instructionGroup = node('div', 'form-group')
+  instructionGroup.append(instructionHead, instruction, instructionStatus, examples)
+  const keyGroup = node('div', 'form-group')
+  keyGroup.append(keyHead, keyInput, keyStatus)
+  const footer = node('div', 'form-footer')
+  footer.append(error, submit)
+  form.append(fileField, instructionGroup, keyGroup, footer)
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     formError = undefined
