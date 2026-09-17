@@ -495,6 +495,23 @@ describe('runAgent', () => {
     expect(ofType(events, 'correction_ack')).toEqual([])
   })
 
+  test('never carries out a type action that would script Photopea', async () => {
+    const scripted: ComputerAction = { type: 'type', text: "app.activeDocument.saveToOE('psd')" }
+    const run = await editableFixture([step('Trying a shortcut', [CLICK, scripted]), DONE])
+    const acted: ComputerAction[][] = []
+    const act = run.session.act.bind(run.session)
+    run.session.act = async (actions) => {
+      acted.push(actions)
+      await act(actions)
+    }
+
+    const events = await collect(runAgent(request, run))
+
+    expect(acted.flat()).toEqual([CLICK])
+    expect(ofType(events, 'error')).toEqual([])
+    expect(resultOf(events).complete).toBe(true)
+  })
+
   test('reports a correction that arrives too late for any call the cap allows', async () => {
     let handle!: RunHandle
     const steers: Promise<void>[] = []
