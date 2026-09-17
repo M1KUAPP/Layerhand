@@ -1,8 +1,8 @@
-# Graph Report - landing-polish (2026-09-17)
+# Graph Report - landing-polish (2026-09-18)
 
 ## Corpus Check
 
-- 305 files · ~657,883 words
+- 305 files · ~658,163 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -13,7 +13,7 @@
 
 ## Graph Freshness
 
-- Built from commit: `9353864c`
+- Built from commit: `ad78d1fc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
