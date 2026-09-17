@@ -4,6 +4,7 @@ import { RunApi, RunApiError } from './api'
 import './footer'
 import { renderLanding, type LandingContext } from './landing/index'
 import {
+  correctionStatuses,
   formatCredits,
   initialClientState,
   isCurrentRun,
@@ -723,7 +724,13 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   const correctionDetail = node('dd')
   if (current.progress.corrections.length > 0) {
     const list = node('ul')
-    for (const correction of current.progress.corrections) list.append(node('li', undefined, correction))
+    for (const correction of correctionStatuses(current.progress)) {
+      const item = node('li', undefined, correction.text)
+      // A cancel or a cap can strand an acknowledged correction (#124); say
+      // so here rather than leave the visitor believing it was applied.
+      if (!correction.delivered) item.append(node('span', 'correction-undelivered', 'Never reached the agent'))
+      list.append(item)
+    }
     correctionDetail.append(list)
   } else {
     correctionDetail.textContent = 'None'

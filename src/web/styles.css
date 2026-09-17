@@ -618,6 +618,14 @@ legend,
   padding-left: 1.1rem;
 }
 
+/* As noticeable as .notice and .field-error: full-strength ink, not the
+   muted tertiary color the rest of .result-recap dd uses (#124). */
+.correction-undelivered {
+  display: block;
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .result-actions {
   display: flex;
   flex-wrap: wrap;
