@@ -74,6 +74,23 @@
      switcher. Never text. */
   --color-illustration-warm: #ff9a3d;
   --color-illustration-checker: #d9d6cd;
+
+  /* Surfaces are solid. Only one floating over a photograph, a pattern or
+     moving content may be glass, and glass always pairs a fill with the
+     blur. Never a see-through fill on its own. */
+  --glass-fill: color-mix(in oklab, var(--paper) 76%, transparent);
+  --glass-fill-chrome: color-mix(in oklab, var(--color-bg-band) 74%, transparent);
+  --glass-blur: blur(20px) saturate(1.4);
+  --color-bg-field: #fbfaf6;
+  --color-bg-disabled: #dedad0;
+  --color-text-disabled: #55534e;
+  --color-pattern-dot: #bfbbb0;
+
+  /* Depth: a card resting on the board, a card lifted under the pointer,
+     and a section laid over the one before it. */
+  --shadow-card: 0 1px 2px rgb(17 17 15 / 0.06), 0 24px 48px -24px rgb(17 17 15 / 0.24);
+  --shadow-lift: 0 18px 36px -18px rgb(17 17 15 / 0.32);
+  --shadow-sheet: 0 -28px 56px -20px rgb(17 17 15 / 0.35);
 }
 
 @media (max-width: 1279px) {
@@ -94,5 +111,12 @@
     --color-border-strong: #f3f0e8;
     --color-bg-band: #1c1c19;
     --color-bg-band-panel: #11110f;
+    --color-bg-field: #181815;
+    --color-bg-disabled: #2a2a27;
+    --color-text-disabled: #b6b3aa;
+    --color-pattern-dot: #3a3935;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
+    --shadow-lift: 0 18px 36px -18px rgb(0 0 0 / 0.75);
+    --shadow-sheet: 0 -28px 56px -20px rgb(0 0 0 / 0.8);
   }
 }
