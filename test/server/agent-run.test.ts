@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import type { BrowserContext, Page } from 'playwright-core'
 
 import type { RunEvent, RunRequest } from '../../src/agent/contract'
+import { testRunContract } from '../../src/agent/contract-tests'
 import { ScriptedModel } from '../../src/agent/scripted-model'
 import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
@@ -312,6 +313,43 @@ describe('live agent run', () => {
     return events
   }
 
+  const liveRequest: RunRequest = {
+    image: Uint8Array.of(0x89, 0x50, 0x4e, 0x47),
+    filename: 'source.png',
+    instruction: 'Warm the highlights',
+    stepCap: 15,
+    budgetUsd: 8,
+    apiKey: 'sk-user-secret-value'
+  }
+
+  testRunContract({
+    name: 'liveAgentRun',
+    request: liveRequest,
+    start: async (request) => (await live('sk-user-secret-value', [COMPUTER_TURN, FINAL_TURN], request)).managed.handle,
+    startFailing: async (request) =>
+      (
+        await live(
+          'sk-user-secret-value',
+          [COMPUTER_TURN, Response.json({ error: { code: 'invalid_value' } }, { status: 400 })],
+          request
+        )
+      ).managed.handle,
+    startUnanswered: async (request) =>
+      (
+        await live(
+          'sk-user-secret-value',
+          [
+            COMPUTER_TURN,
+            Response.json(
+              { error: { code: 'rate_limit_exceeded', message: 'Rate limit reached' } },
+              { status: 429, headers: { 'retry-after': '31' } }
+            )
+          ],
+          request
+        )
+      ).managed.handle
+  })
+
   test("drives Photopea with the computer tool on the user's key, then releases the browser and the key", async () => {
     const run = await live('sk-user-secret-value', [COMPUTER_TURN, FINAL_TURN])
 
@@ -477,6 +515,48 @@ describe('managed agent run', () => {
     })
     return { runRequest, managed }
   }
+
+  testRunContract({
+    name: 'managedAgentRun',
+    request: request(),
+    start: async (request) => (await run(request)).managed.handle,
+    startFailing: async (request) => {
+      let calls = 0
+      const failingModel: AgentModel = {
+        async next() {
+          calls += 1
+          if (calls === 1) {
+            return {
+              narration: 'Selecting the product',
+              actions: [{ type: 'wait' }],
+              usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+              done: false
+            }
+          }
+          throw new Error('The model is unavailable')
+        }
+      }
+      return (await run(request, undefined, failingModel)).managed.handle
+    },
+    startUnanswered: async (request) => {
+      let calls = 0
+      const unansweredModel: AgentModel = {
+        async next() {
+          calls += 1
+          if (calls === 1) {
+            return {
+              narration: 'Selecting the product',
+              actions: [{ type: 'wait' }],
+              usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+              done: false
+            }
+          }
+          throw new ModelUnavailableError('The Responses API did not answer after 7 attempts')
+        }
+      }
+      return (await run(request, undefined, unansweredModel)).managed.handle
+    }
+  })
 
   test('reports a finished edit as complete, with the share of input read from cache', async () => {
     // Test-only editable metadata; this is not a claim about the recorded PSD.
