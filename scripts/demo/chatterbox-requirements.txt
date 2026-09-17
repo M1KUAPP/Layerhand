@@ -1,0 +1,9 @@
+# Nano support landed after the 0.1.7 wheel; pin the reviewed upstream commit.
+chatterbox-tts @ git+https://github.com/resemble-ai/chatterbox.git@5de7a54aa4e5e2baadb0182dde554908b48b85c2
+resemble-perth @ git+https://github.com/resemble-ai/Perth.git@ff1c8ac55a976971245cdd53c18d6131ca00d993
+torch==2.6.0
+torchaudio==2.6.0
+
+# Older Perth releases import pkg_resources. Keep the upper bound so rebuilding
+# an environment cannot silently pick an incompatible setuptools release.
+setuptools<81
