@@ -65,6 +65,19 @@
   font: var(--text-ui-body);
 }
 
+.install__cta {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0 16px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-inverse);
+  color: var(--paper);
+  font: var(--text-ui-label);
+  text-decoration: none;
+}
+
 .install i.hgi-stroke {
   font-size: 1.25em;
 }
