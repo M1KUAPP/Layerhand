@@ -246,8 +246,10 @@ decouples our cost from our popularity on the one day popularity spikes.
 Stated so that nobody builds them in the six build days available.
 
 - **No image generation.** We retouch what you upload.
-- **No batch pipeline, no API, no integrations.** One image at a time,
-  through the web app.
+- **No batch pipeline.** One image at a time. The launch ships through the
+  web app alone; after it, the agent bundle in
+  [#136](https://github.com/M1KUAPP/astra/issues/136) lets Codex and Claude
+  Code start the same runs, on the same server, with the user's own key.
 - **No accounts beyond what metering requires.** No teams, no sharing,
   no history, no projects.
 - **No mobile layout.** The demo is a desktop editor being driven.
