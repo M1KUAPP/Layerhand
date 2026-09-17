@@ -1,0 +1,83 @@
+@media (hover: hover) and (pointer: fine) {
+  .hero-shell::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+    background-position: -1px -1px;
+    background-size: 64px 64px;
+    content: '';
+    mask-image: radial-gradient(circle 240px at var(--spot-x, 50%) var(--spot-y, 50%), var(--ink), transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-swap) var(--ease-settle);
+  }
+
+  .hero-shell[data-spot='on']::before {
+    opacity: 0.35;
+  }
+
+  .steps__card,
+  .drawer__stat,
+  .glass__fact,
+  .faq__tile {
+    transition: translate var(--duration-swap) var(--ease-settle);
+  }
+
+  .steps__card:hover,
+  .drawer__stat:hover,
+  .glass__fact:hover,
+  .faq__tile:hover {
+    box-shadow: var(--shadow-lift);
+    translate: 0 -4px;
+  }
+
+  .hero__cta .hgi-arrow-right-01,
+  .site-nav__cta .hgi-arrow-right-01,
+  .hero__updates .hgi-arrow-down-01 {
+    transition: translate var(--duration-swap) var(--ease-settle);
+  }
+
+  .hero__cta:hover .hgi-arrow-right-01,
+  .site-nav__cta:hover .hgi-arrow-right-01 {
+    translate: 4px 0;
+  }
+
+  .hero__updates:hover .hgi-arrow-down-01 {
+    translate: 0 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shell::before {
+    display: none;
+  }
+
+  .steps__card,
+  .drawer__stat,
+  .glass__fact,
+  .faq__tile {
+    transition: none;
+  }
+
+  .steps__card:hover,
+  .drawer__stat:hover,
+  .glass__fact:hover,
+  .faq__tile:hover {
+    box-shadow: none;
+    translate: none;
+  }
+
+  .hero__cta .hgi-arrow-right-01,
+  .site-nav__cta .hgi-arrow-right-01,
+  .hero__updates .hgi-arrow-down-01 {
+    transition: none;
+  }
+
+  .hero__cta:hover .hgi-arrow-right-01,
+  .site-nav__cta:hover .hgi-arrow-right-01,
+  .hero__updates:hover .hgi-arrow-down-01 {
+    translate: none;
+  }
+}
