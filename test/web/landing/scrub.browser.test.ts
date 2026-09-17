@@ -46,6 +46,18 @@ describeBrowser('landing scrub section in Chromium', () => {
     }
   }, 30_000)
 
+  test(`shows the scrub-end still instead of the video at 390x844`, async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      const section = page.locator('[data-section="scrub"]')
+      const still = await section.locator('.scrub__poster').evaluate((img) => (img as HTMLImageElement).currentSrc)
+      expect(still).toContain('scrub-end')
+      expect(await section.locator('video').count()).toBe(0)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
 
