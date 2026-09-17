@@ -841,4 +841,50 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
     }
   }, 30_000)
+
+  test('marks exactly the correction a stranding error names as never reached the agent (#124)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    const runId = 'stranded-correction-fixture-124'
+    try {
+      await page.goto(application.origin)
+      await page.route(`**/api/runs/${runId}`, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            runId,
+            status: 'cancelled',
+            stopReason: 'cancelled',
+            steps: 2,
+            cap: 40,
+            narration: null,
+            frameUrl: null,
+            costUsd: 0.12,
+            tokensIn: 1000,
+            tokensOut: 200,
+            lastEventId: 3,
+            corrections: ['Keep the label unchanged', 'Warm the shadow slightly'],
+            // Names only the second correction, by number, not by count: a
+            // count-based or trailing-position reading would also be right
+            // here by coincidence, which is exactly why the loop test that
+            // interleaves native steering exists (#124).
+            recoverableErrors: ['The run stopped before correction 2 reached the agent.'],
+            result: { psdUrl: '/result.psd', previewUrl: '/preview.png', layers: [], complete: false }
+          })
+        })
+      )
+      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.reload()
+
+      await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
+      const items = page.locator('.result-recap ul').locator(':scope > li')
+      expect(await items.count()).toBe(2)
+      expect(await items.first().locator('.correction-undelivered').count()).toBe(0)
+      expect(await items.first().textContent()).toBe('Keep the label unchanged')
+      expect(await items.last().locator('.correction-undelivered').count()).toBe(1)
+      expect(await items.last().locator('.correction-undelivered').textContent()).toBe('Never reached the agent')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
 })
