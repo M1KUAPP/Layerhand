@@ -432,6 +432,26 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 30_000)
 
+  test('offers a way back from the desktop gate on a phone', async () => {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+    try {
+      await page.goto(application.origin)
+      await page.getByRole('button', { name: 'Retouch a photo' }).click()
+
+      await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(true)
+      const back = page.getByRole('button', { name: 'Back to Layerhand' })
+      const updates = page.locator('#desktop-required-updates')
+      await expect(back.isVisible()).resolves.toBe(true)
+      await expect(updates.isVisible()).resolves.toBe(true)
+
+      await back.click()
+      await page.locator('[data-section="hero"]').waitFor()
+      await expect(page.locator('[data-section="hero"]').isVisible()).resolves.toBe(true)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   test('rejects unusable image bytes when the file is chosen', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     try {

@@ -48,6 +48,7 @@ const root: HTMLElement = applicationRoot
 
 const api = new RunApi()
 let state = initialClientState()
+let workbenchHistoryPushed = false
 let selectedFile: File | undefined
 let selectedPreviewUrl: string | undefined
 let fileError: string | undefined
@@ -93,13 +94,37 @@ function brandHeader(trailingAction?: HTMLButtonElement): HTMLElement {
 }
 
 function dispatch(action: ClientAction): void {
-  state = reduceClientState(state, action)
+  const nextState = reduceClientState(state, action)
+  if (state.view === 'landing' && nextState.view !== 'landing') {
+    history.pushState({ view: nextState.view }, '')
+    workbenchHistoryPushed = true
+  } else if (nextState.view === 'landing' && workbenchHistoryPushed) {
+    history.replaceState({ view: 'landing' }, '')
+    workbenchHistoryPushed = false
+  }
+  state = nextState
   render()
   if (state.view !== 'running') {
     stream?.close()
     stream = undefined
   }
 }
+
+window.addEventListener('popstate', (event) => {
+  if (event.state === null || event.state.view === 'landing') {
+    workbenchHistoryPushed = false
+    dispatch({ type: 'reset' })
+  }
+})
+
+document.querySelector('#desktop-required-back')?.addEventListener('click', () => {
+  if (workbenchHistoryPushed) history.back()
+  else dispatch({ type: 'reset' })
+})
+
+document.querySelector('#desktop-required-updates')?.addEventListener('click', () => {
+  dispatch({ type: 'reset' })
+})
 
 // The stored run must not be replayed once it can no longer help: after a
 // failure, once its result was collected for another retouch, or once
