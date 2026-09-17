@@ -71,6 +71,9 @@ describeBrowser('waitlist in Chromium', () => {
         'Thanks. The recording will come to that address.'
       )
       await expect(input.inputValue()).resolves.toBe('')
+      await expect(page.evaluate(() => document.activeElement?.classList.contains('waitlist__status'))).resolves.toBe(
+        true
+      )
     } finally {
       await page.close()
     }

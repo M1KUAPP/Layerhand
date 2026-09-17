@@ -33,6 +33,14 @@ const EXAMPLES = [
   'Clean the reflections without changing the label.',
   'Warm the highlights and keep the background neutral.'
 ]
+const VIEW_FOCUS_TARGETS: Record<ClientState['view'], string> = {
+  landing: '#hero-title',
+  input: '#input-title',
+  restoring: '#restoring-title',
+  running: '#correction',
+  result: '#result-title',
+  error: '#error-title'
+}
 
 const applicationRoot = document.querySelector<HTMLElement>('#app')
 if (!applicationRoot) throw new Error('Layerhand application root is missing')
@@ -159,11 +167,11 @@ function rejectSelectedFile(file: File, message: string): boolean {
   warmUploadId = undefined
   releaseSelectedPreview()
   fileError = message
-  render()
+  render('#source-image')
   return true
 }
 
-function chooseFile(file: File): void {
+function chooseFile(file: File, focusTarget = '#source-image'): void {
   fileError = validateFile(file)
   if (fileError) {
     selectedFile = undefined
@@ -175,7 +183,7 @@ function chooseFile(file: File): void {
     selectedPreviewUrl = URL.createObjectURL(file)
     warmEditor(file)
   }
-  render()
+  render(focusTarget)
 }
 
 function releaseSelectedPreview(): void {
@@ -187,7 +195,7 @@ async function chooseSample(): Promise<void> {
   const response = await fetch(samplePhotoUrl)
   if (!response.ok) throw new Error('The sample photograph could not be loaded.')
   const blob = await response.blob()
-  chooseFile(new File([blob], 'layerhand-sample.png', { type: 'image/png' }))
+  chooseFile(new File([blob], 'layerhand-sample.png', { type: 'image/png' }), '[data-action="sample"]')
 }
 
 function renderInput(): DocumentFragment {
@@ -202,6 +210,7 @@ function renderInput(): DocumentFragment {
   intro.append(eyebrow('New layered retouch'))
   const title = node('h1', undefined, 'Give the agent one clear direction.')
   title.id = 'input-title'
+  title.tabIndex = -1
   intro.append(title, description('The result remains editable.'))
 
   const form = node('form', 'run-form')
@@ -246,7 +255,6 @@ function renderInput(): DocumentFragment {
   })
   const fileStatus = node('p', 'field-error', fileError)
   fileStatus.id = 'source-image-error'
-  fileStatus.setAttribute('role', 'alert')
   const fileHint = node('p', 'field-hint', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
   fileHint.id = 'source-image-hint'
   input.setAttribute('aria-describedby', `${fileHint.id} ${fileStatus.id}`)
@@ -260,13 +268,14 @@ function renderInput(): DocumentFragment {
   sampleThumb.alt = ''
   sample.prepend(sampleThumb)
   sample.dataset.action = 'sample'
+  sample.setAttribute('aria-describedby', fileStatus.id)
   sample.addEventListener('click', async () => {
     sample.disabled = true
     try {
       await chooseSample()
     } catch (error) {
       fileError = publicMessage(error)
-      render()
+      render('[data-action="sample"]')
     }
   })
   fileField.append(sample)
@@ -299,7 +308,6 @@ function renderInput(): DocumentFragment {
   instructionMeta.append(instructionHint, instructionCount)
   const instructionStatus = node('p', 'field-error', instructionError)
   instructionStatus.id = 'instruction-error'
-  instructionStatus.setAttribute('role', 'alert')
   instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionCount.id} ${instructionStatus.id}`)
   if (instructionError) instruction.setAttribute('aria-invalid', 'true')
   const examples = node('div', 'examples')
@@ -335,13 +343,14 @@ function renderInput(): DocumentFragment {
   keyHint.id = 'api-key-hint'
   const keyStatus = node('p', 'field-error', keyError)
   keyStatus.id = 'api-key-error'
-  keyStatus.setAttribute('role', 'alert')
   keyInput.setAttribute('aria-describedby', `${keyHint.id} ${keyStatus.id}`)
 
   const error = node('p', 'form-error', formError)
-  error.setAttribute('role', 'alert')
+  error.id = 'run-form-error'
   const submit = button('Start retouching', 'button button-accent')
+  submit.id = 'start-run'
   submit.type = 'submit'
+  submit.setAttribute('aria-describedby', error.id)
   form.append(
     fileField,
     instructionLabel,
@@ -363,13 +372,13 @@ function renderInput(): DocumentFragment {
     instructionError = undefined
     if (!selectedFile) {
       fileError = 'Choose a JPEG or PNG image.'
-      render()
+      render('#source-image')
       return
     }
     const submittedInstruction = instruction.value.trim()
     if (!submittedInstruction) {
       instructionError = 'Enter a retouching instruction.'
-      render()
+      render('#instruction')
       return
     }
     submit.disabled = true
@@ -405,8 +414,7 @@ function renderInput(): DocumentFragment {
       // turns away is corrected there, so either is pointed out there and
       // focus moves to it.
       keyError = keyFieldError(error)
-      render()
-      if (keyError) root.querySelector<HTMLElement>('#api-key')?.focus()
+      render(keyError ? '#api-key' : '#start-run')
     } finally {
       root.ariaBusy = 'false'
     }
@@ -443,7 +451,10 @@ function cancelText(progress: RunProgress): string {
 
 function progressRail(progress: Extract<ClientState, { view: 'running' }>['progress']): HTMLElement {
   const rail = node('aside', 'progress-rail')
+  rail.setAttribute('aria-live', 'polite')
   const title = node('p', 'rail-title', 'Run status')
+  title.id = 'run-status-title'
+  title.tabIndex = -1
   const metrics = node('dl')
   const entries: [id: string, term: string, detail: string][] = []
   if (progress.instruction) entries.push(['instruction', 'Instruction', progress.instruction])
@@ -474,6 +485,20 @@ function replaceNotices(container: HTMLElement, progress: Extract<ClientState, {
   // back to the bottom on ticks that add nothing would undo a manual
   // scroll to reread an earlier one.
   if (container.childElementCount > previousCount) container.scrollTop = container.scrollHeight
+}
+
+function announceNewCorrections(
+  announcer: HTMLElement,
+  corrections: Extract<ClientState, { view: 'running' }>['progress']['corrections']
+): void {
+  const announcedCount = Number(announcer.dataset.announcedCount ?? 0)
+  if (corrections.length > announcedCount) {
+    announcer.textContent = corrections
+      .slice(announcedCount)
+      .map((message) => `Correction applied: ${message}`)
+      .join(' ')
+  }
+  announcer.dataset.announcedCount = String(corrections.length)
 }
 
 function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
@@ -575,6 +600,11 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   const notices = node('div', 'run-notices')
   notices.id = 'run-notices'
   replaceNotices(notices, current.progress)
+  const correctionAnnouncer = node('p', 'sr-only')
+  correctionAnnouncer.id = 'correction-announcer'
+  correctionAnnouncer.setAttribute('aria-live', 'polite')
+  correctionAnnouncer.setAttribute('aria-atomic', 'true')
+  correctionAnnouncer.dataset.announcedCount = String(current.progress.corrections.length)
 
   // A grid row sized only by min-height grows to fit an oversized child (a
   // real frame, not fakeRun's tiny placeholder), pushing the form and the
@@ -582,7 +612,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   // parts within the viewport instead: running-layout is the only part that
   // flexes.
   const shell = node('div', 'running-shell')
-  shell.append(layout, correction, notices)
+  shell.append(layout, correction, notices, correctionAnnouncer)
   fragment.append(shell)
   return fragment
 }
@@ -596,7 +626,10 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   const send = root.querySelector<HTMLButtonElement>('#send-correction')
   const frame = root.querySelector<HTMLElement>('#live-frame')
   const notices = root.querySelector<HTMLElement>('#run-notices')
-  if (!step || !credits || !action || !cancel || !field || !send || !frame || !notices) return
+  const correctionAnnouncer = root.querySelector<HTMLElement>('#correction-announcer')
+  if (!step || !credits || !action || !cancel || !field || !send || !frame || !notices || !correctionAnnouncer) {
+    return
+  }
 
   step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
   credits.textContent = formatCredits(current.progress.costUsd)
@@ -630,6 +663,7 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
     const placeholder = frame.querySelector('.frame-placeholder')
     if (placeholder) placeholder.textContent = placeholderText(current.progress)
   }
+  announceNewCorrections(correctionAnnouncer, current.progress.corrections)
   replaceNotices(notices, current.progress)
 }
 
@@ -650,6 +684,7 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
     current.outcome === 'complete' ? 'Your layered file is ready.' : 'Your partial layered file is ready.'
   const title = node('h1', undefined, titleText)
   title.id = 'result-title'
+  title.tabIndex = -1
   copy.append(eyebrow('Retouch result'), title, description(resultOutcomeText(current.outcome)))
   // A correction or cancel refused after the run ended lands here rather
   // than replacing the result (#123).
@@ -721,11 +756,10 @@ function renderRestoring(): DocumentFragment {
   const fragment = document.createDocumentFragment()
   fragment.append(brandHeader())
   const section = node('section', 'restoring-state')
-  section.append(
-    eyebrow('Run in progress'),
-    node('h1', undefined, 'Reconnecting to your run…'),
-    description('The live view resumes in a moment.')
-  )
+  const title = node('h1', undefined, 'Reconnecting to your run…')
+  title.id = 'restoring-title'
+  title.tabIndex = -1
+  section.append(eyebrow('Run in progress'), title, description('The live view resumes in a moment.'))
   fragment.append(section)
   return fragment
 }
@@ -734,11 +768,10 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
   const fragment = document.createDocumentFragment()
   fragment.append(brandHeader())
   const section = node('section', 'error-state')
-  section.append(
-    eyebrow('Run interrupted'),
-    node('h1', undefined, 'The retouching run stopped.'),
-    description(withFullStop(current.message))
-  )
+  const title = node('h1', undefined, 'The retouching run stopped.')
+  title.id = 'error-title'
+  title.tabIndex = -1
+  section.append(eyebrow('Run interrupted'), title, description(withFullStop(current.message)))
   // Reconnecting only helps a connection dropped out from under a run that
   // may still be going; a run the server ended for good would just return
   // the same failure again (#126).
@@ -756,11 +789,12 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
   return fragment
 }
 
-function render(): void {
+function render(focusTarget?: string): void {
   if (root.dataset.view === 'running' && state.view === 'running') {
     updateRunning(state)
     return
   }
+  const viewChanged = root.dataset.view !== undefined && root.dataset.view !== state.view
   root.replaceChildren()
   root.dataset.view = state.view
   switch (state.view) {
@@ -782,6 +816,16 @@ function render(): void {
     case 'error':
       root.append(renderError(state))
       break
+  }
+  if (focusTarget) {
+    root.querySelector<HTMLElement>(focusTarget)?.focus()
+  } else if (viewChanged) {
+    const target = root.querySelector<HTMLElement>(VIEW_FOCUS_TARGETS[state.view])
+    if (target instanceof HTMLInputElement && target.disabled) {
+      root.querySelector<HTMLElement>('#run-status-title')?.focus()
+    } else {
+      target?.focus()
+    }
   }
 }
 

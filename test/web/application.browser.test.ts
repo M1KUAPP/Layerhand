@@ -86,11 +86,13 @@ describeBrowser('launch application in Google Chrome', () => {
       const field = page.getByRole('textbox', { name: 'Correct the next action' })
       await field.fill(correction)
       await page.getByRole('button', { name: 'Send correction' }).click()
-      await page.getByText(`Correction applied: ${correction}`).waitFor({ timeout: 3_000 })
+      await page
+        .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+        .waitFor({ timeout: 3_000 })
 
       await page.reload()
       await page.locator('[data-view="running"]').waitFor()
-      expect(await page.getByText(`Correction applied: ${correction}`).count()).toBe(1)
+      expect(await page.locator('.correction-ack', { hasText: `Correction applied: ${correction}` }).count()).toBe(1)
       await page.getByRole('heading', { name: 'Your layered file is ready.' }).waitFor({ timeout: 8_000 })
 
       const preview = page.getByAltText('Flattened preview of the retouched photograph')
@@ -133,6 +135,76 @@ describeBrowser('launch application in Google Chrome', () => {
       expect(path).not.toBeNull()
       const bytes = await Bun.file(path!).bytes()
       expect(new TextDecoder().decode(bytes.subarray(0, 4))).toBe('8BPS')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('scopes live announcements and keeps focus through the core flow', async () => {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+    try {
+      await page.goto(application.origin)
+      await expect(page.locator('#app').getAttribute('aria-live')).resolves.toBeNull()
+      await expect(page.locator('#desktop-required').getAttribute('role')).resolves.toBeNull()
+      await expect(page.locator('.waitlist__status').getAttribute('role')).resolves.toBeNull()
+
+      await page.getByRole('button', { name: 'Retouch a photo' }).click()
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('input-title')
+      for (const selector of ['#source-image-error', '#instruction-error', '#api-key-error', '.form-error']) {
+        await expect(page.locator(selector).getAttribute('role')).resolves.toBeNull()
+      }
+      await expect(
+        page.getByRole('button', { name: 'Use the sample photograph' }).getAttribute('aria-describedby')
+      ).resolves.toBe('source-image-error')
+      await expect(
+        page.getByRole('button', { name: 'Start retouching' }).getAttribute('aria-describedby')
+      ).resolves.toBe('run-form-error')
+
+      const sample = page.getByRole('button', { name: 'Use the sample photograph' })
+      await sample.click()
+      await page.getByAltText('Selected source: layerhand-sample.png').waitFor()
+      await expect(page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset.action)).resolves.toBe(
+        'sample'
+      )
+
+      await page.getByRole('button', { name: EXAMPLE }).click()
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('correction')
+      await expect(page.locator('.progress-rail').getAttribute('aria-live')).resolves.toBe('polite')
+      const correctionAnnouncer = page.locator('#correction-announcer')
+      await expect(correctionAnnouncer.getAttribute('aria-live')).resolves.toBe('polite')
+      await correctionAnnouncer.evaluate((element) => {
+        element.dataset.identityProbe = 'persistent'
+      })
+
+      await page.locator('#correction').fill('Keep the label unchanged')
+      await page.getByRole('button', { name: 'Send correction' }).click()
+      const acknowledgement = page.locator('.correction-ack', {
+        hasText: 'Correction applied: Keep the label unchanged'
+      })
+      await acknowledgement.waitFor({ timeout: 3_000 })
+      await expect(acknowledgement.getAttribute('aria-live')).resolves.toBeNull()
+      await expect(correctionAnnouncer.textContent()).resolves.toBe('Correction applied: Keep the label unchanged')
+      await expect(correctionAnnouncer.getAttribute('data-identity-probe')).resolves.toBe('persistent')
+
+      await page.getByRole('heading', { name: 'Your layered file is ready.' }).waitFor({ timeout: 8_000 })
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('result-title')
+
+      await page.getByRole('button', { name: 'Return to Layerhand' }).click()
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('hero-title')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('focuses the error heading when a saved run cannot be restored', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await page.addInitScript(() => sessionStorage.setItem('layerhand.runId', 'missing-run'))
+      await page.goto(application.origin)
+      await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('error-title')
     } finally {
       await page.close()
     }
@@ -206,7 +278,9 @@ describeBrowser('launch application in Google Chrome', () => {
       for (const correction of ['Keep the label unchanged', 'Warm the shadow slightly']) {
         await field.fill(correction)
         await send.click()
-        await page.getByText(`Correction applied: ${correction}`).waitFor({ timeout: 3_000 })
+        await page
+          .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+          .waitFor({ timeout: 3_000 })
       }
 
       // fakeRun's placeholder frame is a few pixels across, too small to
@@ -285,7 +359,9 @@ describeBrowser('launch application in Google Chrome', () => {
       for (const correction of corrections) {
         await field.fill(correction)
         await send.click()
-        await page.getByText(`Correction applied: ${correction}`).waitFor({ timeout: 3_000 })
+        await page
+          .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+          .waitFor({ timeout: 3_000 })
       }
 
       const notices = page.locator('#run-notices')
