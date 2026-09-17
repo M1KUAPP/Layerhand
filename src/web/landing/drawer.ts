@@ -52,12 +52,42 @@ const LOG_AFTER = [
 ]
 const LOG_END = 'I’ll close the menu and check the final layered result.'
 
-const STATS = [
-  { value: '16', label: 'steps, start to PSD' },
-  { value: '3 min 13 s', label: 'for the whole run' },
-  { value: '194 ms', label: 'to accept the correction' },
-  { value: '4', label: 'named layers handed back' }
+interface DrawerStat {
+  value: string
+  label: string
+  to: number
+  format(total: number): string
+}
+
+// '3 min 13 s' counts its seconds, from 0 to 193.
+const formatRunDuration = (total: number): string => `${Math.floor(total / 60)} min ${total % 60} s`
+
+const STATS: DrawerStat[] = [
+  { value: '16', label: 'steps, start to PSD', to: 16, format: String },
+  { value: '3 min 13 s', label: 'for the whole run', to: 193, format: formatRunDuration },
+  { value: '194 ms', label: 'to accept the correction', to: 194, format: (total) => `${total} ms` },
+  { value: '4', label: 'named layers handed back', to: 4, format: String }
 ]
+
+const COUNT_TICK_MS = 50
+const COUNT_DURATION_MS = 1200
+// The last row lands at 8 x 300ms + --duration-enter; this clears every
+// part of the sequence.
+const PLAYBACK_DONE_MS = 3400
+
+function countUp(span: HTMLElement, stat: DrawerStat): void {
+  let elapsed = 0
+  span.textContent = stat.format(0)
+  const timer = window.setInterval(() => {
+    elapsed += COUNT_TICK_MS
+    if (elapsed >= COUNT_DURATION_MS) {
+      window.clearInterval(timer)
+      span.textContent = stat.format(stat.to)
+      return
+    }
+    span.textContent = stat.format(Math.round((stat.to * elapsed) / COUNT_DURATION_MS))
+  }, COUNT_TICK_MS)
+}
 
 function logStep(number: number, text: string): HTMLElement {
   const row = node('li', 'drawer__step')
@@ -78,7 +108,8 @@ function renderLog(): HTMLElement {
   head.append(title, node('p', 'drawer__log-meta', 'September 15 · the deployed service'))
 
   const steps = node('ol', 'drawer__steps')
-  for (const [index, text] of LOG_BEFORE.entries()) steps.append(logStep(index + 1, text))
+  const rows: HTMLElement[] = []
+  for (const [index, text] of LOG_BEFORE.entries()) rows.push(logStep(index + 1, text))
   const correction = node('li', 'drawer__step drawer__step--correction')
   const said = node('div', 'drawer__said')
   said.append(
@@ -87,14 +118,20 @@ function renderLog(): HTMLElement {
     node('span', 'drawer__said-meta', 'Accepted in 194 ms. Nothing restarted.')
   )
   correction.append(icon('hgi-message-edit-01', 'drawer__said-icon'), said)
-  steps.append(correction)
-  for (const [index, text] of LOG_AFTER.entries()) steps.append(logStep(index + 4, text))
+  rows.push(correction)
+  for (const [index, text] of LOG_AFTER.entries()) rows.push(logStep(index + 4, text))
   const gap = node('li', 'drawer__step drawer__step--gap')
   gap.append(
     node('span', 'drawer__step-number', '...'),
     node('span', 'drawer__step-text', 'Steps 7 to 15 paint the corners, finish the names and save the PSD.')
   )
-  steps.append(gap, logStep(16, LOG_END))
+  rows.push(gap, logStep(16, LOG_END))
+  // --i is each row's place in the playback order; drawer.css multiplies
+  // it by 300ms for the stagger.
+  for (const [index, row] of rows.entries()) {
+    row.style.setProperty('--i', String(index))
+    steps.append(row)
+  }
 
   log.append(head, steps)
   return log
@@ -140,10 +177,19 @@ export function renderDrawer(): HTMLElement {
   )
 
   const stats = node('dl', 'drawer__stats')
+  const counts: { span: HTMLElement; stat: DrawerStat }[] = []
   for (const stat of STATS) {
     const item = node('div', 'drawer__stat')
-    item.append(node('dt', 'drawer__stat-label', stat.label), node('dd', 'drawer__stat-value', stat.value))
+    // The counting number is hidden from assistive technology; the final
+    // value sits in a visually hidden span so the measured stats are read
+    // from the start, before the playback runs.
+    const counting = node('span', 'drawer__stat-count', stat.value)
+    counting.setAttribute('aria-hidden', 'true')
+    const value = node('dd', 'drawer__stat-value')
+    value.append(node('span', 'sr-only', stat.value), counting)
+    item.append(node('dt', 'drawer__stat-label', stat.label), value)
     stats.append(item)
+    counts.push({ span: counting, stat })
   }
   section.append(stats)
 
@@ -163,7 +209,8 @@ export function renderDrawer(): HTMLElement {
   openButton.setAttribute('aria-controls', 'drawer-sheet')
   openButton.setAttribute('aria-expanded', 'false')
   openButton.append(icon('hgi-layers-01'), 'Show the layers')
-  section.append(openButton, renderLog())
+  const log = renderLog()
+  section.append(openButton, log)
 
   const scrim = node('div', 'drawer__scrim')
   scrim.setAttribute('aria-hidden', 'true')
@@ -224,5 +271,28 @@ export function renderDrawer(): HTMLElement {
   })
 
   section.append(scrim, sheet)
+
+  // The log plays once, when the section is a third in view. Pending rows
+  // are transparent, never display:none, so assistive technology reads the
+  // whole run from the start. Without motion or an observer the log never
+  // pends and every value shows at once.
+  const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (motionAllowed && 'IntersectionObserver' in window) {
+    log.dataset.playback = 'pending'
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        log.dataset.playback = 'run'
+        for (const count of counts) countUp(count.span, count.stat)
+        window.setTimeout(() => {
+          log.dataset.playback = 'done'
+        }, PLAYBACK_DONE_MS)
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(section)
+  }
+
   return section
 }

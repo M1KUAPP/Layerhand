@@ -222,6 +222,42 @@
   font: var(--text-ui-small);
 }
 
+/* The log waits for its reader: pending rows are transparent and a touch
+   low, but never display or visibility hidden, so the whole run stays in
+   the accessibility tree. */
+.drawer__log[data-playback='pending'] .drawer__step {
+  opacity: 0;
+  translate: 0 8px;
+}
+
+.drawer__log[data-playback='pending'] .drawer__said-meta {
+  opacity: 0;
+}
+
+/* Each row enters 300ms after the one before it, and the correction's
+   meta line 400ms after its row. */
+.drawer__log[data-playback='run'] .drawer__step {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity var(--duration-enter) var(--ease-reveal) calc(var(--i, 0) * 300ms),
+    translate var(--duration-enter) var(--ease-reveal) calc(var(--i, 0) * 300ms);
+}
+
+.drawer__log[data-playback='run'] .drawer__said-meta {
+  opacity: 1;
+  transition: opacity var(--duration-enter) var(--ease-reveal) calc(var(--i, 0) * 300ms + 400ms);
+}
+
+/* The one-shot playthrough ends by holding the final state with no
+   transition, so the values are exact whenever it lands. */
+.drawer__log[data-playback='done'] .drawer__step,
+.drawer__log[data-playback='done'] .drawer__said-meta {
+  opacity: 1;
+  translate: none;
+  transition: none;
+}
+
 /* The open sheet's scrim covers the page; stop the page scrolling out
    from under it. */
 html.drawer-open {
@@ -443,6 +479,15 @@ html.drawer-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The playback never arms under reduced motion; this keeps the log
+     readable even if the attribute were ever set. */
+  .drawer__log[data-playback] .drawer__step,
+  .drawer__log[data-playback] .drawer__said-meta {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+
   /* The shell clamps every reduced-motion transition to 0.01ms with
      !important, so each cross-fade restores its own duration the same
      way. */
