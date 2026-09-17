@@ -18,12 +18,20 @@ describe('checkOpenAiKey', () => {
     expect(new Headers(requests[0]!.init?.headers).get('authorization')).toBe('Bearer sk-visitor-own-key-000000')
   })
 
-  test.each([401, 403])('refuses a key OpenAI answers %d for', async (status) => {
+  test('refuses a key OpenAI does not recognise', async () => {
     const check = await checkOpenAiKey('sk-visitor-own-key-000000', async () =>
-      Response.json({ error: { message: 'Incorrect API key provided' } }, { status })
+      Response.json({ error: { message: 'Incorrect API key provided' } }, { status: 401 })
     )
 
     expect(check).toBe('refused')
+  })
+
+  test('accepts a key OpenAI recognises but does not let list models', async () => {
+    const check = await checkOpenAiKey('sk-visitor-own-key-000000', async () =>
+      Response.json({ error: { message: 'You have insufficient permissions for this operation.' } }, { status: 403 })
+    )
+
+    expect(check).toBe('accepted')
   })
 
   test('leaves a key unchecked when OpenAI fails, is busy, or cannot be reached', async () => {

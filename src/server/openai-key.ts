@@ -23,6 +23,8 @@ export async function checkOpenAiKey(apiKey: string, fetchImplementation: Fetch 
   }
   // Only the status is wanted, not the list.
   await response.body?.cancel().catch(() => undefined)
-  if (response.ok) return 'accepted'
-  return response.status === 401 || response.status === 403 ? 'refused' : 'unchecked'
+  // A key OpenAI knows but that may not list models, as a restricted project
+  // key can be, still passes: a run it cannot serve fails with its stated reason.
+  if (response.ok || response.status === 403) return 'accepted'
+  return response.status === 401 ? 'refused' : 'unchecked'
 }
