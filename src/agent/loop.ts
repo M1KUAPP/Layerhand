@@ -8,6 +8,7 @@ import { assertCompleteLayerTree, LayerCompletionError } from '../editor/layer-t
 import type { RunHandle, RunRequest } from './contract'
 import { EventLog } from './event-log'
 import { ModelUnavailableError, type AgentModel, type ModelTurn, type NativeSteer } from './model'
+import { isScriptedTyping } from './scripting-guard'
 import { Spend, type TokenPricing } from './spend'
 
 export type PublishedKind = 'frame' | 'psd' | 'preview'
@@ -27,6 +28,8 @@ export interface AgentLoopDependencies {
   abandon?: () => Promise<void>
   /** Captures the failure that triggered fatal cleanup before cleanup can fail too. */
   captureFailure?: () => void
+  /** Called with how many of a step's actions were refused for typing Photopea's scripting interface (#109). */
+  onRefusedAction?: (count: number) => void
 }
 
 /** A correction acknowledged and not yet passed with a call. */
@@ -65,7 +68,8 @@ export function runAgent(
     frameIntervalMs,
     errorExportTimeoutMs,
     abandon,
-    captureFailure
+    captureFailure,
+    onRefusedAction
   }: AgentLoopDependencies
 ): RunHandle {
   const log = new EventLog()
@@ -166,6 +170,16 @@ export function runAgent(
       spend.add(turn.usage, turn.lastResponseUsage)
       log.emit({ type: 'cost', usd: spend.usd, tokensIn: spend.tokensIn, tokensOut: spend.tokensOut })
       if (aborter.signal.aborted) return false
+
+      // Refuses an action that would type Photopea's scripting interface: it
+      // is never carried out, and the model sees the editor unchanged next,
+      // as though it had not acted, so it can drive the GUI instead
+      // (docs/TRD.md § The line that protects the premise, #109).
+      const carriedOut = turn.actions.filter((action) => !isScriptedTyping(action))
+      if (carriedOut.length < turn.actions.length) {
+        onRefusedAction?.(turn.actions.length - carriedOut.length)
+        turn = { ...turn, actions: carriedOut }
+      }
 
       const takesStep = !turn.done || turn.actions.length > 0
       const narration = turn.narration.trim()
