@@ -16,6 +16,7 @@ Contents:
 1.  [Colour](#colour)
 1.  [Icons](#icons)
 1.  [Motion](#motion)
+1.  [Page layout](#page-layout)
 1.  [The four techniques](#the-four-techniques)
 1.  [The footer](#the-footer)
 1.  [Fallbacks](#fallbacks)
@@ -28,12 +29,12 @@ Contents:
 Four questions were open when the research landed. All four are settled,
 and nothing below reopens them.
 
-| Question               | Decision                                                 |
-| ---------------------- | -------------------------------------------------------- |
-| Scope                  | All four techniques: sticky scroll, drawer, parallax, 3D |
-| Typeface               | Newsreader for display, Geist for UI                     |
-| Canvas UI page effects | Object effects only; no flag, no origin trial            |
-| React                  | One island is permitted on the landing page              |
+| Question               | Decision                                              |
+| ---------------------- | ----------------------------------------------------- |
+| Scope                  | Four techniques: parallax, layer switcher, drawer, 3D |
+| Typeface               | Newsreader for display, Geist for UI                  |
+| Canvas UI page effects | Object effects only; no flag, no origin trial         |
+| React                  | One island is permitted on the landing page           |
 
 The third decision follows from a fact rather than a preference: Canvas
 UI's page effects need an html-in-canvas origin-trial token registered to
@@ -67,6 +68,16 @@ These are the eight text styles in the
 and the names match exactly, so a design and its implementation can be
 compared line by line.
 
+The September 17 redesign adds two styles to that scale:
+
+| Style             | Family     | Weight  | Size / line                    | Tracking |
+| ----------------- | ---------- | ------- | ------------------------------ | -------- |
+| Display / Section | Newsreader | Medium  | 56 / 52; 38 / 38 below 1280 px | -4.5%    |
+| UI / Lede large   | Geist      | Regular | 18 / 28                        | 0        |
+
+Section titles use Display / Section. Card titles, the footer line and
+stats use Display / H2 at their own sizes.
+
 Loading rules:
 
 - `font-display: swap`, not `block`. The fallback is the Arial stack the
@@ -82,8 +93,8 @@ Loading rules:
 ## Colour
 
 The landing page uses the semantic tokens from the design system and no
-raw hex values. The full set is 19 colours over 41 primitives; these are
-the ones a landing page needs.
+raw hex values. The original set is 19 colours over 41 primitives; the
+redesign adds the band and illustration tokens below.
 
 | Token                  | CSS                      | Light     | Dark      |
 | ---------------------- | ------------------------ | --------- | --------- |
@@ -110,10 +121,28 @@ Three rules that are not obvious from the table:
 - **The accent never flips either.** Chartreuse on ink and chartreuse on
   paper are both intended; text over it binds to `color/text/on-accent`.
 
+The band is a chrome ground in either colour scheme. Its text never
+flips, for the same reason `color/bg/chrome` does not.
+
+| Token                            | CSS                                | Light     | Dark      |
+| -------------------------------- | ---------------------------------- | --------- | --------- |
+| `color/bg/band`                  | `--color-bg-band`                  | `#11110F` | `#1C1C19` |
+| `color/bg/band-panel`            | `--color-bg-band-panel`            | `#1C1C19` | `#11110F` |
+| `color/text/on-chrome`           | `--color-text-on-chrome`           | `#F3F0E8` | `#F3F0E8` |
+| `color/text/on-chrome-secondary` | `--color-text-on-chrome-secondary` | `#B6B3AA` | `#B6B3AA` |
+| `color/border/on-chrome`         | `--color-border-on-chrome`         | `#3D3C38` | `#3D3C38` |
+| `color/illustration/warm`        | `--color-illustration-warm`        | `#FF9A3D` | `#FF9A3D` |
+| `color/illustration/checker`     | `--color-illustration-checker`     | `#D9D6CD` | `#D9D6CD` |
+
+The two illustration colours are never text. Every other value in this
+table already exists among the design system's primitives.
+
 Corners stay square. `radius/none` is the default everywhere, and
-`radius/full` exists only for a circular control. There are no gradients
-and no decorative cards. Elevation is two effect styles reserved for
-overlays; surfaces stay flat.
+`radius/full` exists only for a circular control. There are no decorative
+gradients. The hero grid and the switcher's vignette and checkerboard are
+illustration. The step cards and run log are flat, square, bordered
+content panels. Elevation is two effect styles reserved for overlays;
+surfaces stay flat.
 
 ## Icons
 
@@ -168,11 +197,15 @@ moment per section at most.
 - **Entrances** enter from opacity `0`, `translateY(12px)` and
   `blur(4px)`. Blocks stagger by `--stagger-block`, words in a headline by
   `--stagger-word`. Exits run `--duration-exit` to `-12px`.
-- **Compositor only.** Animate `transform`, `opacity` and `filter` and
-  nothing else. Use the separate `translate` property rather than
-  `transform` so a movement cannot overwrite a scale.
+- **Movement stays on the compositor.** Animate `transform`, `opacity`
+  and `filter`. Use the separate `translate` property rather than
+  `transform` so a movement cannot overwrite a scale. Colour and rule
+  transitions on the bar and controls use `--duration-swap` and
+  `--ease-settle`; they do not move the layout.
 - **Interruptible.** Anything the visitor toggles, such as the drawer, is
-  a CSS transition. Keyframes are for one-shot entrances only.
+  a CSS transition. Apart from loading spinners, keyframes are for
+  one-shot entrances. The ticker is the one looping page-animation
+  exception: a pausable, 48-second linear `translate` loop.
 - **The entrance gate.** A `data-enter` attribute on the root goes from
   `pending` to `run` after `document.fonts.ready` and two animation
   frames, with a 1200ms fallback, then to `done`. This keeps the headline
@@ -182,13 +215,109 @@ moment per section at most.
 
 Under `prefers-reduced-motion: reduce`:
 
-- Parallax, the scroll scrub and every large movement are disabled. The
-  sticky section becomes a static poster.
+- Parallax and every large movement are disabled. The hero's plate and
+  chips do not drift.
+- The ticker is still and its pause control is hidden.
 - Transitions become cross-fades. Press feedback and spinners stay.
 - The Three.js object stops its float and rock animation and renders one
   still frame.
-- A muted looping video longer than five seconds needs a visible pause
-  control regardless of this setting, under WCAG 2.2.2.
+- Back to top scrolls instantly rather than smoothly.
+
+Moving content that runs longer than five seconds needs a visible pause
+control regardless of this setting, under WCAG 2.2.2. The ticker has one.
+
+## Page layout
+
+The September 17 redesign follows Cekgu, an earlier project by the same
+team. The owner judged the old page bland: its sections lacked contrast,
+and a scrub of two tinted planes meant nothing to a customer. The new
+page keeps Layerhand's typefaces, primitives, square corners and flat
+surfaces. Contrasting grounds separate the sections, and the layer
+switcher shows what a separate edit means.
+
+The page runs in this order:
+
+1.  The sticky site bar.
+1.  The hero and ticker in one pinned shell.
+1.  How it works, on `color/bg/subtle`.
+1.  The layer switcher, on `color/bg/band`.
+1.  A real run and its drawer, on paper.
+1.  The Glass Object, on `color/bg/band`.
+1.  Launch updates, on the accent.
+1.  The shared footer, on `color/bg/subtle`, with Back to top beside it.
+
+### The site bar
+
+`header.site-header` is sticky and 72px tall. The wordmark begins with a
+28px accent square carrying an L in Newsreader, followed by Layerhand.
+Its links are How it works, The layers, A real run and Updates. Try it
+free opens the workbench. The section links hide below 1280px.
+
+The bar is transparent over the hero at the top of the landing. Beyond
+24px of scroll, `data-scrolled` on the root makes it 94% paper with a 1px
+rule. Background and rule transition over `--duration-swap` on
+`--ease-settle`. There is no backdrop blur. The workbench bar is solid
+from the start.
+
+### The hero shell
+
+`.hero-shell` holds the hero and ticker, one viewport tall, sticky at the
+top at `z-index: 0`. A single opaque `.landing-body` at `z-index: 1`
+holds the remaining sections and slides up over it. Below 1280px the
+shell is no longer pinned. Its paper ground carries a 64px grid drawn
+with `--rule` at 60%.
+
+The eyebrow pairs an accent AI retouching chip with Built on GPT-6 Astra.
+The headline reads "A layered PSD, not a flat JPEG." The lede says what
+happens: Layerhand retouches the photograph in Photopea while the visitor
+watches, accepts corrections, and returns each edit on its own named
+layer.
+
+Retouch a photo is an inverse button with an accent hover. Get launch
+updates by email is outlined. The three facts below are Three free runs,
+No account needed and Uploads deleted within 24 hours.
+
+The editor window shows the 97 KB `editor-frame.jpg`, derived from the
+[final frame of the sample-photo run](/docs/evidence/driving-mechanism/results/computer-1-sample-photo.png/final-frame.png).
+It is a still from a real run, not an autoplay demo. An offset accent
+sheet sits behind the window. Two chips read "4 named layers in 13 steps"
+and "Correct it while it works". The caption identifies the last frame
+of a real run on the sample photograph.
+
+### The ticker
+
+The shell's last row is a 56px band. Accent squares separate seven claims:
+Named layers, Editable masks, Adjustment layers, Correct it mid-run,
+Driven in Photopea, Built on GPT-6 Astra and Opens in Photoshop.
+
+The list translates in a 48-second linear loop. It pauses on hover, on
+focus within the band, and through the button labelled "Pause the moving
+list". The duplicate list is hidden from assistive technology. Under
+reduced motion the list is still and the button hides.
+
+### How it works
+
+A sticky introduction on the subtle ground heads four paper cards. The
+title is "Four steps, and you can step in on the third." The lede explains
+that Layerhand paints nothing itself: Astra operates a real image editor,
+so the edits remain layers the visitor can open.
+
+The index beside the introduction marks the card nearest the middle of
+the screen. It repeats the card titles and is hidden from assistive
+technology. The cards are flat, square and bordered, with 48px accent
+icon tiles:
+
+1.  Drop in a photograph.
+1.  Say what you want.
+1.  Watch it work, and correct it.
+1.  Download the layered PSD.
+
+### Launch updates
+
+The waitlist takes the accent ground and `color/text/on-accent` text.
+The field uses `color/text/on-chrome` for its ground and `color/bg/chrome`
+for its text. The button reverses those two tokens. The section follows
+the glass band, before the shared footer.
 
 ## The four techniques
 
@@ -197,26 +326,49 @@ way a message reaches a visitor.
 
 ### Hero: layered parallax
 
-Four layers in a section at least `100vh` tall with overflow hidden,
-adapted from the
-[MotionSites parallax lesson](/docs/research/design/motionsites.md#layered-parallax-hero):
+The pinned hero adapts the
+[MotionSites parallax lesson](/docs/research/design/motionsites.md#layered-parallax-hero).
+Its words stay still while the plate and the two chips drift as the page
+slides over them.
 
-1.  The photograph: the demo loop, or its poster until the loop exists,
-    at 120% of its plate's height, drifting inside the plate.
-1.  The headline, held still.
-1.  The lede, held still.
-1.  The plate that frames the photograph, drifting with the scroll.
-
-Scroll maps 0–1 to 0%–8% for the photograph and 0%–4% for the plate,
-where 0 is the section's top at the top of the viewport and 1 is its
-bottom there. The words stay put while the plate and the photograph
-inside it drift at two rates, so the hero shows three planes of depth
-and nothing ever passes over a word.
+Progress is `scrollY / hero.offsetHeight`, clamped from 0 to 1. It maps to
+0% to -6% for the plate and 0% to -60% for each chip, relative to each
+element's own height. The photograph no longer drifts inside the plate.
+Under reduced motion neither plate nor chips drift.
 
 Two parts of the lesson are dropped. Its foreground image sits above the
 headline, which needs a cut-out of the subject and hides words wherever
 the two overlap. Its lede is set in `mix-blend-mode: overlay`, which on
 our paper puts ink at about 1.1:1.
+
+### The layer switcher
+
+The switcher replaced the scrubbed layer-separation clip on September 17.
+The old clip, its poster still and the script that generated them are
+gone. The section keeps the scrub's headline: "A flat JPEG keeps the
+result. A PSD keeps the work."
+
+It sits on `color/bg/band`, and its window takes `color/bg/band-panel`.
+It shows the sample photograph with the four layers of the September 15
+run on it, top of the stack first, drawn by the browser:
+
+1.  Darken corners softly: raster, with a mask, at 30% opacity.
+1.  Warm colours: an adjustment layer with a mask.
+1.  Brighten photograph: an adjustment layer with a mask.
+1.  Original photograph: raster.
+
+Each layer row carries an eye button, with `aria-pressed`, that switches
+that layer on or off independently. Brightness is a filter of
+brightness, contrast and saturation; the warmth is a soft-light sheet at
+62% opacity; the corners are a radial gradient at 72%. With the original
+switched off the checkerboard shows through and the adjustments have
+nothing to affect.
+
+Two modes, Layered PSD and Flat JPEG, use `aria-pressed` buttons. In
+Layered PSD mode the four layers are switchable. Flat JPEG mode bakes
+every effect in, shows one locked Background layer, counts the layers as
+1 and makes the layer list inert. The caption states that the browser
+draws an illustration, not a recording or a PSD.
 
 ### Layer reveal: the drawer
 
@@ -224,35 +376,29 @@ A bottom sheet carrying the layer list, from
 [Jakub Antalik's portfolio](/docs/research/design/jakub-antalik.md#the-drawer):
 `translateY(100%)` to `0` over `--duration-drawer` on `--ease-drawer`.
 
-The sheet holds the named layers of the retouched photograph, which makes
-the artifact — a layered PSD, not a flat JPEG — literal rather than
-described. It is a CSS transition, so it is interruptible.
+The section is "A real run", on paper. The sheet holds the named layers
+of the September 15 native-steering run on a seascape, which makes the
+artifact, a layered PSD, not a flat JPEG, literal rather than described.
+It is a CSS transition, so it is interruptible. Its opening and focus
+behaviour is unchanged from the drawer spec.
 
-### Sticky scroll: the scrubbed layer separation
+The copy and the run log are recorded from that run, not the sample
+photograph in the hero and switcher. The stats are 16 steps, 3 min 13 s,
+one correction accepted in 194 ms, and four named layers. The log plays
+its narrations:
 
-A Gemini clip of a photograph separating into its layers, scrubbed by
-scroll, from the
-[MotionSites scrub lesson](/docs/research/design/motionsites.md#scroll-scrubbed-video).
-The clip is produced by the
-[video pipeline](/docs/research/design/video-pipeline.md).
-
-- Three layers at `inset: 0` inside a frame that sticks while the section
-  scrolls, with pointer events off: a poster, a `<video>`, and a
-  `<canvas>`. The poster fades out once a frame exists and the canvas
-  fades in once its cache is ready, each over 500ms.
-- Progress belongs to the section, not the page:
-  `(scrollY - sectionTop) / (sectionHeight - innerHeight)` clamped to
-  0–1, smoothed with `smoothed += (target - smoothed) * 0.12` each frame.
-  The lesson's `scrollY / (scrollHeight - innerHeight)` measures a page
-  that is nothing but the scrub; on ours it would play only part of the
-  clip while the section is on screen.
-- The frame cache extracts up to 90 frames, or `duration * 12` with a
-  minimum of 24, at up to 960px wide as `ImageBitmap`s, starting 300ms
-  after `loadeddata`. Device pixel ratio is capped at 2.
-- Until the cache is ready, seek the visible video to
-  `smoothed * (duration - 0.05)` whenever the change exceeds 0.04s.
-- An `80vh` spacer sets how much scrolling the scrub consumes.
-- No text is baked into the clip, so the headline stays editable.
+1.  "I'll inspect the editor and create the brightness adjustment."
+1.  "I'll add Brightness/Contrast as an editable adjustment layer."
+1.  "I'll gently brighten the scene while retaining its soft highlights."
+1.  A correction panel: "Keep the vignette very subtle, and leave the
+    middle of the photograph untouched." Accepted in 194 ms. Nothing
+    restarted.
+1.  "I'll use restrained warmth and keep the vignette off the middle."
+1.  "I'll name the warming layer clearly."
+1.  "I'll label both adjustments and add a separate vignette layer."
+1.  A gap note: steps 7 to 15 paint the corners, finish the names and
+    save the PSD.
+1.  "I'll close the menu and check the final layered result."
 
 ### The Three.js moment
 
@@ -264,8 +410,12 @@ with no flag.
 Use the vanilla build, not the React one. Defaults worth keeping:
 `ior 1.75`, `thickness 4`, `roughness 0.25`, `dispersion 1.5`.
 
-Canvas UI's html-in-canvas effects — Peel, Laser, Particle Scroll, Bend
-and the cursor effects — are **out of scope**. Peel is the most
+The redesign moves the section onto `color/bg/band` and tints the object
+a fixed light tone from `color/text/on-chrome`, so it reads on the band
+in either colour scheme. Behaviour and defaults are otherwise unchanged.
+
+Canvas UI's html-in-canvas effects, Peel, Laser, Particle Scroll, Bend
+and the cursor effects, are **out of scope**. Peel is the most
 on-message effect in the library and it is still out, because it would
 work only in Chrome with a token for a domain that does not exist yet.
 
@@ -273,12 +423,18 @@ work only in Chrome with a token for a domain that does not exist yet.
 
 One footer serves every view, the landing page and the workbench alike.
 It sits in the page shell rather than in a view, so changing view never
-redraws it. On `color/bg/subtle`, it holds:
+redraws it. On `color/bg/subtle`, with a 1px `color/border/default` rule
+on top, it is a right-aligned stack:
 
-1.  The tagline as a closing line, in Display / H2.
-1.  A link to the source on GitHub, level with the line at the right.
-1.  The wordmark, and beside it the credits: the GPT-6 Astra Challenge,
-    and Photopea, which Layerhand drives and is not affiliated with.
+1.  The wordmark: the 28px accent L, then Layerhand.
+1.  The tagline as a closing line, in Display / H2 at 40 / 40, and 28 /
+    30 below 1280px.
+1.  The credits: the GPT-6 Astra Challenge, and Photopea, which
+    Layerhand drives and is not affiliated with.
+1.  Source on GitHub, last.
+
+Its right padding clears the Back to top control, which sits beside the
+stack rather than over it.
 
 The page folds over it. The footer is fixed to the floor of the viewport
 behind the page, and the page keeps a bottom margin exactly as tall as
@@ -298,6 +454,16 @@ where the footer begins.
   landing page; it hides only with the workbench, behind the NFR-7
   gate (#128).
 
+### Back to top
+
+A 44px square control with a strong border, fixed
+24px from the bottom and right of the viewport, and 16px from each below
+1280px. It appears once the page has scrolled past one viewport height,
+`data-far` on the root, and stays for the rest of the page. Before that
+point it is out of the tab order and `aria-hidden`. Clicking it scrolls
+to the top, smoothly, or instantly under reduced motion. It is hidden
+while the drawer is open.
+
 ## Fallbacks
 
 - **Below 1280px.** [NFR-7](PRD.md#non-functional-requirements) puts only
@@ -309,8 +475,8 @@ where the footer begins.
   page loses nothing it needed.
 - **No JavaScript.** The page states what Layerhand is, shows the poster
   frame, and the waitlist form still posts.
-- **Slow network.** The poster carries the message until the clip loads.
-  Every section reads with no motion at all.
+- **Slow network.** The hero's still frame, a 97 KB JPEG, carries the
+  message. Every section reads with no motion at all.
 
 The React island is permitted only for an effect that exists solely as a
 React component. It loads after the hero, never blocks first paint, and
@@ -324,8 +490,12 @@ non-Chromium browser:
 1.  The differentiator is readable above the fold without scrolling.
 1.  The demo loop autoplays muted and reads without sound.
 1.  Each of the four techniques appears once, in its own section.
+1.  The bar is clear at the top of the landing and takes the paper once
+    the page moves.
+1.  The ticker can be paused, and does not move under reduced motion.
+1.  Switching a layer off in the switcher visibly changes the photograph.
 1.  Every UI glyph comes from Hugeicons Stroke Rounded.
-1.  With `prefers-reduced-motion`, nothing parallaxes, scrubs or floats,
+1.  With `prefers-reduced-motion`, nothing parallaxes, loops or floats,
     and every section still reads.
 1.  No text uses `color/text/muted`.
 1.  The waitlist submits, and the product is reachable without joining it.
