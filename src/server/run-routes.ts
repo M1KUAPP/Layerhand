@@ -17,6 +17,10 @@ const MAX_INSTRUCTION_LENGTH = 500
 // a comment line — ignored by EventSource — holds the stream open through
 // the gap, well inside that window.
 const EVENTS_HEARTBEAT_INTERVAL_MS = 5_000
+const QUEUE_FULL = {
+  code: 'queue_full',
+  message: 'Layerhand is busy, and the line to start a run is full. Try again in a few minutes.'
+}
 
 export interface RunRouteDependencies {
   registry: RunRegistry
@@ -203,6 +207,9 @@ export class RunRoutes {
     const apiKeyValue = form.get('apiKey')
     const apiKey = typeof apiKeyValue === 'string' && apiKeyValue.length > 0 ? apiKeyValue : undefined
     const cookie = identity.setCookie ? { 'set-cookie': identity.setCookie } : undefined
+    // A run that would wait in a full line is turned away before anything is
+    // stored, reserved, or checked for it (NFR-4).
+    if (this.#dependencies.registry.lineFull()) return json(QUEUE_FULL, 429, cookie)
     // A key OpenAI will not take is turned away before anything is stored,
     // reserved, or opened for its run.
     const keyCheck =
@@ -226,6 +233,8 @@ export class RunRoutes {
     if (!admission.accepted && admission.code !== 'budget_reserved') {
       return json(admission, 429, cookie)
     }
+    // A run held back by budget waits whether or not a slot is free.
+    if (!admission.accepted && this.#dependencies.registry.lineFull(true)) return json(QUEUE_FULL, 429, cookie)
     let reservation = admission.accepted ? admission.reservation : undefined
     const uploadIdValue = form.get('uploadId')
     const uploadId = typeof uploadIdValue === 'string' ? uploadIdValue : undefined

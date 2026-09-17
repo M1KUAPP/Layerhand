@@ -197,6 +197,7 @@ export class RunRegistry {
   readonly #now: () => number
   readonly #retentionMs: number
   readonly #maxConcurrentRuns: number
+  readonly #maxWaitingRuns: number
   readonly #retryWaitingMs: number
   readonly #onTerminal: (run: TerminalRun) => void | Promise<void>
   /** Runs waiting for a slot, in the order they came. */
@@ -218,6 +219,7 @@ export class RunRegistry {
     this.#now = now
     this.#retentionMs = retentionMs
     this.#maxConcurrentRuns = maxConcurrentRuns
+    this.#maxWaitingRuns = 2 * maxConcurrentRuns
     this.#retryWaitingMs = retryWaitingMs
     this.#onTerminal = onTerminal
   }
@@ -244,6 +246,16 @@ export class RunRegistry {
     this.#queue.push(run)
     await this.#startWaiting()
     return copySnapshot(run.snapshot)
+  }
+
+  /**
+   * Whether a run that has to wait would find the line full: twice as many
+   * runs as may be in flight are waiting already (NFR-4). A run that finds a
+   * free slot does not wait, unless it waits for budget.
+   */
+  lineFull(waitsForBudget = false): boolean {
+    if (this.#queue.length < this.#maxWaitingRuns) return false
+    return waitsForBudget || this.#slotsInUse >= this.#maxConcurrentRuns
   }
 
   async getSnapshot(runId: string): Promise<RunSnapshot | undefined> {
