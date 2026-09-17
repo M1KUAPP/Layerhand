@@ -50,11 +50,12 @@ export function renderScrub(): HTMLElement {
   frame.setAttribute('role', 'img')
   frame.setAttribute('aria-label', 'Illustration of a photograph coming apart into separate layers')
   // The poster is frame zero, the plain photograph, so the swap to the
-  // video does not jump. Under reduced motion there is no video, so the
-  // still is the clip's last frame, with the sheets over the photograph.
+  // video does not jump. Whenever the video will not run - reduced
+  // motion, or a viewport below the 1280 px the scrub needs - the still
+  // is the clip's last frame, with the sheets over the photograph.
   const picture = node('picture', 'scrub__picture')
   const still = node('source')
-  still.media = '(prefers-reduced-motion: reduce)'
+  still.media = '(prefers-reduced-motion: reduce), (max-width: 1279px)'
   still.srcset = endUrl
   const poster = node('img', 'scrub__poster')
   poster.alt = ''
