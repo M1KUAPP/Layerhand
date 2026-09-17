@@ -171,9 +171,11 @@ restart, the demo has no centre and the launch has no hook.
   anywhere but OpenAI.
 - **NFR-6 (P1) — Uploads.** Uploaded images are deleted within
   twenty-four hours, and that is stated on the page.
-- **NFR-7 (P1) — Legibility.** The page works at 1280 px and above.
-  Mobile is out of scope; below that width, say so rather than
-  breaking.
+- **NFR-7 (P1) — Legibility.** Below 1280 px the landing page and the
+  waitlist render, with no horizontal scroll down to 390 px. Only the
+  workbench needs 1280 px and above; below that width, say so rather
+  than breaking. Changed on September 16-17 in #128, which had gated
+  the landing page the same as the workbench.
 - **NFR-8 (P1) — Observability.** Every run records its step count,
   token spend, outcome, and failure reason, queryable during launch
   day.
