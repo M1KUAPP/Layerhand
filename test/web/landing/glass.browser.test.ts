@@ -17,7 +17,10 @@ describeBrowser('landing glass section in Chromium', () => {
 
   beforeAll(async () => {
     application = await startTestApplication()
-    browser = await chromium.launch({ headless: true })
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+    })
   })
 
   afterAll(async () => {
@@ -27,6 +30,46 @@ describeBrowser('landing glass section in Chromium', () => {
       await application?.close()
     }
   })
+
+  test('keeps the glass object square on a phone at 390x844', async () => {
+    const noGpu = await chromium.launch({
+      headless: true,
+      args: ['--disable-gpu', '--disable-webgl']
+    })
+    try {
+      const page = await openLanding(noGpu, application.origin, {
+        viewport: { width: 390, height: 844 }
+      })
+      try {
+        const section = page.locator('[data-section="glass"]')
+        const object = section.locator('.glass__object')
+        await section.locator('svg.glass__art').waitFor()
+        // Exercise canvas layout even when WebGL cannot mount the renderer.
+        await object.evaluate((host) => {
+          const canvas = document.createElement('canvas')
+          canvas.className = 'glass__canvas'
+          host.append(canvas)
+        })
+        const canvas = object.locator('.glass__canvas')
+        await canvas.waitFor({ timeout: 5000 })
+        const box = await object.boundingBox()
+        const sectionBox = await section.boundingBox()
+        const canvasBox = await canvas.boundingBox()
+        expect(box).not.toBeNull()
+        expect(sectionBox).not.toBeNull()
+        expect(canvasBox).not.toBeNull()
+        console.info(`Glass section at 390px: ${sectionBox!.height}px`)
+        expect(Math.abs(box!.height - box!.width)).toBeLessThanOrEqual(1)
+        expect(box!.height).toBeLessThanOrEqual(358)
+        expect(sectionBox!.height).toBeLessThan(1000)
+        expect(Math.abs(canvasBox!.height - box!.height)).toBeLessThanOrEqual(1)
+      } finally {
+        await page.close()
+      }
+    } finally {
+      await noGpu.close()
+    }
+  }, 30_000)
 
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`

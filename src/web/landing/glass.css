@@ -6,6 +6,7 @@
 }
 
 .glass__object {
+  position: relative;
   display: grid;
   grid-column: 1 / 7;
   width: min(640px, 100%);
@@ -21,6 +22,8 @@
 }
 
 .glass__canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -112,6 +115,7 @@
 
   .glass__object {
     margin: 0 auto 48px;
+    height: min(640px, calc(100vw - 32px));
   }
 }
 
