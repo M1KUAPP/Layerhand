@@ -71,7 +71,7 @@ export function renderWaitlist(context: LandingContext): HTMLElement {
   form.append(row)
 
   const status = node('p', 'waitlist__status')
-  status.setAttribute('role', 'status')
+  status.tabIndex = -1
 
   const statusIcon = node('span', 'waitlist__status-icon')
   status.append(statusIcon)
@@ -111,6 +111,7 @@ export function renderWaitlist(context: LandingContext): HTMLElement {
         code === 'invalid_email' ? context.publicMessage(error) : 'Your address was not saved. Try again in a moment.'
     } finally {
       submit.disabled = false
+      status.focus()
     }
   })
 

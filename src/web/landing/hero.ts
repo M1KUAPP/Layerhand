@@ -47,6 +47,7 @@ export function renderHero(context: LandingContext): HTMLElement {
 
   const title = node('h1', 'hero__title')
   title.id = 'hero-title'
+  title.tabIndex = -1
   let wordIndex = 0
   for (const [lineIndex, words] of TITLE_LINES.entries()) {
     const line = node('span', 'hero__line')
