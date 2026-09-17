@@ -67,6 +67,7 @@ describeBrowser('landing page chrome in Chromium', () => {
           { name: 'How it works', href: '#how-it-works' },
           { name: 'The layers', href: '#layers' },
           { name: 'A real run', href: '#real-run' },
+          { name: 'FAQ', href: '#faq' },
           { name: 'Updates', href: '#updates' }
         ])
         await nav.getByRole('button', { name: 'Try it free', exact: true }).click()

@@ -1,4 +1,5 @@
 import { renderDrawer } from './drawer'
+import { renderFaq } from './faq'
 import { renderGlass } from './glass'
 import { renderHero, renderTicker } from './hero'
 import { renderInstall } from './install'
@@ -53,6 +54,7 @@ const NAV = [
   { href: '#how-it-works', label: 'How it works' },
   { href: '#layers', label: 'The layers' },
   { href: '#real-run', label: 'A real run' },
+  { href: '#faq', label: 'FAQ' },
   { href: '#updates', label: 'Updates' }
 ]
 
@@ -104,7 +106,15 @@ export function renderLanding(context: LandingContext): DocumentFragment {
   const shell = node('div', 'hero-shell')
   shell.append(renderHero(context), renderTicker())
   const body = node('div', 'landing-body')
-  body.append(renderSteps(), renderSwitcher(), renderDrawer(), renderGlass(), renderWaitlist(context), renderInstall())
+  body.append(
+    renderSteps(),
+    renderSwitcher(),
+    renderDrawer(),
+    renderGlass(),
+    renderFaq(),
+    renderWaitlist(context),
+    renderInstall()
+  )
 
   fragment.append(header, shell, body)
   return fragment
