@@ -1,6 +1,6 @@
 import { renderDrawer } from './drawer'
 import { renderGlass } from './glass'
-import { renderHero } from './hero'
+import { renderHero, renderTicker } from './hero'
 import { renderScrub } from './scrub'
 import { renderWaitlist } from './waitlist'
 
@@ -97,7 +97,13 @@ export function renderLanding(context: LandingContext): DocumentFragment {
   header.dataset.over = 'hero'
   header.append(renderNav(context))
 
-  const sections = [header, renderHero(context), renderScrub(), renderDrawer(), renderGlass(), renderWaitlist(context)]
-  for (const section of sections) fragment.append(section)
+  // The hero and its ticker are one pinned screen; everything after them
+  // is one opaque body that slides up over the pair.
+  const shell = node('div', 'hero-shell')
+  shell.append(renderHero(context), renderTicker())
+  const body = node('div', 'landing-body')
+  body.append(renderScrub(), renderDrawer(), renderGlass(), renderWaitlist(context))
+
+  fragment.append(header, shell, body)
   return fragment
 }

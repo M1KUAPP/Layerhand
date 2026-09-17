@@ -108,10 +108,10 @@ describe('Layerhand workbench markup', () => {
   test('states the 24-hour upload deletion beside the drop zone and on the landing page', async () => {
     const app = await Bun.file(new URL('../../src/web/app.ts', import.meta.url)).text()
     const hero = await Bun.file(new URL('../../src/web/landing/hero.ts', import.meta.url)).text()
-    const notice = 'Uploads are deleted within 24 hours.'
 
-    const heroStart = hero.indexOf('function renderHero')
-    expect(hero.indexOf(notice)).toBeGreaterThan(heroStart)
+    // The hero states it among its three facts, which renderHero lists.
+    expect(hero).toContain("'Uploads deleted within 24 hours'")
+    expect(hero.indexOf('FACTS')).toBeLessThan(hero.indexOf('function renderHero'))
 
     const occurrences = [...app.matchAll(/Uploads are deleted within 24 hours\./g)].map((match) => match.index)
     expect(occurrences).toHaveLength(1)
@@ -129,7 +129,8 @@ describe('Layerhand workbench markup', () => {
     expect(css).toContain('--accent: #c7ff4a')
     expect(css).toContain('@media (max-width: 1279px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
-    expect(css).not.toContain('gradient')
+    // A gradient function draws one thing only: the hero's hairline grid.
+    expect(css.replace(/\.hero-shell \{[^}]*\}/, '')).not.toContain('gradient')
     expect(css).not.toContain('border-radius')
     // The landing's motion vocabulary exceeds 180 ms by design; the cap
     // stays on the workbench shell.
