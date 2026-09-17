@@ -1,10 +1,15 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { RunStopReason } from '../../src/agent/contract'
+import type { RunHandle, RunRequest, RunStopReason } from '../../src/agent/contract'
+import { collect } from '../../src/agent/contract-tests'
+import { runAgent } from '../../src/agent/loop'
+import type { AgentModel } from '../../src/agent/model'
+import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
 import type { RunSnapshot } from '../../src/server/run-registry'
 import {
   initialClientState,
   reduceClientState,
+  correctionStatuses,
   formatCredits,
   resultOutcomeText,
   isCurrentRun
@@ -153,6 +158,143 @@ describe('client run reducer', () => {
         recoverableErrors: ['The live view missed a frame']
       }
     })
+  })
+
+  test('marks a correction stranded by a cancel as never having reached the agent (#124)', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'correction_ack', text: 'Keep the label unchanged' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 1,
+      event: { type: 'error', reason: 'The run stopped before correction 1 reached the agent.', recoverable: true }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 2,
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
+    })
+
+    expect(state.view).toBe('result')
+    if (state.view !== 'result') throw new Error('unreachable')
+    expect(correctionStatuses(state.progress)).toEqual([{ text: 'Keep the label unchanged', delivered: false }])
+  })
+
+  test('leaves a correction with no stranding error marked as delivered', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'correction_ack', text: 'Keep the label unchanged' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 1,
+      event: { type: 'done', result: { ...result, complete: true } }
+    })
+
+    expect(state.view).toBe('result')
+    if (state.view !== 'result') throw new Error('unreachable')
+    expect(correctionStatuses(state.progress)).toEqual([{ text: 'Keep the label unchanged', delivered: true }])
+  })
+
+  test('marks exactly the corrections a stranding error names, by number, after one the run delivered', () => {
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'correction_ack', text: 'Keep the label unchanged' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 1,
+      event: { type: 'step', n: 2, cap: 15, narration: 'Warming the highlights' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 2,
+      event: { type: 'correction_ack', text: 'Warmer' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 3,
+      event: { type: 'correction_ack', text: 'Less contrast' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 4,
+      event: {
+        type: 'error',
+        reason: 'The run stopped before corrections 2 and 3 reached the agent.',
+        recoverable: true
+      }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 5,
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
+    })
+
+    expect(state.view).toBe('result')
+    if (state.view !== 'result') throw new Error('unreachable')
+    expect(correctionStatuses(state.progress)).toEqual([
+      { text: 'Keep the label unchanged', delivered: true },
+      { text: 'Warmer', delivered: false },
+      { text: 'Less contrast', delivered: false }
+    ])
+  })
+
+  test('marks by the number named, not by position from the end (#124)', () => {
+    // The exact bug a reviewer found: correction 1 is still queued when the
+    // run stops, while correction 2 already reached the agent (a native
+    // steer applied it). Marking "the last N" would blame 2, not 1.
+    let state = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'correction_ack', text: 'A: sent before response.created' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 1,
+      event: { type: 'correction_ack', text: 'B: natively applied' }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 2,
+      event: { type: 'error', reason: 'The run stopped before correction 1 reached the agent.', recoverable: true }
+    })
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 3,
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
+    })
+
+    expect(state.view).toBe('result')
+    if (state.view !== 'result') throw new Error('unreachable')
+    expect(correctionStatuses(state.progress)).toEqual([
+      { text: 'A: sent before response.created', delivered: false },
+      { text: 'B: natively applied', delivered: true }
+    ])
   })
 
   test('hydrates reload snapshots and maps terminal outcomes', () => {
@@ -475,4 +617,110 @@ describe('client run reducer', () => {
 
     expect(isCurrentRun(initialClientState(), 'run-1')).toBe(false)
   })
+})
+
+// Feeds a real, stopped run's own events into reduceClientState/
+// correctionStatuses, rather than hand-typed ones, so rewording the loop's
+// stranding message cannot silently turn off the marking (#124).
+describe('correctionStatuses against a real stopped run (#124)', () => {
+  const request: RunRequest = {
+    image: new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
+    filename: 'product.jpg',
+    instruction: 'Warm the highlights',
+    stepCap: 40,
+    budgetUsd: 8
+  }
+  const USAGE = { inputTokens: 40_000, cachedInputTokens: 38_430, outputTokens: 750 }
+  const CLICK = { type: 'click' as const, button: 'left' as const, x: 720, y: 450 }
+
+  // Mirrors ResponsesSocket.steer(): no native steer while no response is
+  // being generated (before response.created, or between a steered
+  // response and its successor); one sent while a response is generating
+  // is settled applied once that call answers.
+  function nativeInterleavingModel(hooks: {
+    beforeCreated?: (call: number) => void
+    whileGenerating?: (call: number) => void
+  }): AgentModel {
+    let generating = false
+    let inFlight: { applied: boolean }[] = []
+    let calls = 0
+    return {
+      async next(_observation, signal) {
+        const call = calls++
+        inFlight = []
+        generating = false
+        hooks.beforeCreated?.(call)
+        generating = true
+        hooks.whileGenerating?.(call)
+        await new Promise<void>((resolve, reject) => {
+          if (signal.aborted) return reject(signal.reason)
+          const timer = setTimeout(resolve, 0)
+          signal.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timer)
+              reject(signal.reason)
+            },
+            { once: true }
+          )
+        })
+        for (const steer of inFlight) steer.applied = true
+        generating = false
+        return { narration: `Step ${call + 1}`, actions: [CLICK], usage: USAGE, done: false }
+      },
+      steer() {
+        if (!generating) return undefined
+        const steer = { applied: false }
+        inFlight.push(steer)
+        return steer
+      }
+    }
+  }
+
+  for (const variant of ['cap', 'cancel'] as const) {
+    test(`marks exactly the correction a real run left stranded, not the one applied after it (${variant})`, async () => {
+      let handle!: RunHandle
+      const steers: Promise<void>[] = []
+      const session = await createRecordedFakeEditorSession()
+      const model = nativeInterleavingModel({
+        beforeCreated: (call) => {
+          if (call === 0) steers.push(handle.steer('A: sent before response.created'))
+        },
+        whileGenerating: (call) => {
+          if (call === 0) steers.push(handle.steer('B: natively applied'))
+        }
+      })
+      if (variant === 'cancel') {
+        const act = session.act.bind(session)
+        session.act = async (actions) => {
+          void handle.cancel()
+          return act(actions)
+        }
+      }
+      handle = runAgent(variant === 'cap' ? { ...request, stepCap: 1 } : request, {
+        session,
+        model,
+        publish: async (_bytes, kind) => `memory://${kind}`,
+        frameIntervalMs: 5
+      })
+      const events = await collect(handle)
+      await Promise.all(steers)
+
+      let state = reduceClientState(initialClientState(), {
+        type: 'started',
+        runId: 'run-1',
+        instruction: request.instruction
+      })
+      events.forEach((event, id) => {
+        if (event.type !== 'started') state = reduceClientState(state, { type: 'event', id, event })
+      })
+
+      expect(state.view).toBe('result')
+      if (state.view !== 'result') throw new Error('unreachable')
+      expect(correctionStatuses(state.progress)).toEqual([
+        { text: 'A: sent before response.created', delivered: false },
+        { text: 'B: natively applied', delivered: true }
+      ])
+    })
+  }
 })
