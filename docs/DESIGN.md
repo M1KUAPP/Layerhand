@@ -634,25 +634,40 @@ divider:
     `--color-bg-subtle` patterned with `--color-pattern-dot` dots on a 20 px
     grid using a radial gradient.
   - **The card (`.workbench-card`):** a solid paper card floating on the
-    sketchboard with a 1px `--rule` border, `--shadow-card` depth, 40 px of
-    padding, and a maximum width of 760 px.
+    sketchboard with a 1px `--rule` border, `--shadow-card` depth, 32 px of
+    padding above and below and 40 px at the sides, and a maximum width of
+    760 px. A card shorter than the board sits in its middle
+    (`align-content: safe center`); a taller one starts at the top.
 
 ### The workbench form
 
-The form inside the card presents three numbered field groups with decorative
-`01`, `02` and `03` numbers (`.field-number`) in UI / Micro:
+The form inside the card holds three numbered groups and a footer, with
+decorative `01`, `02` and `03` numbers (`.field-number`) in UI / Micro. Each
+part after the first is ruled off by a 1px `--rule` line with the same gap,
+`--form-group-gap`, above and below it. The gap is
+`clamp(12px, 3.2vh - 12px, 32px)`, so it grows with the window's height
+while Start retouching stays in the first viewport at 1280x800. Inside a
+group, parts sit 10 px apart.
 
-1.  **Source photograph:** legend "01 Source photograph". The drop zone is a
-    solid field tile on `--color-bg-field` (180 px min-height) with an
-    `hgi-upload-01` icon and the sample button beside it in a flex row
-    (`.file-field-main`), with field notes (`.file-field-notes`) below. A
-    chosen photograph displays its thumbnail and filename.
-2.  **Retouching instruction:** label "02 Retouching instruction". Textarea
-    with 2 rows on `--color-bg-field`, character counter `0 / 500`. Example
-    prompts wrap as chips (`.examples`, 8 px gap, solid `--color-bg-subtle`
-    fills).
-3.  **OpenAI API key (optional):** label "03 OpenAI API key (optional)". Text
-    input on `--color-bg-field`.
+Each group opens with a header row (`.field-head`): its label on the left,
+and its count or note on the right in UI / Small.
+
+1.  **Source photograph:** the legend "01 Source photograph", with the
+    sample button drawn at the right of its row. The button follows the drop
+    zone in the markup, so the file input comes first from the keyboard.
+    The drop zone spans the card: a dashed tile on `--color-bg-field`
+    (176 px min-height) with an `hgi-upload-01` icon, the prompt, and the
+    format and deletion notes (`.drop-notes`). The notes stay out of the
+    file input's name and reach it as its description. A chosen photograph
+    replaces the icon with its thumbnail and shows its filename.
+2.  **Retouching instruction:** the label "02 Retouching instruction" with
+    the `0 / 500` counter on the right, a textarea with 2 rows on
+    `--color-bg-field`, then the example prompts as chips (`.examples`,
+    8 px gap, solid `--color-bg-subtle` fills) after the lead "Try a precise
+    direction".
+3.  **OpenAI API key (optional):** the label "03 OpenAI API key (optional)"
+    with "Used for this run only and never stored." on the right, over a
+    text input on `--color-bg-field`.
 
 Focus on any field shows a 1px ink outline with 0 offset and a 4 px accent
 halo (`box-shadow: 0 0 0 4px var(--accent)`).
