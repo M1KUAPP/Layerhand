@@ -301,7 +301,9 @@ section[id] {
   place-items: center;
   padding: 0;
   border: 1px solid var(--color-border-strong);
-  background: var(--paper);
+  /* It floats over whatever the page is doing, so it is glass. */
+  background-color: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
   color: var(--ink);
   cursor: pointer;
   opacity: 0;
@@ -379,14 +381,16 @@ html.drawer-open .to-top {
 .text-button {
   padding: 0;
   border: 0;
-  background: transparent;
   cursor: pointer;
 }
 
+/* The wordmark is the site's name set on the bar, not a surface: a fill of
+   its own would show as a patch on the glass bar. */
 .wordmark {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  background: none;
   color: var(--ink);
   font: var(--text-ui-label);
   font-size: 18px;
@@ -414,6 +418,7 @@ html.drawer-open .to-top {
 
 .text-button {
   border-bottom: 1px solid currentColor;
+  background: var(--paper);
   font: var(--text-ui-small);
 }
 
