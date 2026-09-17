@@ -11,12 +11,18 @@ export interface McpArtifacts {
 
 const PKG_ROOT = join(import.meta.dir, '../../packages/layerhand-mcp')
 const DIST_FILES = join(import.meta.dir, 'mcp-files')
-const TARBALL_NAME = 'layerhand-mcp-0.1.0.tgz'
+const TARBALL_FILENAME = 'layerhand-mcp.tgz'
 
 let cache: Promise<McpArtifacts> | undefined
 
 export function mcpArtifacts(): Promise<McpArtifacts> {
-  return (cache ??= loadMcpArtifacts())
+  if (!cache) {
+    cache = loadMcpArtifacts().catch((error) => {
+      cache = undefined
+      throw error
+    })
+  }
+  return cache
 }
 
 async function loadMcpArtifacts(): Promise<McpArtifacts> {
@@ -62,8 +68,8 @@ export async function packFromSource(): Promise<McpArtifacts> {
   }
 
   const binary = new Uint8Array(await Bun.file(binaryPath).arrayBuffer())
-  await run(['bun', 'pm', 'pack'], PKG_ROOT, 'layerhand-mcp pack')
-  const tarballPath = join(PKG_ROOT, TARBALL_NAME)
+  await run(['bun', 'pm', 'pack', '--filename', TARBALL_FILENAME], PKG_ROOT, 'layerhand-mcp pack')
+  const tarballPath = join(PKG_ROOT, TARBALL_FILENAME)
   const tarball = new Uint8Array(await Bun.file(tarballPath).arrayBuffer())
   await rm(tarballPath, { force: true })
 
