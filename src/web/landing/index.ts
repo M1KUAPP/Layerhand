@@ -5,6 +5,7 @@ import { renderHero, renderTicker } from './hero'
 import { renderInstall } from './install'
 import { mountPointer } from './pointer'
 import { mountReveal } from './reveal'
+import { mountStack } from './stack'
 import { renderSteps } from './steps'
 import { renderSwitcher } from './switcher'
 import { renderWaitlist } from './waitlist'
@@ -117,6 +118,7 @@ export function renderLanding(context: LandingContext): DocumentFragment {
     renderWaitlist(context),
     renderInstall()
   )
+  mountStack(body)
 
   mountPointer(shell)
   requestAnimationFrame(() => mountReveal(body))
