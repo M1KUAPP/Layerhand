@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "layerhand": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/layerhand-mcp.js"],
+      "env": { "OPENAI_API_KEY": "${OPENAI_API_KEY}" }
+    }
+  }
+}

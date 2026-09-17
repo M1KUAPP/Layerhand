@@ -1,0 +1,9 @@
+{
+  "name": "layerhand",
+  "displayName": "Layerhand",
+  "version": "0.1.0",
+  "description": "Retouch a photograph with GPT-6 Astra driving a real image editor, steer it mid-run, and get a layered PSD back.",
+  "author": { "name": "Layerhand" },
+  "homepage": "https://layerhand-732371853772.us-central1.run.app",
+  "keywords": ["photo", "retouching", "psd", "layers"]
+}
