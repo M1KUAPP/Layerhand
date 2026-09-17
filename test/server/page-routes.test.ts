@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -106,6 +106,52 @@ async function expectEverythingSecured(origin: string): Promise<void> {
   }
 }
 
+async function textRoutesThePageLoads(origin: string): Promise<Record<'html' | 'js' | 'css' | 'svg', URL>> {
+  const files = await filesThePageLoads(origin)
+  const js = files.find((url) => url.pathname.endsWith('.js'))
+  const css = files.find((url) => url.pathname.endsWith('.css'))
+  const svg = files.find((url) => url.pathname.endsWith('.svg'))
+  if (!js || !css || !svg) throw new Error('Expected js, css, and svg files to be loaded by the page')
+  return {
+    html: new URL('/', origin),
+    js,
+    css,
+    svg
+  }
+}
+
+async function binaryRoutesThePageLoads(origin: string): Promise<{
+  png: URL[]
+  jpeg: URL[]
+  video: URL[]
+  favicon: URL
+}> {
+  const files = await filesThePageLoads(origin)
+  const png = [
+    new URL('/og-image.png', origin),
+    new URL('/og-image-dark.png', origin),
+    ...files.filter((url) => url.pathname.endsWith('.png'))
+  ]
+  const jpeg = files.filter((url) => url.pathname.endsWith('.jpg') || url.pathname.endsWith('.jpeg'))
+  const video = files.filter((url) => url.pathname.endsWith('.mp4') || url.pathname.endsWith('.webm'))
+  const favicon = new URL('/favicon.ico', origin)
+  return { png, jpeg, video, favicon }
+}
+
+function expectSecurityHeadersPreserved(response: Response): void {
+  expect({
+    framing: response.headers.get('content-security-policy')?.includes("frame-ancestors 'none'") ? 'denied' : 'allowed',
+    xFrameOptions: response.headers.get('x-frame-options'),
+    contentTypeOptions: response.headers.get('x-content-type-options'),
+    referrerPolicy: response.headers.get('referrer-policy')
+  }).toEqual({
+    framing: 'denied',
+    xFrameOptions: 'DENY',
+    contentTypeOptions: 'nosniff',
+    referrerPolicy: 'no-referrer'
+  })
+}
+
 describe('page routes', () => {
   test('the rendered page carries an absolute og:image from the public address, and still loads the app', async () => {
     const server = await serve('https://layerhand.test')
@@ -167,6 +213,202 @@ describe('page routes', () => {
     const server = await serve('https://layerhand.test')
 
     await expectEverythingSecured(server.url.origin)
+  })
+
+  test('page HTML, JavaScript, CSS, and SVG responses negotiate Brotli when Accept-Encoding allows br (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+    const textRoutes = await textRoutesThePageLoads(server.url.origin)
+
+    for (const [name, url] of Object.entries(textRoutes)) {
+      const uncompressed = await fetch(url, { headers: { 'accept-encoding': 'identity' } })
+      const uncompressedText = await uncompressed.text()
+      const expectedContentType = uncompressed.headers.get('content-type')
+
+      for (const acceptEncoding of ['br', 'br, gzip', 'gzip, deflate, br']) {
+        const response = await fetch(url, { headers: { 'accept-encoding': acceptEncoding } })
+
+        expect({ route: name, acceptEncoding, status: response.status }).toEqual({
+          route: name,
+          acceptEncoding,
+          status: 200
+        })
+        expect(response.headers.get('content-encoding')).toBe('br')
+        expect(response.headers.get('vary')).toBe('Accept-Encoding')
+        expect(response.headers.get('content-type')).toBe(expectedContentType)
+        expectSecurityHeadersPreserved(response)
+        expect(await response.text()).toBe(uncompressedText)
+      }
+    }
+  })
+
+  test('page HTML, JavaScript, CSS, and SVG responses fall back to gzip when only gzip is accepted (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+    const textRoutes = await textRoutesThePageLoads(server.url.origin)
+
+    for (const [name, url] of Object.entries(textRoutes)) {
+      const uncompressed = await fetch(url, { headers: { 'accept-encoding': 'identity' } })
+      const uncompressedText = await uncompressed.text()
+      const expectedContentType = uncompressed.headers.get('content-type')
+
+      for (const acceptEncoding of ['gzip', 'gzip, deflate']) {
+        const response = await fetch(url, { headers: { 'accept-encoding': acceptEncoding } })
+
+        expect({ route: name, acceptEncoding, status: response.status }).toEqual({
+          route: name,
+          acceptEncoding,
+          status: 200
+        })
+        expect(response.headers.get('content-encoding')).toBe('gzip')
+        expect(response.headers.get('vary')).toBe('Accept-Encoding')
+        expect(response.headers.get('content-type')).toBe(expectedContentType)
+        expectSecurityHeadersPreserved(response)
+        expect(await response.text()).toBe(uncompressedText)
+      }
+    }
+  })
+
+  test('compression follows quality values, with Brotli winning a tie (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+
+    for (const [acceptEncoding, expected] of [
+      ['gzip;q=1, br;q=0.5', 'gzip'],
+      ['gzip;q=0.5, br;q=0.5', 'br'],
+      ['gzip;q=0.5, identity;q=1', null],
+      ['br;q=0.1, identity;q=1', null],
+      ['gzip;q=0.5, br;q=0.4, identity;q=0.9', null],
+      ['gzip;q=1, identity;q=0.5', 'gzip'],
+      ['br;q=1, identity;q=1', 'br'],
+      ['gzip;q=1, br;q=0', 'gzip'],
+      ['gzip;q=0, br;q=0', null],
+      ['deflate', null],
+      ['identity', null]
+    ] as const) {
+      const response = await fetch(server.url, { headers: { 'accept-encoding': acceptEncoding } })
+
+      expect({ acceptEncoding, encoding: response.headers.get('content-encoding') }).toEqual({
+        acceptEncoding,
+        encoding: expected
+      })
+      expect(response.headers.get('vary')).toBe('Accept-Encoding')
+      expectSecurityHeadersPreserved(response)
+    }
+  })
+
+  test('ignores encodings with malformed quality values (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+
+    for (const [acceptEncoding, expected] of [
+      ['br;q=bogus', null],
+      ['br;q=1.5', null],
+      ['br;q=0.5junk', null],
+      ['br;q=0.5=oops', null],
+      ['br;q=0;q=1, identity', null],
+      ['br;q=, gzip', 'gzip']
+    ] as const) {
+      const response = await fetch(server.url, { headers: { 'accept-encoding': acceptEncoding } })
+
+      expect({ acceptEncoding, encoding: response.headers.get('content-encoding') }).toEqual({
+        acceptEncoding,
+        encoding: expected
+      })
+    }
+  })
+
+  test('returns 406 when the client rejects every available representation (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+
+    for (const acceptEncoding of ['identity;q=0, br;q=0, gzip;q=0', '*;q=0']) {
+      const response = await fetch(server.url, { headers: { 'accept-encoding': acceptEncoding } })
+
+      expect({ acceptEncoding, status: response.status }).toEqual({ acceptEncoding, status: 406 })
+      expect(response.headers.get('vary')).toBe('Accept-Encoding')
+      expectSecurityHeadersPreserved(response)
+    }
+
+    const identity = await fetch(server.url, {
+      headers: { 'accept-encoding': '*;q=0, identity;q=1' }
+    })
+    expect(identity.status).toBe(200)
+    expect(identity.headers.get('content-encoding')).toBeNull()
+  })
+
+  test('preserves existing Vary values when adding Accept-Encoding (#197)', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'layerhand-vary-'))
+    const htmlPath = join(directory, 'index.html')
+    const scriptPath = join(directory, 'app.js')
+    try {
+      await Promise.all([writeFile(htmlPath, '<main id="app"></main>'), writeFile(scriptPath, 'export {}')])
+      const routes = await pageRoutes({
+        index: htmlPath,
+        files: [
+          { path: htmlPath, headers: { 'content-type': 'text/html' } },
+          { path: scriptPath, headers: { 'content-type': 'text/javascript', vary: 'Origin' } }
+        ]
+      } as unknown as typeof web)
+      const route = routes[scriptPath]
+      if (typeof route !== 'function') throw new Error('Expected the script route to negotiate compression')
+
+      const response = await route(
+        new Request(new URL(scriptPath, 'https://layerhand.test'), { headers: { 'accept-encoding': 'br' } })
+      )
+
+      expect(response.headers.get('vary')).toBe('Origin, Accept-Encoding')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  test('page HTML, JavaScript, CSS, and SVG responses include Vary: Accept-Encoding (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+    const textRoutes = await textRoutesThePageLoads(server.url.origin)
+
+    for (const [name, url] of Object.entries(textRoutes)) {
+      for (const acceptEncoding of ['br', 'gzip', 'br, gzip']) {
+        const response = await fetch(url, { headers: { 'accept-encoding': acceptEncoding } })
+
+        expect({ route: name, acceptEncoding, status: response.status }).toEqual({
+          route: name,
+          acceptEncoding,
+          status: 200
+        })
+        expect(response.headers.get('vary')).toBe('Accept-Encoding')
+      }
+    }
+  })
+
+  test('does not compress PNG, JPEG, video, and favicon binary responses even when Accept-Encoding allows compression (#197)', async () => {
+    const server = await serve('https://layerhand.test')
+    const binaryRoutes = await binaryRoutesThePageLoads(server.url.origin)
+    const targets = [
+      ...binaryRoutes.png.map((url) => ({ type: 'png', url })),
+      ...binaryRoutes.jpeg.map((url) => ({ type: 'jpeg', url })),
+      ...binaryRoutes.video.map((url) => ({ type: 'video', url })),
+      { type: 'favicon', url: binaryRoutes.favicon }
+    ]
+
+    expect(binaryRoutes.png.length).toBeGreaterThan(0)
+    expect(binaryRoutes.jpeg.length).toBeGreaterThan(0)
+    expect(binaryRoutes.video.length).toBeGreaterThan(0)
+
+    for (const { type, url } of targets) {
+      const uncompressed = await fetch(url, { headers: { 'accept-encoding': 'identity' } })
+      const uncompressedBytes = new Uint8Array(await uncompressed.arrayBuffer())
+      const expectedContentType = uncompressed.headers.get('content-type')
+
+      const response = await fetch(url, { headers: { 'accept-encoding': 'br, gzip' } })
+      const bytes = new Uint8Array(await response.arrayBuffer())
+
+      expect({ type, path: url.pathname, status: response.status }).toEqual({
+        type,
+        path: url.pathname,
+        status: 200
+      })
+      expect(response.headers.get('content-encoding')).toBeNull()
+      expect(response.headers.get('content-type')).toBe(expectedContentType)
+      expectSecurityHeadersPreserved(response)
+      expect(bytes.byteLength).toBe(uncompressedBytes.byteLength)
+      expect(bytes).toEqual(uncompressedBytes)
+    }
   })
 
   test('LAYERHAND_PAGE_RELOAD serves the reloading route, and its absence the secured one (#114)', async () => {
@@ -233,6 +475,23 @@ describe('page routes, built ahead of time', () => {
     expect(html).toContain('<main id="app"')
     expect(meta.get('og:image')).toBe(`${origin}/og-image.png`)
     await expectPageFilesServed(origin)
+  })
+
+  test('the built page and its text bundles negotiate Brotli (#197)', async () => {
+    const textRoutes = await textRoutesThePageLoads(origin)
+
+    for (const [name, url] of Object.entries(textRoutes)) {
+      const response = await fetch(url, { headers: { 'accept-encoding': 'br, gzip' } })
+
+      expect({ route: name, status: response.status, encoding: response.headers.get('content-encoding') }).toEqual({
+        route: name,
+        status: 200,
+        encoding: 'br'
+      })
+      expect(response.headers.get('vary')).toBe('Accept-Encoding')
+      expectSecurityHeadersPreserved(response)
+      expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(0)
+    }
   })
 
   test('the built page and everything it loads carry the security headers (#114)', async () => {
