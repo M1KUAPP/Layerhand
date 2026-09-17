@@ -384,12 +384,10 @@ function renderInput(): DocumentFragment {
         return
       }
       formError = publicMessage(error)
-      // A free-run refusal is answered by the key field, so it is pointed
-      // out there and focus moves to it.
-      keyError =
-        error instanceof RunApiError && (error.code === 'free_limit_reached' || error.code === 'daily_budget_reached')
-          ? 'Add your OpenAI API key in this field to continue.'
-          : undefined
+      // A free-run refusal is answered by the key field, and a key OpenAI
+      // turns away is corrected there, so either is pointed out there and
+      // focus moves to it.
+      keyError = keyFieldError(error)
       render()
       if (keyError) root.querySelector<HTMLElement>('#api-key')?.focus()
     } finally {
@@ -399,6 +397,14 @@ function renderInput(): DocumentFragment {
   section.append(intro, form)
   fragment.append(section)
   return fragment
+}
+
+function keyFieldError(error: unknown): string | undefined {
+  if (!(error instanceof RunApiError)) return undefined
+  if (error.code === 'free_limit_reached' || error.code === 'daily_budget_reached') {
+    return 'Add your OpenAI API key in this field to continue.'
+  }
+  return error.code === 'invalid_api_key' ? 'Check the OpenAI API key in this field.' : undefined
 }
 
 // A run past the cap on concurrent runs waits in line with its place shown,
