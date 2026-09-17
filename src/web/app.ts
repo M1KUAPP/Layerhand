@@ -85,6 +85,14 @@ function dispatch(action: ClientAction): void {
   }
 }
 
+// The stored run must not be replayed once it can no longer help: after a
+// failure, once its result was collected for another retouch, or once
+// fetching it has failed outright (#126).
+function clearStoredRun(): void {
+  sessionStorage.removeItem(RUN_STORAGE_KEY)
+  sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+}
+
 function description(text: string): HTMLParagraphElement {
   return node('p', 'lede', text)
 }
@@ -471,10 +479,7 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     dispatch({ type: 'cancel_requested' })
     try {
       await api.cancel(current.progress.runId)
-      if (leavingQueue) {
-        sessionStorage.removeItem(RUN_STORAGE_KEY)
-        sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
-      }
+      if (leavingQueue) clearStoredRun()
     } catch (error) {
       // A refused cancel does not end the run: the running view or the
       // result stays on screen, with the refusal shown as a notice (#123).
@@ -623,7 +628,11 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
 function renderResult(current: Extract<ClientState, { view: 'result' }>): DocumentFragment {
   const fragment = document.createDocumentFragment()
   const another = button('Retouch another', 'text-button')
-  another.addEventListener('click', () => dispatch({ type: 'edit' }))
+  another.addEventListener('click', () => {
+    // Otherwise a reload before the next run starts restores this one (#126).
+    clearStoredRun()
+    dispatch({ type: 'edit' })
+  })
   fragment.append(brandHeader(another))
 
   const section = node('section', 'result-layout')
@@ -722,10 +731,17 @@ function renderError(current: Extract<ClientState, { view: 'error' }>): Document
     node('h1', undefined, 'The retouching run stopped.'),
     description(withFullStop(current.message))
   )
-  const action = button(current.runId ? 'Reconnect to run' : 'Choose another photograph', 'button button-accent')
+  // Reconnecting only helps a connection dropped out from under a run that
+  // may still be going; a run the server ended for good would just return
+  // the same failure again (#126).
+  const reconnectId = current.reconnectable ? current.runId : undefined
+  const action = button(reconnectId ? 'Reconnect to run' : 'Start a new retouch', 'button button-accent')
   action.addEventListener('click', () => {
-    if (current.runId) void restoreRun(current.runId)
-    else dispatch({ type: 'edit' })
+    if (reconnectId) void restoreRun(reconnectId)
+    else {
+      clearStoredRun()
+      dispatch({ type: 'edit' })
+    }
   })
   section.append(action)
   fragment.append(section)
@@ -816,8 +832,7 @@ async function restoreRun(runId: string): Promise<void> {
     }
   } catch (error) {
     if (stillRestoring(runId)) {
-      sessionStorage.removeItem(RUN_STORAGE_KEY)
-      sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+      clearStoredRun()
       dispatch({ type: 'connection_failed', message: publicMessage(error) })
     }
   } finally {

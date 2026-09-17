@@ -34,7 +34,10 @@ export type ClientState =
       result: RunResult
       outcome: RunStopReason
     }
-  | { view: 'error'; message: string; runId?: string }
+  // Reconnecting is only worth offering when the connection, not the run
+  // itself, is what failed (#126): a run the server ended for good just
+  // returns the same failure again.
+  | { view: 'error'; message: string; runId?: string; reconnectable: boolean }
 
 export type ClientAction =
   | { type: 'edit' }
@@ -90,13 +93,19 @@ function fromSnapshot(snapshot: RunSnapshot, instruction: string | null): Client
     return {
       view: 'error',
       message: snapshot.failureReason ?? 'The run failed.',
-      runId: snapshot.runId
+      runId: snapshot.runId,
+      reconnectable: false
     }
   }
   const progress = progressFromSnapshot(snapshot, instruction)
   if (snapshot.status === 'running' || snapshot.status === 'queued') return { view: 'running', progress }
   if (!snapshot.result) {
-    return { view: 'error', message: 'The run ended without a result.', runId: snapshot.runId }
+    return {
+      view: 'error',
+      message: 'The run ended without a result.',
+      runId: snapshot.runId,
+      reconnectable: false
+    }
   }
   return {
     view: 'result',
@@ -149,7 +158,7 @@ function reduceEvent(state: Extract<ClientState, { view: 'running' }>, id: numbe
         return { view: 'input' }
       }
       if (!event.recoverable) {
-        return { view: 'error', message: event.reason, runId: progress.runId }
+        return { view: 'error', message: event.reason, runId: progress.runId, reconnectable: false }
       }
       progress.recoverableErrors.push(event.reason)
       break
@@ -221,7 +230,8 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
       return {
         view: 'error',
         message: action.message,
-        runId: state.view === 'running' ? state.progress.runId : state.view === 'restoring' ? state.runId : undefined
+        runId: state.view === 'running' ? state.progress.runId : state.view === 'restoring' ? state.runId : undefined,
+        reconnectable: true
       }
     case 'reset':
       return initialClientState()
