@@ -7,7 +7,7 @@ test('the landing still has an agent install section after the waitlist', async 
   const landing = await landingFile.text()
 
   expect(landing).toContain("import { renderInstall } from './install'")
-  expect(landing).toContain('renderWaitlist(context), renderInstall()')
+  expect(landing).toMatch(/renderWaitlist\(context\),\s*renderInstall\(\)/)
 })
 
 test('the install section says coming soon and does not advertise unpublished npm commands', async () => {
