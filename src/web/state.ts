@@ -171,6 +171,13 @@ export function initialClientState(): ClientState {
   return { view: 'landing' }
 }
 
+// Whether `state` still refers to the run a slow cancel or correction
+// request was sent for, so a request that settles after the view has moved
+// to a different run is not attributed to it (#123).
+export function isCurrentRun(state: ClientState, runId: string): boolean {
+  return (state.view === 'running' || state.view === 'result') && state.progress.runId === runId
+}
+
 // A refused correction or cancel does not end the run: the running view or
 // the result stays on screen, with the refusal shown as a notice (#123).
 function withRefusalNotice(state: ClientState, message: string): ClientState {
