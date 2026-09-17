@@ -1,0 +1,33 @@
+/* The grey sections stack like the landing body over the hero: each pins
+   while the next section rises over it, and the pair scrolls away
+   together. Only at 1280 px and wider, like the hero pin. */
+@media (min-width: 1280px) {
+  [data-stack='pin'] {
+    position: sticky;
+    top: var(--stack-top, 0px);
+    /* Once the section holds bottom-flush, everything in its foot freezes
+       below the middle of the screen, where the steps index reads the
+       position. A half-screen foot lets the last blocks still cross that
+       band before the section holds. */
+    padding-bottom: max(136px, 50vh);
+  }
+
+  /* The rising section reads as a sheet laid on top: it carries the sheet
+     shadow and the top rule the band sections already draw. */
+  [data-stack='sheet'] {
+    position: relative;
+    box-shadow:
+      var(--shadow-sheet),
+      inset 0 1px 0 var(--color-border-on-chrome);
+  }
+
+  /* The layer sheet is a dialog inside the pinned drawer; while it is
+     open the drawer paints above the section laid over it. */
+  .drawer.is-open[data-stack='pin'] {
+    z-index: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Pinning follows the scroll position and adds no motion of its own. */
+}

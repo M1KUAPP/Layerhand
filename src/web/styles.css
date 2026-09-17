@@ -10,6 +10,7 @@
 @import './landing/install.css';
 @import './landing/reveal.css';
 @import './landing/pointer.css';
+@import './landing/stack.css';
 
 :root {
   color: var(--ink);
