@@ -18,6 +18,7 @@ Contents:
 1.  [Motion](#motion)
 1.  [Page layout](#page-layout)
 1.  [The four techniques](#the-four-techniques)
+1.  [The workbench input view](#the-workbench-input-view)
 1.  [The footer](#the-footer)
 1.  [Fallbacks](#fallbacks)
 1.  [Acceptance](#acceptance)
@@ -137,12 +138,63 @@ flips, for the same reason `color/bg/chrome` does not.
 The two illustration colours are never text. Every other value in this
 table already exists among the design system's primitives.
 
-Corners stay square. `radius/none` is the default everywhere, and
-`radius/full` exists only for a circular control. There are no decorative
-gradients. The hero grid and the switcher's vignette and checkerboard are
-illustration. The step cards and run log are flat, square, bordered
-content panels. Elevation is two effect styles reserved for overlays;
-surfaces stay flat.
+The landing polish adds tokens for surfaces, controls and depth:
+
+| Token                  | CSS                     | Light     | Dark      |
+| ---------------------- | ----------------------- | --------- | --------- |
+| `surface/glass`        | `--glass-fill`          | dynamic   | dynamic   |
+| `surface/glass-chrome` | `--glass-fill-chrome`   | dynamic   | dynamic   |
+| `surface/glass-blur`   | `--glass-blur`          | blur      | blur      |
+| `color/bg/field`       | `--color-bg-field`      | `#FBFAF6` | `#181815` |
+| `color/bg/disabled`    | `--color-bg-disabled`   | `#DEDAD0` | `#2A2A27` |
+| `color/text/disabled`  | `--color-text-disabled` | `#55534E` | `#B6B3AA` |
+| `color/pattern/dot`    | `--color-pattern-dot`   | `#BFBBB0` | `#3A3935` |
+| `elevation/card`       | `--shadow-card`         | 24px drop | 24px drop |
+| `elevation/lift`       | `--shadow-lift`         | 18px drop | 18px drop |
+| `elevation/sheet`      | `--shadow-sheet`        | 28px drop | 28px drop |
+
+The surface and depth tokens serve specific roles across the page and the
+workbench:
+
+- `--glass-fill` mixes paper at 76% in oklab for glass over light grounds.
+- `--glass-fill-chrome` mixes band at 74% in oklab for glass under light
+  text over dark or moving content.
+- `--glass-blur` is `blur(20px) saturate(1.4)`. It is the only value
+  permitted in any `backdrop-filter` rule across the codebase.
+- `--color-bg-field` provides a solid ground for text inputs, textareas
+  and the upload drop zone.
+- `--color-bg-disabled` and `--color-text-disabled` provide high-contrast
+  solid fills and text for disabled buttons and controls (5.5:1 in light
+  mode and 6.9:1 in dark mode).
+- `--color-pattern-dot` draws the 20px dot pattern on the sketchboard.
+- `--shadow-card` provides resting depth for the workbench card.
+- `--shadow-lift` provides elevation when cards or interactive tiles lift
+  under the pointer.
+- `--shadow-sheet` creates the sheet boundary where a stacked section
+  slides over the section before it.
+
+Surfaces are solid or glass. Every button, field, card and container
+paints one of two fills:
+
+- **Solid:** a token colour with no transparency.
+- **Glass:** `var(--glass-fill)`, or `var(--glass-fill-chrome)` under light
+  text, together with `backdrop-filter: var(--glass-blur)`. Glass is
+  permitted only over a photograph, a pattern or moving content: the
+  scrolled site bar on both views, Back to top, the hero chips and the
+  hero replay overlay.
+
+A surface never sits on `transparent`, never uses a see-through fill
+without the blur token, and never has `opacity` below 1 at rest. Opacity
+may still animate an entrance. The illustration layers inside the layer
+switcher stage are not surfaces, and nor is the wordmark, the site's name
+set on the site bar.
+
+Corners stay square everywhere. There is no `border-radius` anywhere.
+Decorative gradients are restricted: gradient functions appear only in
+`src/web/landing/switcher.css` (the vignette) and in rules for `.hero-shell`
+(pointer spotlight and grid) or `.workbench-board` (sketchboard dots).
+Surfaces stay flat except where depth is applied through the three shadow
+tokens.
 
 ## Icons
 
@@ -194,9 +246,14 @@ moment per section at most.
 
 ### Motion rules
 
-- **Entrances** enter from opacity `0`, `translateY(12px)` and
-  `blur(4px)`. Blocks stagger by `--stagger-block`, words in a headline by
-  `--stagger-word`. Exits run `--duration-exit` to `-12px`.
+- **Entrances and scroll reveals.** Entrances start from opacity `0`,
+  `translate: 0 12px` and `blur(4px)`. `landing/reveal.ts` mounts an
+  `IntersectionObserver` with a 0.15 threshold for below-the-fold content:
+  section eyebrows, titles, bodies, step cards, drawer stats, glass facts,
+  question tiles and the waitlist form. Targets enter over `--duration-enter`
+  with `--ease-reveal`, staggered within each section by `--stagger-block`.
+  Each enters once and holds. Targets already in view on first load show
+  immediately without animating.
 - **Movement stays on the compositor.** Animate `transform`, `opacity`
   and `filter`. Use the separate `translate` property rather than
   `transform` so a movement cannot overwrite a scale. Colour and rule
@@ -204,12 +261,41 @@ moment per section at most.
   `--ease-settle`; they do not move the layout.
 - **Interruptible.** Anything the visitor toggles, such as the drawer, is
   a CSS transition. Apart from loading spinners, keyframes are for
-  one-shot entrances. The ticker is the one looping page-animation
-  exception: a pausable, 48-second linear `translate` loop.
+  one-shot entrances.
+- **Looping exceptions.** Three looping animations run on the page: the
+  ticker, the hero replay and the layer switcher demo. Under WCAG 2.2.2, any
+  movement lasting longer than five seconds provides a visible pause
+  control:
+  - **The ticker:** a 48-second linear translate loop with a "Pause the
+    moving list" button. It pauses on hover and on focus within the band.
+  - **The hero replay:** a 12-second loop in the hero window, with a "Pause
+    the replay" button. It types the instruction (0 to 3.5 s), counts from
+    step 1 to 13 along the progress bar (3.5 to 9 s), stacks the four layers
+    top first (9 to 11 s), and holds (11 to 12 s). It runs only while the
+    hero is in view and the document is visible.
+  - **The switcher demo:** while Why layers is at least half in view and
+    untouched, it cycles every 2.4 seconds, hiding and restoring each layer
+    from top to bottom before flattening to JPEG and back. It provides a
+    "Pause the demo" toggle. Any pointer, key or focus event in the section
+    permanently dismisses the demo and restores Layered PSD mode before the
+    gesture lands. The demo never speaks into the live region.
+- **Run log playback.** When From a real run is 30% in view, its log rows
+  appear in order staggered by 300 ms, the correction meta line appears
+  400 ms after its row, and the four stats count up over 1200 ms to their
+  final values. The sequence completes within 4.5 seconds. Pending rows are
+  transparent (`opacity: 0`) rather than hidden, preserving the entire log in
+  the accessibility tree from the start. Final stat values sit in visually
+  hidden spans while counting spans are `aria-hidden`.
+- **Pointer response.** Active only under `(hover: hover) and (pointer: fine)`:
+  - The hero grid brightens in a 240 px circle under the cursor, tracked via
+    `--spot-x` and `--spot-y` at most once per frame.
+  - Step cards, drawer stats, glass facts and question tiles lift by 4 px
+    with `--shadow-lift` over `--duration-swap`.
+  - The arrow glyph in calls to action translates 4 px along its direction.
 - **The entrance gate.** A `data-enter` attribute on the root goes from
-  `pending` to `run` after `document.fonts.ready` and two animation
-  frames, with a 1200ms fallback, then to `done`. This keeps the headline
-  from animating in the fallback face and then reflowing.
+  `pending` to `run` after `document.fonts.ready` and two animation frames,
+  with a 1200ms fallback, then to `done`. This keeps the headline from
+  animating in the fallback face and then reflowing.
 
 ### Reduced motion
 
@@ -217,14 +303,23 @@ Under `prefers-reduced-motion: reduce`:
 
 - Parallax and every large movement are disabled. The hero's plate and
   chips do not drift.
+- Scroll reveals show all content immediately (`opacity: 1`, `translate: none`,
+  `filter: none`).
 - The ticker is still and its pause control is hidden.
+- The hero replay holds its completed final frame, and its toggle is hidden.
+- The switcher demo never arms, and its toggle is omitted.
+- The run log playback never arms; all rows and final stat values show
+  immediately without counting up.
+- Pointer response is disabled: the spotlight layer is hidden, cards do not
+  lift, and arrows do not translate.
 - Transitions become cross-fades. Press feedback and spinners stay.
 - The Three.js object stops its float and rock animation and renders one
   still frame.
 - Back to top scrolls instantly rather than smoothly.
 
 Moving content that runs longer than five seconds needs a visible pause
-control regardless of this setting, under WCAG 2.2.2. The ticker has one.
+control regardless of this setting, under WCAG 2.2.2. The ticker, the hero
+replay and the switcher demo each have one.
 
 ## Page layout
 
@@ -243,6 +338,7 @@ The page runs in this order:
 1.  The layer switcher, on `color/bg/band`.
 1.  A real run and its drawer, on paper.
 1.  The Glass Object, on `color/bg/band`.
+1.  Common questions, on paper.
 1.  Launch updates, on the accent.
 1.  The shared footer, on `color/bg/subtle`, with Back to top beside it.
 
@@ -250,14 +346,14 @@ The page runs in this order:
 
 `header.site-header` is sticky and 72px tall. The wordmark begins with a
 28px accent square carrying an L in Newsreader, followed by Layerhand.
-Its links are How it works, The layers, A real run and Updates. Try it
+Its links are How it works, The layers, A real run, FAQ and Updates. Try it
 free opens the workbench. The section links hide below 1280px.
 
-The bar is transparent over the hero at the top of the landing. Beyond
-24px of scroll, `data-scrolled` on the root makes it 94% paper with a 1px
-rule. Background and rule transition over `--duration-swap` on
-`--ease-settle`. There is no backdrop blur. The workbench bar is solid
-from the start.
+The bar is transparent over the hero at the top of the landing and at the
+top of the workbench (`data-over`). Beyond 24px of scroll, `data-scrolled` on
+the root turns it to glass: `var(--glass-fill)` with `backdrop-filter:
+var(--glass-blur)` and a 1px `--rule` bottom border. Background and rule
+transition over `--duration-swap` on `--ease-settle`.
 
 ### The hero shell
 
@@ -279,10 +375,11 @@ No account needed and Uploads deleted within 24 hours.
 
 The editor window shows the 97 KB `editor-frame.jpg`, derived from the
 [final frame of the sample-photo run](/docs/evidence/driving-mechanism/results/computer-1-sample-photo.png/final-frame.png).
-It is a still from a real run, not an autoplay demo. An offset accent
-sheet sits behind the window. Two chips read "4 named layers in 13 steps"
-and "Correct it while it works". The caption identifies the last frame
-of a real run on the sample photograph.
+An offset accent sheet sits behind the window. Two chips read "4 named layers
+in 13 steps" and "Correct it while it works". Over the lower part of the
+window, a glass overlay plays the recorded facts of that run, with a Pause
+the replay button beside it. The caption identifies the last frame of a real
+run on the sample photograph.
 
 ### The ticker
 
@@ -294,6 +391,40 @@ The list translates in a 48-second linear loop. It pauses on hover, on
 focus within the band, and through the button labelled "Pause the moving
 list". The duplicate list is hidden from assistive technology. Under
 reduced motion the list is still and the button hides.
+
+### Stacked sections
+
+The grey sections sit on the band or subtle ground: How it works (subtle),
+The layer switcher (band), and The Glass Object (band). At 1280 px and wider,
+sections stack in pairs:
+
+| Pinned          | Slides over it     |
+| --------------- | ------------------ |
+| How it works    | The layer switcher |
+| From a real run | The Glass Object   |
+
+This extends the hero shell pin, where the landing body slides over the
+pinned hero and ticker.
+
+- Each pinned section and the section rising over it share a `div.stack`
+  wrapper. The wrapper bounds sticky positioning: once the pair scrolls past,
+  the pin releases and scrolls with the pair, so nothing stays stuck behind
+  the page.
+- A pinned section (`data-stack="pin"`) scrolls normally until its bottom
+  meets the bottom of the viewport, then holds while the next section rises
+  over it. `landing/stack.ts` measures the pinned section with a
+  `ResizeObserver` and sets `--stack-top` to `min(0px, 100dvh - height)`
+  via the CSSOM. `landing/stack.css` sets `position: sticky` at that top.
+- A pinned section carries `padding-bottom: max(136px, 50vh)`. This
+  half-screen foot lets the last items cross the middle of the screen (where
+  the steps index reads position) before the section holds.
+- The rising section (`data-stack="sheet"`) carries `position: relative`,
+  `box-shadow: var(--shadow-sheet)`, and an inset top rule (`inset 0 1px 0
+var(--color-border-on-chrome)`), reading as a sheet laid on top.
+- Below 1280 px, sections scroll in standard document flow without pinning.
+- While the drawer's layer sheet is open, `.drawer.is-open[data-stack="pin"]`
+  takes `z-index: 2` so the dialog is never covered by the rising sheet.
+- Navigation anchor links still land on each section's heading.
 
 ### How it works
 
@@ -312,12 +443,33 @@ icon tiles:
 1.  Watch it work, and correct it.
 1.  Download the layered PSD.
 
+### Common questions
+
+The questions section sits on paper after The Glass Object and before Launch
+updates, with `id="faq"` and a primary navigation link labelled FAQ before
+Updates. It is a 12-column bento grid at 1280 px and wider, collapsing to a
+single column below 1280 px:
+
+- Eyebrow "Questions" in UI / Eyebrow, title "Before your first run." in
+  Display / Section.
+- Ten questions, each in a `details` element whose `summary` holds the
+  question and a plus glyph (`hgi-plus-sign`) that switches to a minus glyph
+  (`hgi-minus-sign`) when open.
+- Questions 1 and 4 take 6 columns (`data-span="6"`), lead with Display / H2
+  questions, and start open. The remaining eight questions span 3 or 4 columns
+  using UI / Lede with semibold weight, filling each row to 12 columns.
+- Tiles are solid `--color-bg-subtle` with a 1px `--rule` border.
+- Opening a tile animates no height. The answer enters with keyframe
+  animation (`faq-answer-enter`: opacity 0 to 1, translate 0 8px to 0) over
+  `--duration-enter` with `--ease-reveal`. Under reduced motion, answer
+  animation is disabled.
+
 ### Launch updates
 
 The waitlist takes the accent ground and `color/text/on-accent` text.
 The field uses `color/text/on-chrome` for its ground and `color/bg/chrome`
 for its text. The button reverses those two tokens. The section follows
-the glass band, before the shared footer.
+the questions section, before the shared footer.
 
 ## The four techniques
 
@@ -335,6 +487,14 @@ Progress is `scrollY / hero.offsetHeight`, clamped from 0 to 1. It maps to
 0% to -6% for the plate and 0% to -60% for each chip, relative to each
 element's own height. The photograph no longer drifts inside the plate.
 Under reduced motion neither plate nor chips drift.
+
+Over the editor window, a glass replay overlay plays the recorded facts of
+the September 15 computer-tool run. Along the bottom it types the
+instruction and advances the step counter across 13 steps on a progress
+bar, captioned "A 1 min 42 s run, shown faster". At the top right, below
+the pause toggle and clear of the chip on the window's lower corner, it
+stacks the four output layers. It loops every 12 seconds with a pause
+toggle, and shows the finished frame under reduced motion.
 
 Two parts of the lesson are dropped. Its foreground image sits above the
 headline, which needs a cut-out of the subject and hides words wherever
@@ -370,6 +530,12 @@ every effect in, shows one locked Background layer, counts the layers as
 1 and makes the layer list inert. The caption states that the browser
 draws an illustration, not a recording or a PSD.
 
+While Why layers is at least half in view and untouched, it demonstrates
+itself every 2.4 seconds, hiding and restoring each layer from top to bottom
+before flattening to JPEG and restoring PSD. It provides a pause control, and
+any click, key press or focus within the section dismisses the demo
+permanently.
+
 ### Layer reveal: the drawer
 
 A bottom sheet carrying the layer list, from
@@ -384,8 +550,13 @@ behaviour is unchanged from the drawer spec.
 
 The copy and the run log are recorded from that run, not the sample
 photograph in the hero and switcher. The stats are 16 steps, 3 min 13 s,
-one correction accepted in 194 ms, and four named layers. The log plays
-its narrations:
+one correction accepted in 194 ms, and four named layers.
+
+When the section reaches 30% in view, the log plays once: steps enter
+staggered by 300 ms, the correction meta line appears 400 ms later, and the
+four stats count up over 1200 ms to their final values, finishing within 4.5
+seconds. Pending rows are transparent so screen readers retain full access
+from the start. The log plays its narrations:
 
 1.  "I'll inspect the editor and create the brightness adjustment."
 1.  "I'll add Brightness/Contrast as an editable adjustment layer."
@@ -418,6 +589,79 @@ Canvas UI's html-in-canvas effects, Peel, Laser, Particle Scroll, Bend
 and the cursor effects, are **out of scope**. Peel is the most
 on-message effect in the library and it is still out, because it would
 work only in Chrome with a token for a domain that does not exist yet.
+
+## The workbench input view
+
+The workbench input view is the starting state of the application beside the
+landing page. It softens through layout, depth and spacing rather than radius.
+Per NFR-7, the workbench is in scope at 1280 px and wider; below 1280 px it is
+gated behind a notice.
+
+### The workbench site bar
+
+The workbench site bar shares the glass transition with the landing: clear at
+the top of the page (`data-over="page"`) so the layout runs to the top edge,
+turning to glass (`var(--glass-fill)` with `backdrop-filter: var(--glass-blur)`
+and a 1px `--rule` bottom border) after 24 px of scroll.
+
+### Back button
+
+A 40 px tall button (`.back-button`) with a solid paper fill, a strong 1px
+`--color-border-strong` border, and a subtle fill (`--color-bg-subtle`) on
+hover. It carries an `hgi-arrow-left-01` icon ahead of the label "Back", with
+its accessible name remaining "Back".
+
+### Two-column workbench layout
+
+At 1280 px and wider, the input view is a 12-column grid without a full-height
+divider:
+
+- **Left column (5 columns, `grid-column: 1 / 6`):**
+  - Header hierarchy: eyebrow "Layerhand", title "Give the agent one clear
+    direction.", lede "The result remains editable.".
+  - **The run guide (`.run-guide`):** an ordered list of four steps (Choose a
+    photograph; Say what you want; Watch it work, and correct it; Download the
+    layered PSD). Steps 1 and 2 tick off automatically as the photograph and
+    instruction are supplied, tracked in the DOM (`data-state="done"`) without
+    re-rendering the form. Completed steps show an accent 24 px square tile
+    with an `hgi-tick-02` icon and ink text. The active step displays an ink
+    tile with paper text. Upcoming steps show a subtle tile with secondary text.
+  - **Run facts (`.run-facts`):** three facts with `hgi-tick-02` icons: Three
+    free runs, Uploads deleted within 24 hours, Your key is never stored.
+- **Right column (7 columns, `grid-column: 6 / 13`):**
+  - **The sketchboard (`.workbench-board`):** fills the column to the bottom of
+    the page (`min-height: calc(100dvh - 72px)`). Ground is
+    `--color-bg-subtle` patterned with `--color-pattern-dot` dots on a 20 px
+    grid using a radial gradient.
+  - **The card (`.workbench-card`):** a solid paper card floating on the
+    sketchboard with a 1px `--rule` border, `--shadow-card` depth, 40 px of
+    padding, and a maximum width of 760 px.
+
+### The workbench form
+
+The form inside the card presents three numbered field groups with decorative
+`01`, `02` and `03` numbers (`.field-number`) in UI / Micro:
+
+1.  **Source photograph:** legend "01 Source photograph". The drop zone is a
+    solid field tile on `--color-bg-field` (180 px min-height) with an
+    `hgi-upload-01` icon and the sample button beside it in a flex row
+    (`.file-field-main`), with field notes (`.file-field-notes`) below. A
+    chosen photograph displays its thumbnail and filename.
+2.  **Retouching instruction:** label "02 Retouching instruction". Textarea
+    with 2 rows on `--color-bg-field`, character counter `0 / 500`. Example
+    prompts wrap as chips (`.examples`, 8 px gap, solid `--color-bg-subtle`
+    fills).
+3.  **OpenAI API key (optional):** label "03 OpenAI API key (optional)". Text
+    input on `--color-bg-field`.
+
+Focus on any field shows a 1px ink outline with 0 offset and a 4 px accent
+halo (`box-shadow: 0 0 0 4px var(--accent)`).
+
+The submit button ("Start retouching", `#start-run`) spans the full width at
+the foot of the card: 56 px tall, accent fill, `--color-text-on-accent` and an
+`hgi-arrow-right-01` icon. When disabled, it rests on `--color-bg-disabled`
+with text in `--color-text-disabled`, maintaining accessible contrast (5.5:1
+in light mode, 6.9:1 in dark mode).
 
 ## The footer
 
@@ -490,9 +734,29 @@ non-Chromium browser:
 1.  The differentiator is readable above the fold without scrolling.
 1.  The demo loop autoplays muted and reads without sound.
 1.  Each of the four techniques appears once, in its own section.
-1.  The bar is clear at the top of the landing and takes the paper once
-    the page moves.
-1.  The ticker can be paused, and does not move under reduced motion.
+1.  The bar is clear at the top of the landing and workbench, and turns
+    to glass once the page moves.
+1.  Every call to action, field, card and container is solid or glass; no
+    surface sits on transparent or has an opacity below 1 at rest.
+1.  Glass appears only over a photograph, a pattern or moving content,
+    pairing `--glass-fill` or `--glass-fill-chrome` with `--glass-blur`.
+1.  Disabled buttons rest on solid `--color-bg-disabled` with readable
+    contrast in both colour schemes.
+1.  At 1280 px and wider, How it works and From a real run pin while the
+    next section rises over them, releasing when the pair scrolls past;
+    the open layer sheet dialog is never covered.
+1.  The questions section renders a 12-column bento grid of ten questions
+    before the waitlist, with questions 1 and 4 starting open.
+1.  Below-the-fold content enters with scroll reveals once 15% is in view.
+1.  The ticker, hero replay and switcher demo can be paused, and do not
+    move by themselves under reduced motion.
+1.  Any interaction inside the switcher ends its demo permanently.
+1.  The run log plays within 4.5 seconds on scroll, and screen readers read
+    the full log from the start.
+1.  Under hover and fine pointer, the hero spotlight tracks the cursor, cards
+    lift by 4 px with shadow, and CTA arrows translate 4 px.
+1.  The workbench input view renders the 5/7 column split at 1280 px and wider,
+    with the live run guide, dotted sketchboard and floating paper card.
 1.  Switching a layer off in the switcher visibly changes the photograph.
 1.  Every UI glyph comes from Hugeicons Stroke Rounded.
 1.  With `prefers-reduced-motion`, nothing parallaxes, loops or floats,
@@ -513,8 +777,27 @@ page that leads with email capture risks not being featured at all.
   copy and hosted video behind. Every MotionSites prompt pins assets that
   are not ours.
 - **Do** design the no-motion version of a section first.
+- **Do** ensure every surface is solid or glass; buttons, fields, cards
+  and containers must be opaque at rest.
+- **Do** restrict glass surfaces to floating overlays over a photograph,
+  a pattern or moving content, pairing `--glass-fill` or
+  `--glass-fill-chrome` with `backdrop-filter: var(--glass-blur)`.
+- **Do** provide a visible pause control for any movement that loops or
+  runs longer than five seconds.
+- **Do** ensure all self-playing motion leaves full, accessible text
+  available to screen readers from the start.
+- **Do** wrap stacked section pairs in `div.stack` containers so sticky pins
+  release when scrolled past.
 - **Do not** add a third typeface, a colour outside the tokens, or a
   second icon library.
+- **Do not** leave any button, field, card or container transparent or
+  with opacity below 1 at rest.
+- **Do not** use backdrop filter with any value other than
+  `var(--glass-blur)`.
+- **Do not** write inline styles or `style` attributes; set CSS custom
+  properties via the CSSOM.
+- **Do not** add `border-radius` anywhere.
+- **Do not** pin stacked sections below 1280 px.
 - **Do not** use an html-in-canvas effect.
 - **Do not** let an effect carry meaning on its own.
 - **Do not** put React anywhere but the landing page island.
