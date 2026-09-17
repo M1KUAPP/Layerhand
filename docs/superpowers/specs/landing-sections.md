@@ -188,61 +188,10 @@ stacks, copy first, with no sideways scroll.
 
 Unit C, with its clip from unit V. The first section below the fold.
 
-### Scrub copy
-
-```text
-Eyebrow        Why layers
-Headline       A flat JPEG keeps the result. A PSD keeps the work.
-Body           Retouching is a stack of separate decisions, from the photograph at the bottom to the last adjustment on top. Layerhand hands the stack back as it was built, so one decision can change without redoing the rest.
-Frame name     Illustration of a photograph coming apart into separate layers
-Caption        An illustration. The layers from a real run come next.
-```
-
-### Scrub DOM outline
-
-```text
-section.scrub                        data-section="scrub", aria-labelledby="scrub-title"
-  div.scrub__track                   height: 180vh, the stage plus 80vh of scrub
-    div.scrub__stage                 position: sticky, top: 0, height: 100vh
-      div.scrub__copy
-        p.scrub__eyebrow             UI / Eyebrow, --color-text-tertiary
-        h2#scrub-title.scrub__title  Display / H2
-        p.scrub__body                UI / Lede, --color-text-secondary
-      figure.scrub__figure
-        div.scrub__frame             role="img", aria-label = Frame name, aspect-ratio: 16 / 9, 1px --rule border
-          img.scrub__poster          alt="", inset: 0, object-fit: cover
-          video.scrub__video         muted, playsinline, preload="auto", aria-hidden="true", inset: 0
-          canvas.scrub__canvas       aria-hidden="true", inset: 0
-        figcaption.scrub__caption    UI / Small, --color-text-tertiary
-```
-
-- **At 1280px and wider,** the stage is padded 64px on the grid, with
-  `.scrub__copy` in columns 1 to 4 and `.scrub__figure` in columns 5 to
-  12, centred vertically.
-- **The static version,** which is also what reduced motion and widths
-  below 1280px get: `.scrub__track` is `height: auto`, the stage is
-  `position: static` and `height: auto` with 120px top and bottom
-  padding, and only the poster is created, with no video or canvas.
-- **Motion** is DESIGN.md's scrub recipe, with progress measured over
-  `.scrub__track`: `(scrollY - trackTop) / (trackHeight - innerHeight)`.
-- No icons and no `.enter`.
-
-### Scrub content
-
-- **The clip and poster** are `src/web/assets/landing/scrub.mp4` and
-  `scrub-poster.jpg`, from unit V. Until a person makes the Gemini clip,
-  they are a synthetic clip cut from the sample photograph, and either
-  drops in for the other. The copy is true of both: neither is a recording
-  of a run, and the caption says so.
-- **The frame is 16:9** because Gemini's clips are; `object-fit: cover`
-  crops a clip of any other shape.
-
-### Scrub done looks like
-
-At 1440x900, the stage pins for 80vh of scrolling while the clip runs
-from its first frame to its last across exactly that distance, and the
-copy stays still and readable throughout. With reduced motion nothing
-pins, and the poster sits beside the copy.
+On September 17 the scrub was replaced by the layer switcher, which keeps
+its headline and body copy but lets a visitor switch each layer of a real
+run on and off instead of scrubbing a clip.
+[DESIGN.md](/docs/DESIGN.md#the-layer-switcher) describes it.
 
 ## Drawer
 
