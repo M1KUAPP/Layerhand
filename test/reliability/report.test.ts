@@ -25,6 +25,7 @@ function createSampleSummary(overrides?: Partial<ReliabilitySummary>): Reliabili
     tokensOut: 600,
     cacheHitRate: 0.9,
     failureCode: null,
+    refusedActions: 0,
     psd: new Uint8Array([0x38, 0x42, 0x50, 0x53, 0x00, 0x01]),
     preview: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a])
   }
@@ -40,7 +41,8 @@ function createSampleSummary(overrides?: Partial<ReliabilitySummary>): Reliabili
     tokensIn: 15000,
     tokensOut: 4500,
     cacheHitRate: null,
-    failureCode: 'incomplete'
+    failureCode: 'incomplete',
+    refusedActions: 0
   }
 
   return {

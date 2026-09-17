@@ -16,7 +16,7 @@ export interface StartReliabilityRunInput {
 export type StartReliabilityRun = (input: StartReliabilityRunInput) => ManagedRun
 
 export type ReliabilityFailureCode =
-  'incomplete' | 'cancelled' | 'run_failed' | 'missing_psd' | 'invalid_psd' | 'invalid_layers'
+  'incomplete' | 'cancelled' | 'run_failed' | 'missing_psd' | 'invalid_psd' | 'invalid_layers' | 'scripted_action'
 
 export interface ReliabilityCaseResult {
   id: string
@@ -30,6 +30,8 @@ export interface ReliabilityCaseResult {
   tokensOut: number
   cacheHitRate: number | null
   failureCode: ReliabilityFailureCode | null
+  /** How many actions the run refused for typing Photopea's scripting interface; it cannot pass NFR-1 if it refused any (#109). */
+  refusedActions: number
   psd?: Uint8Array
   preview?: Uint8Array
 }
@@ -87,7 +89,8 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
         tokensIn: 0,
         tokensOut: 0,
         cacheHitRate: null,
-        failureCode: 'run_failed'
+        failureCode: 'run_failed',
+        refusedActions: 0
       })
       continue
     }
@@ -114,6 +117,7 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
     let tokensOut = 0
     let outcome: RunStopReason = 'failed'
     let cacheHitRate: number | null = null
+    let refusedActions = 0
     let abortListener: (() => void) | undefined
 
     try {
@@ -147,6 +151,7 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
       const metrics = managed.metrics()
       outcome = options.signal?.aborted ? 'cancelled' : metrics.stopReason
       cacheHitRate = metrics.cacheHitRate
+      refusedActions = metrics.refusedActions ?? 0
     } catch {
       if (options.signal?.aborted) {
         outcome = 'cancelled'
@@ -169,7 +174,12 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
     let passed = false
     let failureCode: ReliabilityFailureCode | null = null
 
-    if (outcome === 'complete') {
+    if (refusedActions > 0) {
+      // A run that attempted to script Photopea cannot count towards NFR-1,
+      // whatever else it did (#109).
+      passed = false
+      failureCode = 'scripted_action'
+    } else if (outcome === 'complete') {
       if (!psdBytes || psdBytes.byteLength === 0) {
         passed = false
         failureCode = 'missing_psd'
@@ -213,6 +223,7 @@ export async function runReliabilitySuite(options: ReliabilitySuiteOptions): Pro
       tokensOut,
       cacheHitRate,
       failureCode,
+      refusedActions,
       ...(psdBytes ? { psd: psdBytes } : {}),
       ...(previewBytes ? { preview: previewBytes } : {})
     }

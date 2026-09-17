@@ -70,7 +70,8 @@ function createMockSummary(passedCount: number): ReliabilitySummary {
     tokensIn: 5000,
     tokensOut: 200,
     cacheHitRate: 0.85,
-    failureCode: (i < passedCount ? null : 'run_failed') as ReliabilityFailureCode | null
+    failureCode: (i < passedCount ? null : 'run_failed') as ReliabilityFailureCode | null,
+    refusedActions: 0
   }))
 
   return {

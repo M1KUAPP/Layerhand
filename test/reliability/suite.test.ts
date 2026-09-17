@@ -39,6 +39,7 @@ interface ScriptedRunOptions {
   events?: RunEvent[]
   cacheHitRate?: number | null
   stopReason?: RunStopReason
+  refusedActions?: number
   onPublish?: (publish: ReliabilityPublish) => Promise<void>
   onCancel?: () => Promise<void> | void
   onReleaseSecrets?: () => void
@@ -72,7 +73,11 @@ function createScriptedRun(options: ScriptedRunOptions): ManagedRun {
 
   return {
     handle,
-    metrics: () => ({ cacheHitRate, stopReason }),
+    metrics: () => ({
+      cacheHitRate,
+      stopReason,
+      ...(options.refusedActions ? { refusedActions: options.refusedActions } : {})
+    }),
     releaseSecrets: options.onReleaseSecrets ?? (() => undefined)
   }
 }
@@ -152,6 +157,31 @@ describe('runReliabilitySuite', () => {
     })
     expect(summary.results[0]?.psd).toEqual(psdBytes)
     expect(summary.results[0]?.preview).toEqual(previewBytes)
+  })
+
+  test('flags an otherwise complete run that typed Photopea scripting, so it cannot pass (#109)', async () => {
+    const psdBytes = await getPassingPsd()
+    const cases = [createTestCase('product-one')]
+
+    const startRun: StartReliabilityRun = ({ publish }) => {
+      return createScriptedRun({
+        events: [{ type: 'step', n: 1, cap: 10, narration: 'Trying a shortcut' }],
+        stopReason: 'complete',
+        refusedActions: 1,
+        onEventsStart() {
+          void publish(psdBytes, 'psd')
+        }
+      })
+    }
+
+    const summary = await runReliabilitySuite({ cases, startRun })
+
+    expect(summary.results[0]).toMatchObject({
+      outcome: 'complete',
+      passed: false,
+      refusedActions: 1,
+      failureCode: 'scripted_action'
+    })
   })
 
   test.each([
