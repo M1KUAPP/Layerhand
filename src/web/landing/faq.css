@@ -1,0 +1,138 @@
+.faq {
+  padding: 136px 36px;
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.faq__eyebrow {
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-eyebrow);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.faq__title {
+  margin-top: 16px;
+  margin-bottom: 48px;
+  text-wrap: balance;
+  font: var(--text-display-section);
+  letter-spacing: -0.045em;
+}
+
+.faq__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.faq__tile {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--rule);
+  padding: 28px;
+}
+
+@media (min-width: 1280px) {
+  .faq__tile {
+    grid-column: span var(--span, 12);
+  }
+}
+
+.faq__question {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+  font: var(--text-ui-lede);
+  font-weight: 600;
+  color: var(--ink);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq__question:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* The two wide tiles lead with a display question, open or closed, so a
+   tile keeps its size when it is toggled. */
+.faq__tile[data-span='6'] .faq__question {
+  font: var(--text-display-h2);
+  letter-spacing: -0.045em;
+}
+
+.faq__tile .hgi-minus-sign {
+  display: none;
+}
+
+.faq__tile .hgi-plus-sign {
+  display: inline-block;
+}
+
+.faq__tile[open] .hgi-minus-sign {
+  display: inline-block;
+}
+
+.faq__tile[open] .hgi-plus-sign {
+  display: none;
+}
+
+.faq__question .hgi-stroke {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.faq__answer {
+  margin: 16px 0 0;
+  color: var(--color-text-secondary);
+  font: var(--text-ui-body);
+  line-height: 22px;
+}
+
+@keyframes faq-answer-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.faq__tile[open] .faq__answer {
+  animation: faq-answer-enter var(--duration-enter) var(--ease-reveal) both;
+}
+
+@media (max-width: 1279px) {
+  .faq {
+    padding: 88px 16px;
+  }
+
+  .faq__title {
+    margin-bottom: 32px;
+  }
+
+  .faq__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .faq__tile {
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq__tile[open] .faq__answer {
+    animation: none;
+  }
+}
