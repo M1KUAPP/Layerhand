@@ -86,7 +86,8 @@ export function renderHero(context: LandingContext): HTMLElement {
   actions.append(
     cta,
     updates,
-    node('p', 'hero__note', 'Three free runs. No account needed. Uploads are deleted within 24 hours.')
+    node('p', 'hero__note', 'Three free runs. No account needed. Uploads are deleted within 24 hours.'),
+    node('p', 'hero__note-desktop', 'The workbench needs a desktop at least 1280 px wide.')
   )
   copy.append(actions)
 

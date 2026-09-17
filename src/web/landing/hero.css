@@ -91,7 +91,8 @@
   font-size: 1.25em;
 }
 
-.hero__note {
+.hero__note,
+.hero__note-desktop {
   flex-basis: 100%;
   color: var(--color-text-secondary);
   font: var(--text-ui-small);
@@ -143,6 +144,12 @@
   color: var(--ink);
   cursor: pointer;
   font: var(--text-ui-label);
+}
+
+@media (min-width: 1280px) {
+  .hero__note-desktop {
+    display: none;
+  }
 }
 
 @media (max-width: 1279px) {
