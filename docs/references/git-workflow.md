@@ -91,6 +91,7 @@ notification, and the reviewer see first.
 | `.github/workflows/conventional-lint.yml`   | A bad pull request title, or a bad commit                         |
 | `.github/workflows/lint.yml`                | An unformatted tree                                               |
 | `.github/workflows/container.yml`           | An image that does not build or start                             |
+| `.github/workflows/deploy.yml`              | Nothing before merge; deploys `main` after environment approval   |
 | `.github/workflows/issue-title-lint.yml`    | A bad issue title — labels and explains it                        |
 | `.github/workflows/reliability.yml`         | Nothing; scheduled evidence rather than a pull-request merge gate |
 | `.github/workflows/browser-integration.yml` | Nothing; scheduled evidence rather than a pull-request merge gate |
