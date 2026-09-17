@@ -52,6 +52,7 @@
   display: inline-grid;
   grid-auto-flow: column;
   border: 1px solid var(--color-border-on-chrome);
+  background: var(--color-bg-band-panel);
 }
 
 .switcher__mode {
@@ -274,7 +275,9 @@
 }
 
 .switcher__thumb[data-thumb='corners'] {
-  background: radial-gradient(ellipse at center, var(--color-text-on-chrome) 30%, var(--color-bg-chrome) 100%);
+  /* The gradient covers the fill; the fill keeps the thumbnail opaque. */
+  background-color: var(--color-bg-band);
+  background-image: radial-gradient(ellipse at center, var(--color-text-on-chrome) 30%, var(--color-bg-chrome) 100%);
 }
 
 .switcher__label {
