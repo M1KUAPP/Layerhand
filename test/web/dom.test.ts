@@ -131,10 +131,12 @@ describe('Layerhand workbench markup', () => {
     expect(css).toContain('--accent: #c7ff4a')
     expect(css).toContain('@media (max-width: 1279px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
-    // Gradient functions draw two things only, both named in DESIGN.md: the
-    // hero's hairline grid and the layer switcher's illustration.
+    // Gradient functions draw four things only, all named in DESIGN.md: the
+    // hero's hairline grid and its pointer spotlight, the layer switcher's
+    // illustration, and the workbench's sketchboard dots.
     const switcher = await landingFile('switcher.css').text()
-    expect(css.replace(switcher, '').replace(/\.hero-shell \{[^}]*\}/, '')).not.toContain('gradient')
+    const drawn = /[^{}]*(\.hero-shell|\.workbench-board)[^{}]*\{[^}]*\}/g
+    expect(css.replace(switcher, '').replace(drawn, '')).not.toContain('gradient')
     // Glass is a fill and a blur together, and the blur is one token.
     for (const filter of css.matchAll(/backdrop-filter:\s*([^;]+);/g)) expect(filter[1]).toBe('var(--glass-blur)')
     expect(css).not.toContain('border-radius')
