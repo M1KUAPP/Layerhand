@@ -254,14 +254,15 @@ export class RunRoutes {
         runId,
         instruction,
         start: async () => {
-          if (!reservation) {
-            const retry = await this.#dependencies.meterStore.admit(admissionRequest)
-            if (!retry.accepted) {
-              if (retry.code === 'budget_reserved') return undefined
-              throw new RunStartRefused(retry.message)
-            }
-            reservation = retry.reservation
+          // A free run's reservation counts from when its run starts, however long it waited.
+          const admitted = reservation
+            ? await this.#dependencies.meterStore.renew(reservation)
+            : await this.#dependencies.meterStore.admit(admissionRequest)
+          if (!admitted.accepted) {
+            if (admitted.code === 'budget_reserved') return undefined
+            throw new RunStartRefused(admitted.message)
           }
+          reservation = admitted.reservation
           const managedRun = await this.#startRun(runRequest, uploadId, identity.visitorKey)
           started = true
           return managedRun
