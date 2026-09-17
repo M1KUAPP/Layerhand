@@ -71,7 +71,7 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.locator('[data-view="running"]').waitFor()
 
       const stored = await page.evaluate(() => ({ ...sessionStorage }))
-      expect(Object.keys(stored)).toEqual(['layerhand.runId', 'layerhand.runToken', 'layerhand.instruction'])
+      expect(Object.keys(stored).sort()).toEqual(['layerhand.instruction', 'layerhand.runId', 'layerhand.runToken'])
       expect(JSON.stringify(stored)).not.toContain(sentinel)
       expect(await page.locator('#api-key').count()).toBe(0)
 
