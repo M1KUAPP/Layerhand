@@ -94,7 +94,8 @@ describe('run log', () => {
       correctionsApplied: 0,
       correctionsReplayed: 0,
       correctionsIndeterminate: 0,
-      safetyCheckCodes: []
+      safetyCheckCodes: [],
+      refusedActions: 0
     })
   })
 
@@ -116,6 +117,12 @@ describe('run log', () => {
     expect(line.correctionsReplayed).toBe(1)
     expect(line.correctionsIndeterminate).toBe(1)
     expect(line.safetyCheckCodes).toEqual(['malicious_instructions', 'malicious_instructions'])
+  })
+
+  test('records how many actions the run refused (#109)', () => {
+    const run = terminalRun({ metrics: { cacheHitRate: 0.85, stopReason: 'complete', refusedActions: 3 } })
+
+    expect(runLogLine(run).refusedActions).toBe(3)
   })
 
   test('names what a failed run failed on, and calls an unexplained failure run_failed', () => {
@@ -329,5 +336,19 @@ describe('run log', () => {
         safety_check_codes: '["malicious_instructions"]'
       }
     ])
+  })
+
+  test('stores how many actions the run refused (#109)', async () => {
+    const database = new SQL(':memory:')
+    databases.push(database)
+    await applyMigrations(database)
+    const store = new SqlRunLogStore(database)
+
+    await store.append(
+      runLogLine(terminalRun({ metrics: { cacheHitRate: 0.85, stopReason: 'complete', refusedActions: 2 } }))
+    )
+
+    const rows = await database`SELECT refused_actions FROM run_log`
+    expect(rows).toEqual([{ refused_actions: 2 }])
   })
 })
