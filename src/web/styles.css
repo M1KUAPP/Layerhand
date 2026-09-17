@@ -619,19 +619,27 @@ textarea::placeholder {
   font-size: clamp(3.3rem, 4.4vw, 5rem);
 }
 
+/* A card shorter than the board sits in its middle; a taller one starts at
+   the top, where Start retouching stays in the first viewport. */
 .workbench-board {
+  display: grid;
   grid-column: 6 / 13;
   min-height: calc(100dvh - 72px);
-  padding: 48px;
+  align-content: safe center;
+  padding: clamp(20px, 5vh - 16px, 48px) 48px;
   background-color: var(--color-bg-subtle);
   background-image: radial-gradient(var(--color-pattern-dot) 1px, transparent 1.5px);
   background-size: 20px 20px;
 }
 
 .workbench-card {
+  /* The space between the form's groups, which grows with a taller window. */
+  --form-group-gap: clamp(12px, 3.2vh - 12px, 32px);
+
+  width: 100%;
   max-width: 760px;
   margin-inline: auto;
-  padding: 40px;
+  padding: 32px 40px;
   border: 1px solid var(--rule);
   background: var(--paper);
   box-shadow: var(--shadow-card);
@@ -640,7 +648,36 @@ textarea::placeholder {
 .run-form {
   display: grid;
   align-content: start;
-  gap: 0.3rem;
+  gap: var(--form-group-gap);
+}
+
+/* Each group after the first is ruled off from the one before it. */
+.run-form > * + * {
+  padding-top: var(--form-group-gap);
+  border-top: 1px solid var(--rule);
+}
+
+.file-field,
+.form-group,
+.form-footer {
+  display: grid;
+  gap: 10px;
+}
+
+.run-form legend,
+.run-form .field-label,
+.run-form .field-error,
+.run-form .form-error {
+  margin: 0;
+}
+
+/* A label on the left, and its count or note on the right. */
+.field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
 }
 
 fieldset {
@@ -666,11 +703,11 @@ legend,
 
 .drop-zone {
   display: grid;
-  min-height: 180px;
+  min-height: 176px;
   place-content: center;
   justify-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem;
+  gap: 8px;
+  padding: 16px;
   border: 1px dashed var(--ink);
   background: var(--color-bg-field);
   cursor: pointer;
@@ -698,25 +735,42 @@ legend,
   border: 0;
 }
 
-.file-field-main {
+.drop-notes {
+  display: grid;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.drop-note {
+  color: var(--color-text-tertiary);
+  font: var(--text-ui-small);
+}
+
+/* The legend's row is as tall as the sample button drawn at its right. */
+.file-field {
+  position: relative;
+}
+
+.file-field > legend {
   display: flex;
-  align-items: stretch;
-  gap: 12px;
+  min-height: 32px;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.file-field-main .drop-zone {
-  flex: 1 1 auto;
-  min-width: 0;
+/* A fieldset's content starts below its legend, so the button moves up by
+   the legend's row and margin. */
+.file-field > .sample-button {
+  position: absolute;
+  top: -42px;
+  right: 0;
+  height: 32px;
+  padding: 3px 10px 3px 3px;
 }
 
-.file-field-main .sample-button {
-  align-self: center;
-  flex: none;
-}
-
-.file-field-notes {
-  min-width: 0;
-  margin-top: 0.3rem;
+.file-field .sample-thumb {
+  width: 24px;
+  height: 24px;
 }
 
 .sample-button {
@@ -739,16 +793,9 @@ legend,
 }
 
 .selected-preview {
-  max-height: 5.5rem;
-  margin: 0 auto 0.35rem;
+  max-height: 4.5rem;
+  margin: 0 auto;
   object-fit: contain;
-}
-
-.instruction-meta {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
 }
 
 .instruction-count {
@@ -780,11 +827,16 @@ legend,
 .examples {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
+.examples .field-hint {
+  margin-right: 4px;
+}
+
 .example-button {
-  padding: 0.15rem 0.55rem;
+  padding: 0.2rem 0.6rem;
   border: 1px solid var(--rule);
   background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
@@ -795,7 +847,6 @@ legend,
 #start-run {
   width: 100%;
   min-height: 56px;
-  margin-top: 0.25rem;
   gap: 0.6rem;
 }
 
