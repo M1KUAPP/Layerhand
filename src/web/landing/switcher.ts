@@ -78,6 +78,8 @@ export function renderSwitcher(): HTMLElement {
   const psdButton = node('button', 'switcher__mode', 'Layered PSD')
   for (const button of [jpegButton, psdButton]) button.type = 'button'
   modes.append(jpegButton, psdButton)
+  const controls = node('div', 'switcher__controls')
+  controls.append(modes)
 
   const hint = node('p', 'switcher__hint')
   hint.setAttribute('aria-live', 'polite')
@@ -90,7 +92,7 @@ export function renderSwitcher(): HTMLElement {
       'switcher__body',
       'Retouching is a stack of separate decisions, from the photograph at the bottom to the last adjustment on top. Layerhand hands the stack back as it was built, so one decision can change without redoing the rest.'
     ),
-    modes,
+    controls,
     hint
   )
 
@@ -112,9 +114,11 @@ export function renderSwitcher(): HTMLElement {
   const list = node('ol', 'switcher__layers')
   const visible: Record<LayerKey, boolean> = { corners: true, warm: true, brighten: true, original: true }
   const eyes: HTMLButtonElement[] = []
+  const rowsByKey = new Map<LayerKey, HTMLElement>()
   for (const layer of LAYERS) {
     const row = node('li', 'switcher__layer')
     row.dataset.layer = layer.key
+    rowsByKey.set(layer.key, row)
     const eye = node('button', 'switcher__eye')
     eye.type = 'button'
     eye.setAttribute('aria-label', `Show ${layer.name}`)
@@ -151,14 +155,14 @@ export function renderSwitcher(): HTMLElement {
   )
 
   let mode: Mode = 'psd'
-  const paint = (): void => {
+  const paint = (announce = true): void => {
     stage.dataset.mode = mode
     panel.dataset.mode = mode
     jpegButton.setAttribute('aria-pressed', String(mode === 'jpeg'))
     psdButton.setAttribute('aria-pressed', String(mode === 'psd'))
     file.textContent = mode === 'psd' ? 'sample-photo.psd' : 'sample-photo.jpg'
     count.textContent = mode === 'psd' ? '4' : '1'
-    hint.textContent = HINTS[mode]
+    if (announce) hint.textContent = HINTS[mode]
     list.inert = mode === 'jpeg'
     for (const [index, layer] of LAYERS.entries()) {
       const on = visible[layer.key]
@@ -178,6 +182,98 @@ export function renderSwitcher(): HTMLElement {
     paint()
   })
   paint()
+
+  // While the section is at least half in view and untouched, it
+  // demonstrates itself: every 2.4s it hides a layer and shows it again,
+  // top of the stack down, then flattens and restores the file. The demo
+  // paints without writing the hint, so the live region never speaks for
+  // it. Any pointer, key or focus inside the section ends it for good and
+  // the visitor's gesture lands on the restored state.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    const toggle = node('button', 'switcher__demo-toggle')
+    toggle.type = 'button'
+    const toggleIcon = icon('hgi-pause')
+    const toggleText = node('span', undefined, 'Pause the demo')
+    toggle.append(toggleIcon, toggleText)
+    toggle.setAttribute('aria-label', 'Pause the demo')
+    controls.append(toggle)
+
+    type DemoStep = { layer: LayerKey; on: boolean } | { mode: Mode }
+    const DEMO_CYCLE: DemoStep[] = [
+      { layer: 'corners', on: false },
+      { layer: 'corners', on: true },
+      { layer: 'warm', on: false },
+      { layer: 'warm', on: true },
+      { layer: 'brighten', on: false },
+      { layer: 'brighten', on: true },
+      { layer: 'original', on: false },
+      { layer: 'original', on: true },
+      { mode: 'jpeg' },
+      { mode: 'psd' }
+    ]
+
+    let inView = false
+    let paused = false
+    let ended = false
+    let stepIndex = 0
+
+    const mark = (key?: LayerKey): void => {
+      for (const row of rowsByKey.values()) delete row.dataset.demo
+      if (key !== undefined) rowsByKey.get(key)!.dataset.demo = 'active'
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        inView = entries.some((entry) => entry.isIntersecting)
+      },
+      { threshold: 0.5 }
+    )
+    observer.observe(section)
+
+    const timer = window.setInterval(() => {
+      if (ended || paused || !inView) return
+      const step = DEMO_CYCLE[stepIndex % DEMO_CYCLE.length]!
+      stepIndex += 1
+      if ('layer' in step) {
+        visible[step.layer] = step.on
+        mark(step.layer)
+      } else {
+        mode = step.mode
+        mark()
+      }
+      paint(false)
+    }, 2400)
+
+    const endDemo = (): void => {
+      if (ended) return
+      ended = true
+      window.clearInterval(timer)
+      observer.disconnect()
+      for (const key of Object.keys(visible) as LayerKey[]) visible[key] = true
+      mode = 'psd'
+      mark()
+      paint(false)
+      toggle.remove()
+      section.removeEventListener('pointerdown', onInteract)
+      section.removeEventListener('keydown', onInteract)
+      section.removeEventListener('focusin', onInteract)
+    }
+    const onInteract = (event: Event): void => {
+      if (event.target instanceof Node && toggle.contains(event.target)) return
+      endDemo()
+    }
+    section.addEventListener('pointerdown', onInteract)
+    section.addEventListener('keydown', onInteract)
+    section.addEventListener('focusin', onInteract)
+
+    toggle.addEventListener('click', () => {
+      paused = !paused
+      const label = paused ? 'Play the demo' : 'Pause the demo'
+      toggle.setAttribute('aria-label', label)
+      toggleText.textContent = label
+      toggleIcon.className = `hgi-stroke ${paused ? 'hgi-play' : 'hgi-pause'}`
+    })
+  }
 
   section.append(copy, figure)
   return section
