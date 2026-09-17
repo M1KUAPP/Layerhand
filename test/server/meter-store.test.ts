@@ -17,13 +17,17 @@ afterEach(async () => {
   await Promise.all(databases.splice(0).map((database) => database.close()))
 })
 
-async function store(ceilingUsd = 100, now: () => Date = () => NOW): Promise<{ database: SQL; store: SqlMeterStore }> {
+async function store(
+  ceilingUsd = 100,
+  now: () => Date = () => NOW,
+  addressFreeRunsPerDay?: number
+): Promise<{ database: SQL; store: SqlMeterStore }> {
   const database = new SQL(':memory:')
   databases.push(database)
   await applyMigrations(database)
   return {
     database,
-    store: new SqlMeterStore(database, usdToMicroUsd(ceilingUsd), now)
+    store: new SqlMeterStore(database, usdToMicroUsd(ceilingUsd), now, addressFreeRunsPerDay)
   }
 }
 
@@ -70,34 +74,69 @@ describe('SqlMeterStore', () => {
     })
   })
 
-  test('refuses a fourth free run from the same address behind a fresh visitor key each time (#115)', async () => {
+  test('allows ten free runs from one address in a UTC day, and refuses an eleventh (#115)', async () => {
     // #29 intended the cookie and the address to each be their own limit,
     // but a visitor key mixes the two together, so a fresh cookie alone
-    // used to reset what the address had already used. Three different
-    // visitor keys sharing one address now still refuse a fourth.
+    // used to reset what the address had already used. Ten different
+    // visitor keys sharing one address, the default daily allowance, now
+    // still refuse an eleventh — each visitor's own count stays at one, so
+    // only the address's cumulative count is under test.
     const { store: meter } = await store()
 
-    for (const visitorKey of ['visitor-a', 'visitor-b', 'visitor-c']) {
+    for (let run = 0; run < 10; run += 1) {
       const result = await meter.admit({
-        visitorKey,
+        visitorKey: `visitor-${run}`,
         addressKey: 'address-shared',
         reservationMicroUsd: usdToMicroUsd(1),
         byok: false
       })
       expect(result.accepted).toBe(true)
     }
-    const fourth = await meter.admit({
-      visitorKey: 'visitor-d',
+    const eleventh = await meter.admit({
+      visitorKey: 'visitor-10',
       addressKey: 'address-shared',
       reservationMicroUsd: usdToMicroUsd(1),
       byok: false
     })
 
-    expect(fourth).toEqual({
+    expect(eleventh).toEqual({
       accepted: false,
       code: 'free_limit_reached',
-      message: 'You have used all three free Layerhand runs.'
+      message: "Today's free runs from this address are used up. Add your own OpenAI API key to continue."
     })
+  })
+
+  test('restores the address allowance on a new UTC day (#115)', async () => {
+    let now = NOW
+    const { store: meter } = await store(1_000, () => now)
+
+    for (let run = 0; run < 10; run += 1) {
+      accepted(
+        await meter.admit({
+          visitorKey: `visitor-${run}`,
+          addressKey: 'address-shared',
+          reservationMicroUsd: usdToMicroUsd(1),
+          byok: false
+        })
+      )
+    }
+    const stillToday = await meter.admit({
+      visitorKey: 'visitor-10',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    now = later(24 * 60 * 60_000) // the next UTC day
+    const nextDay = await meter.admit({
+      visitorKey: 'visitor-11',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    expect(stillToday.accepted).toBe(false)
+    expect(nextDay.accepted).toBe(true)
   })
 
   test('holds back a reservation that crosses the UTC daily ceiling only because of other reservations', async () => {
@@ -252,8 +291,10 @@ describe('SqlMeterStore', () => {
   test('releasing one visitor at a shared address frees that address for another', async () => {
     // The symmetric case of the release test above: two different visitor
     // keys at the same address, and releasing one gives the address's own
-    // count back rather than only the visitor's (#115).
-    const { store: meter } = await store(10)
+    // count back rather than only the visitor's (#115). A small address
+    // limit keeps this test to a few admissions rather than the full
+    // ten-a-day default.
+    const { store: meter } = await store(10, undefined, 3)
     const reservation = accepted(
       await meter.admit({
         visitorKey: 'visitor-a',
