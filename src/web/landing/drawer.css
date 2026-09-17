@@ -254,6 +254,19 @@
   }
 }
 
+/* At 390 px the four-column row runs its mask tags 29 px past the
+   viewport; from 768 px the four columns fit. */
+@media (max-width: 767px) {
+  .drawer__layer {
+    grid-template-columns: 20px minmax(0, 1fr);
+  }
+
+  .drawer__layer-kind,
+  .drawer__layer-mask {
+    grid-column: 2;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* The shell clamps every reduced-motion transition to 0.01ms with
      !important, so each cross-fade restores its own duration the same

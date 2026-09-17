@@ -49,6 +49,30 @@ describeBrowser('landing drawer in Chromium', () => {
     }
   }, 15_000)
 
+  test(`stacks the kind and mask under the name inside the sheet at 390x844`, async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      const open = page.getByRole('button', { name: 'Show the layers' })
+      await open.click()
+      const sheet = page.locator('#drawer-sheet')
+      await sheet.waitFor({ state: 'visible' })
+      await page.waitForTimeout(600)
+      const boxes = await page.evaluate(() => {
+        const sheetBox = document.querySelector('.drawer__sheet')!.getBoundingClientRect()
+        const cells = [...document.querySelectorAll('.drawer__layer-kind, .drawer__layer-mask')].map(
+          (cell) => cell.getBoundingClientRect().right
+        )
+        return { sheetRight: sheetBox.right, cellRights: cells, scrollWidth: document.documentElement.scrollWidth }
+      })
+      for (const right of boxes.cellRights) {
+        expect(right).toBeLessThanOrEqual(boxes.sheetRight)
+      }
+      expect(boxes.scrollWidth).toBe(390)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
 
