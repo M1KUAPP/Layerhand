@@ -1,0 +1,333 @@
+.switcher {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: 24px;
+  padding: 136px 36px;
+  background: var(--color-bg-band);
+  /* In the dark scheme the band and the subtle ground are one tone, so the
+     band draws its own top edge. */
+  box-shadow: inset 0 1px 0 var(--color-border-on-chrome);
+  color: var(--color-text-on-chrome);
+}
+
+.switcher__copy {
+  grid-column: 1 / 6;
+  padding-right: 24px;
+}
+
+.switcher__eyebrow {
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-eyebrow);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.switcher__title {
+  margin-top: 16px;
+  font: var(--text-display-section);
+  font-size: 44px;
+  line-height: 44px;
+  letter-spacing: -0.045em;
+}
+
+.switcher__line {
+  display: block;
+}
+
+.switcher__body {
+  margin-top: 24px;
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-lede);
+}
+
+.switcher__modes {
+  display: inline-grid;
+  grid-auto-flow: column;
+  margin-top: 40px;
+  border: 1px solid var(--color-border-on-chrome);
+}
+
+.switcher__mode {
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-on-chrome);
+  cursor: pointer;
+  font: var(--text-ui-label);
+  transition:
+    background-color var(--duration-swap) var(--ease-settle),
+    color var(--duration-swap) var(--ease-settle);
+}
+
+.switcher__mode[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+}
+
+.switcher__hint {
+  min-height: 40px;
+  margin-top: 16px;
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-small);
+}
+
+.switcher__figure {
+  grid-column: 6 / 13;
+  margin: 0;
+}
+
+.switcher__window {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 272px;
+  border: 1px solid var(--color-border-on-chrome);
+  background: var(--color-bg-band-panel);
+}
+
+.switcher__stage {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  /* What an editor shows where no layer paints anything. */
+  background: repeating-conic-gradient(var(--color-text-on-chrome) 0 25%, var(--color-illustration-checker) 0 50%) 0 0 /
+    24px 24px;
+}
+
+.switcher__photo,
+.switcher__warm,
+.switcher__corners {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity var(--duration-swap) var(--ease-settle),
+    filter var(--duration-swap) var(--ease-settle);
+}
+
+.switcher__photo {
+  object-fit: cover;
+}
+
+.switcher__warm {
+  background: var(--color-illustration-warm);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+}
+
+.switcher__corners {
+  background: radial-gradient(ellipse 70% 70% at 50% 48%, transparent 34%, var(--color-bg-chrome) 100%);
+  opacity: 0;
+}
+
+/* A layer that is switched on, or any layer at all once the file is flat. */
+.switcher__stage[data-brighten='on'] .switcher__photo,
+.switcher__stage[data-mode='jpeg'] .switcher__photo {
+  filter: brightness(1.12) contrast(1.05) saturate(1.04);
+}
+
+.switcher__stage[data-warm='on'] .switcher__warm,
+.switcher__stage[data-mode='jpeg'] .switcher__warm {
+  opacity: 0.62;
+}
+
+.switcher__stage[data-corners='on'] .switcher__corners,
+.switcher__stage[data-mode='jpeg'] .switcher__corners {
+  opacity: 0.72;
+}
+
+/* Adjustments change what is under them; with nothing under them they
+   show nothing. */
+.switcher__stage[data-mode='psd'][data-original='off'] .switcher__photo,
+.switcher__stage[data-mode='psd'][data-original='off'] .switcher__warm {
+  opacity: 0;
+}
+
+.switcher__file {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  margin: 0;
+  padding: 6px 10px;
+  background: var(--color-bg-band);
+  color: var(--color-text-on-chrome);
+  font: var(--text-ui-micro);
+  letter-spacing: 0.04em;
+}
+
+.switcher__panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border-left: 1px solid var(--color-border-on-chrome);
+}
+
+.switcher__panel-head {
+  display: flex;
+  height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-border-on-chrome);
+  font: var(--text-ui-label);
+}
+
+.switcher__count {
+  display: grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0 6px;
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+  font: var(--text-ui-micro);
+}
+
+.switcher__layers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.switcher__layer,
+.switcher__flat {
+  display: grid;
+  grid-template-columns: 44px 40px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 10px;
+  padding: 8px 12px 8px 4px;
+  border-bottom: 1px solid var(--color-border-on-chrome);
+}
+
+.switcher__eye,
+.switcher__lock {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-on-chrome);
+}
+
+.switcher__eye {
+  cursor: pointer;
+}
+
+.switcher__eye .hgi-stroke,
+.switcher__lock .hgi-stroke {
+  font-size: 20px;
+}
+
+.switcher__eye:hover {
+  color: var(--accent);
+}
+
+.switcher__thumb {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid var(--color-border-on-chrome);
+  background: var(--color-bg-band);
+  color: var(--color-text-on-chrome-secondary);
+}
+
+.switcher__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.switcher__thumb .hgi-stroke {
+  font-size: 18px;
+}
+
+.switcher__thumb[data-thumb='corners'] {
+  background: radial-gradient(ellipse at center, var(--color-text-on-chrome) 30%, var(--color-bg-chrome) 100%);
+}
+
+.switcher__label {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  transition: opacity var(--duration-swap) var(--ease-settle);
+}
+
+.switcher__name {
+  overflow: hidden;
+  font: var(--text-ui-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.switcher__kind {
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-small);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.switcher__layer[data-hidden='true'] .switcher__label,
+.switcher__layer[data-hidden='true'] .switcher__thumb {
+  opacity: 0.4;
+}
+
+.switcher__flat {
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+.switcher__flat,
+.switcher__panel[data-mode='jpeg'] .switcher__layers {
+  display: none;
+}
+
+.switcher__panel[data-mode='jpeg'] .switcher__flat {
+  display: grid;
+}
+
+.switcher__caption {
+  margin-top: 16px;
+  color: var(--color-text-on-chrome-secondary);
+  font: var(--text-ui-small);
+}
+
+@media (max-width: 1279px) {
+  .switcher {
+    grid-template-columns: 1fr;
+    row-gap: 48px;
+    padding: 88px 16px;
+  }
+
+  .switcher__copy,
+  .switcher__figure {
+    grid-column: 1;
+  }
+
+  .switcher__title {
+    font: var(--text-display-section);
+  }
+}
+
+@media (max-width: 767px) {
+  .switcher__window {
+    grid-template-columns: 1fr;
+  }
+
+  .switcher__panel {
+    border-top: 1px solid var(--color-border-on-chrome);
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switcher__photo,
+  .switcher__warm,
+  .switcher__corners,
+  .switcher__label {
+    transition-property: opacity;
+  }
+}
