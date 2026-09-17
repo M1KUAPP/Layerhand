@@ -14,7 +14,11 @@ const cssSource = async () =>
         'landing/switcher.css',
         'landing/drawer.css',
         'landing/glass.css',
-        'landing/waitlist.css'
+        'landing/faq.css',
+        'landing/waitlist.css',
+        'landing/reveal.css',
+        'landing/pointer.css',
+        'landing/stack.css'
       ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
     )
   ).join('\n')
@@ -29,7 +33,11 @@ const appSource = async () =>
         'landing/switcher.ts',
         'landing/drawer.ts',
         'landing/glass.ts',
-        'landing/waitlist.ts'
+        'landing/faq.ts',
+        'landing/waitlist.ts',
+        'landing/reveal.ts',
+        'landing/pointer.ts',
+        'landing/stack.ts'
       ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
     )
   ).join('\n')
