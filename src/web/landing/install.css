@@ -20,6 +20,11 @@
   font: var(--text-ui-label);
 }
 
+/* A grid item keeps its content's width unless told it may shrink. */
+.install__command {
+  min-width: 0;
+}
+
 .install__row {
   display: flex;
 }
