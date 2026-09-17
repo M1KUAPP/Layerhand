@@ -10,6 +10,7 @@ import { EventLog } from './event-log'
 import { ModelUnavailableError, type AgentModel, type ModelTurn, type NativeSteer } from './model'
 import { isScriptedTyping } from './scripting-guard'
 import { Spend, type TokenPricing } from './spend'
+import { describeStrandedCorrections } from './stranded-corrections'
 
 export type PublishedKind = 'frame' | 'psd' | 'preview'
 
@@ -35,6 +36,8 @@ export interface AgentLoopDependencies {
 /** A correction acknowledged and not yet passed with a call. */
 interface QueuedCorrection {
   text: string
+  /** 1-based position in acknowledgement order — the page's list order (#124). */
+  number: number
   /** The steer the model sent for it into the call in flight, if it sent one (#9). */
   native?: NativeSteer
 }
@@ -81,6 +84,10 @@ export function runAgent(
   })
   cancelled.catch(() => undefined)
   const corrections: QueuedCorrection[] = []
+  // Assigns each correction its 1-based, acknowledgement-order number (#124):
+  // in agent mode this loop alone emits `correction_ack`, so that number is
+  // the correction's position in the page's list.
+  let correctionCount = 0
   // Set once no further model call can carry a correction.
   let refusing = false
   let calls = 0
@@ -115,12 +122,20 @@ export function runAgent(
   // Whether a limit rules out another model call (FR-12, NFR-2).
   const limitReached = () => calls >= request.stepCap || spend.wouldPass(request.budgetUsd)
 
-  // Stops taking corrections. One acknowledged but not yet sent is reported
-  // rather than dropped, unless native steering has already applied it.
+  // Stops taking corrections. Any acknowledged but not yet sent are named
+  // rather than dropped, unless native steering already applied them. Named
+  // by number, not just counted: native steering can leave an earlier
+  // correction still queued while a later one has already been applied, so
+  // "the last N" is not always the right N (#124).
   const refuseCorrections = () => {
     refusing = true
-    if (!corrections.splice(0).every(appliedNatively)) {
-      log.emit({ type: 'error', reason: 'The run stopped before a correction reached the agent', recoverable: true })
+    const stranded = corrections.splice(0).filter((correction) => !appliedNatively(correction))
+    if (stranded.length > 0) {
+      log.emit({
+        type: 'error',
+        reason: describeStrandedCorrections(stranded.map((correction) => correction.number)),
+        recoverable: true
+      })
     }
   }
 
@@ -267,7 +282,8 @@ export function runAgent(
 
     async steer(text) {
       if (refusing) throw new Error('The run is stopping, so the correction was not applied')
-      const correction: QueuedCorrection = { text }
+      correctionCount += 1
+      const correction: QueuedCorrection = { text, number: correctionCount }
       corrections.push(correction)
       log.emit({ type: 'correction_ack', text })
       correction.native = offer(text)
