@@ -87,12 +87,12 @@ describeBrowser('launch application in Google Chrome', () => {
       await field.fill(correction)
       await page.getByRole('button', { name: 'Send correction' }).click()
       await page
-        .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+        .locator('.correction-ack', { hasText: `Correction received: ${correction}` })
         .waitFor({ timeout: 3_000 })
 
       await page.reload()
       await page.locator('[data-view="running"]').waitFor()
-      expect(await page.locator('.correction-ack', { hasText: `Correction applied: ${correction}` }).count()).toBe(1)
+      expect(await page.locator('.correction-ack', { hasText: `Correction received: ${correction}` }).count()).toBe(1)
       await page.getByRole('heading', { name: 'Your layered file is ready.' }).waitFor({ timeout: 8_000 })
 
       const preview = page.getByAltText('Flattened preview of the retouched photograph')
@@ -181,11 +181,11 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.locator('#correction').fill('Keep the label unchanged')
       await page.getByRole('button', { name: 'Send correction' }).click()
       const acknowledgement = page.locator('.correction-ack', {
-        hasText: 'Correction applied: Keep the label unchanged'
+        hasText: 'Correction received: Keep the label unchanged'
       })
       await acknowledgement.waitFor({ timeout: 3_000 })
       await expect(acknowledgement.getAttribute('aria-live')).resolves.toBeNull()
-      await expect(correctionAnnouncer.textContent()).resolves.toBe('Correction applied: Keep the label unchanged')
+      await expect(correctionAnnouncer.textContent()).resolves.toBe('Correction received: Keep the label unchanged')
       await expect(correctionAnnouncer.getAttribute('data-identity-probe')).resolves.toBe('persistent')
 
       await page.getByRole('heading', { name: 'Your layered file is ready.' }).waitFor({ timeout: 8_000 })
@@ -279,7 +279,7 @@ describeBrowser('launch application in Google Chrome', () => {
         await field.fill(correction)
         await send.click()
         await page
-          .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+          .locator('.correction-ack', { hasText: `Correction received: ${correction}` })
           .waitFor({ timeout: 3_000 })
       }
 
@@ -360,7 +360,7 @@ describeBrowser('launch application in Google Chrome', () => {
         await field.fill(correction)
         await send.click()
         await page
-          .locator('.correction-ack', { hasText: `Correction applied: ${correction}` })
+          .locator('.correction-ack', { hasText: `Correction received: ${correction}` })
           .waitFor({ timeout: 3_000 })
       }
 
