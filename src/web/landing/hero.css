@@ -146,6 +146,13 @@
   font: var(--text-ui-label);
 }
 
+@media (pointer: coarse) {
+  .hero__updates {
+    padding-block: 14px;
+    margin-block: -14px;
+  }
+}
+
 @media (min-width: 1280px) {
   .hero__note-desktop {
     display: none;
