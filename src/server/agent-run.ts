@@ -158,6 +158,7 @@ export function managedAgentRun(
     },
     steer: (text) => underlying.steer(text),
     async cancel() {
+      if (endedAfterCeiling !== undefined) return
       cancelled = true
       await underlying.cancel()
     }

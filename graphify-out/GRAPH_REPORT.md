@@ -2,19 +2,19 @@
 
 ## Corpus Check
 
-- 266 files · ~619,498 words
+- 266 files · ~619,926 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 36 file(s) not represented in the graph (top: (none) 10, .ndjson 10, .css 7)
 
 ## Summary
 
-- 2432 nodes · 5243 edges · 144 communities (116 shown, 27 thin omitted)
+- 2432 nodes · 5245 edges · 145 communities (116 shown, 28 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 482 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
 
-- Built from commit: `573fe020`
+- Built from commit: `117570bf`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -47,7 +47,7 @@
 - run-reliability.ts
 - live-steer.ts
 - photopea-document-exporter.ts
-- Single-page web application
+- Contract tests
 - SteerLedger
 - run-registry-close.test.ts
 - run.ts
@@ -75,8 +75,8 @@
 - ComputerAction
 - model.ts
 - BrowserbaseClient
-- measure.ts
-- Hosted Chrome session over CDP
+- warm-editor/measure.ts
+- Competition survey (twenty-six products plus a four-product follow-up)
 - helper.ts
 - compilerOptions
 - browserbase-probe.ts
@@ -87,17 +87,17 @@
 - page-routes.ts
 - Layered PSD export implementation plan
 - dispatch
-- graphify CLI and knowledge graph (graphify-out/)
+- bun (package manager and script runner)
 - devDependencies
 - Agent instructions
 - Photopea round-trip
 - Launch day runbook
 - Ten-image reliability suite implementation plan
 - harness.ts
-- computer tool (GA)
+- Layerhand README
 - responses-model.test.ts
 - Canvas UI
-- bun (package manager and script runner)
+- scripts
 - Driving mechanism
 - Native steering
 - photopea-document-exporter.test.ts
@@ -151,18 +151,19 @@
 - fake-editor-session.test.ts
 - workspace-screenshots.ts
 - Product Hunt listing
-- Conventional lint workflow
+- dom.test.ts
 - footer.browser.test.ts
 - application.browser.test.ts
 - Run memory
 - audit.test.ts
 - editor-session.contract.ts
-- .prettierrc.json
+- Prettier owns syntax, not prose
 - gcs-lifecycle-workflow.test.ts
 - make-scrub-clip.sh
 - render-og-image.ts
 - #app main mount point (aria-live polite, aria-busy)
 - playwright-auxiliary-mouse.test.ts
+- Risk: reliability of long GUI control
 
 ## God Nodes (most connected - your core abstractions)
 
@@ -179,16 +180,16 @@
 
 ## Surprising Connections (you probably didn't know these)
 
-- `Prettier owns syntax, not prose` --references--> `printWidth` [INFERRED]
-  docs/agents/rules.md → .prettierrc.json
 - `Accessibility baseline (keyboard file picker, visible focus, aria-live status, reduced motion)` --conceptually_related_to--> `chooseFile()` [INFERRED]
   docs/references/launch-application-design.md → src/web/app.ts
 - `openInput()` --references--> `Sample product photograph (sample-photo.png)` [INFERRED]
   test/web/application.browser.test.ts → src/web/assets/sample-photo.png
+- `htmlFile` --references--> `index.html (Layerhand single-page shell)` [INFERRED]
+  test/web/dom.test.ts → src/web/index.html
+- `Prettier owns syntax, not prose` --references--> `printWidth` [INFERRED]
+  docs/agents/rules.md → .prettierrc.json
 - `Bun full-stack HTML import (src/server/index.ts serves src/web/index.html)` --conceptually_related_to--> `build` [INFERRED]
   docs/references/launch-application-design.md → package.json
-- `Contract tests` --references--> `testRunContract()` [INFERRED]
-  docs/TRD.md → src/agent/contract-tests.ts
 
 ## Import Cycles
 
@@ -208,7 +209,7 @@
 - **Original photograph and Retouched copy layer pair: shown, recorded, and asserted** — src_editor_fixtures_photopea_frame_layers_panel, src_editor_fixtures_photopea_frame_history_panel, src_editor_fake_editor_session_createrecordedfakeeditorsession, test_editor_recorded_fake_editor_session_test [INFERRED 0.95]
 - **Use-the-sample-photograph flow, from button to run upload (FR-5)** — docs_prd_fr_5, src_web_app_renderinput, src_web_app_choosesample, src_web_assets_sample_photo_image, src_web_app_choosefile, src_web_api_runapi_start, test_web_application_browser_test_openinput [INFERRED 0.95]
 
-## Communities (144 total, 27 thin omitted)
+## Communities (145 total, 28 thin omitted)
 
 ### Community 0 - "app.ts"
 
@@ -217,8 +218,8 @@ Nodes (39): actionText(), announceNewCorrections(), api, brandHeader(), button()
 
 ### Community 1 - "image-upload.ts"
 
-Cohesion: 0.06
-Nodes (54): FR-1: accept one JPEG/PNG image up to 20 MB and 6000 px, FR-5: one sample image usable without uploading, Target users: e-commerce photo teams, real-estate photographers, freelance retouchers, Upload form (picker and drop, inline rejections, three example instructions, bundled sample photograph), EXIF orientation-aware expected dimensions, Upload validation before session creation, ReliabilityCommandDependencies, detectFormat() (+46 more)
+Cohesion: 0.05
+Nodes (56): FR-1: accept one JPEG/PNG image up to 20 MB and 6000 px, FR-3: reject invalid input with a specific reason, FR-5: one sample image usable without uploading, Target users: e-commerce photo teams, real-estate photographers, freelance retouchers, API error shape { code, message }, Upload form (picker and drop, inline rejections, three example instructions, bundled sample photograph), EXIF orientation-aware expected dimensions, Upload validation before session creation (+48 more)
 
 ### Community 2 - "createGlassObject"
 
@@ -272,8 +273,8 @@ Nodes (13): AuxiliaryButton, AuxiliaryMouse, KEY_ALIASES, normalizeKey(), Photop
 
 ### Community 12 - "runtime.ts"
 
-Cohesion: 0.06
-Nodes (29): Single-container continuous deployment, ScriptedModel, artifactPublisher(), Application, ArtifactPutRequest, ArtifactStore, StoredArtifact, Steering (+21 more)
+Cohesion: 0.05
+Nodes (34): Single-container continuous deployment, artifactPublisher(), Application, ArtifactKind, ArtifactPutRequest, ArtifactStore, createArtifactKey(), EXTENSIONS (+26 more)
 
 ### Community 13 - "trap-probe.ts"
 
@@ -282,13 +283,13 @@ Nodes (27): InputFixtureEvidence, persistInputFixture(), recordOutputPath(), tem
 
 ### Community 14 - "Four run limits (step cap, spend cap, free runs, daily ceiling)"
 
-Cohesion: 0.12
-Nodes (34): FR-11: progress as step count against the cap with plain-words current action, FR-12: stop at the step cap and return a layered partial result, FR-35: three free runs per visitor, enforced server-side, FR-36: user-supplied OpenAI API key, session-only, never written to disk or logs, FR-37: global daily spend ceiling that stops free-allowance runs, FR-38: paid credit top-ups (P2), NFR-2: no single run exceeds $8 of model spend, NFR-5: no server API key reaches the browser; user keys never logged, persisted or sent beyond OpenAI (+26 more)
+Cohesion: 0.06
+Nodes (64): FR-12: stop at the step cap and return a layered partial result, FR-16: per-user history of past runs (P2, deferred by the non-goals), FR-2: free-text instruction of up to 500 characters, FR-35: three free runs per visitor, enforced server-side, FR-36: user-supplied OpenAI API key, session-only, never written to disk or logs, FR-37: global daily spend ceiling that stops free-allowance runs, FR-38: paid credit top-ups (P2), FR-4: three worked example instructions that fill the box on click (+56 more)
 
 ### Community 15 - "live-frames.browser.test.ts"
 
-Cohesion: 0.09
-Nodes (28): Bun SQL metering and waitlist tables (visitor_usage, daily_usage, waitlist_emails), createApplication(), ArtifactKind, createArtifactKey(), EXTENSIONS, MemoryArtifactStore, createDatabase(), databaseReady() (+20 more)
+Cohesion: 0.08
+Nodes (31): Bun SQL metering and waitlist tables (visitor_usage, daily_usage, waitlist_emails), Idempotent waitlist endpoint and CSV export (bun run waitlist:export), ScriptedModel, RUN_CEILING_MS, createApplication(), createDatabase(), databaseReady(), usdToMicroUsd() (+23 more)
 
 ### Community 16 - "PhotopeaDocumentLoader"
 
@@ -297,13 +298,13 @@ Nodes (27): NFR-3: a run starts within five seconds of the button, Browserbase p
 
 ### Community 17 - "FR-20: apply a typed mid-run correction without discarding completed work"
 
-Cohesion: 0.18
-Nodes (21): FR-13: cancel at any point and keep the partial result, FR-14: survive a page reload by resuming the live view, FR-15: show the running session cost in credits, FR-20: apply a typed mid-run correction without discarding completed work, FR-21: acknowledge a correction visibly within three seconds, FR-22: show accepted corrections in a visible list, FR-23: correction that undoes work already done (P2), Contract tests (+13 more)
+Cohesion: 0.19
+Nodes (14): FR-20: apply a typed mid-run correction without discarding completed work, FR-21: acknowledge a correction visibly within three seconds, FR-22: show accepted corrections in a visible list, FR-23: correction that undoes work already done (P2), Code-execution tool over a persistent Playwright session, computer tool (GA), ComputerAction type, Orchestrator (+6 more)
 
 ### Community 18 - "run-routes.ts"
 
-Cohesion: 0.06
-Nodes (26): serve(), RUN_CEILING_MS, ADDRESS_LIMIT, AdmissionRequest, AdmissionResult, BUDGET_RESERVED, DAILY_LIMIT, DEFAULT_FREE_RUNS_PER_ADDRESS_PER_DAY (+18 more)
+Cohesion: 0.07
+Nodes (19): serve(), ADDRESS_LIMIT, AdmissionRequest, AdmissionResult, BUDGET_RESERVED, DAILY_LIMIT, DEFAULT_FREE_RUNS_PER_ADDRESS_PER_DAY, MeterReservation (+11 more)
 
 ### Community 19 - "responses-model-steering.test.ts"
 
@@ -312,8 +313,8 @@ Nodes (19): ResponsesModelOptions, CLICK, Connection, created(), Inbox, Json, ob
 
 ### Community 20 - "agent-run.ts"
 
-Cohesion: 0.10
-Nodes (27): ManagedRun server adapter (cache metrics, stop reason, releaseSecrets), RunEvent, RunHandle, RunRequest, RunResult, collect(), endOf(), EventOf (+19 more)
+Cohesion: 0.09
+Nodes (28): ManagedRun server adapter (cache metrics, stop reason, releaseSecrets), RunEvent, RunHandle, RunRequest, collect(), endOf(), EventOf, ofType() (+20 more)
 
 ### Community 21 - "photopea-editor-session.ts"
 
@@ -322,8 +323,8 @@ Nodes (18): bridge, fixturePath, samplePath, server, session, viewport, MAX_IMAG
 
 ### Community 22 - "Launch acceptance checklist (evening of September 17)"
 
-Cohesion: 0.15
-Nodes (26): leonxlnx/taste-skill skill collection, FR-30: public landing page with the differentiator and a silent demo loop, FR-31: email capture live and collecting before launch day, FR-32: thirty-second silent demo recording usable on Product Hunt, Launch acceptance checklist (evening of September 17), Launch schedule (September 12-18, launch Friday 12:01am PT), NFR-1: reliability, eight of ten test runs complete unattended with a valid layered file, Risk: reliability of long GUI control (+18 more)
+Cohesion: 0.17
+Nodes (23): leonxlnx/taste-skill skill collection, FR-30: public landing page with the differentiator and a silent demo loop, FR-31: email capture live and collecting before launch day, FR-32: thirty-second silent demo recording usable on Product Hunt, Launch acceptance checklist (evening of September 17), Launch schedule (September 12-18, launch Friday 12:01am PT), NFR-1: reliability, eight of ten test runs complete unattended with a valid layered file, Day-2 technical go/no-go (kill switch) (+15 more)
 
 ### Community 23 - "api.ts"
 
@@ -345,10 +346,10 @@ Nodes (24): at(), browserbase, ceiling, client, correction, cost, events, imageP
 Cohesion: 0.15
 Nodes (20): selectBytes(), selectPngExport(), selectPsdExport(), validPng(), ImageFormat, expectedTree(), noDocumentError(), PhotopeaDocumentExporterOptions (+12 more)
 
-### Community 27 - "Single-page web application"
+### Community 27 - "Contract tests"
 
-Cohesion: 0.12
-Nodes (18): FR-10: live view of the editor (at least one frame per 2 s, at most 3 s behind), FR-16: per-user history of past runs (P2, deferred by the non-goals), FR-29: list the layers on the page after the run, NFR-7: page works at 1280 px and above; mobile out of scope, Requirement-level exclusions (no accounts, no in-app editing, no undo, PSD-only output, no internationalisation), Single-screen core flow, Product non-goals (no image generation, no batch/API/integrations, no accounts beyond metering, no mobile, no own editor, no presets), Bun full-stack HTML import (src/server/index.ts serves src/web/index.html) (+10 more)
+Cohesion: 0.15
+Nodes (25): FR-10: live view of the editor (at least one frame per 2 s, at most 3 s behind), FR-11: progress as step count against the cap with plain-words current action, FR-13: cancel at any point and keep the partial result, FR-14: survive a page reload by resuming the live view, FR-15: show the running session cost in credits, FR-29: list the layers on the page after the run, NFR-7: page works at 1280 px and above; mobile out of scope, Single-screen core flow (+17 more)
 
 ### Community 28 - "SteerLedger"
 
@@ -367,13 +368,13 @@ Nodes (23): capCredits, codeLines, codex, decoder, estimateCredits(), events, ex
 
 ### Community 31 - "RunRoutes"
 
-Cohesion: 0.05
-Nodes (45): FR-3: reject invalid input with a specific reason, Run admission order (body ceiling, instruction, image, visitor identity, meter, upload, RunHandle), API error shape { code, message }, Bun 1.4.2 runtime pin (lockfile version 2, frozen installs), /health readiness endpoint (process and database readiness), HTTP surface aligned with Contract 3 plus /health, Signed visitor cookie and HMAC visitor key (TRUST_PROXY_HOPS), Two-stage non-root container pinned to Bun 1.4.2 (+37 more)
+Cohesion: 0.12
+Nodes (13): RateLimiter, RateLimiterOptions, apiError(), boundedFormData(), boundedJson(), createEndpointLimiter(), EndpointLimiter, fromAllowedOrigin() (+5 more)
 
 ### Community 32 - "responses-model.ts"
 
-Cohesion: 0.10
-Nodes (25): QueuedCorrection, NativeSteer, BUTTONS, COMMON_PROMPT, correctionText(), describeCodeResult(), Json, keys() (+17 more)
+Cohesion: 0.09
+Nodes (26): QueuedCorrection, NativeSteer, BUTTONS, CallUnanswered, COMMON_PROMPT, correctionText(), describeCodeResult(), Json (+18 more)
 
 ### Community 33 - "Landing sections"
 
@@ -382,8 +383,8 @@ Nodes (32): Drawer, Drawer content, Drawer copy, Drawer DOM outline, Drawer done
 
 ### Community 34 - "RunRegistry"
 
-Cohesion: 0.11
-Nodes (13): RunRegistry background event pump with sixty-minute terminal retention, ManagedRun, copyResult(), copySnapshot(), EnqueueRun, initialSnapshot(), isLive(), RegisterRun (+5 more)
+Cohesion: 0.10
+Nodes (14): measure(), RunRegistry background event pump with sixty-minute terminal retention, ManagedRun, copyResult(), copySnapshot(), EnqueueRun, initialSnapshot(), isLive() (+6 more)
 
 ### Community 35 - "startFramePump"
 
@@ -407,8 +408,8 @@ Nodes (6): Risk: the scripting escape hatch, Editor adapter, Photopea, Photopea 
 
 ### Community 39 - "run-registry.ts"
 
-Cohesion: 0.08
-Nodes (28): NFR-8: per-run observability (step count, token spend, outcome, failure reason), RunLogRecord one-line completion log, Per-run structured log line, RunStopReason, ManagedRunMetrics, CODES, Operation, RunFailure (+20 more)
+Cohesion: 0.10
+Nodes (27): NFR-8: per-run observability (step count, token spend, outcome, failure reason), RunLogRecord one-line completion log, Per-run structured log line, RunResult, RunStopReason, ManagedRunMetrics, CODES, Operation (+19 more)
 
 ### Community 40 - "FakeEditorSession"
 
@@ -432,13 +433,13 @@ Nodes (14): Five-state pure client reducer (landing, input, running, result, err
 
 ### Community 44 - "Conventional Commits"
 
-Cohesion: 0.36
-Nodes (11): Branch naming (<type>/<short-description>), Breaking change marker (! and BREAKING CHANGE footer), Conventional commit types (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test), Conventional Commits, Conventional issue and pull request titles, Bug report issue form, Issue template chooser config (blank issues disabled), Feature request issue form (+3 more)
+Cohesion: 0.21
+Nodes (17): Branch naming (<type>/<short-description>), Breaking change marker (! and BREAKING CHANGE footer), Conventional commit types (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test), Conventional Commits, gh pr create --fill-first, Conventional issue and pull request titles, Bug report issue form, Issue template chooser config (blank issues disabled) (+9 more)
 
 ### Community 45 - "Swap Test"
 
-Cohesion: 0.19
-Nodes (20): Three product properties: editable output, visible work, steerable work, Keyboard-only accessibility agent, Astra Hackathon, Async tool calling (primitive), Computer use (primitive), Computer use x mid-turn steering (Round 9), Whole-corpus contradiction finder (runner-up), Hosted-browser computer use (Round 2) (+12 more)
+Cohesion: 0.17
+Nodes (22): Contest outcome against the four inferred criteria, Three product properties: editable output, visible work, steerable work, Keyboard-only accessibility agent, Astra Hackathon, Async tool calling (primitive), Computer use (primitive), Computer use x mid-turn steering (Round 9), Whole-corpus contradiction finder (runner-up) (+14 more)
 
 ### Community 46 - "Recorded Photopea editor frame (photopea-frame.png, 1440x900)"
 
@@ -448,12 +449,12 @@ Nodes (13): FR-28: flattened PNG preview alongside the PSD, EditorSession interf
 ### Community 47 - "agent-run.test.ts"
 
 Cohesion: 0.12
-Nodes (8): ModelUnavailableError, liveAgentRun(), agentRuntime(), live(), next(), runtimes, samplePath, steerableAstra()
+Nodes (9): ModelUnavailableError, liveAgentRun(), agentRuntime(), live(), next(), runtimes, samplePath, scriptedAstra() (+1 more)
 
 ### Community 48 - "ResponsesModel"
 
 Cohesion: 0.15
-Nodes (8): CallUnanswered, errorCode(), isObject(), narrationOf(), ResponsesModel, safeCode(), usageOf(), scriptedAstra()
+Nodes (7): errorCode(), isObject(), narrationOf(), ResponsesApiError, ResponsesModel, safeCode(), usageOf()
 
 ### Community 49 - "PlaywrightPhotopeaTransport"
 
@@ -467,8 +468,8 @@ Nodes (19): Acceptance, Colour, Decisions, Design: Layerhand, Do and do not, Fal
 
 ### Community 51 - "Layered PSD output (the wedge)"
 
-Cohesion: 0.11
-Nodes (30): FR-25: PSD opens without error in Photoshop, Affinity Photo and GIMP, FR-26: every layer named in human words, FR-27: masks and adjustment layers remain editable, FR-33: Product Hunt assets (tagline, description, gallery images, first maker comment), Adobe Photoshop API v2, autoRetouch, BRIA AI, Commercial gate (risk 1: the commercial case vs the survey) (+22 more)
+Cohesion: 0.23
+Nodes (13): FR-25: PSD opens without error in Photoshop, Affinity Photo and GIMP, FR-26: every layer named in human words, FR-27: masks and adjustment layers remain editable, Flat-output competitors (Photoroom, Clipdrop, Pixelcut, Claid, Pixelbin, remove.bg, Evoto, Imagen AI, Aftershoot, BoxBrownie), Flat-output problem in AI retouching, Judged-well criteria (differentiator stated after a silent viewing; layer stack survives a retoucher's inspection), Layered PSD output (the wedge), Remaining gap: no self-serve single-pass PSD known to be named, masked and adjustment-layered (+5 more)
 
 ### Community 52 - "ComputerAction"
 
@@ -485,20 +486,20 @@ Nodes (8): ScriptedModel, AgentModel, ModelTurn, Observation, CLICK, SCRIPT, Scr
 Cohesion: 0.24
 Nodes (5): BrowserbaseClient, BrowserbaseError, Fetch, requiredString(), RecordedRequest
 
-### Community 55 - "measure.ts"
+### Community 55 - "warm-editor/measure.ts"
 
 Cohesion: 0.20
 Nodes (13): cookieFrom(), filename, image, imageBlob(), imagePath, Measurement, output, summary (+5 more)
 
-### Community 56 - "Hosted Chrome session over CDP"
+### Community 56 - "Competition survey (twenty-six products plus a four-product follow-up)"
 
-Cohesion: 0.21
-Nodes (16): FR-2: free-text instruction of up to 500 characters, FR-4: three worked example instructions that fill the box on click, NFR-4: twenty simultaneous runs without queueing, then a queue with a stated position, Required FREE_DAILY_BUDGET_USD (no default daily ceiling), Browser provider shortlist (Browserbase, Anchor, Hyperbrowser, Steel), Browserbase, Export-then-destroy session disposal, Fifteen-minute run ceiling (+8 more)
+Cohesion: 0.26
+Nodes (13): FR-33: Product Hunt assets (tagline, description, gallery images, first maker comment), Adobe Photoshop API v2, autoRetouch, BRIA AI, Commercial gate (risk 1: the commercial case vs the survey), Competition survey (twenty-six products plus a four-product follow-up), Adobe Firefly Creative Production (Remove Background preset, masked layered PSD), Adobe Firefly Services (enterprise access) (+5 more)
 
 ### Community 57 - "helper.ts"
 
-Cohesion: 0.20
-Nodes (9): api, codeLog, host, [imagePath, outputArgument, portArgument], output, port, runner, screenshot() (+1 more)
+Cohesion: 0.14
+Nodes (12): api, codeLog, host, [imagePath, outputArgument, portArgument], output, port, runner, screenshot() (+4 more)
 
 ### Community 58 - "compilerOptions"
 
@@ -545,10 +546,10 @@ Nodes (10): Global constraints, Issue #17 parallel boundary, Layered PSD export 
 Cohesion: 0.24
 Nodes (9): SSE sequence-id replay and sessionStorage reconnect, RunStreamEvent, EventSourceLike, close(), dispatch(), followRun(), reconnectRun(), restoreRun() (+1 more)
 
-### Community 67 - "graphify CLI and knowledge graph (graphify-out/)"
+### Community 67 - "bun (package manager and script runner)"
 
-Cohesion: 0.33
-Nodes (7): Run bun run graph after modifying code, graphify CLI and knowledge graph (graphify-out/), Query the graph before reading source, Refresh doc and concept nodes with /graphify --update, RTK condensed command output, rtk proxy fallback, graphify-labs/graphify skill collection
+Cohesion: 0.27
+Nodes (10): Run bun run graph after modifying code, graphify CLI and knowledge graph (graphify-out/), Query the graph before reading source, Refresh doc and concept nodes with /graphify --update, RTK condensed command output, rtk proxy fallback, bun (package manager and script runner), graphify-labs/graphify skill collection (+2 more)
 
 ### Community 68 - "devDependencies"
 
@@ -577,28 +578,28 @@ Nodes (8): Global constraints, Task 1: Add and validate the representative corpu
 
 ### Community 74 - "harness.ts"
 
-Cohesion: 0.09
-Nodes (19): AsyncFunction, pageCodeRunner(), DEFAULT_IMAGES, INSTRUCTION, logPath, measure(), outputDirectory, records (+11 more)
+Cohesion: 0.12
+Nodes (14): DEFAULT_IMAGES, INSTRUCTION, logPath, outputDirectory, records, registry, RunRecord, server (+6 more)
 
-### Community 75 - "computer tool (GA)"
+### Community 75 - "Layerhand README"
 
-Cohesion: 0.67
-Nodes (4): Code-execution tool over a persistent Playwright session, computer tool (GA), ComputerAction type, Spike A0: code execution or the computer tool
+Cohesion: 0.24
+Nodes (8): Bun 1.4.2 runtime pin (lockfile version 2, frozen installs), /health readiness endpoint (process and database readiness), HTTP surface aligned with Contract 3 plus /health, Two-stage non-root container pinned to Bun 1.4.2, dev, Layerhand README, Local development (bun install --frozen-lockfile, bun run dev, localhost:3000, /health), container-smoke.sh script
 
 ### Community 76 - "responses-model.test.ts"
 
-Cohesion: 0.14
-Nodes (4): ResponsesApiError, SCREENSHOT, Sent, USAGE
+Cohesion: 0.15
+Nodes (4): CodeRunner, SCREENSHOT, Sent, USAGE
 
 ### Community 77 - "Canvas UI"
 
 Cohesion: 0.15
 Nodes (13): Browser support, Canvas UI, Components, Cursor and click effects, How an effect is built, How it works, Installing, Peel (+5 more)
 
-### Community 78 - "bun (package manager and script runner)"
+### Community 78 - "scripts"
 
-Cohesion: 0.36
-Nodes (9): bun (package manager and script runner), Prettier owns syntax, not prose, Local hook setup (bun install, then uv tool install graphifyy), Lint workflow (formatting), Formatting job, .husky/pre-commit hook, lint-staged, lint (+1 more)
+Cohesion: 0.24
+Nodes (11): scripts, build, graph, lint, lint:fix, reliability, start, test (+3 more)
 
 ### Community 79 - "Driving mechanism"
 
@@ -740,11 +741,6 @@ Nodes (5): capture(), chooseSample(), shot(), startRun(), VIEWPORTS
 Cohesion: 0.25
 Nodes (7): Description, First maker comment, Gallery, Links, Product Hunt listing, Tagline, Topics
 
-### Community 132 - "Conventional lint workflow"
-
-Cohesion: 0.33
-Nodes (6): gh pr create --fill-first, Conventional lint workflow, Commit messages job, Pull request title job, Pass untrusted titles through the environment, .husky/commit-msg hook
-
 ### Community 133 - "footer.browser.test.ts"
 
 Cohesion: 0.60
@@ -770,10 +766,10 @@ Nodes (4): collectLandingFiles(), cssFiles(), FileText, tsFiles()
 Cohesion: 0.48
 Nodes (4): assertLayerTree(), defineEditorSessionContract(), EditorSessionFactory, pngSignature
 
-### Community 138 - ".prettierrc.json"
+### Community 138 - "Prettier owns syntax, not prose"
 
-Cohesion: 0.33
-Nodes (5): printWidth, $schema, semi, singleQuote, trailingComma
+Cohesion: 0.20
+Nodes (10): Prettier owns syntax, not prose, Lint workflow (formatting), Formatting job, .husky/pre-commit hook, lint-staged, printWidth, $schema, semi (+2 more)
 
 ### Community 139 - "gcs-lifecycle-workflow.test.ts"
 
@@ -790,6 +786,11 @@ Nodes (3): OUTPUTS, ROOT, server
 Cohesion: 0.67
 Nodes (3): Accessibility baseline (keyboard file picker, visible focus, aria-live status, reduced motion), applicationRoot, #app main mount point (aria-live polite, aria-busy)
 
+### Community 144 - "Risk: reliability of long GUI control"
+
+Cohesion: 0.50
+Nodes (4): GPT-6 Astra, Risk: reliability of long GUI control, OSWorld V2-Offline benchmark, Astra cannot generate an image (text-output-only irony)
+
 ## Ambiguous Edges - Review These
 
 - `EXAMPLES` → `Cobalt glass bottle` [AMBIGUOUS]
@@ -799,7 +800,7 @@ Nodes (3): Accessibility baseline (keyboard file picker, visible focus, aria-liv
 
 - **653 isolated node(s):** `$schema`, `singleQuote`, `semi`, `trailingComma`, `running` (+648 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1008 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 
@@ -807,12 +808,12 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `EXAMPLES` and `Cobalt glass bottle`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `LayerInfo` connect `editor/index.ts` to `app.ts`, `fake-editor-session.test.ts`, `photopea-editor-session.test.ts`, `FakeEditorSession`, `editor-session.contract.ts`, `harness.ts`, `Recorded Photopea editor frame (photopea-frame.png, 1440x900)`, `agent-run.test.ts`, `ComputerAction`, `agent-run.ts`, `photopea-editor-session.ts`, `api.ts`, `run-registry.test.ts`, `photopea-document-exporter.ts`, `Single-page web application`, `run-registry-close.test.ts`?**
-  _High betweenness centrality (0.080) - this node is a cross-community bridge._
+- **Why does `LayerInfo` connect `editor/index.ts` to `app.ts`, `fake-editor-session.test.ts`, `photopea-editor-session.test.ts`, `run-registry.ts`, `FakeEditorSession`, `editor-session.contract.ts`, `harness.ts`, `Recorded Photopea editor frame (photopea-frame.png, 1440x900)`, `agent-run.test.ts`, `ComputerAction`, `agent-run.ts`, `photopea-editor-session.ts`, `api.ts`, `run-registry.test.ts`, `photopea-document-exporter.ts`, `Contract tests`, `run-registry-close.test.ts`?**
+  _High betweenness centrality (0.082) - this node is a cross-community bridge._
 - **Why does `playwright-core` connect `playwright-core` to `workspace-screenshots.ts`, `photopea-editor-session.test.ts`, `footer.browser.test.ts`, `application.browser.test.ts`, `browserbase-editor-session.ts`, `PhotopeaMessage`, `photopea-action-runner.ts`, `trap-probe.ts`, `render-og-image.ts`, `playwright-auxiliary-mouse.test.ts`, `PhotopeaDocumentLoader`, `live-frames.browser.test.ts`, `photopea-editor-session.ts`, `startFramePump`, `agent-run.test.ts`, `PlaywrightPhotopeaTransport`, `ComputerAction`, `helper.ts`, `browserbase-probe.ts`, `package.json`, `browserbase-network.integration.test.ts`, `harness.ts`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
-- **Why does `ResponsesModel` connect `ResponsesModel` to `responses-model.ts`, `harness.ts`, `responses-model.test.ts`, `agent-run.test.ts`, `responses-model-steering.test.ts`, `agent-run.ts`, `model.ts`, `live-steer.ts`, `SteerLedger`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `RunRegistry` connect `RunRegistry` to `run-registry.ts`, `harness.ts`, `runtime.ts`, `live-frames.browser.test.ts`, `run-routes.ts`, `run-registry.test.ts`, `Contract tests`, `run-registry-close.test.ts`?**
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `LayerInfo` (e.g. with `Layers panel: Retouched copy above Original photograph` and `LayerInfo type`) actually correct?**
   _`LayerInfo` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `singleQuote`, `semi` to the rest of the system?**
