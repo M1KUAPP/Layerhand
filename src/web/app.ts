@@ -840,8 +840,18 @@ async function restoreRun(runId: string): Promise<void> {
     }
   } catch (error) {
     if (stillRestoring(runId)) {
-      clearStoredRun()
-      dispatch({ type: 'connection_failed', message: publicMessage(error) })
+      // A `RunApiError` is a stated server answer (the run has aged out of
+      // the registry, for one), not a dropped connection, so it ends in a
+      // non-reconnectable view and the stored id is cleared at once rather
+      // than left to offer a reconnect that would just repeat the same
+      // refusal. Anything else never reached the server, so the id
+      // survives for a later reload to retry (#126).
+      if (error instanceof RunApiError) {
+        clearStoredRun()
+        dispatch({ type: 'run_unavailable', message: publicMessage(error) })
+      } else {
+        dispatch({ type: 'connection_failed', message: publicMessage(error) })
+      }
     }
   } finally {
     root.ariaBusy = 'false'
