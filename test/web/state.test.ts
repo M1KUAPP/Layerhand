@@ -82,6 +82,43 @@ describe('client run reducer', () => {
     })
   })
 
+  test('keeps a watched run view-only from restoring through running to the result', () => {
+    const restoring = reduceClientState(initialClientState(), { type: 'restoring', runId: 'run-1' })
+    let state = reduceClientState(restoring, {
+      type: 'snapshot',
+      snapshot: runningSnapshot(),
+      viewOnly: true
+    })
+    expect(state).toMatchObject({ view: 'running', progress: { viewOnly: true } })
+
+    // A reconnect snapshot carries no flag of its own; the watched run's
+    // survives rather than regaining controls.
+    state = reduceClientState(state, { type: 'snapshot', snapshot: runningSnapshot({ steps: 2 }) })
+    expect(state).toMatchObject({ view: 'running', progress: { viewOnly: true } })
+
+    state = reduceClientState(state, {
+      type: 'event',
+      id: 0,
+      event: { type: 'done', result: { ...result, complete: true } }
+    })
+    expect(state).toMatchObject({ view: 'result', progress: { viewOnly: true } })
+  })
+
+  test('treats a run the page started or restored with its token as owned', () => {
+    const started = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    expect(started).toMatchObject({ view: 'running', progress: { viewOnly: false } })
+
+    const restored = reduceClientState(initialClientState(), {
+      type: 'snapshot',
+      snapshot: runningSnapshot()
+    })
+    expect(restored).toMatchObject({ view: 'running', progress: { viewOnly: false } })
+  })
+
   test('keeps the instruction when a reconnect snapshot has none', () => {
     let state = reduceClientState(initialClientState(), {
       type: 'started',

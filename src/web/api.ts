@@ -230,9 +230,9 @@ export class RunApi {
     this.#eventSource = eventSourceFactory
   }
 
-  async start(form: FormData): Promise<{ runId: string }> {
+  async start(form: FormData): Promise<{ runId: string; runToken: string }> {
     const value = await accepted(await this.#fetch('/api/runs', { method: 'POST', body: form }))
-    return { runId: string(value.runId) }
+    return { runId: string(value.runId), runToken: string(value.runToken) }
   }
 
   /**
@@ -251,12 +251,12 @@ export class RunApi {
     return decodeRunSnapshot(await responseJson(response))
   }
 
-  async steer(runId: string, text: string): Promise<{ accepted: true }> {
-    return this.#acknowledgement(`/api/runs/${encodeURIComponent(runId)}/steer`, { text })
+  async steer(runId: string, runToken: string, text: string): Promise<{ accepted: true }> {
+    return this.#acknowledgement(`/api/runs/${encodeURIComponent(runId)}/steer`, runToken, { text })
   }
 
-  async cancel(runId: string): Promise<{ accepted: true }> {
-    return this.#acknowledgement(`/api/runs/${encodeURIComponent(runId)}/cancel`)
+  async cancel(runId: string, runToken: string): Promise<{ accepted: true }> {
+    return this.#acknowledgement(`/api/runs/${encodeURIComponent(runId)}/cancel`, runToken)
   }
 
   async joinWaitlist(email: string): Promise<{ created: boolean; email: string }> {
@@ -286,10 +286,13 @@ export class RunApi {
     return { close: () => source.close() }
   }
 
-  async #acknowledgement(path: string, body?: Record<string, unknown>): Promise<{ accepted: true }> {
+  async #acknowledgement(path: string, runToken: string, body?: Record<string, unknown>): Promise<{ accepted: true }> {
+    // Steering or cancelling takes the run's token, not just its id (#136).
+    const headers: Record<string, string> = { authorization: `Bearer ${runToken}` }
+    if (body) headers['content-type'] = 'application/json'
     const response = await this.#fetch(path, {
       method: 'POST',
-      headers: body ? { 'content-type': 'application/json' } : undefined,
+      headers,
       body: body ? JSON.stringify(body) : undefined
     })
     const value = await accepted(response)
