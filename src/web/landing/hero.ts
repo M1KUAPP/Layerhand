@@ -14,6 +14,28 @@ const TITLE_LINES = [
 
 const FACTS = ['Three free runs', 'No account needed', 'Uploads deleted within 24 hours']
 
+// The September 15 computer-tool run on the sample photograph, whose last
+// frame the window shows (docs/evidence/driving-mechanism): the
+// instruction harness.ts sent, its step count and its exported layers,
+// bottom of the stack first. The run recorded no narration and took no
+// correction, so the replay shows neither.
+const REPLAY_INSTRUCTION = [
+  'Make three edits to this photograph, each on its own layer with a name that says what it does:',
+  '1. Brighten it with a Levels, Curves, or Brightness/Contrast adjustment layer.',
+  '2. Warm its colours with a Photo Filter or Color Balance adjustment layer.',
+  '3. Darken the corners into a soft vignette on a new layer.'
+].join('\n')
+const REPLAY_STEPS = 13
+const REPLAY_LAYERS = ['Original photograph', 'Brighten photograph', 'Warm colours', 'Darken corners softly']
+
+// One loop is 12 seconds: 0-3.5s types the instruction, 3.5-9s counts the
+// steps along the bar, 9-11s stacks the layers, 11-12s holds.
+const REPLAY_LOOP_MS = 12_000
+const REPLAY_TYPE_MS = 3_500
+const REPLAY_STEPS_MS = 5_500
+const REPLAY_LAYERS_MS = 9_000
+const REPLAY_LAYER_MS = 500
+
 // Claims the page makes in full further down, repeated as a moving band.
 const TICKER = [
   'Named layers',
@@ -46,6 +68,127 @@ function enter<T extends HTMLElement>(element: T, index: number): T {
   element.classList.add('enter')
   element.style.setProperty('--enter-i', String(index))
   return element
+}
+
+// A replay of the run the still frame ends on, laid over the lower part of
+// the window: the typed instruction, the step counter on its bar and the
+// layer stack the run produced, looping until paused.
+function mountReplay(screen: HTMLElement, reducedMotion: MediaQueryList): void {
+  const replay = node('div', 'hero__replay')
+  replay.setAttribute('aria-hidden', 'true')
+
+  const prompt = node('p', 'hero__replay-prompt')
+  const promptText = node('span', 'hero__replay-text')
+  prompt.append(promptText)
+
+  const progress = node('div', 'hero__replay-progress')
+  const step = node('span', 'hero__replay-step')
+  const bar = node('span', 'hero__replay-bar')
+  bar.append(node('span', 'hero__replay-fill'))
+  progress.append(step, bar)
+
+  const layers = node('ul', 'hero__replay-layers')
+  const caption = node('p', 'hero__replay-caption', 'A 1 min 42 s run, shown faster')
+  replay.append(prompt, progress, layers, caption)
+
+  const toggle = node('button', 'hero__replay-toggle')
+  toggle.type = 'button'
+  const toggleIcon = icon('hgi-pause')
+  const toggleText = node('span', undefined, 'Pause the replay')
+  toggle.append(toggleIcon, toggleText)
+  const showToggle = (playing: boolean): void => {
+    toggleIcon.className = `hgi-stroke ${playing ? 'hgi-pause' : 'hgi-play'}`
+    toggleText.textContent = playing ? 'Pause the replay' : 'Play the replay'
+    toggle.setAttribute('aria-label', toggleText.textContent ?? '')
+  }
+  showToggle(true)
+
+  screen.append(replay, toggle)
+
+  // The whole loop is one function of the elapsed time in it.
+  let layerCount = -1
+  const render = (elapsed: number): void => {
+    const typed = Math.floor(Math.min(1, elapsed / REPLAY_TYPE_MS) * REPLAY_INSTRUCTION.length)
+    promptText.textContent = REPLAY_INSTRUCTION.slice(0, typed)
+    progress.style.setProperty(
+      '--replay-progress',
+      String(Math.min(1, Math.max(0, (elapsed - REPLAY_TYPE_MS) / REPLAY_STEPS_MS)))
+    )
+    step.textContent =
+      elapsed < REPLAY_TYPE_MS
+        ? ''
+        : `Step ${Math.min(REPLAY_STEPS, 1 + Math.floor((elapsed - REPLAY_TYPE_MS) / (REPLAY_STEPS_MS / REPLAY_STEPS)))} of ${REPLAY_STEPS}`
+    const count =
+      elapsed < REPLAY_LAYERS_MS
+        ? 0
+        : Math.min(REPLAY_LAYERS.length, 1 + Math.floor((elapsed - REPLAY_LAYERS_MS) / REPLAY_LAYER_MS))
+    if (count !== layerCount) {
+      layerCount = count
+      // The stack fills from the bottom, so the newest name lands on top,
+      // the way a layers panel lists it.
+      layers.replaceChildren(
+        ...REPLAY_LAYERS.slice(0, count)
+          .map((name) => node('li', undefined, name))
+          .reverse()
+      )
+    }
+  }
+
+  let elapsed = 0
+  let last = 0
+  let primed = false
+  let running = false
+  let paused = false
+  // The hero is above the fold when it mounts; the observer refines this.
+  let inView = true
+  let frame = 0
+
+  const active = (): boolean => inView && !paused && !document.hidden && !reducedMotion.matches
+  const tick = (now: number): void => {
+    if (!running) return
+    // The first frame after a start only marks the clock's epoch, so a
+    // pause freezes the elapsed time instead of swallowing the gap.
+    if (primed) elapsed += now - last
+    primed = true
+    last = now
+    let point = elapsed % REPLAY_LOOP_MS
+    // The exact wrap still shows the hold frame; the next one starts over.
+    if (point === 0 && elapsed > 0) point = REPLAY_LOOP_MS
+    render(point)
+    frame = requestAnimationFrame(tick)
+  }
+  const sync = (): void => {
+    if (active() && !running) {
+      running = true
+      primed = false
+      frame = requestAnimationFrame(tick)
+    } else if (!active() && running) {
+      running = false
+      cancelAnimationFrame(frame)
+    }
+  }
+  toggle.addEventListener('click', () => {
+    paused = !paused
+    showToggle(!paused)
+    sync()
+  })
+  document.addEventListener('visibilitychange', sync)
+  if ('IntersectionObserver' in window) {
+    const watch = new IntersectionObserver((records) => {
+      inView = records.some((record) => record.isIntersecting)
+      sync()
+    })
+    watch.observe(screen)
+  }
+  reducedMotion.addEventListener('change', () => {
+    if (reducedMotion.matches) render(REPLAY_LOOP_MS)
+    sync()
+  })
+
+  // Under reduced motion the replay holds its finished frame, nothing moves
+  // by itself and the toggle hides.
+  render(reducedMotion.matches ? REPLAY_LOOP_MS : 0)
+  sync()
 }
 
 function renderWindow(reducedMotion: MediaQueryList): HTMLElement {
@@ -92,6 +235,7 @@ function renderWindow(reducedMotion: MediaQueryList): HTMLElement {
     photo.alt =
       'Photopea at the end of a Layerhand run on the sample photograph of a blue glass bottle. Its Layers panel lists Darken corners softly, Warm colours, Brighten photograph and Original photograph.'
     screen.append(photo)
+    mountReplay(screen, reducedMotion)
   }
   return window_
 }
