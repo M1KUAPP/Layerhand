@@ -14,6 +14,12 @@ export interface ManagedRunMetrics {
   steering?: { applied: number; replayed: number; indeterminate: number }
   /** Codes of the safety checks the run acknowledged automatically; absent when the model has none (NFR-8). */
   safetyCheckCodes?: readonly string[]
+  /**
+   * How many actions the run refused because they typed Photopea's
+   * scripting interface through the computer tool; absent when it refused
+   * none (#109).
+   */
+  refusedActions?: number
 }
 
 export interface ManagedRun {
