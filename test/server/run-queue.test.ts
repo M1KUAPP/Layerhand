@@ -2,7 +2,7 @@
 // and start by themselves, first in, first out.
 import { describe, expect, test } from 'bun:test'
 
-import type { RunEvent } from '../../src/agent/contract'
+import type { RunEvent, RunStopReason } from '../../src/agent/contract'
 import type { ManagedRun } from '../../src/server/managed-run'
 import { RunRegistry, RunStartRefused, type RunStreamEvent, type TerminalRun } from '../../src/server/run-registry'
 
@@ -284,10 +284,11 @@ describe('RunRegistry queue', () => {
     })
   })
 
-  test('waits on shutdown for a run whose start is in flight, and cancels it once it starts', async () => {
+  test('waits on shutdown for a run whose start is in flight, and shuts it down once it starts', async () => {
     const terminal: TerminalRun[] = []
     const registry = new RunRegistry({ onTerminal: (run) => void terminal.push(run) })
     const run = runInFlight()
+    let stopReason: RunStopReason = 'complete'
     let entered: () => void = () => undefined
     const starting = new Promise<void>((resolve) => {
       entered = resolve
@@ -298,14 +299,29 @@ describe('RunRegistry queue', () => {
       start: async () => {
         entered()
         await Bun.sleep(20)
-        return run.managedRun
+        // A managed run that tells a shutdown apart from a cancel (#112).
+        return {
+          ...run.managedRun,
+          handle: {
+            ...run.managedRun.handle,
+            async cancel() {
+              stopReason = 'cancelled'
+              run.finish()
+            }
+          },
+          metrics: () => ({ cacheHitRate: null, stopReason }),
+          async shutdown() {
+            stopReason = 'shutdown'
+            run.finish()
+          }
+        }
       }
     })
     await starting
 
     await registry.close(1_000)
 
-    expect(terminal.map((ended) => ended.runId)).toEqual(['starting'])
+    expect(terminal.map((ended) => [ended.runId, ended.metrics.stopReason])).toEqual([['starting', 'shutdown']])
     expect((await registry.getSnapshot('starting'))?.status).toBe('cancelled')
   })
 
@@ -341,7 +357,7 @@ describe('RunRegistry queue', () => {
 
     // Two phases of 20 ms, with room for a slow machine, and nowhere near forever.
     expect(performance.now() - shutdownStartedAt).toBeLessThan(1_000)
-    expect(terminal.map((ended) => ended.runId)).toEqual(['slow'])
+    expect(terminal.map((ended) => [ended.runId, ended.metrics.stopReason])).toEqual([['slow', 'shutdown']])
     expect(await registry.getSnapshot('slow')).toMatchObject({
       status: 'failed',
       failureReason: 'The server restarted before the run started. Start it again.'
@@ -368,7 +384,7 @@ describe('RunRegistry queue', () => {
       status: 'failed',
       failureReason: 'The server restarted before the run started. Start it again.'
     })
-    expect(terminal.find((run) => run.runId === 'waiting')?.metrics.stopReason).toBe('cancelled')
+    expect(terminal.find((run) => run.runId === 'waiting')?.metrics.stopReason).toBe('shutdown')
     expect(terminal.map((run) => run.runId).sort()).toEqual(['first', 'waiting'])
   })
 })
