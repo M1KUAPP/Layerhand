@@ -444,6 +444,40 @@ describe('SqlMeterStore', () => {
     expect(onceSpent).toMatchObject({ accepted: false, code: 'daily_budget_reached' })
   })
 
+  test('renews a reservation as its run starts without taking the address allowance again (#115)', async () => {
+    let now = NOW
+    // An address allowance of two keeps this to a few admissions.
+    const { store: meter } = await store(10, () => now, 2)
+    const waited = accepted(
+      await meter.admit({
+        visitorKey: 'visitor-a',
+        addressKey: 'address-shared',
+        reservationMicroUsd: usdToMicroUsd(1),
+        byok: false
+      })
+    )
+
+    // It waits in line past its reservation's lifetime, then starts.
+    now = later(RESERVATION_LIFETIME_MS + 60_000)
+    const renewed = await meter.renew(waited)
+    const second = await meter.admit({
+      visitorKey: 'visitor-b',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+    const third = await meter.admit({
+      visitorKey: 'visitor-c',
+      addressKey: 'address-shared',
+      reservationMicroUsd: usdToMicroUsd(1),
+      byok: false
+    })
+
+    expect(renewed.accepted).toBe(true)
+    expect(second.accepted).toBe(true)
+    expect(third).toMatchObject({ accepted: false, code: 'free_limit_reached' })
+  })
+
   test('admits free runs again once the reservations of a server that died without reconciling them expire', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'layerhand-meter-'))
     const databaseUrl = `sqlite://${join(directory, 'layerhand.db')}`
