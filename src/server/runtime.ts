@@ -134,6 +134,22 @@ function readAgentConfig(env: Environment, config: ServerConfig | undefined): Ag
 }
 
 /**
+ * The origin PUBLIC_URL names, when it is set and parses. Behind a
+ * TLS-terminating proxy like Cloud Run, Bun sees the request's own URL as
+ * http://, while a browser's `Origin` header on the deployed page is
+ * https://, so the origin check compares against this rather than the
+ * request's own URL whenever it is known (#115).
+ */
+function publicOrigin(publicUrl: string | undefined): string | undefined {
+  if (!publicUrl) return undefined
+  try {
+    return new URL(publicUrl).origin
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * The host page's address under PUBLIC_URL. Any user name or password in
  * PUBLIC_URL is dropped, because the address is handed to Browserbase's
  * browser.
@@ -166,6 +182,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
   const config = production ? readConfig(env) : undefined
   const limits = readRunLimits(env)
   const runsPaused = readRunsPaused(env)
+  const origin = publicOrigin(env.PUBLIC_URL)
   const agent = runMode === 'agent' ? readAgentConfig(env, config) : undefined
   const database = createDatabase(config?.databaseUrl ?? env.DATABASE_URL ?? ':memory:')
 
@@ -206,6 +223,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       waitlistStore: new SqlWaitlistStore(database),
       sessionSecret: config?.sessionSecret ?? env.SESSION_SECRET ?? 'layerhand-development-session-secret',
       trustProxyHops: config?.trustProxyHops ?? 0,
+      ...(origin ? { publicOrigin: origin } : {}),
       // A free run reserves the most it may spend (NFR-2), so the ceiling never undercounts it.
       freeRunReservationMicroUsd: usdToMicroUsd(limits.freeRunSpendCapUsd),
       clientAddress: options.clientAddress,

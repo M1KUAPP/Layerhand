@@ -51,6 +51,14 @@ export interface RunRouteDependencies {
   runsPaused?: boolean
   /** Checks a user's own key with OpenAI, when the run mode opens a browser for it. */
   checkApiKey?: (apiKey: string) => Promise<OpenAiKeyCheck>
+  /**
+   * The origin the page is actually reached at, from `PUBLIC_URL`, when
+   * known. Behind a TLS-terminating proxy like Cloud Run the request's own
+   * URL is http:// while a browser's `Origin` header is https://, so the
+   * origin check compares against this instead of the request's own URL
+   * whenever it is set (#115).
+   */
+  publicOrigin?: string
 }
 
 class RequestTooLargeError extends Error {
@@ -143,17 +151,23 @@ async function boundedJson(request: Request, limit: number): Promise<Record<stri
 
 /**
  * True when a state-changing request's own headers say it came from another
- * site. A request carrying neither header — any non-browser client — is
- * let through (#115).
+ * site. `Sec-Fetch-Site` decides outright when a browser sends it: `none` is
+ * a direct navigation, not a cross-site request, so both it and
+ * `same-origin` are allowed. Without it, `Origin` is compared against
+ * `publicOrigin` when one is configured, and against the request's own URL
+ * otherwise — never both, because behind a TLS-terminating proxy like Cloud
+ * Run the request's own URL is http:// while a browser's `Origin` is
+ * https://, and only `publicOrigin` knows the real scheme (#115). A request
+ * carrying neither header — any non-browser client — is let through.
  */
-function fromAllowedOrigin(request: Request, url: URL): boolean {
+function fromAllowedOrigin(request: Request, url: URL, publicOrigin: string | undefined): boolean {
   const secFetchSite = request.headers.get('sec-fetch-site')
+  if (secFetchSite) return secFetchSite === 'same-origin' || secFetchSite === 'none'
+
   const origin = request.headers.get('origin')
-  if (!secFetchSite && !origin) return true
-  if (secFetchSite && secFetchSite !== 'same-origin') return false
   if (!origin) return true
   try {
-    return new URL(origin).origin === url.origin
+    return new URL(origin).origin === (publicOrigin ?? url.origin)
   } catch {
     return false
   }
@@ -201,7 +215,7 @@ export class RunRoutes {
 
   async handle(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url)
-    if (request.method === 'POST' && !fromAllowedOrigin(request, url)) {
+    if (request.method === 'POST' && !fromAllowedOrigin(request, url, this.#dependencies.publicOrigin)) {
       return apiError('origin_refused', 'This request did not come from the Layerhand page.', 403)
     }
     try {
