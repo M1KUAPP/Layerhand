@@ -1,6 +1,8 @@
 import type { SQL, TransactionSQL } from 'bun'
 
 const FREE_RUN_LIMIT = 3
+/** Free runs one address may accept in a UTC day, unless configured otherwise (#115). */
+export const DEFAULT_FREE_RUNS_PER_ADDRESS_PER_DAY = 10
 
 /**
  * How long a free run's reservation counts against the day's budget: the
@@ -68,6 +70,15 @@ const FREE_LIMIT: Exclude<AdmissionResult, { accepted: true }> = {
   message: 'You have used all three free Layerhand runs.'
 }
 
+// A separate message from FREE_LIMIT's: the address's daily allowance is
+// configurable (#115), so a message naming a number would go stale the
+// moment an operator changes it, unlike the visitor's fixed three (FR-35).
+const ADDRESS_LIMIT: Exclude<AdmissionResult, { accepted: true }> = {
+  accepted: false,
+  code: 'free_limit_reached',
+  message: "Today's free runs from this address are used up. Add your own OpenAI API key to continue."
+}
+
 const DAILY_LIMIT: Exclude<AdmissionResult, { accepted: true }> = {
   accepted: false,
   code: 'daily_budget_reached',
@@ -95,16 +106,23 @@ export class SqlMeterStore implements MeterStore {
   readonly #database: SQL
   readonly #dailyCeilingMicroUsd: number
   readonly #now: () => Date
+  readonly #addressFreeRunsPerDay: number
   /** Each free reservation not yet given back, with the id of its row. */
   readonly #active = new WeakMap<MeterReservation, string>()
   #transactionTail: Promise<void> = Promise.resolve()
 
-  constructor(database: SQL, dailyCeilingMicroUsd: number, now: () => Date = () => new Date()) {
+  constructor(
+    database: SQL,
+    dailyCeilingMicroUsd: number,
+    now: () => Date = () => new Date(),
+    addressFreeRunsPerDay: number = DEFAULT_FREE_RUNS_PER_ADDRESS_PER_DAY
+  ) {
     assertMicroUsd(dailyCeilingMicroUsd, 'Daily ceiling')
     if (dailyCeilingMicroUsd === 0) throw new Error('Daily ceiling must be positive')
     this.#database = database
     this.#dailyCeilingMicroUsd = dailyCeilingMicroUsd
     this.#now = now
+    this.#addressFreeRunsPerDay = addressFreeRunsPerDay
   }
 
   async admit(request: AdmissionRequest): Promise<AdmissionResult> {
@@ -138,16 +156,18 @@ export class SqlMeterStore implements MeterStore {
 
         // The address's own count, so a fresh cookie at a used-up address
         // still refuses (#115): a visitor key mixes the two together, so
-        // either one alone used to reset by changing the other.
+        // either one alone used to reset by changing the other. Scoped to
+        // the day, unlike the visitor's lifetime count, so an address
+        // shared by many people is not locked out for good.
         const addresses = await transaction`
-          INSERT INTO address_usage (address_key, accepted_free_runs)
-          VALUES (${reservation.addressKey}, 1)
-          ON CONFLICT (address_key) DO UPDATE SET
+          INSERT INTO address_usage (address_key, day_utc, accepted_free_runs)
+          VALUES (${reservation.addressKey}, ${reservation.dayUtc}, 1)
+          ON CONFLICT (address_key, day_utc) DO UPDATE SET
             accepted_free_runs = address_usage.accepted_free_runs + 1
-          WHERE address_usage.accepted_free_runs < ${FREE_RUN_LIMIT}
+          WHERE address_usage.accepted_free_runs < ${this.#addressFreeRunsPerDay}
           RETURNING accepted_free_runs
         `
-        if (addresses.length === 0) throw new AdmissionDenied(FREE_LIMIT)
+        if (addresses.length === 0) throw new AdmissionDenied(ADDRESS_LIMIT)
 
         await this.#assertRoom(transaction, reservation, liveSince)
 
@@ -220,7 +240,9 @@ export class SqlMeterStore implements MeterStore {
         `
         await transaction`
           UPDATE address_usage SET accepted_free_runs = accepted_free_runs - 1
-          WHERE address_key = ${reservation.addressKey} AND accepted_free_runs > 0
+          WHERE address_key = ${reservation.addressKey}
+            AND day_utc = ${reservation.dayUtc}
+            AND accepted_free_runs > 0
         `
         await transaction`DELETE FROM meter_reservations WHERE reservation_id = ${reservationId}`
       })
