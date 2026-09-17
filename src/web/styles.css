@@ -700,6 +700,14 @@ legend,
   grid-column: 1 / -1;
 }
 
+/* The line a watched run shows in the correction form's place. */
+.watching-note {
+  flex: none;
+  padding: 1.1rem 2.25rem;
+  color: var(--color-text-secondary);
+  font: var(--text-ui-small);
+}
+
 .run-notices {
   flex: none;
   min-height: 2rem;
