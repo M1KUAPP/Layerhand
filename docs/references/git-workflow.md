@@ -84,8 +84,10 @@ notification, and the reviewer see first.
 
 | Where                                       | What it blocks                                                    |
 | ------------------------------------------- | ----------------------------------------------------------------- |
+| The `main` ruleset                          | A merge that skips a step of [the loop](#the-loop)                |
 | `.husky/commit-msg`                         | A commit whose message is not conventional                        |
 | `.husky/pre-push`                           | A push straight to the default branch                             |
+| `.github/workflows/test.yml`                | A failing test, or a type error                                   |
 | `.github/workflows/conventional-lint.yml`   | A bad pull request title, or a bad commit                         |
 | `.github/workflows/lint.yml`                | An unformatted tree                                               |
 | `.github/workflows/container.yml`           | An image that does not build or start                             |
@@ -95,13 +97,20 @@ notification, and the reviewer see first.
 | `.github/pull_request_template.md`          | Nothing; it reminds you                                           |
 | `.github/ISSUE_TEMPLATE/`                   | Blank issues, and titles with no type                             |
 
-Nothing in that table can stop a merge. On a private repository, branch
-rulesets and branch protection need GitHub Pro, Team, or Enterprise, and
-the API returns 403 for this one, so review, resolved conversations, and
-green checks before merging are kept by convention rather than enforced.
-A scheduled workflow has no merge to block in the first place: a failing
-run shows in the Actions tab, and GitHub emails whoever last edited its
-`schedule` trigger.
+The ruleset is what turns the workflows into merge gates. It is a
+repository setting rather than a file, it covers `main`, and nobody is on
+its bypass list, admins included. A pull request merges only with:
+
+- one approval, which cannot come from its author;
+- every review conversation resolved;
+- a rebase merge, the only method it allows, onto a linear history;
+- passing **Test and typecheck**, **Formatting**, **Container smoke
+  test**, **Pull request title**, and **Commit messages** checks.
+
+It also refuses a push straight to `main`, a force push, and deleting the
+branch. A scheduled workflow has no merge to block in the first place: a
+failing run shows in the Actions tab, and GitHub emails whoever last
+edited its `schedule` trigger.
 
 The local hooks and the workflows share one rule set, `commitlint.config.mjs`,
 so they cannot drift apart. The hooks are the fast feedback; the workflows are
@@ -159,3 +168,54 @@ gh api -X PATCH 'repos/{owner}/{repo}' --silent \
   -F allow_squash_merge=false \
   -F allow_merge_commit=false
 ```
+
+The ruleset on `main` is created the same way, once. The integration id
+`15368` is GitHub Actions, the app that reports every required check:
+
+```sh
+gh api -X POST 'repos/{owner}/{repo}/rulesets' --silent --input - <<'EOF'
+{
+  "name": "main",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] }
+  },
+  "bypass_actors": [],
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "required_linear_history" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": false,
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": ["rebase"]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [
+          { "context": "Test and typecheck", "integration_id": 15368 },
+          { "context": "Formatting", "integration_id": 15368 },
+          { "context": "Container smoke test", "integration_id": 15368 },
+          { "context": "Pull request title", "integration_id": 15368 },
+          { "context": "Commit messages", "integration_id": 15368 }
+        ]
+      }
+    }
+  ]
+}
+EOF
+```
+
+To change it later, send the same body with `PUT` to
+`repos/{owner}/{repo}/rulesets/<id>`, taking the id from
+`gh api 'repos/{owner}/{repo}/rulesets'`, rather than creating a second
+one.
