@@ -312,14 +312,11 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 20_000)
 
-  test('captures waitlist email and enforces the exact desktop boundary', async () => {
+  test('captures waitlist email below 1280 px and enforces the exact desktop boundary for the workbench', async () => {
     const page = await browser.newPage({ viewport: { width: 1279, height: 800 } })
     try {
       await page.goto(application.origin)
-      await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(true)
-      await expect(page.locator('#app').isVisible()).resolves.toBe(false)
-
-      await page.setViewportSize({ width: 1280, height: 800 })
+      // The landing page itself is not desktop-gated (NFR-7, #128).
       await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(false)
       await expect(page.locator('#app').isVisible()).resolves.toBe(true)
 
@@ -327,6 +324,14 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.getByRole('button', { name: 'Email me the recording' }).click()
       await page.getByText('Thanks. The recording will come to that address.').waitFor()
       await page.getByRole('button', { name: 'Retouch a photo' }).click()
+
+      // Only the workbench stays desktop-only, at the exact 1280 px boundary.
+      await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(true)
+      await expect(page.locator('#app').isVisible()).resolves.toBe(false)
+
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await expect(page.locator('#desktop-required').isVisible()).resolves.toBe(false)
+      await expect(page.locator('#app').isVisible()).resolves.toBe(true)
 
       const dropZone = page.locator('.drop-zone')
       expect(await dropZone.getAttribute('tabindex')).toBeNull()
