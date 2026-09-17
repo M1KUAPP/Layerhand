@@ -987,17 +987,31 @@ Four more checks sit in front of `POST /api/uploads`, `/api/runs`, and
 `/api/waitlist`, refusing a request before it can spend anything (#115):
 
 1.  **A rate limit, per visitor and per address.** Each endpoint keeps
-    its own count of a rolling window, so a burst on one does not spend
-    another's budget; a visitor over its own limit or an address over
-    its limit is refused the same way, with HTTP 429 and a stated
-    `{code, message}` body. Both counts live in memory, which is
-    acceptable because production runs one instance.
+    its own count of a rolling minute, so a burst on one does not spend
+    another's budget. The visitor is checked first; once it alone
+    already refuses, the address's count is left untouched, so one
+    visitor cannot spend another's share of their shared address. A
+    visitor or an address over its limit is refused the same way, with
+    HTTP 429 and a stated `{code, message}` body. Both counts live in
+    memory, which is acceptable because production runs one instance,
+    and both are configurable — `REQUESTS_PER_VISITOR_PER_MINUTE`
+    (default 10) and `REQUESTS_PER_ADDRESS_PER_MINUTE` (default 60,
+    well above the visitor default, for an office, a carrier, or a
+    conference network sharing one address).
 1.  **An origin check, on every state-changing request.** A `POST`
     whose `Origin` or `Sec-Fetch-Site` header names another site is
     refused with HTTP 403, before the route it named ever runs. A
     request carrying neither header — a script or another non-browser
     client, rather than a page loaded in someone's browser — is
     allowed, because there is no site for it to misname.
+    `Sec-Fetch-Site`, when a browser sends it, decides outright:
+    `same-origin` and `none` (a direct navigation) are allowed, anything
+    else refused. Otherwise, `Origin` is compared against the origin
+    `PUBLIC_URL` names, not against the request's own URL — behind a
+    TLS-terminating proxy like Cloud Run, Bun sees every request's own
+    URL as `http://`, while a browser on the deployed page sends an
+    `https://` `Origin`, so comparing against the request's own URL
+    would refuse every same-origin request in production.
 1.  **A JSON body cap**, on `POST /api/runs/:id/steer` and
     `/api/waitlist`, the two endpoints that take one. A body is refused
     with HTTP 413 as it streams in, the same discipline
@@ -1091,12 +1105,15 @@ confuse in the wrong direction.
 
 The free allowance is enforced server-side, accepting that this is
 defeatable, against a signed cookie and against the address
-independently (#115): each keeps its own count of up to three accepted
-free runs in its own table, `visitor_usage` and `address_usage`, so
-exhausting either one refuses the run — a fresh cookie no longer also
-resets what the address behind it has already used. The global daily
-ceiling is what actually protects us, and it is the one that must be
-tested by being hit.
+independently (#115): a fresh cookie no longer also resets what the
+address behind it has already used. The two counts differ in shape as
+well as in table: `visitor_usage` holds the visitor's fixed lifetime
+cap of three (FR-35), and `address_usage` holds the address's own
+count for the UTC day, `FREE_RUNS_PER_ADDRESS_PER_DAY`, default ten —
+scoped to the day, and set higher than the visitor's three, so an
+address shared by many people is not locked out for good once three of
+them have run something. The global daily ceiling is what actually
+protects us, and it is the one that must be tested by being hit.
 
 A user-supplied key (FR-36) bypasses the free-run limit and the daily
 ceiling, because it is their money. It does not bypass the step or
