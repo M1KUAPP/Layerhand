@@ -1,0 +1,58 @@
+{
+  "checkedAt": "2026-09-18T00:16:00+08:00",
+  "application": {
+    "name": "Adobe Photoshop 2026",
+    "version": "27.10.0"
+  },
+  "checks": [
+    {
+      "name": "September 16 acceptance export",
+      "workflowRun": 35053901674,
+      "sourceCommit": "54ba352f67809665cd6b02ac5efc0c7aa28e5554",
+      "agentRunId": "45ef0024-2261-41dd-85c8-dfc908f0bff1",
+      "psdSha256": "dc5739ba575c914cf14390268c0f45e444863e9c522226393b6aaeb423021780",
+      "warningDialog": false,
+      "document": "640 x 480 RGB/8",
+      "layers": 6,
+      "adjustmentEdit": {
+        "layer": "Gentle brightening",
+        "property": "brightness",
+        "from": 6,
+        "to": 40,
+        "visibleChange": true
+      },
+      "maskEdit": {
+        "layer": "Soft corner vignette",
+        "operation": "translate right with Free Transform",
+        "visibleChange": true
+      }
+    },
+    {
+      "name": "Frozen deployed build",
+      "workflowRun": 35244658116,
+      "sourceCommit": "e419b7d193061b544a7a02531a84cd0bd16a4c30",
+      "agentRunId": "38dcba32-23e9-4a00-bd17-7bfd296f9c90",
+      "psdSha256": "3780d240f920bbc01d0b1fe71bdf4ac977f1c1ae4042c80a110daf6c1fa69e6c",
+      "warningDialog": false,
+      "document": "640 x 480 RGB/8",
+      "layers": 6,
+      "adjustmentEdit": {
+        "layer": "Gentle brightness",
+        "property": "brightness",
+        "from": 6,
+        "to": 40,
+        "visibleChange": true
+      },
+      "maskEdit": {
+        "layer": "Soft corner vignette",
+        "operation": "translate right with Free Transform",
+        "visibleChange": true
+      }
+    }
+  ],
+  "scope": {
+    "photoshop": "passed",
+    "affinityPhoto": "not tested",
+    "gimp": "not tested"
+  }
+}

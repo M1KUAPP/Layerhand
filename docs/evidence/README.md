@@ -11,6 +11,9 @@ its README gives the result, how to run it again, and any known limits.
 - [Photopea production export](/docs/evidence/photopea-production-export/README.md)
   — the PSD the production export path made, which the default test suite
   parses.
+- [Photoshop agent export](/docs/evidence/photoshop-agent-export/README.md) —
+  issue #98: real agent exports opened and edited in Photoshop before and
+  after the launch freeze.
 - [Driving mechanism](/docs/evidence/driving-mechanism/README.md) — spike A0:
   the `computer` tool against code execution, on three images.
 - [Codex proxy run](/docs/evidence/codex-proxy/README.md) — a feasibility hint
