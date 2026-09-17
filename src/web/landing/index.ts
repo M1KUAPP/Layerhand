@@ -1,6 +1,7 @@
 import { renderDrawer } from './drawer'
 import { renderGlass } from './glass'
 import { renderHero, renderTicker } from './hero'
+import { renderInstall } from './install'
 import { renderSteps } from './steps'
 import { renderSwitcher } from './switcher'
 import { renderWaitlist } from './waitlist'
@@ -103,7 +104,7 @@ export function renderLanding(context: LandingContext): DocumentFragment {
   const shell = node('div', 'hero-shell')
   shell.append(renderHero(context), renderTicker())
   const body = node('div', 'landing-body')
-  body.append(renderSteps(), renderSwitcher(), renderDrawer(), renderGlass(), renderWaitlist(context))
+  body.append(renderSteps(), renderSwitcher(), renderDrawer(), renderGlass(), renderWaitlist(context), renderInstall())
 
   fragment.append(header, shell, body)
   return fragment
