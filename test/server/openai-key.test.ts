@@ -34,6 +34,23 @@ describe('checkOpenAiKey', () => {
     expect(check).toBe('accepted')
   })
 
+  test('gives up on OpenAI after four seconds, inside the five a run has to start in', async () => {
+    const startedAt = performance.now()
+
+    const check = await checkOpenAiKey(
+      'sk-visitor-own-key-000000',
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+        })
+    )
+    const elapsedMs = performance.now() - startedAt
+
+    expect(check).toBe('unchecked')
+    expect(elapsedMs).toBeGreaterThanOrEqual(3_900)
+    expect(elapsedMs).toBeLessThan(4_900)
+  }, 6_000)
+
   test('leaves a key unchecked when OpenAI fails, is busy, or cannot be reached', async () => {
     const answer = (status: number) => async () => new Response('', { status })
 
