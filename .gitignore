@@ -64,3 +64,6 @@ graphify-out/*
 !graphify-out/GRAPH_REPORT.md
 !graphify-out/graph.html
 !graphify-out/graph.json
+
+# Python bytecode from the demo recorder tests
+__pycache__/
