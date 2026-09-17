@@ -134,7 +134,7 @@
 }
 
 .hero__updates {
-  background: transparent;
+  background: var(--paper);
   color: var(--ink);
 }
 
@@ -260,6 +260,8 @@
   margin: 0;
   padding: 10px 14px;
   border: 1px solid var(--color-border-strong);
+  /* The chips float over the window's photograph, so they are glass. */
+  backdrop-filter: var(--glass-blur);
   font: var(--text-ui-small);
   white-space: nowrap;
   translate: 0 calc(var(--hero-progress) * -60%);
@@ -272,14 +274,14 @@
 .hero__chip--steps {
   top: 56px;
   left: -40px;
-  background: var(--paper);
+  background-color: var(--glass-fill);
   color: var(--ink);
 }
 
 .hero__chip--steer {
   right: -16px;
   bottom: 72px;
-  background: var(--color-bg-band);
+  background-color: var(--glass-fill-chrome);
   color: var(--color-text-on-chrome);
 }
 
