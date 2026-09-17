@@ -3,6 +3,7 @@ import { renderFaq } from './faq'
 import { renderGlass } from './glass'
 import { renderHero, renderTicker } from './hero'
 import { renderInstall } from './install'
+import { mountPointer } from './pointer'
 import { mountReveal } from './reveal'
 import { renderSteps } from './steps'
 import { renderSwitcher } from './switcher'
@@ -117,6 +118,7 @@ export function renderLanding(context: LandingContext): DocumentFragment {
     renderInstall()
   )
 
+  mountPointer(shell)
   requestAnimationFrame(() => mountReveal(body))
 
   fragment.append(header, shell, body)
