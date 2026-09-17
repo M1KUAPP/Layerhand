@@ -12,6 +12,7 @@ import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:z
 import ogImageDarkPath from '../web/assets/og-image-dark.png'
 import ogImagePath from '../web/assets/og-image.png'
 import { SECURITY_HEADERS } from './application'
+import claudeMarketplace from './claude-marketplace.json'
 import { SOCIAL_IMAGE_PATHS, withSocialMeta } from './social-meta'
 
 const PAGE_SHELL_PATH = '/page-shell'
@@ -51,7 +52,7 @@ async function bundledFiles(page: HTMLBundle): Promise<PageFile[]> {
   return build.outputs.map((output) => ({ path: output.path, body: output, headers: { 'content-type': output.type } }))
 }
 
-function securedResponse(body: Blob, headers: Record<string, string> = {}): Response {
+function securedResponse(body: BodyInit, headers: Record<string, string> = {}): Response {
   return new Response(body, { headers: { ...headers, ...SECURITY_HEADERS } })
 }
 
@@ -215,6 +216,12 @@ export async function pageRoutes(
     [SOCIAL_IMAGE_PATHS.dark]: securedResponse(Bun.file(ogImageDarkPath))
   }
 
+  // The Claude Code plugin marketplace (#136) is one static document; like
+  // the banners it is served in both route tables.
+  const marketplace = securedResponse(JSON.stringify(claudeMarketplace), {
+    'content-type': 'application/json'
+  })
+
   if (process.env.LAYERHAND_PAGE_RELOAD) {
     // Bun's own route for an HTML import rebundles the page on every
     // request under `bun --hot`, so an edit under src/web shows up without a
@@ -226,6 +233,7 @@ export async function pageRoutes(
         const shell = await fetch(new URL(PAGE_SHELL_PATH, request.url))
         return withSocialMeta(shell, publicUrl ?? new URL(request.url).origin)
       },
+      '/plugins/marketplace.json': marketplace,
       ...banners
     }
   }
@@ -273,6 +281,7 @@ export async function pageRoutes(
       headers.set('content-length', String(uncompressedBytes.byteLength))
       return new Response(uncompressedBytes, { headers })
     },
+    '/plugins/marketplace.json': marketplace,
     ...banners
   }
 }

@@ -192,6 +192,22 @@ describe('page routes', () => {
     }
   })
 
+  test('serves the Claude Code plugin marketplace, with the security headers (#136)', async () => {
+    const server = await serve('https://layerhand.test')
+
+    const response = await fetch(new URL('/plugins/marketplace.json', server.url))
+    const body = (await response.json()) as {
+      name: string
+      plugins: { source: { package: string } }[]
+    }
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toStartWith('application/json')
+    expectSecurityHeadersPreserved(response)
+    expect(body.name).toBe('layerhand')
+    expect(body.plugins[0]?.source.package).toBe('layerhand-mcp')
+  })
+
   test('serves the files the page loads', async () => {
     const server = await serve('https://layerhand.test')
 
