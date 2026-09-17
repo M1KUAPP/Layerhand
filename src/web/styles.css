@@ -661,18 +661,20 @@ noscript {
   border-top: 1px solid var(--ink);
 }
 
-/* NFR-7 gate. Issue #128 asks whether the landing page should render
-   below 1280 px. To show it, change #app to
-   #app:not([data-view='landing']), and #site-footer to
-   body:not(:has(#app[data-view='landing'])) #site-footer. */
+/* NFR-7 gate, amended by #128 on September 16-17: below 1280 px the
+   landing page renders; only the workbench (every other view) stays
+   desktop-only, and #desktop-required says so in its place. */
 @media (max-width: 1279px) {
-  #app,
-  #site-footer,
+  #app:not([data-view='landing']),
   noscript {
     display: none;
   }
 
-  #desktop-required {
+  body:not(:has(#app[data-view='landing'])) #site-footer {
+    display: none;
+  }
+
+  body:not(:has(#app[data-view='landing'])) #desktop-required {
     display: grid;
   }
 }
