@@ -135,6 +135,8 @@ describe('Layerhand workbench markup', () => {
     // hero's hairline grid and the layer switcher's illustration.
     const switcher = await landingFile('switcher.css').text()
     expect(css.replace(switcher, '').replace(/\.hero-shell \{[^}]*\}/, '')).not.toContain('gradient')
+    // Glass is a fill and a blur together, and the blur is one token.
+    for (const filter of css.matchAll(/backdrop-filter:\s*([^;]+);/g)) expect(filter[1]).toBe('var(--glass-blur)')
     expect(css).not.toContain('border-radius')
     // The landing's motion vocabulary exceeds 180 ms by design; the cap
     // stays on the workbench shell.
