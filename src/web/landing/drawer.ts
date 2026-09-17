@@ -37,6 +37,69 @@ const LAYERS: DrawerLayer[] = [
   }
 ]
 
+// The run's own narration, as its events.ndjson recorded it. The steps the
+// log leaves out are summarised in one line rather than invented.
+const LOG_BEFORE = [
+  'I’ll inspect the editor and create the brightness adjustment.',
+  'I’ll add Brightness/Contrast as an editable adjustment layer.',
+  'I’ll gently brighten the scene while retaining its soft highlights.'
+]
+const CORRECTION = 'Keep the vignette very subtle, and leave the middle of the photograph untouched.'
+const LOG_AFTER = [
+  'I’ll use restrained warmth and keep the vignette off the middle.',
+  'I’ll name the warming layer clearly.',
+  'I’ll label both adjustments and add a separate vignette layer.'
+]
+const LOG_END = 'I’ll close the menu and check the final layered result.'
+
+const STATS = [
+  { value: '16', label: 'steps, start to PSD' },
+  { value: '3 min 13 s', label: 'for the whole run' },
+  { value: '194 ms', label: 'to accept the correction' },
+  { value: '4', label: 'named layers handed back' }
+]
+
+function logStep(number: number, text: string): HTMLElement {
+  const row = node('li', 'drawer__step')
+  row.append(
+    node('span', 'drawer__step-number', String(number).padStart(2, '0')),
+    node('span', 'drawer__step-text', text)
+  )
+  return row
+}
+
+function renderLog(): HTMLElement {
+  const log = node('div', 'drawer__log')
+  log.setAttribute('role', 'group')
+  log.setAttribute('aria-labelledby', 'drawer-log-title')
+  const head = node('div', 'drawer__log-head')
+  const title = node('p', 'drawer__log-title', 'Run log')
+  title.id = 'drawer-log-title'
+  head.append(title, node('p', 'drawer__log-meta', 'September 15 · the deployed service'))
+
+  const steps = node('ol', 'drawer__steps')
+  for (const [index, text] of LOG_BEFORE.entries()) steps.append(logStep(index + 1, text))
+  const correction = node('li', 'drawer__step drawer__step--correction')
+  const said = node('div', 'drawer__said')
+  said.append(
+    node('span', 'drawer__said-label', 'Correction, typed after step 3'),
+    node('span', 'drawer__said-text', `“${CORRECTION}”`),
+    node('span', 'drawer__said-meta', 'Accepted in 194 ms. Nothing restarted.')
+  )
+  correction.append(icon('hgi-message-edit-01', 'drawer__said-icon'), said)
+  steps.append(correction)
+  for (const [index, text] of LOG_AFTER.entries()) steps.append(logStep(index + 4, text))
+  const gap = node('li', 'drawer__step drawer__step--gap')
+  gap.append(
+    node('span', 'drawer__step-number', '...'),
+    node('span', 'drawer__step-text', 'Steps 7 to 15 paint the corners, finish the names and save the PSD.')
+  )
+  steps.append(gap, logStep(16, LOG_END))
+
+  log.append(head, steps)
+  return log
+}
+
 function renderLayer(layer: DrawerLayer): HTMLElement {
   const row = node('li', 'drawer__layer')
   row.dataset.kind = layer.kind
@@ -60,6 +123,7 @@ function renderLayer(layer: DrawerLayer): HTMLElement {
 
 export function renderDrawer(): HTMLElement {
   const section = node('section', 'drawer')
+  section.id = 'real-run'
   section.dataset.section = 'drawer'
   section.setAttribute('aria-labelledby', 'drawer-title')
 
@@ -74,6 +138,14 @@ export function renderDrawer(): HTMLElement {
       'On September 15, Layerhand was asked to brighten a seascape, warm its colours and darken its corners. Partway through, it was told to keep the vignette very subtle. These are the layers in the PSD it handed back.'
     )
   )
+
+  const stats = node('dl', 'drawer__stats')
+  for (const stat of STATS) {
+    const item = node('div', 'drawer__stat')
+    item.append(node('dt', 'drawer__stat-label', stat.label), node('dd', 'drawer__stat-value', stat.value))
+    stats.append(item)
+  }
+  section.append(stats)
 
   // The names repeat outside the sheet because the drawer alone cannot
   // carry the message: the sheet stays closed until it is asked for.
@@ -91,7 +163,7 @@ export function renderDrawer(): HTMLElement {
   openButton.setAttribute('aria-controls', 'drawer-sheet')
   openButton.setAttribute('aria-expanded', 'false')
   openButton.append(icon('hgi-layers-01'), 'Show the layers')
-  section.append(openButton)
+  section.append(openButton, renderLog())
 
   const scrim = node('div', 'drawer__scrim')
   scrim.setAttribute('aria-hidden', 'true')
