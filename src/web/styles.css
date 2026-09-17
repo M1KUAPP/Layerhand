@@ -107,7 +107,7 @@ h2 {
   display: none;
   min-height: 100dvh;
   place-content: center;
-  gap: 0.7rem;
+  gap: 16px;
   padding: 2rem;
   text-align: center;
 }
@@ -120,6 +120,17 @@ h2 {
 
 #desktop-required span {
   color: var(--color-text-tertiary);
+}
+
+#desktop-required-back {
+  justify-self: center;
+  background: var(--accent);
+  color: var(--color-text-on-accent);
+}
+
+#desktop-required-updates {
+  color: var(--ink);
+  text-decoration: underline;
 }
 
 .site-header {
