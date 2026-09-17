@@ -475,7 +475,9 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
         sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
       }
     } catch (error) {
-      dispatch({ type: 'connection_failed', message: publicMessage(error) })
+      // A refused cancel does not end the run: the running view or the
+      // result stays on screen, with the refusal shown as a notice (#123).
+      dispatch({ type: 'action_refused', message: publicMessage(error) })
     }
   })
   fragment.append(brandHeader(cancel))
@@ -503,13 +505,18 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
   field.name = 'correction'
   field.maxLength = 500
   field.placeholder = 'For example: keep the label unchanged'
+  // Corrections are refused for the whole finishing window (#123), so the
+  // field is disabled as soon as a cancel is requested rather than left to
+  // fail server-side, and while the run is still queued and cannot be
+  // corrected yet (#102).
+  field.disabled = current.progress.cancelRequested || current.progress.queuePosition !== null
   const send = button('Send correction', 'button button-dark')
+  send.id = 'send-correction'
   send.type = 'submit'
+  send.disabled = field.disabled
   const correctionHint = node('p', 'field-hint', 'A correction steers the next action. It does not restart the run.')
   correctionHint.id = 'correction-hint'
   field.setAttribute('aria-describedby', correctionHint.id)
-  field.disabled = current.progress.queuePosition !== null
-  send.disabled = field.disabled
   correction.append(label, field, send, correctionHint)
   correction.addEventListener('submit', async (event) => {
     event.preventDefault()
@@ -520,9 +527,13 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
       await api.steer(current.progress.runId, text)
       field.value = ''
     } catch (error) {
-      dispatch({ type: 'connection_failed', message: publicMessage(error) })
+      // A refused correction does not end the run: the running view or the
+      // result stays on screen, with the refusal shown as a notice (#123).
+      dispatch({ type: 'action_refused', message: publicMessage(error) })
     } finally {
-      send.disabled = false
+      // A cancel requested while this was in flight must stay disabled;
+      // read the live state rather than the render this closure captured.
+      send.disabled = state.view === 'running' && state.progress.cancelRequested
     }
   })
 
@@ -546,11 +557,11 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   const credits = root.querySelector<HTMLElement>('#run-credits')
   const action = root.querySelector<HTMLElement>('#run-action')
   const cancel = root.querySelector<HTMLButtonElement>('#cancel-run')
+  const field = root.querySelector<HTMLInputElement>('#correction')
+  const send = root.querySelector<HTMLButtonElement>('#send-correction')
   const frame = root.querySelector<HTMLElement>('#live-frame')
   const notices = root.querySelector<HTMLElement>('#run-notices')
-  const field = root.querySelector<HTMLInputElement>('#correction')
-  const send = root.querySelector<HTMLButtonElement>('.correction-form button[type="submit"]')
-  if (!step || !credits || !action || !cancel || !frame || !notices || !field || !send) return
+  if (!step || !credits || !action || !cancel || !field || !send || !frame || !notices) return
 
   step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
   credits.textContent = formatCredits(current.progress.costUsd)
@@ -562,6 +573,14 @@ function updateRunning(current: Extract<ClientState, { view: 'running' }>): void
   if (field.disabled !== queued) {
     field.disabled = queued
     send.disabled = queued
+  }
+  // Only latches on: a correction already in flight manages send.disabled
+  // itself, and must not be re-enabled here once cancelling has started.
+  // Applied after the queue toggle above so a cancel always wins, even for
+  // a run that was still queued when cancelled (#123).
+  if (current.progress.cancelRequested) {
+    field.disabled = true
+    send.disabled = true
   }
 
   if (current.progress.frameUrl) {
@@ -593,6 +612,9 @@ function renderResult(current: Extract<ClientState, { view: 'result' }>): Docume
   const title = node('h1', undefined, titleText)
   title.id = 'result-title'
   copy.append(eyebrow('Retouch result'), title, description(resultOutcomeText(current.outcome)))
+  // A correction or cancel refused after the run ended lands here rather
+  // than replacing the result (#123).
+  for (const message of current.progress.recoverableErrors) copy.append(node('p', 'notice', message))
 
   const recap = node('dl', 'result-recap')
   if (current.progress.instruction) {

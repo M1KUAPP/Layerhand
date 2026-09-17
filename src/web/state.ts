@@ -43,6 +43,7 @@ export type ClientAction =
   | { type: 'snapshot'; snapshot: RunSnapshot; instruction?: string | null }
   | { type: 'event'; id: number; event: RunStreamEvent }
   | { type: 'cancel_requested' }
+  | { type: 'action_refused'; message: string }
   | { type: 'connection_failed'; message: string }
   | { type: 'reset' }
 
@@ -170,6 +171,24 @@ export function initialClientState(): ClientState {
   return { view: 'landing' }
 }
 
+// A refused correction or cancel does not end the run: the running view or
+// the result stays on screen, with the refusal shown as a notice (#123).
+function withRefusalNotice(state: ClientState, message: string): ClientState {
+  if (state.view === 'running') {
+    return {
+      view: 'running',
+      progress: { ...state.progress, recoverableErrors: [...state.progress.recoverableErrors, message] }
+    }
+  }
+  if (state.view === 'result') {
+    return {
+      ...state,
+      progress: { ...state.progress, recoverableErrors: [...state.progress.recoverableErrors, message] }
+    }
+  }
+  return state
+}
+
 export function reduceClientState(state: ClientState, action: ClientAction): ClientState {
   switch (action.type) {
     case 'edit':
@@ -189,6 +208,8 @@ export function reduceClientState(state: ClientState, action: ClientAction): Cli
       return state.view === 'running'
         ? { view: 'running', progress: { ...state.progress, cancelRequested: true } }
         : state
+    case 'action_refused':
+      return withRefusalNotice(state, action.message)
     case 'connection_failed':
       return {
         view: 'error',
