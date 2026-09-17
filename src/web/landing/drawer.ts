@@ -125,10 +125,13 @@ export function renderDrawer(): HTMLElement {
     if (opened) {
       sheet.inert = false
       section.classList.add('is-open')
+      // The scrim must not drag the page underneath the sheet.
+      document.documentElement.classList.add('drawer-open')
       openButton.setAttribute('aria-expanded', 'true')
       closeButton.focus()
     } else {
       section.classList.remove('is-open')
+      document.documentElement.classList.remove('drawer-open')
       openButton.setAttribute('aria-expanded', 'false')
       openButton.focus()
       // A close in the same frame as its open starts no transition, so
