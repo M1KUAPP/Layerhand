@@ -825,7 +825,7 @@ describe('event stream keep-alive', () => {
  * failure injection, or any of `fixture()`'s other knobs — just a working
  * HTTP surface with a controllable clock (#115).
  */
-function testRoutes(overrides: { now?: () => Date } = {}) {
+function testRoutes(overrides: { now?: () => Date; publicOrigin?: string } = {}) {
   const registry = new RunRegistry()
   const meter = new RecordingMeter()
   const artifacts = new RecordingArtifacts()
@@ -841,6 +841,7 @@ function testRoutes(overrides: { now?: () => Date } = {}) {
     clientAddress: () => '203.0.113.10',
     now: overrides.now ?? (() => new Date('2026-09-15T12:00:00.000Z')),
     idGenerator: () => `public-run-${++nextId}`,
+    ...(overrides.publicOrigin ? { publicOrigin: overrides.publicOrigin } : {}),
     runFactory: (request) => ({
       handle: fakeRun(request, { intervalMs: 1 }),
       metrics: () => ({ cacheHitRate: null, stopReason: 'complete' }),
@@ -895,6 +896,46 @@ describe('cross-origin protection (#115)', () => {
     const response = await app.fetch(waitlistRequest())
 
     expect(response.status).toBe(201)
+  })
+
+  test('allows Sec-Fetch-Site: none', async () => {
+    const { app } = testRoutes()
+
+    const response = await app.fetch(waitlistRequest({ 'sec-fetch-site': 'none' }))
+
+    expect(response.status).toBe(201)
+  })
+
+  // Behind Cloud Run, TLS ends at Google's front end: Bun sees the request's
+  // own URL as http://, while a browser on the deployed page sends an
+  // Origin of https://. Comparing Origin against the request's own URL
+  // would refuse every same-origin POST on deploy (#115).
+  test('allows a same-origin request whose request URL is http:// but matches the configured public origin', async () => {
+    const { app } = testRoutes({ publicOrigin: 'https://layerhand.test' })
+
+    const response = await app.fetch(
+      new Request('http://layerhand.test/api/waitlist', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'https://layerhand.test' },
+        body: JSON.stringify({ email: 'ada@example.com' })
+      })
+    )
+
+    expect(response.status).toBe(201)
+  })
+
+  test('refuses an origin that does not match the configured public origin', async () => {
+    const { app } = testRoutes({ publicOrigin: 'https://layerhand.test' })
+
+    const response = await app.fetch(
+      new Request('http://layerhand.test/api/waitlist', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'https://evil.example' },
+        body: JSON.stringify({ email: 'ada@example.com' })
+      })
+    )
+
+    expect(response.status).toBe(403)
   })
 
   test('leaves a GET request unaffected', async () => {
