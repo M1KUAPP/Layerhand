@@ -115,6 +115,17 @@ test('GET the marketplace catalog twice points the plugin at a hosted archive, n
   expect(bodies[0]).toEqual(bodies[1])
 }, 60_000)
 
+test('the Codex plugin manifest uses the hosted tarball, not unpublished npm', async () => {
+  const manifest = (await Bun.file(new URL('../../packages/layerhand-mcp/mcp.json', import.meta.url)).json()) as {
+    mcpServers: { layerhand: { args: string[] } }
+  }
+
+  expect(manifest.mcpServers.layerhand.args).toEqual([
+    '-y',
+    'https://layerhand-732371853772.us-central1.run.app/plugins/layerhand-mcp.tgz'
+  ])
+})
+
 test('GET the hosted MCP tarball twice is a real npm pack of layerhand-mcp', async () => {
   const server = await serve('https://layerhand.test')
   const url = new URL('/plugins/layerhand-mcp.tgz', server.url)
@@ -134,6 +145,8 @@ test('GET the hosted MCP tarball twice is a real npm pack of layerhand-mcp', asy
     const listing = new TextDecoder('latin1').decode(tar)
     expect(listing).toContain('package/package.json')
     expect(listing).toContain('package/dist/layerhand-mcp.js')
+    expect(listing).toContain('https://layerhand-732371853772.us-central1.run.app/plugins/layerhand-mcp.tgz')
+    expect(listing).not.toContain('"-y", "layerhand-mcp"')
   }
 
   expect(sizes[0]).toBe(sizes[1])

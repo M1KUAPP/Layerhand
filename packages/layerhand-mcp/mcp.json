@@ -4,7 +4,7 @@
     "layerhand": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "layerhand-mcp"]
+      "args": ["-y", "https://layerhand-732371853772.us-central1.run.app/plugins/layerhand-mcp.tgz"]
     }
   }
 }
