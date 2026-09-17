@@ -632,6 +632,45 @@ describe('run HTTP contract', () => {
     expect(target.artifacts.calls).toContain('delete:upload/random.png')
   })
 
+  test('turns away a run that would wait in a full line before anything is stored or reserved', async () => {
+    const target = fixture({ maxConcurrentRuns: 1, runIntervalMs: 60_000 })
+    const runIds: string[] = []
+    // One run in flight, and twice as many waiting.
+    for (let run = 0; run < 3; run++) {
+      runIds.push(((await (await target.app.fetch(startRequest())).json()) as { runId: string }).runId)
+    }
+    const meterCalls = [...target.meter.calls]
+    const artifactCalls = [...target.artifacts.calls]
+
+    const refused = await target.app.fetch(startRequest())
+
+    expect(refused.status).toBe(429)
+    expect(await refused.json()).toEqual({
+      code: 'queue_full',
+      message: 'Layerhand is busy, and the line to start a run is full. Try again in a few minutes.'
+    })
+    expect(target.meter.calls).toEqual(meterCalls)
+    expect(target.artifacts.calls).toEqual(artifactCalls)
+    for (const runId of runIds.reverse()) await target.registry.cancel(runId)
+  })
+
+  test('turns away a free run that would wait for budget in a full line, but starts one on its own key', async () => {
+    const meter = new RecordingMeter()
+    // Two free runs, each held back when submitted and when first tried, then a third when submitted.
+    meter.heldBack = 5
+    const target = fixture({ meter, maxConcurrentRuns: 1 })
+    await target.app.fetch(startRequest())
+    await target.app.fetch(startRequest())
+
+    const refused = await target.app.fetch(startRequest())
+    const ownKey = await target.app.fetch(startRequest({ apiKey: 'sk-visitor-own-key-000000' }))
+
+    expect(refused.status).toBe(429)
+    expect(((await refused.json()) as { code: string }).code).toBe('queue_full')
+    expect(ownKey.status).toBe(201)
+    expect(target.artifacts.calls.filter((call) => call.startsWith('put:'))).toHaveLength(3)
+  })
+
   test('gives back the free run and the upload of a run that leaves the queue', async () => {
     const target = fixture({ maxConcurrentRuns: 1, runIntervalMs: 60_000 })
     const first = (await (await target.app.fetch(startRequest())).json()) as { runId: string }
