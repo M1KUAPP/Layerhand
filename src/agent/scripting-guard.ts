@@ -6,7 +6,7 @@
 // attempts one, so the two can never drift apart (#109).
 import type { ComputerAction } from '../editor/session'
 
-const SCRIPTED_TYPING_PATTERN = /app\.|echoToOE|saveToOE/
+const SCRIPTED_TYPING_PATTERN = /app\.\w|echoToOE|saveToOE/
 
 export function isScriptedTyping(action: ComputerAction): action is Extract<ComputerAction, { type: 'type' }> {
   return action.type === 'type' && SCRIPTED_TYPING_PATTERN.test(action.text)
