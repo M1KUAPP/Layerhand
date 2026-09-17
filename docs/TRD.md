@@ -1225,8 +1225,9 @@ again, and a run whose retries run out stops with its partial file, as
   asynchronously, so an object can still outlive that day by up to
   another one. The rule is committed as `.github/gcs-lifecycle.json`,
   and the manual `.github/workflows/gcs-lifecycle.yml` — triggered only
-  by `workflow_dispatch`, never by push — applies it on request and
-  always prints the bucket's live rule.
+  by `workflow_dispatch`, never by push, and held for the same approval
+  as a deploy — applies it on request and always prints the bucket's live
+  rule.
 - Two tighter guarantees sit in front of that day-old backstop: an
   upload is deleted from the bucket as soon as its run ends, and every
   download link — the PSD's and the preview's — expires after one hour
@@ -1354,7 +1355,7 @@ still in three more ways (#112): `--min-instances 1` trades an idle instance
 for the eight seconds a cold `/health` cost against well under two warm; a
 push that changes only documentation, `graphify-out/`, or evidence never
 triggers the workflow at all (`paths-ignore`); and the deploy step waits
-for an approval once a required reviewer is set on the `production`
+for an approval from a required reviewer on the `production`
 environment, a repository setting the workflow does not itself apply. The
 [launch-day runbook](/docs/references/launch-day.md#the-freeze-and-the-no-deploy-rule)
 has the approval and rollback steps.
