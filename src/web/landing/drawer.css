@@ -273,6 +273,16 @@ html.drawer-open {
   }
 }
 
+/* The Close control measures 58x16 at 390 px; the padding widens its hit
+   area past 44 px each way and the negative margin keeps the layout
+   unchanged. */
+@media (pointer: coarse) {
+  .drawer__close {
+    padding: 14px;
+    margin: -14px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* The shell clamps every reduced-motion transition to 0.01ms with
      !important, so each cross-fade restores its own duration the same
