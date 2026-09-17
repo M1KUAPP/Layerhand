@@ -79,7 +79,7 @@ describeBrowser('landing faq section in Chromium', () => {
       expect(order!.faqIndex).toBe(order!.glassIndex + 1)
       expect(order!.waitlistIndex).toBe(order!.faqIndex + 1)
 
-      // 2. Nav holds a link named "FAQ" to #faq directly before "Updates"
+      // 2. Nav holds a link named "FAQ" to #faq, then MCP, then Updates
       const navLinks = await page
         .locator('.site-nav a')
         .evaluateAll((links) =>
@@ -87,7 +87,8 @@ describeBrowser('landing faq section in Chromium', () => {
         )
       const faqNavIndex = navLinks.findIndex((l) => l.text === 'FAQ' && l.href === '#faq')
       expect(faqNavIndex).toBeGreaterThan(-1)
-      expect(navLinks[faqNavIndex + 1]).toEqual({ text: 'Updates', href: '#updates' })
+      expect(navLinks[faqNavIndex + 1]).toEqual({ text: 'MCP', href: '/mcp' })
+      expect(navLinks[faqNavIndex + 2]).toEqual({ text: 'Updates', href: '#updates' })
     } finally {
       await page.close()
     }
