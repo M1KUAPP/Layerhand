@@ -1085,9 +1085,12 @@ arithmetic below is what that owner redoes.
 Each free run reserves NFR-2's $8 spend cap when it is admitted, and gives
 back the difference when it ends. A reservation nothing gives back, because
 the server that admitted the run crashed or was stopped first, stops
-counting twenty minutes after it was made: the fifteen-minute run ceiling,
-plus five minutes for a run stopped there to export and be reconciled, by
-which time no run can still be spending it. A run is admitted only while
+counting twenty minutes after its run started: the fifteen-minute run
+ceiling, plus five minutes for a run stopped there to export and be
+reconciled, by which time no run can still be spending it. A run that
+waited in line is counted again from its start, and one whose reservation
+stopped counting while it waited must fit the ceiling again before it
+starts. A run is admitted only while
 the day's spend, plus what is still reserved, plus its own $8, stays within
 the ceiling. A run that fits the day's spend and is held back only by what
 is reserved waits in line for it, as
