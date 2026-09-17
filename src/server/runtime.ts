@@ -218,12 +218,19 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       ...(warmSessions ? { warmSessions } : {}),
       // Only agent mode opens a browser for a run, so only it checks the key first.
       ...(agent ? { checkApiKey: (apiKey: string) => checkOpenAiKey(apiKey, options.openAiFetch) } : {}),
-      meterStore: new SqlMeterStore(database, usdToMicroUsd(dailyBudgetUsd)),
+      meterStore: new SqlMeterStore(
+        database,
+        usdToMicroUsd(dailyBudgetUsd),
+        () => new Date(),
+        limits.freeRunsPerAddressPerDay
+      ),
       artifactStore,
       waitlistStore: new SqlWaitlistStore(database),
       sessionSecret: config?.sessionSecret ?? env.SESSION_SECRET ?? 'layerhand-development-session-secret',
       trustProxyHops: config?.trustProxyHops ?? 0,
       ...(origin ? { publicOrigin: origin } : {}),
+      requestsPerVisitorPerMinute: limits.requestsPerVisitorPerMinute,
+      requestsPerAddressPerMinute: limits.requestsPerAddressPerMinute,
       // A free run reserves the most it may spend (NFR-2), so the ceiling never undercounts it.
       freeRunReservationMicroUsd: usdToMicroUsd(limits.freeRunSpendCapUsd),
       clientAddress: options.clientAddress,

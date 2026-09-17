@@ -72,13 +72,29 @@ export interface RunLimits {
   freeRunSpendCapUsd: number
   /** Runs in flight at once, free and on a user's own key alike; the rest wait in line (NFR-4). */
   maxConcurrentRuns: number
+  /** Free runs one address may accept in a UTC day (#115). */
+  freeRunsPerAddressPerDay: number
+  /** Requests one visitor may make of an endpoint in a minute (#115). */
+  requestsPerVisitorPerMinute: number
+  /** Requests one address may make of an endpoint in a minute (#115). */
+  requestsPerAddressPerMinute: number
 }
 
 // The live agent run needed 19 steps, so 40 leaves room; $3 is several times its $0.85.
 // Twenty runs is NFR-4's figure. It fits Browserbase's 25 browsers beside the
 // four warm sessions, and twenty scripted runs peaked at 679 MiB of the 4 GiB
-// service. Our OpenAI tier is unconfirmed (#3), and may bind first.
-export const DEFAULT_RUN_LIMITS: RunLimits = { stepCap: 40, freeRunSpendCapUsd: 3, maxConcurrentRuns: 20 }
+// service. Our OpenAI tier is unconfirmed (#3), and may bind first. The rate
+// limits are sized to comfortably clear ordinary use while still blocking a
+// tight automated loop; 60 requests per address per minute, not 30, allows
+// for an office, a carrier, or a conference network sharing one address.
+export const DEFAULT_RUN_LIMITS: RunLimits = {
+  stepCap: 40,
+  freeRunSpendCapUsd: 3,
+  maxConcurrentRuns: 20,
+  freeRunsPerAddressPerDay: 10,
+  requestsPerVisitorPerMinute: 10,
+  requestsPerAddressPerMinute: 60
+}
 
 /** The run limits, in every environment. Each is optional and has a default. */
 export function readRunLimits(env: Environment): RunLimits {
@@ -94,7 +110,19 @@ export function readRunLimits(env: Environment): RunLimits {
     maxConcurrentRuns:
       env.MAX_CONCURRENT_RUNS === undefined
         ? DEFAULT_RUN_LIMITS.maxConcurrentRuns
-        : parsePositiveInteger('MAX_CONCURRENT_RUNS', env.MAX_CONCURRENT_RUNS)
+        : parsePositiveInteger('MAX_CONCURRENT_RUNS', env.MAX_CONCURRENT_RUNS),
+    freeRunsPerAddressPerDay:
+      env.FREE_RUNS_PER_ADDRESS_PER_DAY === undefined
+        ? DEFAULT_RUN_LIMITS.freeRunsPerAddressPerDay
+        : parsePositiveInteger('FREE_RUNS_PER_ADDRESS_PER_DAY', env.FREE_RUNS_PER_ADDRESS_PER_DAY),
+    requestsPerVisitorPerMinute:
+      env.REQUESTS_PER_VISITOR_PER_MINUTE === undefined
+        ? DEFAULT_RUN_LIMITS.requestsPerVisitorPerMinute
+        : parsePositiveInteger('REQUESTS_PER_VISITOR_PER_MINUTE', env.REQUESTS_PER_VISITOR_PER_MINUTE),
+    requestsPerAddressPerMinute:
+      env.REQUESTS_PER_ADDRESS_PER_MINUTE === undefined
+        ? DEFAULT_RUN_LIMITS.requestsPerAddressPerMinute
+        : parsePositiveInteger('REQUESTS_PER_ADDRESS_PER_MINUTE', env.REQUESTS_PER_ADDRESS_PER_MINUTE)
   }
 }
 
