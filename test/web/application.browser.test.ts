@@ -71,7 +71,7 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.locator('[data-view="running"]').waitFor()
 
       const stored = await page.evaluate(() => ({ ...sessionStorage }))
-      expect(Object.keys(stored)).toEqual(['layerhand.runId', 'layerhand.instruction'])
+      expect(Object.keys(stored)).toEqual(['layerhand.runId', 'layerhand.runToken', 'layerhand.instruction'])
       expect(JSON.stringify(stored)).not.toContain(sentinel)
       expect(await page.locator('#api-key').count()).toBe(0)
 
@@ -205,6 +205,27 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.goto(application.origin)
       await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
       await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('error-title')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('opens a watch link view-only, with no controls and nothing stored (#136)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      const form = new FormData()
+      form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
+      form.set('filename', 'source.png')
+      form.set('instruction', 'Remove the background')
+      const started = (await (
+        await fetch(`${application.origin}/api/runs`, { method: 'POST', body: form })
+      ).json()) as { runId: string }
+
+      await page.goto(`${application.origin}/?watch=${started.runId}`)
+      await page.getByText('You are watching this run. Corrections come from the agent that started it.').waitFor()
+      expect(await page.locator('#cancel-run').count()).toBe(0)
+      expect(await page.locator('#correction').count()).toBe(0)
+      expect(await page.evaluate(() => sessionStorage.getItem('layerhand.runId'))).toBeNull()
     } finally {
       await page.close()
     }
@@ -521,6 +542,7 @@ describeBrowser('launch application in Google Chrome', () => {
       form.set('instruction', 'Remove the background')
       const holding = (await (await fetch(`${busy.origin}/api/runs`, { method: 'POST', body: form })).json()) as {
         runId: string
+        runToken: string
       }
 
       await startQueuedRun()
@@ -531,7 +553,10 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.waitForFunction(() => sessionStorage.getItem('layerhand.runId') === null)
 
       await startQueuedRun()
-      await fetch(`${busy.origin}/api/runs/${holding.runId}/cancel`, { method: 'POST' })
+      await fetch(`${busy.origin}/api/runs/${holding.runId}/cancel`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${holding.runToken}` }
+      })
       await page.getByRole('button', { name: 'Cancel and keep work' }).waitFor()
       await expect(page.getByText('Preparing the editor…').count()).resolves.toBe(1)
       await expect(correction.isEnabled()).resolves.toBe(true)
@@ -716,7 +741,10 @@ describeBrowser('launch application in Google Chrome', () => {
           })
         })
       )
-      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.evaluate((id) => {
+        sessionStorage.setItem('layerhand.runId', id)
+        sessionStorage.setItem('layerhand.runToken', 'fixture-run-token')
+      }, runId)
       await page.reload()
 
       await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
@@ -751,7 +779,10 @@ describeBrowser('launch application in Google Chrome', () => {
           body: JSON.stringify({ code: 'run_not_found', message: 'The requested run does not exist.' })
         })
       )
-      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.evaluate((id) => {
+        sessionStorage.setItem('layerhand.runId', id)
+        sessionStorage.setItem('layerhand.runToken', 'fixture-run-token')
+      }, runId)
       await page.reload()
 
       await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
@@ -779,7 +810,10 @@ describeBrowser('launch application in Google Chrome', () => {
       // refusal above: a run possibly still going on the server must stay
       // reachable from a later reload (FR-14), so the stored id survives.
       await page.route(`**/api/runs/${runId}`, (route) => route.abort())
-      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.evaluate((id) => {
+        sessionStorage.setItem('layerhand.runId', id)
+        sessionStorage.setItem('layerhand.runToken', 'fixture-run-token')
+      }, runId)
       await page.reload()
 
       await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
@@ -819,12 +853,14 @@ describeBrowser('launch application in Google Chrome', () => {
   test('asks for confirmation before leaving a live run, and only leaves when accepted (#126)', async () => {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
     let runId: string | null = null
+    let runToken: string | null = null
     try {
       await openInput(page, application.origin)
       await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Warm the highlights')
       await page.getByRole('button', { name: 'Start retouching' }).click()
       await page.locator('[data-view="running"]').waitFor()
       runId = await page.evaluate(() => sessionStorage.getItem('layerhand.runId'))
+      runToken = await page.evaluate(() => sessionStorage.getItem('layerhand.runToken'))
 
       await page.getByRole('button', { name: 'Return to Layerhand' }).click()
       // Playwright auto-dismisses an unhandled dialog, so a dismissed
@@ -835,8 +871,11 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.getByRole('button', { name: 'Return to Layerhand' }).click()
       await page.getByRole('button', { name: 'Retouch a photo' }).waitFor()
     } finally {
-      if (runId) {
-        await fetch(`${application.origin}/api/runs/${runId}/cancel`, { method: 'POST' }).catch(() => undefined)
+      if (runId && runToken) {
+        await fetch(`${application.origin}/api/runs/${runId}/cancel`, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${runToken}` }
+        }).catch(() => undefined)
       }
       await page.close()
     }
@@ -873,7 +912,10 @@ describeBrowser('launch application in Google Chrome', () => {
           })
         })
       )
-      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.evaluate((id) => {
+        sessionStorage.setItem('layerhand.runId', id)
+        sessionStorage.setItem('layerhand.runToken', 'fixture-run-token')
+      }, runId)
       await page.reload()
 
       await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
