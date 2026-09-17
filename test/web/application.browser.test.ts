@@ -440,6 +440,31 @@ describeBrowser('launch application in Google Chrome', () => {
     }
   }, 30_000)
 
+  test('points to the key field when OpenAI turns the key away', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await page.route('**/api/runs', (route) =>
+        route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            code: 'invalid_api_key',
+            message: 'OpenAI did not accept this API key. Check the key and try again.'
+          })
+        })
+      )
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Warm the highlights')
+      await page.getByRole('textbox', { name: 'OpenAI API key (optional)' }).fill('sk-mistyped-key-000000')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+
+      await page.getByText('Check the OpenAI API key in this field.').waitFor({ timeout: 3_000 })
+      await expect(page.evaluate(() => document.activeElement?.id)).resolves.toBe('api-key')
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   test('labels a step-cap result incomplete', async () => {
     const capped = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
