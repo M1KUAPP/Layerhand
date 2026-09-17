@@ -223,8 +223,14 @@ export class RunRoutes {
 
   async handle(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url)
-    if (request.method === 'POST' && !fromAllowedOrigin(request, url, this.#dependencies.publicOrigin)) {
-      return apiError('origin_refused', 'This request did not come from the Layerhand page.', 403)
+    if (request.method === 'POST') {
+      // A paused launch says so before a run start is checked any further (#118).
+      if (url.pathname === '/api/runs' && this.#dependencies.runsPaused) {
+        return apiError('runs_paused', 'New runs are paused right now. Try again shortly.', 503)
+      }
+      if (!fromAllowedOrigin(request, url, this.#dependencies.publicOrigin)) {
+        return apiError('origin_refused', 'This request did not come from the Layerhand page.', 403)
+      }
     }
     try {
       if (request.method === 'POST' && url.pathname === '/api/runs') {
@@ -309,9 +315,6 @@ export class RunRoutes {
   }
 
   async #start(request: Request): Promise<Response> {
-    if (this.#dependencies.runsPaused) {
-      return apiError('runs_paused', 'New runs are paused right now. Try again shortly.', 503)
-    }
     const identity = await this.#visitor(request)
     const limited = this.#checkRateLimit(this.#runLimiter, identity)
     if (limited) return limited

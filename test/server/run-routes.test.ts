@@ -556,6 +556,17 @@ describe('run HTTP contract', () => {
     expect(target.runRequests).toEqual([])
   })
 
+  test('answers a paused run start before checking where it came from (#118)', async () => {
+    const target = fixture({ paused: true })
+    const request = startRequest()
+    request.headers.set('sec-fetch-site', 'cross-site')
+
+    const response = await target.app.fetch(request)
+
+    expect(response.status).toBe(503)
+    expect(await response.json()).toMatchObject({ code: 'runs_paused' })
+  })
+
   test('returns a stated limit response without starting paid work', async () => {
     const meter = new RecordingMeter()
     meter.refuse = {
