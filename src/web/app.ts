@@ -16,6 +16,9 @@ import {
 
 const RUN_STORAGE_KEY = 'layerhand.runId'
 const INSTRUCTION_STORAGE_KEY = 'layerhand.instruction'
+// Leaving mid-run does not cancel it (that is what Cancel is for); this is
+// only a guard against leaving by accident while it is still spending (#126).
+const LEAVE_RUN_CONFIRMATION = 'Leave this run? It keeps going, and a reload is the only way back to it.'
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024
 const IMAGE_UPLOAD_ERROR_CODES = new Set([
   'unsupported_image_format',
@@ -70,7 +73,12 @@ function brandHeader(trailingAction?: HTMLButtonElement): HTMLElement {
   const brand = node('button', 'wordmark', 'Layerhand')
   brand.type = 'button'
   brand.setAttribute('aria-label', 'Return to Layerhand')
-  brand.addEventListener('click', () => dispatch({ type: 'reset' }))
+  brand.addEventListener('click', () => {
+    // A live or queued run keeps going once its view is left (#126), so
+    // leaving it by accident is confirmed first.
+    if (state.view === 'running' && !window.confirm(LEAVE_RUN_CONFIRMATION)) return
+    dispatch({ type: 'reset' })
+  })
   header.append(brand)
   if (trailingAction) header.append(trailingAction)
   return header
