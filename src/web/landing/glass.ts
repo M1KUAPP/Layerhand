@@ -786,7 +786,9 @@ async function mountGlass(host: HTMLElement, fallback: SVGSVGElement | null): Pr
   const src = URL.createObjectURL(new Blob([layersText], { type: 'image/svg+xml' }))
   const tokens = getComputedStyle(document.documentElement)
   const highlight = tokens.getPropertyValue('--accent').trim()
-  const paper = tokens.getPropertyValue('--paper').trim()
+  // The glass sits on the chrome band, so it takes the band's light tone in
+  // either colour scheme rather than the page's paper.
+  const paper = tokens.getPropertyValue('--color-text-on-chrome').trim()
   try {
     host.append(canvas)
     const instance = createGlassObject(
