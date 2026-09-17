@@ -24,6 +24,7 @@ import {
   type DrivingMechanism
 } from '../../../src/agent/responses-model'
 import { ScriptedModel } from '../../../src/agent/scripted-model'
+import { isScriptedTyping } from '../../../src/agent/scripting-guard'
 import { createPhotopeaEditorSession } from '../../../src/editor/photopea-editor-session'
 import { createPhotopeaHostHtml } from '../../../src/editor/photopea-host'
 import type { LayerInfo } from '../../../src/editor/session'
@@ -42,9 +43,6 @@ export const INSTRUCTION = [
 // Code that mentions any of these reached Photopea's scripting interface
 // rather than its GUI, which is not what the spike measures.
 const SCRIPTING_PATTERN = /postMessage|__layerhand|echoToOE/
-// Text typed into the editor that looks like a script: the computer tool's
-// only route to Photopea scripting is its own script dialog.
-const TYPED_SCRIPT_PATTERN = /app\.|echoToOE|saveToOE/
 
 const DEFAULT_IMAGES = [
   '../../../src/web/assets/sample-photo.png',
@@ -182,7 +180,7 @@ async function measure(mechanism: DrivingMechanism, imagePath: string, index: nu
       try {
         const turn = await inner.next(observation, signal)
         for (const action of turn.actions) {
-          if (action.type === 'type' && TYPED_SCRIPT_PATTERN.test(action.text)) {
+          if (isScriptedTyping(action)) {
             typedScripts += 1
             appendFileSync(codePath, `${JSON.stringify({ typed: action.text })}\n`)
           }
