@@ -477,7 +477,14 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     } catch (error) {
       // A refused cancel does not end the run: the running view or the
       // result stays on screen, with the refusal shown as a notice (#123).
-      dispatch({ type: 'action_refused', message: publicMessage(error) })
+      // A request that never reached the server at all (a `RunApiError` is
+      // only thrown for a server's stated refusal) is a real connection
+      // loss, which the run's own "connection lost" error view handles.
+      dispatch(
+        error instanceof RunApiError
+          ? { type: 'action_refused', message: publicMessage(error) }
+          : { type: 'connection_failed', message: publicMessage(error) }
+      )
     }
   })
   fragment.append(brandHeader(cancel))
@@ -529,7 +536,14 @@ function renderRunning(current: Extract<ClientState, { view: 'running' }>): Docu
     } catch (error) {
       // A refused correction does not end the run: the running view or the
       // result stays on screen, with the refusal shown as a notice (#123).
-      dispatch({ type: 'action_refused', message: publicMessage(error) })
+      // A request that never reached the server at all (a `RunApiError` is
+      // only thrown for a server's stated refusal) is a real connection
+      // loss, which the run's own "connection lost" error view handles.
+      dispatch(
+        error instanceof RunApiError
+          ? { type: 'action_refused', message: publicMessage(error) }
+          : { type: 'connection_failed', message: publicMessage(error) }
+      )
     } finally {
       // A cancel requested while this was in flight must stay disabled;
       // read the live state rather than the render this closure captured.

@@ -564,4 +564,28 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
     }
   }, 30_000)
+
+  test('shows the connection-failure view when a correction never reaches the server (#123)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Remove the background')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+
+      // The request never reaches the server at all, unlike the stated
+      // refusals above: a real connection loss, not a refusal, so the run's
+      // own "connection lost" error view must still appear (#123).
+      await page.route('**/api/runs/*/steer', (route) => route.abort())
+      await page.getByRole('textbox', { name: 'Correct the next action' }).fill('Keep the label unchanged')
+      await page.getByRole('button', { name: 'Send correction' }).click()
+
+      await page
+        .getByText('The server could not be reached. Check your connection and try again.')
+        .waitFor({ timeout: 3_000 })
+      await expect(page.locator('[data-view="error"]').count()).resolves.toBe(1)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
 })
