@@ -2,6 +2,7 @@ import samplePhotoUrl from './assets/sample-photo.png'
 import type { LayerInfo } from '../editor/contract'
 import { RunApi, RunApiError } from './api'
 import './footer'
+import './scroll'
 import { renderLanding, type LandingContext } from './landing/index'
 import {
   correctionStatuses,
@@ -80,9 +81,12 @@ function button(text: string, className = 'button'): HTMLButtonElement {
 
 function brandHeader(trailingAction?: HTMLButtonElement): HTMLElement {
   const header = node('header', 'site-header')
-  const brand = node('button', 'wordmark', 'Layerhand')
+  const brand = node('button', 'wordmark')
   brand.type = 'button'
   brand.setAttribute('aria-label', 'Return to Layerhand')
+  const mark = node('span', 'wordmark__mark', 'L')
+  mark.setAttribute('aria-hidden', 'true')
+  brand.append(mark, 'Layerhand')
   brand.addEventListener('click', () => {
     // A live or queued run keeps going once its view is left (#126), so
     // leaving it by accident is confirmed first.
