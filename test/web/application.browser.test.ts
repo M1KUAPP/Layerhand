@@ -593,4 +593,100 @@ describeBrowser('launch application in Google Chrome', () => {
       await page.close()
     }
   }, 30_000)
+
+  test('offers to start over after a failed run, not a reconnect that repeats the failure (#126)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    const runId = 'failed-fixture-126'
+    try {
+      await page.goto(application.origin)
+      await page.route(`**/api/runs/${runId}`, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            runId,
+            status: 'failed',
+            steps: 3,
+            cap: 40,
+            narration: null,
+            frameUrl: null,
+            costUsd: 0.12,
+            tokensIn: 1000,
+            tokensOut: 200,
+            lastEventId: 2,
+            corrections: [],
+            recoverableErrors: [],
+            failureReason: 'The editor stopped responding.'
+          })
+        })
+      )
+      await page.evaluate((id) => sessionStorage.setItem('layerhand.runId', id), runId)
+      await page.reload()
+
+      await page.getByRole('heading', { name: 'The retouching run stopped.' }).waitFor()
+      await page.getByText('The editor stopped responding.').waitFor()
+      expect(await page.getByRole('button', { name: 'Reconnect to run' }).count()).toBe(0)
+      await page.getByRole('button', { name: 'Start a new retouch' }).click()
+
+      await page.locator('[data-view="input"]').waitFor()
+      await page.waitForFunction(() => sessionStorage.getItem('layerhand.runId') === null)
+
+      // The failed run must not come back on a further reload (#126).
+      await page.reload()
+      await page.getByRole('button', { name: 'Retouch a photo' }).waitFor()
+      expect(await page.getByRole('heading', { name: 'The retouching run stopped.' }).count()).toBe(0)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
+  test('clears the stored run for "Retouch another", so a reload does not restore the old result (#126)', async () => {
+    const fast = await startTestApplication({ fakeRunIntervalMs: 20, stepCap: 2 })
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    try {
+      await openInput(page, fast.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Warm the highlights')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).waitFor()
+      expect(await page.evaluate(() => sessionStorage.getItem('layerhand.runId'))).not.toBeNull()
+
+      await page.getByRole('button', { name: 'Retouch another' }).click()
+      await page.locator('[data-view="input"]').waitFor()
+      await page.waitForFunction(() => sessionStorage.getItem('layerhand.runId') === null)
+
+      // The previous result must not come back on a reload (#126).
+      await page.reload()
+      await page.getByRole('button', { name: 'Retouch a photo' }).waitFor()
+      expect(await page.getByRole('heading', { name: 'Your partial layered file is ready.' }).count()).toBe(0)
+    } finally {
+      await page.close()
+      await fast.close()
+    }
+  }, 30_000)
+
+  test('asks for confirmation before leaving a live run, and only leaves when accepted (#126)', async () => {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+    let runId: string | null = null
+    try {
+      await openInput(page, application.origin)
+      await page.getByRole('textbox', { name: 'Retouching instruction' }).fill('Warm the highlights')
+      await page.getByRole('button', { name: 'Start retouching' }).click()
+      await page.locator('[data-view="running"]').waitFor()
+      runId = await page.evaluate(() => sessionStorage.getItem('layerhand.runId'))
+
+      await page.getByRole('button', { name: 'Return to Layerhand' }).click()
+      // Playwright auto-dismisses an unhandled dialog, so a dismissed
+      // confirmation must not leave the run.
+      await expect(page.locator('[data-view="running"]').count()).resolves.toBe(1)
+
+      page.once('dialog', (dialog) => dialog.accept())
+      await page.getByRole('button', { name: 'Return to Layerhand' }).click()
+      await page.getByRole('button', { name: 'Retouch a photo' }).waitFor()
+    } finally {
+      if (runId) {
+        await fetch(`${application.origin}/api/runs/${runId}/cancel`, { method: 'POST' }).catch(() => undefined)
+      }
+      await page.close()
+    }
+  }, 30_000)
 })
