@@ -64,6 +64,7 @@ export function managedAgentRun(
   // The loop ends such a run as a cap does, but the run log still counts it as failed.
   let modelUnavailable = false
   let stopReason: RunStopReason = 'failed'
+  let refusedActions = 0
   // The loop reports every failure with one fixed reason, so the calls it makes are watched for the cause.
   const failures = new FailureRecorder()
 
@@ -101,7 +102,10 @@ export function managedAgentRun(
     session: failures.session(dependencies.session),
     publish: failures.publish(dependencies.publish),
     abandon,
-    captureFailure: () => failures.freeze()
+    captureFailure: () => failures.freeze(),
+    onRefusedAction: (count) => {
+      refusedActions += count
+    }
   })
 
   // At the ceiling the run is cancelled, so it exports and closes as a cancel
@@ -167,7 +171,8 @@ export function managedAgentRun(
       ...(stopReason === 'failed' ? { failure: failures.failure(missingNarration) } : {}),
       ...(dependencies.model.transport ? { transport: dependencies.model.transport } : {}),
       ...(dependencies.model.steering ? { steering: dependencies.model.steering } : {}),
-      ...(dependencies.model.safetyCheckCodes ? { safetyCheckCodes: dependencies.model.safetyCheckCodes } : {})
+      ...(dependencies.model.safetyCheckCodes ? { safetyCheckCodes: dependencies.model.safetyCheckCodes } : {}),
+      ...(refusedActions > 0 ? { refusedActions } : {})
     }),
     releaseSecrets() {
       request.apiKey = undefined
