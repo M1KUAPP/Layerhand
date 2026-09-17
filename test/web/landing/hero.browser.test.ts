@@ -59,6 +59,11 @@ describeBrowser('landing hero in Chromium', () => {
         expect(await page.locator('.hero__note').textContent()).toBe(
           'Three free runs. No account needed. Uploads are deleted within 24 hours.'
         )
+        expect(await page.locator('.hero__note-desktop').count()).toBe(1)
+        expect(await page.locator('.hero__note-desktop').isVisible()).toBe(false)
+        expect(await page.locator('img.hero__photo').evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(
+          /\.jpg$/
+        )
         expect(await page.locator('.hero__caption').textContent()).toBe(
           'Before retouching: the sample photograph, which you can try in the workbench.'
         )
@@ -141,6 +146,10 @@ describeBrowser('landing hero in Chromium', () => {
       }))
       expect(result.scrollWidth).toBe(result.innerWidth)
       expect(result.copyBottom).toBeLessThanOrEqual(result.mediaTop)
+      const note = page.locator('.hero__note-desktop')
+      expect(await note.count()).toBe(1)
+      expect(await note.isVisible()).toBe(true)
+      expect(await note.textContent()).toBe('The workbench needs a desktop at least 1280 px wide.')
     } finally {
       await page.close()
     }
