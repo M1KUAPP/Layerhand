@@ -28,6 +28,24 @@ describeBrowser('landing scrub section in Chromium', () => {
     }
   })
 
+  test(`starts each headline sentence on its own line at 390x844`, async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      const lines = page.locator('[data-section="scrub"] .scrub__line')
+      const boxes = await lines.evaluateAll((elements) =>
+        elements.map((element) => {
+          const box = element.getBoundingClientRect()
+          return { left: box.left, right: box.right, top: box.top, bottom: box.bottom }
+        })
+      )
+      expect(boxes).toHaveLength(2)
+      expect(boxes[1]!.left).toBe(boxes[0]!.left)
+      expect(boxes[1]!.top).toBeGreaterThanOrEqual(boxes[0]!.bottom)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
 
