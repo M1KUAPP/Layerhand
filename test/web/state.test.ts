@@ -305,6 +305,23 @@ describe('client run reducer', () => {
     })
   })
 
+  test('marks a run the server refuses outright as not reconnectable (#126)', () => {
+    // restoreRun's catch dispatches this for a `RunApiError` (a stated
+    // server answer, such as a run that has aged out of the registry),
+    // never for a dropped connection, so reconnecting cannot just repeat
+    // the same refusal.
+    const state = reduceClientState(initialClientState(), {
+      type: 'run_unavailable',
+      message: 'The requested run does not exist.'
+    })
+
+    expect(state).toEqual({
+      view: 'error',
+      message: 'The requested run does not exist.',
+      reconnectable: false
+    })
+  })
+
   test('shows a queued run in the running view with its place in line, until it starts', () => {
     const restored = reduceClientState(initialClientState(), {
       type: 'snapshot',
