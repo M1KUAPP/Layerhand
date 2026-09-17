@@ -359,3 +359,4 @@ the silent one.
 - [TRD § Observability](/docs/TRD.md#observability) — what one run records.
 - [PRD § Launch acceptance](/docs/PRD.md#launch-acceptance) — what must be true to launch.
 - [Git workflow](/docs/references/git-workflow.md) — how a change reaches `main`.
+- [Demo recorder](/scripts/demo/README.md) — how to film the demo recording.
