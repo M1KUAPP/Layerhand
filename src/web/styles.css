@@ -230,6 +230,14 @@ h2 {
   letter-spacing: -0.04em;
 }
 
+@media (pointer: coarse) {
+  .wordmark,
+  .site-footer__source {
+    padding-block: 14px;
+    margin-block: -14px;
+  }
+}
+
 .text-button {
   border-bottom: 1px solid currentColor;
   font: var(--text-ui-small);
