@@ -26,28 +26,17 @@ describeBrowser('landing drawer in Chromium', () => {
   let application: Awaited<ReturnType<typeof startTestApplication>>
 
   beforeAll(async () => {
-    const fs = await import('node:fs')
-    const mark = (label: string) => fs.appendFileSync('/tmp/drawer-hook.log', `${label} ${Date.now()}\n`)
-    mark('beforeAll start')
     application = await startTestApplication()
-    mark('app started')
     browser = await chromium.launch({ headless: true })
-    mark('browser launched')
-  }, 15_000)
+  }, 30_000)
 
   afterAll(async () => {
-    const fs = await import('node:fs')
-    const mark = (label: string) => fs.appendFileSync('/tmp/drawer-hook.log', `${label} ${Date.now()}\n`)
     try {
-      mark('browser.close start')
       await browser?.close()
-      mark('browser.close done')
     } finally {
-      mark('application.close start')
       await application?.close()
-      mark('application.close done')
     }
-  }, 15_000)
+  }, 30_000)
 
   test(`stacks the kind and mask under the name inside the sheet at 390x844`, async () => {
     const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
@@ -91,8 +80,53 @@ describeBrowser('landing drawer in Chromium', () => {
     }
   }, 30_000)
 
+  test('keeps the run stats and log within the phone width at 390x844', async () => {
+    const page = await openLanding(browser, application.origin, { viewport: { width: 390, height: 844 } })
+    try {
+      await page.locator('#real-run').scrollIntoViewIfNeeded()
+      const boxes = await page.locator('.drawer__stats, .drawer__log').evaluateAll((elements) =>
+        elements.map((element) => {
+          const box = element.getBoundingClientRect()
+          return { left: box.left, right: box.right }
+        })
+      )
+      expect(boxes).toHaveLength(2)
+      for (const box of boxes) {
+        expect(box.left).toBeGreaterThanOrEqual(0)
+        expect(box.right).toBeLessThanOrEqual(390)
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390)
+    } finally {
+      await page.close()
+    }
+  }, 30_000)
+
   for (const viewport of VIEWPORTS) {
     const size = `${viewport.width}x${viewport.height}`
+
+    test(`shows the measured stats and accessible run log at ${size}`, async () => {
+      const page = await openLanding(browser, application.origin, { viewport })
+      try {
+        const section = page.locator('section.drawer#real-run[data-section="drawer"]')
+        expect(await section.locator('dl.drawer__stats .drawer__stat-value').allTextContents()).toEqual([
+          '16',
+          '3 min 13 s',
+          '194 ms',
+          '4'
+        ])
+        const log = section.getByRole('group', { name: 'Run log', exact: true })
+        expect(await log.count()).toBe(1)
+        expect(await log.locator('.drawer__step-text').allTextContents()).toContain(
+          'I’ll inspect the editor and create the brightness adjustment.'
+        )
+        expect(await log.locator('.drawer__step--correction .drawer__said-text').textContent()).toBe(
+          '“Keep the vignette very subtle, and leave the middle of the photograph untouched.”'
+        )
+        expect(await log.locator('.drawer__said-meta').textContent()).toBe('Accepted in 194 ms. Nothing restarted.')
+      } finally {
+        await page.close()
+      }
+    }, 30_000)
 
     test(`shows the section copy with the sheet closed and unfocusable at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport })
@@ -112,7 +146,7 @@ describeBrowser('landing drawer in Chromium', () => {
       } finally {
         await page.close()
       }
-    }, 15_000)
+    }, 30_000)
 
     test(`lists the four layer names beside the copy before the sheet opens at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport })
@@ -129,7 +163,7 @@ describeBrowser('landing drawer in Chromium', () => {
       } finally {
         await page.close()
       }
-    }, 15_000)
+    }, 30_000)
 
     test(`opens the sheet with the four layers in order at ${size}`, async () => {
       const page = await openLanding(browser, application.origin, { viewport })
@@ -173,7 +207,7 @@ describeBrowser('landing drawer in Chromium', () => {
       } finally {
         await page.close()
       }
-    }, 15_000)
+    }, 30_000)
 
     for (const closer of ['Escape', 'the close button', 'a scrim click']) {
       test(`closes on ${closer} and returns focus to the open button at ${size}`, async () => {
@@ -185,7 +219,12 @@ describeBrowser('landing drawer in Chromium', () => {
           await sheet.waitFor({ state: 'visible' })
           if (closer === 'Escape') await page.keyboard.press('Escape')
           else if (closer === 'the close button') await sheet.locator('.drawer__close').click()
-          else await page.mouse.click(40, 40)
+          else {
+            expect(
+              await page.evaluate(() => document.elementFromPoint(40, 100)?.classList.contains('drawer__scrim'))
+            ).toBe(true)
+            await page.mouse.click(40, 100)
+          }
           await sheet.waitFor({ state: 'hidden' })
           expect(await isFocused(open)).toBe(true)
           expect(await open.getAttribute('aria-expanded')).toBe('false')
@@ -193,7 +232,7 @@ describeBrowser('landing drawer in Chromium', () => {
         } finally {
           await page.close()
         }
-      }, 15_000)
+      }, 30_000)
     }
 
     test(`keeps the sheet still under reduced motion at ${size}`, async () => {
@@ -216,6 +255,6 @@ describeBrowser('landing drawer in Chromium', () => {
       } finally {
         await page.close()
       }
-    }, 15_000)
+    }, 30_000)
   }
 })
