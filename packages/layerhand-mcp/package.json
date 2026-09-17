@@ -1,0 +1,33 @@
+{
+  "name": "layerhand-mcp",
+  "version": "0.1.0",
+  "description": "Run Layerhand from Codex, Claude Code, and other agents: AI retouching that returns a layered PSD.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "bin": {
+    "layerhand-mcp": "dist/layerhand-mcp.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    ".claude-plugin",
+    ".mcp.json",
+    "plugin.json",
+    "mcp.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outfile dist/layerhand-mcp.js --banner '#!/usr/bin/env node'",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2",
+    "zod": "^4.6.5"
+  }
+}

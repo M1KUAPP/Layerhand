@@ -13,3 +13,4 @@ test/
 dist/
 artifacts/reliability/
 .env*
+packages/
