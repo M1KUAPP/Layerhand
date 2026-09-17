@@ -199,7 +199,10 @@ does. Two things to know before typing it:
 alike. It is not in `deploy.yml`, so the service runs with the default of 20
 until it is set as above, and the server refuses to start with anything but
 a whole number above zero. A run past the cap waits in line, sees its place,
-and starts by itself. Nothing is logged for it until it ends, and one that
+and starts by itself. The line holds twice the cap: a run that would wait in
+a full line is turned away with a stated message, so raising the cap
+lengthens the line too, and every run waiting in it holds its upload in
+memory. Nothing is logged for a waiting run until it ends, and one that
 leaves the line is logged as `cancelled` with no steps. To see the value a
 revision runs with, where no entry for it means the default:
 
