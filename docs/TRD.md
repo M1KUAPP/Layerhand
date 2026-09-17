@@ -238,9 +238,12 @@ fill the line waiting for budget.
 
 In agent mode, a user's own key is checked before anything is stored,
 reserved, or opened for its run, by listing OpenAI's models with it, which
-costs nothing. A key OpenAI refuses gets 400 `invalid_api_key`, and a check
-OpenAI does not answer gets 503 `api_key_unchecked`, to be tried again. The
-fake and scripted modes open no browser, so they check nothing.
+costs nothing. A key OpenAI does not recognise, which it answers with 401,
+gets 400 `invalid_api_key`. A key it knows but that may not list models, a
+403, passes, and a run that key cannot serve fails with its stated reason.
+A check OpenAI does not answer within four seconds, inside NFR-3's five,
+gets 503 `api_key_unchecked`, to be tried again. The fake and scripted
+modes open no browser, so they check nothing.
 
 ## Fakes first
 
