@@ -231,6 +231,7 @@ export async function createLaunchRuntime(options: LaunchRuntimeOptions): Promis
       ...(origin ? { publicOrigin: origin } : {}),
       requestsPerVisitorPerMinute: limits.requestsPerVisitorPerMinute,
       requestsPerAddressPerMinute: limits.requestsPerAddressPerMinute,
+      maxClientRunsPerAddress: limits.maxClientRunsPerAddress,
       // A free run reserves the most it may spend (NFR-2), so the ceiling never undercounts it.
       freeRunReservationMicroUsd: usdToMicroUsd(limits.freeRunSpendCapUsd),
       clientAddress: options.clientAddress,
