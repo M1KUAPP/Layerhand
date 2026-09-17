@@ -294,17 +294,17 @@ where the footer begins.
   end, so the link is never hidden under the page, under WCAG 2.4.11.
 - **No JavaScript, and print.** The footer stays in the flow after the
   page. In print a fixed footer would repeat on every sheet.
-- **Below 1280px.** The footer hides with the workbench behind the NFR-7
-  gate, and stacks to one column if #128 lifts the gate.
+- **Below 1280px.** The footer stacks to one column and shows with the
+  landing page; it hides only with the workbench, behind the NFR-7
+  gate (#128).
 
 ## Fallbacks
 
-- **Below 1280px.** [NFR-7](PRD.md#non-functional-requirements) puts the
-  workbench out of scope below 1280px.
-  [#128](https://github.com/M1KUAPP/astra/issues/128) asks whether the
-  landing page and waitlist should render there anyway, and that is still
-  a team decision. This document does not settle it; whichever way it
-  goes, the hero must not break at 390px.
+- **Below 1280px.** [NFR-7](PRD.md#non-functional-requirements) puts only
+  the workbench out of scope below 1280px.
+  [#128](https://github.com/M1KUAPP/astra/issues/128) settled, on
+  September 16-17, that the landing page and waitlist render there: the
+  hero holds together down to 390px.
 - **No WebGL.** The Glass Object section falls back to the flat SVG. The
   page loses nothing it needed.
 - **No JavaScript.** The page states what Layerhand is, shows the poster
