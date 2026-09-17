@@ -3,6 +3,7 @@ import { renderFaq } from './faq'
 import { renderGlass } from './glass'
 import { renderHero, renderTicker } from './hero'
 import { renderInstall } from './install'
+import { mountReveal } from './reveal'
 import { renderSteps } from './steps'
 import { renderSwitcher } from './switcher'
 import { renderWaitlist } from './waitlist'
@@ -115,6 +116,8 @@ export function renderLanding(context: LandingContext): DocumentFragment {
     renderWaitlist(context),
     renderInstall()
   )
+
+  requestAnimationFrame(() => mountReveal(body))
 
   fragment.append(header, shell, body)
   return fragment
