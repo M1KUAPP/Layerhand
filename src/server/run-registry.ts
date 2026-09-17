@@ -518,8 +518,12 @@ export class RunRegistry {
     } else if (managedRun) {
       this.#leaveQueue(run)
       this.#begin(run, managedRun)
-      // A cancel or a shutdown that came while the run was starting still applies.
-      if (run.cancelRequested) void managedRun.handle.cancel().catch(() => undefined)
+      // A cancel or a shutdown that came while the run was starting still
+      // applies, and a shutdown gets its own outcome when the run can tell (#112).
+      if (run.cancelRequested) {
+        const stop = this.#closed && managedRun.shutdown ? managedRun.shutdown() : managedRun.handle.cancel()
+        void stop.catch(() => undefined)
+      }
     } else if (refusal !== undefined) {
       void this.#endWaiting(run, refusal)
     } else if (run.cancelRequested) {
@@ -528,8 +532,9 @@ export class RunRegistry {
   }
 
   /**
-   * Ends a run that never started. The run log records it as cancelled when
-   * that was asked for, and as failed otherwise.
+   * Ends a run that never started. The run log records it as shutdown when
+   * the server stopped first, as cancelled when its visitor left the line,
+   * and as failed otherwise.
    */
   async #endWaiting(run: StoredRun, reason: string): Promise<void> {
     if (run.finalized) return
@@ -639,7 +644,7 @@ export class RunRegistry {
 
     let metrics: ManagedRunMetrics = { cacheHitRate: null, stopReason: 'failed' }
     if (!managedRun) {
-      if (run.cancelRequested) metrics = { cacheHitRate: null, stopReason: 'cancelled' }
+      if (run.cancelRequested) metrics = { cacheHitRate: null, stopReason: this.#closed ? 'shutdown' : 'cancelled' }
     } else {
       try {
         metrics = managedRun.metrics()
