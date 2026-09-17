@@ -1,6 +1,7 @@
 @import './landing/tokens.css';
 @import './landing/shell.css';
 @import './landing/hero.css';
+@import './landing/steps.css';
 @import './landing/scrub.css';
 @import './landing/drawer.css';
 @import './landing/glass.css';
