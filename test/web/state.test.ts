@@ -69,7 +69,12 @@ describe('client run reducer', () => {
       type: 'connection_failed',
       message: 'The server could not be reached.'
     })
-    expect(failed).toEqual({ view: 'error', message: 'The server could not be reached.', runId: 'run-1' })
+    expect(failed).toEqual({
+      view: 'error',
+      message: 'The server could not be reached.',
+      runId: 'run-1',
+      reconnectable: true
+    })
   })
 
   test('keeps the instruction when a reconnect snapshot has none', () => {
@@ -262,8 +267,42 @@ describe('client run reducer', () => {
       message: 'The live connection could not be restored.'
     })
 
-    expect(fatal).toMatchObject({ view: 'error', message: 'The editor stopped responding' })
-    expect(connection).toMatchObject({ view: 'error', message: 'The live connection could not be restored.' })
+    // A run the server ended for good is not worth reconnecting to (#126);
+    // only a connection dropped from under a still-live run is.
+    expect(fatal).toMatchObject({
+      view: 'error',
+      message: 'The editor stopped responding',
+      reconnectable: false
+    })
+    expect(connection).toMatchObject({
+      view: 'error',
+      message: 'The live connection could not be restored.',
+      reconnectable: true
+    })
+  })
+
+  test('marks a run the server reports failed as not reconnectable (#126)', () => {
+    const failed = reduceClientState(initialClientState(), {
+      type: 'snapshot',
+      snapshot: runningSnapshot({ status: 'failed', failureReason: 'The editor stopped responding.' })
+    })
+    const noResult = reduceClientState(initialClientState(), {
+      type: 'snapshot',
+      snapshot: runningSnapshot({ status: 'incomplete' })
+    })
+
+    expect(failed).toEqual({
+      view: 'error',
+      message: 'The editor stopped responding.',
+      runId: 'run-1',
+      reconnectable: false
+    })
+    expect(noResult).toEqual({
+      view: 'error',
+      message: 'The run ended without a result.',
+      runId: 'run-1',
+      reconnectable: false
+    })
   })
 
   test('shows a queued run in the running view with its place in line, until it starts', () => {
