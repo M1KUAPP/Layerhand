@@ -107,7 +107,7 @@
   margin-top: 24px;
   padding: 0 18px;
   border: 1px solid var(--color-border-strong);
-  background: transparent;
+  background: var(--paper);
   color: var(--ink);
   cursor: pointer;
   font: var(--text-ui-label);
@@ -344,7 +344,7 @@ html.drawer-open {
   gap: 6px;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--paper);
   color: var(--ink);
   cursor: pointer;
   font: var(--text-ui-label);

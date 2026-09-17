@@ -58,7 +58,7 @@
   height: 48px;
   padding: 0 20px;
   border: 0;
-  background: transparent;
+  background: var(--color-bg-band-panel);
   color: var(--color-text-on-chrome);
   cursor: pointer;
   font: var(--text-ui-label);
@@ -235,7 +235,7 @@
   place-items: center;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--color-bg-band-panel);
   color: var(--color-text-on-chrome);
 }
 
