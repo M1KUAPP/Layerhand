@@ -284,6 +284,76 @@ describe('RunRegistry queue', () => {
     })
   })
 
+  test('waits on shutdown for a run whose start is in flight, and cancels it once it starts', async () => {
+    const terminal: TerminalRun[] = []
+    const registry = new RunRegistry({ onTerminal: (run) => void terminal.push(run) })
+    const run = runInFlight()
+    let entered: () => void = () => undefined
+    const starting = new Promise<void>((resolve) => {
+      entered = resolve
+    })
+    void registry.enqueue({
+      runId: 'starting',
+      instruction: 'Retouch this',
+      start: async () => {
+        entered()
+        await Bun.sleep(20)
+        return run.managedRun
+      }
+    })
+    await starting
+
+    await registry.close(1_000)
+
+    expect(terminal.map((ended) => ended.runId)).toEqual(['starting'])
+    expect((await registry.getSnapshot('starting'))?.status).toBe('cancelled')
+  })
+
+  test('ends on shutdown a run whose start outlasts the grace, and lets go of what that start opens', async () => {
+    const terminal: TerminalRun[] = []
+    const registry = new RunRegistry({ onTerminal: (run) => void terminal.push(run) })
+    const late = { abandoned: 0, released: 0 }
+    let entered: () => void = () => undefined
+    const starting = new Promise<void>((resolve) => {
+      entered = resolve
+    })
+    let open: () => void = () => undefined
+    const opened = new Promise<void>((resolve) => {
+      open = resolve
+    })
+    void registry.enqueue({
+      runId: 'slow',
+      instruction: 'Retouch this',
+      start: async () => {
+        entered()
+        await opened
+        return {
+          ...runInFlight().managedRun,
+          releaseSecrets: () => void (late.released += 1),
+          abandon: async () => void (late.abandoned += 1)
+        }
+      }
+    })
+    await starting
+
+    const shutdownStartedAt = performance.now()
+    await registry.close(20)
+
+    // Two phases of 20 ms, with room for a slow machine, and nowhere near forever.
+    expect(performance.now() - shutdownStartedAt).toBeLessThan(1_000)
+    expect(terminal.map((ended) => ended.runId)).toEqual(['slow'])
+    expect(await registry.getSnapshot('slow')).toMatchObject({
+      status: 'failed',
+      failureReason: 'The server restarted before the run started. Start it again.'
+    })
+
+    // Its browser, opened after the shutdown, is released at once.
+    open()
+    while (late.abandoned === 0) await Bun.sleep(1)
+    expect(late).toEqual({ abandoned: 1, released: 1 })
+    expect((await registry.getSnapshot('slow'))?.status).toBe('failed')
+  })
+
   test('ends waiting runs on shutdown without starting them, and records each', async () => {
     const terminal: TerminalRun[] = []
     const registry = new RunRegistry({ maxConcurrentRuns: 1, onTerminal: (run) => void terminal.push(run) })

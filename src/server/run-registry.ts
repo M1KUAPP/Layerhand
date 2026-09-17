@@ -119,8 +119,8 @@ interface StoredRun {
   onTerminal?: (run: TerminalRun) => void | Promise<void>
   /** What starts the run, while it waits in the queue. */
   start?: () => Promise<ManagedRun | undefined>
-  /** Whether a start is in flight, which holds a slot until it settles. */
-  starting: boolean
+  /** The start in flight, which holds a slot until it settles. */
+  starting?: Promise<void>
   /** Whether the run's last start said it cannot start yet. */
   toldToWait: boolean
   /** Whether the run is in flight and so counts against the cap. */
@@ -317,15 +317,19 @@ export class RunRegistry {
     clearTimeout(this.#retryTimer)
     const running = () => [...this.#runs.values()].filter(isLive)
     // A waiting run never starts now. One whose start is in flight is
-    // cancelled once that settles.
-    for (const run of this.#queue) run.cancelRequested = true
-    const waiting = this.#queue.filter((run) => !run.starting)
+    // cancelled as soon as it has started, and waited for like any other.
+    const waiting = [...this.#queue]
+    for (const run of waiting) run.cancelRequested = true
 
     // Each phase is bounded as a whole, because a cancel or an abandon can
     // itself wait on a provider that has stopped answering.
     await within(
       Promise.all([
-        ...waiting.map((run) => this.#endWaiting(run, SHUT_DOWN_IN_QUEUE)),
+        ...waiting.map(async (run) => {
+          await run.starting
+          if (!isLive(run)) await this.#endWaiting(run, SHUT_DOWN_IN_QUEUE)
+          await run.terminal
+        }),
         ...running().map(async (run) => {
           run.cancelRequested = true
           try {
@@ -340,12 +344,15 @@ export class RunRegistry {
       graceMs
     )
     await within(
-      Promise.all(
-        running().map(async (run) => {
+      Promise.all([
+        ...running().map(async (run) => {
           await run.managedRun.abandon?.().catch(() => undefined)
           await run.terminal
-        })
-      ),
+        }),
+        // A start still in flight ends its run without it, and whatever it
+        // opens later is let go as soon as it settles.
+        ...waiting.filter((run) => !isLive(run)).map((run) => this.#endWaiting(run, SHUT_DOWN_IN_QUEUE))
+      ]),
       graceMs
     )
     for (const run of running()) {
@@ -411,7 +418,6 @@ export class RunRegistry {
       runId,
       instruction,
       onTerminal,
-      starting: false,
       toldToWait: false,
       holdsSlot: false,
       startedAt: this.#now(),
@@ -458,7 +464,9 @@ export class RunRegistry {
             // still start: a free run waiting for reserved budget must not
             // hold up a run whose own reservation is what it waits for.
             if (!run.start || (run.toldToWait && !retry)) continue
-            await this.#tryStart(run, run.start)
+            run.starting = this.#tryStart(run, run.start)
+            await run.starting
+            run.starting = undefined
             // Runs behind one still told to wait would be told the same, and
             // must not go ahead of it, so they are not asked this time.
             if (run.toldToWait) retry = false
@@ -476,7 +484,6 @@ export class RunRegistry {
   async #tryStart(run: StoredRun, start: () => Promise<ManagedRun | undefined>): Promise<void> {
     // The slot is held while the start is in flight, so no other run takes it.
     this.#slotsInUse += 1
-    run.starting = true
     let managedRun: ManagedRun | undefined
     let refusal: string | undefined
     try {
@@ -484,11 +491,19 @@ export class RunRegistry {
     } catch (error) {
       refusal = error instanceof RunStartRefused ? error.message : START_FAILED
     }
-    run.starting = false
     run.toldToWait = !managedRun && refusal === undefined && !run.cancelRequested
     this.#slotsInUse -= 1
 
-    if (managedRun) {
+    if (managedRun && run.finalized) {
+      // Shutdown ended the run while it was starting, so what the start
+      // opened is let go at once rather than left billing.
+      try {
+        managedRun.releaseSecrets()
+      } catch {
+        // The browser is still released.
+      }
+      void (managedRun.abandon?.() ?? managedRun.handle.cancel()).catch(() => undefined)
+    } else if (managedRun) {
       this.#leaveQueue(run)
       this.#begin(run, managedRun)
       // A cancel or a shutdown that came while the run was starting still applies.
