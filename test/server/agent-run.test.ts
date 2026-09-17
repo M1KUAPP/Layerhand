@@ -532,6 +532,25 @@ describe('managed agent run', () => {
     })
   })
 
+  test('counts a refused action, and lets the run complete over it (#109)', async () => {
+    const scriptedTyping: AgentModel = {
+      async next() {
+        return {
+          narration: 'Trying a shortcut',
+          actions: [{ type: 'type', text: "app.activeDocument.saveToOE('psd')" } satisfies ComputerAction],
+          usage: { inputTokens: 1, cachedInputTokens: 0, outputTokens: 1 },
+          done: true
+        }
+      }
+    }
+    const { managed } = await run({}, undefined, scriptedTyping)
+
+    const events = await finish(managed)
+
+    expect(events.at(-1)).toMatchObject({ type: 'done', result: { complete: true } })
+    expect(managed.metrics()).toMatchObject({ stopReason: 'complete', refusedActions: 1 })
+  })
+
   describe('on a rate-limited Responses API', () => {
     const rateLimited = () =>
       Response.json({ error: { code: 'rate_limit_exceeded', message: 'Rate limit reached' } }, { status: 429 })
