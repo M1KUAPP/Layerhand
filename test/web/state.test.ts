@@ -2,7 +2,13 @@ import { describe, expect, test } from 'bun:test'
 
 import type { RunStopReason } from '../../src/agent/contract'
 import type { RunSnapshot } from '../../src/server/run-registry'
-import { initialClientState, reduceClientState, formatCredits, resultOutcomeText } from '../../src/web/state'
+import {
+  initialClientState,
+  reduceClientState,
+  formatCredits,
+  resultOutcomeText,
+  isCurrentRun
+} from '../../src/web/state'
 
 const result = {
   psdUrl: '/result.psd',
@@ -390,5 +396,27 @@ describe('client run reducer', () => {
     })
 
     expect(state).toEqual({ view: 'landing' })
+  })
+
+  test('isCurrentRun matches only the run a slow cancel or correction was sent for (#123)', () => {
+    const running = reduceClientState(initialClientState(), {
+      type: 'started',
+      runId: 'run-1',
+      instruction: 'Clean the reflections.'
+    })
+    expect(isCurrentRun(running, 'run-1')).toBe(true)
+    // A new run started while an old request was still in flight must not
+    // have that request's late response attributed to it (#123).
+    expect(isCurrentRun(running, 'run-2')).toBe(false)
+
+    const done = reduceClientState(running, {
+      type: 'event',
+      id: 0,
+      event: { type: 'done', result: { ...result, complete: false, stopReason: 'cancelled' } }
+    })
+    expect(isCurrentRun(done, 'run-1')).toBe(true)
+    expect(isCurrentRun(done, 'run-2')).toBe(false)
+
+    expect(isCurrentRun(initialClientState(), 'run-1')).toBe(false)
   })
 })
