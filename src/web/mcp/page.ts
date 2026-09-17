@@ -41,7 +41,7 @@ export function mcpPageHtml(origin: string): string {
           <h2 id="prompt-title" class="mcp__prompt-title">Setup prompt</h2>
           <button type="button" class="mcp__copy" data-copy-prompt>Copy</button>
         </div>
-        <pre id="setup-prompt">${prompt}</pre>
+        <pre id="setup-prompt" tabindex="0">${prompt}</pre>
       </section>
       <section class="mcp__manuals" aria-labelledby="manuals-title">
         <h2 id="manuals-title" class="mcp__manuals-title">Manual install</h2>

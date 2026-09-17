@@ -6,7 +6,7 @@ describe('application scaffold', () => {
   test('defines one Bun development, build, and start surface', () => {
     expect(packageJson.scripts.dev).toBe('LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts')
     expect(packageJson.scripts.build).toBe(
-      'bun build --target=bun src/server/index.ts --outdir dist --external playwright-core'
+      'bun build --target=bun src/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts'
     )
     expect(packageJson.scripts.start).toBe('cd dist && bun index.js')
   })
@@ -30,5 +30,7 @@ describe('application scaffold', () => {
     expect(index).toContain('maxRequestBodySize: MAX_RUN_REQUEST_BODY_BYTES')
     expect(index).toContain("process.once('SIGTERM', shutdown)")
     expect(smoke).toContain('--env NODE_ENV=development')
+    expect(smoke).toContain('/mcp')
+    expect(smoke).toContain('/plugins/layerhand.zip')
   })
 })
