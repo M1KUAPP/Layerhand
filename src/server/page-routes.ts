@@ -9,10 +9,18 @@ import type { HTMLBundle } from 'bun'
 import { posix } from 'node:path'
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 
+import geist600 from '../web/assets/fonts/geist-v5-latin-600.woff2'
+import geistRegular from '../web/assets/fonts/geist-v5-latin-regular.woff2'
+import newsreader from '../web/assets/fonts/newsreader-v26-latin-500.woff2'
 import ogImageDarkPath from '../web/assets/og-image-dark.png'
 import ogImagePath from '../web/assets/og-image.png'
+import tokensCss from '../web/landing/tokens.css' with { type: 'text' }
+import { mcpCopyScript } from '../web/mcp/copy'
+import mcpCss from '../web/mcp/page.css' with { type: 'text' }
+import { mcpPageHtml } from '../web/mcp/page'
 import { SECURITY_HEADERS } from './application'
 import claudeMarketplace from './claude-marketplace.json'
+import { mcpArtifacts } from './mcp-artifacts'
 import { SOCIAL_IMAGE_PATHS, withSocialMeta } from './social-meta'
 
 const PAGE_SHELL_PATH = '/page-shell'
@@ -54,6 +62,55 @@ async function bundledFiles(page: HTMLBundle): Promise<PageFile[]> {
 
 function securedResponse(body: BodyInit, headers: Record<string, string> = {}): Response {
   return new Response(body, { headers: { ...headers, ...SECURITY_HEADERS } })
+}
+
+const MCP_STYLES = `${tokensCss.replaceAll("url('../assets/fonts/", "url('/fonts/")}\n${mcpCss}`
+
+function marketplaceDocument(origin: string): string {
+  const catalog = structuredClone(claudeMarketplace) as {
+    plugins: { source: { url?: string } }[]
+  }
+  const source = catalog.plugins[0]?.source
+  if (source?.url) source.url = new URL(source.url, origin).href
+  return JSON.stringify(catalog)
+}
+
+function mcpPluginRoutes(publicUrl?: string): Record<string, PageRoute> {
+  return {
+    '/mcp': (request) => {
+      const origin = publicUrl ?? new URL(request.url).origin
+      return securedResponse(mcpPageHtml(origin), { 'content-type': 'text/html; charset=utf-8' })
+    },
+    '/mcp.css': securedResponse(MCP_STYLES, { 'content-type': 'text/css; charset=utf-8' }),
+    '/mcp.js': securedResponse(mcpCopyScript, { 'content-type': 'text/javascript; charset=utf-8' }),
+    '/fonts/newsreader-v26-latin-500.woff2': securedResponse(Bun.file(newsreader), {
+      'content-type': 'font/woff2'
+    }),
+    '/fonts/geist-v5-latin-regular.woff2': securedResponse(Bun.file(geistRegular), {
+      'content-type': 'font/woff2'
+    }),
+    '/fonts/geist-v5-latin-600.woff2': securedResponse(Bun.file(geist600), {
+      'content-type': 'font/woff2'
+    }),
+    '/plugins/marketplace.json': (request) => {
+      const origin = publicUrl ?? new URL(request.url).origin
+      return securedResponse(marketplaceDocument(origin), { 'content-type': 'application/json' })
+    },
+    '/plugins/layerhand-mcp.tgz': async () => {
+      const { tarball } = await mcpArtifacts()
+      return securedResponse(Buffer.from(tarball), { 'content-type': 'application/gzip' })
+    },
+    '/plugins/layerhand.zip': async () => {
+      const { zip } = await mcpArtifacts()
+      return securedResponse(Buffer.from(zip), { 'content-type': 'application/zip' })
+    },
+    '/plugins/layerhand-mcp.js': async () => {
+      const { binary } = await mcpArtifacts()
+      return securedResponse(Buffer.from(binary), {
+        'content-type': 'text/javascript; charset=utf-8'
+      })
+    }
+  }
 }
 
 // The icon file arrives with the brand assets on another branch. The import
@@ -216,11 +273,7 @@ export async function pageRoutes(
     [SOCIAL_IMAGE_PATHS.dark]: securedResponse(Bun.file(ogImageDarkPath))
   }
 
-  // The Claude Code plugin marketplace (#136) is one static document; like
-  // the banners it is served in both route tables.
-  const marketplace = securedResponse(JSON.stringify(claudeMarketplace), {
-    'content-type': 'application/json'
-  })
+  const plugins = mcpPluginRoutes(publicUrl)
 
   if (process.env.LAYERHAND_PAGE_RELOAD) {
     // Bun's own route for an HTML import rebundles the page on every
@@ -233,7 +286,7 @@ export async function pageRoutes(
         const shell = await fetch(new URL(PAGE_SHELL_PATH, request.url))
         return withSocialMeta(shell, publicUrl ?? new URL(request.url).origin)
       },
-      '/plugins/marketplace.json': marketplace,
+      ...plugins,
       ...banners
     }
   }
@@ -281,7 +334,7 @@ export async function pageRoutes(
       headers.set('content-length', String(uncompressedBytes.byteLength))
       return new Response(uncompressedBytes, { headers })
     },
-    '/plugins/marketplace.json': marketplace,
+    ...plugins,
     ...banners
   }
 }

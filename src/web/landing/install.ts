@@ -20,15 +20,16 @@ export function renderInstall(): HTMLElement {
   title.id = 'install-title'
   section.append(title)
 
-  // The commands need layerhand-mcp on npm and one real Astra run on each
-  // host (#136). Until then the section stays, and says it is coming.
   section.append(
     node(
       'p',
       'install__note',
-      'Coming soon. Bring your own OpenAI key. The run happens on Layerhand, with GPT-6 Astra driving the editor.'
+      'Paste a setup prompt into Codex, Claude Code, or another MCP host. Bring your own OpenAI key. The run happens on Layerhand, with GPT-6 Astra driving the editor.'
     )
   )
+  const link = node('a', 'install__cta', 'Open the MCP page')
+  link.href = '/mcp'
+  section.append(link)
   root.append(section)
 
   return root

@@ -1,7 +1,7 @@
 {
   "scripts": {
     "browserbase:probe": "bun src/server/browserbase-probe.ts",
-    "build": "bun build --target=bun src/server/index.ts --outdir dist --external playwright-core",
+    "build": "bun build --target=bun src/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts",
     "dev": "LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts",
     "graph": "graphify update . && prettier --write --log-level=warn graphify-out",
     "lint": "prettier --check .",
