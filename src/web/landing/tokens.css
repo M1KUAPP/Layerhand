@@ -57,6 +57,29 @@
   --text-ui-label: 600 13px / 16px var(--font-ui);
   --text-ui-eyebrow: 600 11.5px / 14px var(--font-ui);
   --text-ui-micro: 600 11px / 13px var(--font-ui);
+
+  /* Section titles and the larger lede of the banded page. */
+  --text-display-section: 500 56px / 52px var(--font-display);
+  --text-ui-lede-large: 400 18px / 28px var(--font-ui);
+
+  /* A banded section takes the chrome ground in either mode, so the text
+     on it never flips, for the same reason chrome does not. */
+  --color-bg-band: #11110f;
+  --color-bg-band-panel: #1c1c19;
+  --color-text-on-chrome: #f3f0e8;
+  --color-text-on-chrome-secondary: #b6b3aa;
+  --color-border-on-chrome: #3d3c38;
+
+  /* Illustration only: the warm cast and the checkerboard of the layer
+     switcher. Never text. */
+  --color-illustration-warm: #ff9a3d;
+  --color-illustration-checker: #d9d6cd;
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --text-display-section: 500 38px / 38px var(--font-display);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -69,5 +92,7 @@
     --color-text-tertiary: #9d9b94;
     --rule: #3d3c38;
     --color-border-strong: #f3f0e8;
+    --color-bg-band: #1c1c19;
+    --color-bg-band-panel: #11110f;
   }
 }
