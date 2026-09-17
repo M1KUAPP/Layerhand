@@ -47,20 +47,57 @@ function loadIconFont(): void {
   document.head.append(link)
 }
 
+const NAV = [
+  { href: '#how-it-works', label: 'How it works' },
+  { href: '#layers', label: 'The layers' },
+  { href: '#real-run', label: 'A real run' },
+  { href: '#updates', label: 'Updates' }
+]
+
+function node<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  className: string,
+  text?: string
+): HTMLElementTagNameMap[K] {
+  const result = document.createElement(tag)
+  result.className = className
+  if (text !== undefined) result.textContent = text
+  return result
+}
+
+// The bar's own way into the product. Its name differs from the hero's
+// Retouch a photo so the two never read as one control twice.
+function renderNav(context: LandingContext): HTMLElement {
+  const nav = node('nav', 'site-nav')
+  nav.setAttribute('aria-label', 'Primary')
+  const links = node('ul', 'site-nav__links')
+  for (const item of NAV) {
+    const entry = node('li', 'site-nav__item')
+    const link = node('a', 'site-nav__link', item.label)
+    link.href = item.href
+    entry.append(link)
+    links.append(entry)
+  }
+  const start = node('button', 'site-nav__cta', 'Try it free')
+  start.type = 'button'
+  const arrow = node('i', 'hgi-stroke hgi-arrow-right-01')
+  arrow.setAttribute('aria-hidden', 'true')
+  start.append(arrow)
+  start.addEventListener('click', () => context.startRun())
+  nav.append(links, start)
+  return nav
+}
+
 export function renderLanding(context: LandingContext): DocumentFragment {
   loadIconFont()
   startEntranceGate()
   const fragment = document.createDocumentFragment()
-  const sections = [
-    context.brandHeader(),
-    renderHero(context),
-    renderScrub(),
-    renderDrawer(),
-    renderGlass(),
-    renderWaitlist(context)
-  ]
-  for (const section of sections) {
-    if (section) fragment.append(section)
-  }
+
+  const header = context.brandHeader()
+  header.dataset.over = 'hero'
+  header.append(renderNav(context))
+
+  const sections = [header, renderHero(context), renderScrub(), renderDrawer(), renderGlass(), renderWaitlist(context)]
+  for (const section of sections) fragment.append(section)
   return fragment
 }
