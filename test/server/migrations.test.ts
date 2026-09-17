@@ -56,7 +56,7 @@ describe('launch persistence migrations', () => {
       database`INSERT INTO visitor_usage (visitor_key, accepted_free_runs) VALUES (${'visitor'}, ${-1})`
     )
     await expectConstraint(
-      database`INSERT INTO address_usage (address_key, accepted_free_runs) VALUES (${'address'}, ${-1})`
+      database`INSERT INTO address_usage (address_key, day_utc, accepted_free_runs) VALUES (${'address'}, ${'2026-09-15'}, ${-1})`
     )
     await expectConstraint(
       database`INSERT INTO daily_usage (day_utc, spent_microusd, reserved_microusd) VALUES (${'2026-09-15'}, ${0}, ${-1})`

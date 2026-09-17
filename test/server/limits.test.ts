@@ -89,18 +89,18 @@ describe('metering limits, hit through HTTP', () => {
   test('the free allowance is also capped per address, behind a fresh cookie each time (#115)', async () => {
     // #29 intended the cookie and the address to each be their own limit.
     // No `cookie` is sent back here, so each call is a different visitor —
-    // the address alone is what refuses the fourth.
+    // the address alone, at its default of ten a day, is what refuses the
+    // eleventh.
     const { start } = await runtimeWithBudget(1_000, 3)
     const address = 'address-shared'
 
-    const first = await start({ address })
-    const second = await start({ address })
-    const third = await start({ address })
-    const fourth = await start({ address })
+    const statuses: number[] = []
+    for (let run = 0; run < 10; run += 1) statuses.push((await start({ address })).status)
+    const eleventh = await start({ address })
 
-    expect([first.status, second.status, third.status]).toEqual([201, 201, 201])
-    expect(fourth.status).toBe(429)
-    expect(fourth.body.code).toBe('free_limit_reached')
+    expect(statuses).toEqual(Array(10).fill(201))
+    expect(eleventh.status).toBe(429)
+    expect(eleventh.body.code).toBe('free_limit_reached')
   })
 
   // docs/TRD.md § Size the daily ceiling: each free run reserves the spend
