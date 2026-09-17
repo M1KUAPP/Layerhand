@@ -36,6 +36,8 @@ export interface RunLogLine {
   correctionsIndeterminate: number
   /** Codes of the safety checks the run acknowledged automatically; empty when there were none (NFR-8). */
   safetyCheckCodes: readonly string[]
+  /** How many actions the run refused for typing Photopea's scripting interface through the computer tool (#109). */
+  refusedActions: number
 }
 
 export interface RunLogStore {
@@ -80,7 +82,8 @@ export function runLogLine({ runId, instruction, startedAt, completedAt, snapsho
     correctionsApplied: metrics.steering?.applied ?? 0,
     correctionsReplayed: metrics.steering?.replayed ?? 0,
     correctionsIndeterminate: metrics.steering?.indeterminate ?? 0,
-    safetyCheckCodes: metrics.safetyCheckCodes ?? []
+    safetyCheckCodes: metrics.safetyCheckCodes ?? [],
+    refusedActions: metrics.refusedActions ?? 0
   }
 }
 
@@ -139,14 +142,14 @@ export class SqlRunLogStore implements RunLogStore {
         run_id, completed_at, steps, cap_hit, tokens_in, tokens_out, cost_usd,
         cache_hit_rate, duration_ms, outcome, failure_reason, failure_code, instruction,
         transport, corrections_applied, corrections_replayed, corrections_indeterminate,
-        safety_check_codes
+        safety_check_codes, refused_actions
       )
       VALUES (
         ${line.runId}, ${line.completedAt}, ${line.steps}, ${line.capHit}, ${line.tokensIn},
         ${line.tokensOut}, ${line.costUsd}, ${line.cacheHitRate}, ${line.durationMs},
         ${line.outcome}, ${line.failureReason}, ${line.failureCode}, ${line.instruction},
         ${line.transport}, ${line.correctionsApplied}, ${line.correctionsReplayed},
-        ${line.correctionsIndeterminate}, ${JSON.stringify(line.safetyCheckCodes)}
+        ${line.correctionsIndeterminate}, ${JSON.stringify(line.safetyCheckCodes)}, ${line.refusedActions}
       )
       ON CONFLICT (run_id) DO NOTHING
     `
