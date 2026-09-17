@@ -32,21 +32,20 @@ sources are quoted in [PRODUCT § Open questions](/docs/PRODUCT.md#open-question
 
 ## The freeze, and the no-deploy rule
 
-**A merge to `main` that touches code deploys. Once a required reviewer
-is set on the `production` environment, that deploy waits for an
-approval first.** `deploy.yml` builds and deploys on every push to
+**A merge to `main` that touches code deploys, but only once someone
+approves the deploy.** `deploy.yml` builds and deploys on every push to
 `main`, except a push that changes only documentation, `graphify-out/`,
 or evidence under `docs/evidence/`: `paths-ignore` stops that from
 triggering the workflow at all, so those merge safely at any time. Cloud
 Run runs **one instance** whose memory holds the state of every run in
 flight, so a deploy restarts it, ends the runs that are going on, and a
 visitor watching one sees it stop. The `deploy` job targets the
-`production` environment, but targeting an environment does not gate a
-job by itself — only a required-reviewers protection rule on that
-environment does. That rule is a repository setting the maintainers add
-separately, after this change merges; once it is in place, a build
-reaching Cloud Run is a deliberate second step, not a side effect of the
-merge.
+`production` environment, and a required-reviewers rule on that
+environment holds the job until one of the three maintainers approves it;
+whoever merged may approve their own, and no admin can skip the approval.
+The rule is a repository setting, not part of the workflow, and it makes a
+build reaching Cloud Run a deliberate second step rather than a side effect
+of the merge.
 
 So, from the freeze onwards:
 
@@ -55,12 +54,10 @@ So, from the freeze onwards:
     Run the query below and wait for it to come back empty, with no new
     traffic, before approving.
 2.  **Give the approval from the run's page.** Under the repository's
-    **Actions** tab, open the workflow run for the merge. Once the
-    required-reviewers rule is set on `production`, it shows a **Review
-    deployments** button — the rule is what gates the job, not merely the
-    `deploy` job targeting `production`. Click it, select **production**,
-    and click **Approve and deploy** once the check above is clean — or
-    leave it pending until it is.
+    **Actions** tab, open the workflow run for the merge. It shows a
+    **Review deployments** button. Click it, select **production**, and
+    click **Approve and deploy** once the check above is clean — or leave
+    it pending until it is.
 3.  **If something must change, change it on the service, not in the
     repository.** [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
     does that without a new image, and the repository catches up afterwards.
