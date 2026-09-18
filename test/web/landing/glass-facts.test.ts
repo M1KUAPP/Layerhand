@@ -13,5 +13,7 @@ test('the three glass facts share one equal 40px icon column with centered glyph
   expect(css).toMatch(/\.glass__fact-icon\s*\{[^}]*width:\s*40px/)
   expect(css).toMatch(/\.glass__fact-icon\s*\{[^}]*height:\s*40px/)
   expect(css).toMatch(/\.glass__fact-icon\s*\{[^}]*place-items:\s*center/)
+  expect(css).not.toMatch(/\.glass__fact-icon\s*\{[^}]*grid-row:\s*1\s*\/\s*3/)
   expect(css).toMatch(/\.glass__fact-icon::before\s*\{[^}]*display:\s*block/)
+  expect(css).toMatch(/\.glass__fact-icon::before\s*\{[^}]*text-align:\s*center/)
 })
