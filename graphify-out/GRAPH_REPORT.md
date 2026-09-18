@@ -2,7 +2,7 @@
 
 ## Corpus Check
 
-- 339 files · ~692,380 words
+- 339 files · ~692,374 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 46 file(s) not represented in the graph (top: .css 14, (none) 11, .ndjson 10)
 
@@ -14,7 +14,7 @@
 
 ## Graph Freshness
 
-- Built from commit: `3292023d`
+- Built from commit: `80f20013`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1070,9 +1070,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `EXAMPLES` and `Cobalt glass bottle`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `playwright-core` connect `playwright-core` to `photopea-editor-session.test.ts`, `agent-run.test.ts`, `browserbase-editor-session.ts`, `photopea-action-runner.ts`, `trap-probe.ts`, `photopea-page-session.ts`, `live-frames.browser.test.ts`, `PhotopeaMessage`, `editor/index.ts`, `render-og-image.ts`, `helper.ts`, `replay.browser.test.ts`, `workbench.browser.test.ts`, `application.browser.test.ts`, `playback.browser.test.ts`, `startFramePump`, `stack.browser.test.ts`, `footer.browser.test.ts`, `retain-photopea-production-export.ts`, `drawer.browser.test.ts`, `PlaywrightPhotopeaTransport`, `workspace-screenshots.ts`, `package.json`, `surfaces.browser.test.ts`, `test-server.ts`, `hero.browser.test.ts`, `harness.ts`, `photopea-document-exporter.test.ts`, `PhotopeaDocumentLoader`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
 - **Why does `LayerInfo` connect `editor/index.ts` to `app.ts`, `photopea-editor-session.test.ts`, `photopea-document-exporter.ts`, `harness.ts`, `FakeEditorSession`, `agent-run.test.ts`, `photopea-page-session.ts`, `createRecordedFakeEditorSession`, `agent/contract.ts`, `api.ts`, `WarmSessionPool`, `api.test.ts`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Why does `Swap Test` connect `Swap Test` to `Layered PSD output (the wedge)`, `Photopea`?**
   _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `LayerInfo` (e.g. with `Layers panel: Retouched copy above Original photograph` and `LayerInfo type`) actually correct?**
