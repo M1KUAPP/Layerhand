@@ -101,7 +101,7 @@ test('GET /mcp twice returns the setup prompt and collapsed Codex and Claude Cod
     expect(claude).toEqual({ platform: 'claude-code', open: false })
 
     expect(html).toContain('class="site-header"')
-    expect(html).toContain('class="input-grid"')
+    expect(html).toContain('<main class="input-grid"')
     expect(html).toContain('class="workbench-board"')
     expect(html).toContain('class="workbench-card"')
     expect(page.nav.map((item) => item.name)).toEqual(['How it works', 'MCP', 'Updates', 'Try it free'])
