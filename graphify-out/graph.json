@@ -26887,7 +26887,7 @@
       "node_kind": "heading",
       "norm_label": "acceptance",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L744"
+      "source_location": "L743"
     },
     {
       "id": "docs_design_back_button",
@@ -26899,7 +26899,7 @@
       "node_kind": "heading",
       "norm_label": "back button",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L607"
+      "source_location": "L606"
     },
     {
       "id": "docs_design_back_to_top",
@@ -26911,7 +26911,7 @@
       "node_kind": "heading",
       "norm_label": "back to top",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L716"
+      "source_location": "L715"
     },
     {
       "id": "docs_design_colour",
@@ -26971,7 +26971,7 @@
       "node_kind": "heading",
       "norm_label": "do and do not",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L789"
+      "source_location": "L788"
     },
     {
       "id": "docs_design_fallbacks",
@@ -26983,7 +26983,7 @@
       "node_kind": "heading",
       "norm_label": "fallbacks",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L726"
+      "source_location": "L725"
     },
     {
       "id": "docs_design_hero_layered_parallax",
@@ -26995,7 +26995,7 @@
       "node_kind": "heading",
       "norm_label": "hero: layered parallax",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L479"
+      "source_location": "L478"
     },
     {
       "id": "docs_design_how_it_works",
@@ -27031,7 +27031,7 @@
       "node_kind": "heading",
       "norm_label": "launch updates",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L467"
+      "source_location": "L466"
     },
     {
       "id": "docs_design_layer_reveal_the_drawer",
@@ -27043,7 +27043,7 @@
       "node_kind": "heading",
       "norm_label": "layer reveal: the drawer",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L539"
+      "source_location": "L538"
     },
     {
       "id": "docs_design_motion",
@@ -27115,7 +27115,7 @@
       "node_kind": "heading",
       "norm_label": "see also",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L820"
+      "source_location": "L819"
     },
     {
       "id": "docs_design_stacked_sections",
@@ -27139,7 +27139,7 @@
       "node_kind": "heading",
       "norm_label": "the footer",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L681"
+      "source_location": "L680"
     },
     {
       "id": "docs_design_the_four_techniques",
@@ -27151,7 +27151,7 @@
       "node_kind": "heading",
       "norm_label": "the four techniques",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L474"
+      "source_location": "L473"
     },
     {
       "id": "docs_design_the_hero_shell",
@@ -27175,7 +27175,7 @@
       "node_kind": "heading",
       "norm_label": "the layer switcher",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L504"
+      "source_location": "L503"
     },
     {
       "id": "docs_design_the_site_bar",
@@ -27199,7 +27199,7 @@
       "node_kind": "heading",
       "norm_label": "the three.js moment",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L574"
+      "source_location": "L573"
     },
     {
       "id": "docs_design_the_ticker",
@@ -27223,7 +27223,7 @@
       "node_kind": "heading",
       "norm_label": "the workbench form",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L642"
+      "source_location": "L641"
     },
     {
       "id": "docs_design_the_workbench_input_view",
@@ -27235,7 +27235,7 @@
       "node_kind": "heading",
       "norm_label": "the workbench input view",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L593"
+      "source_location": "L592"
     },
     {
       "id": "docs_design_the_workbench_site_bar",
@@ -27247,7 +27247,7 @@
       "node_kind": "heading",
       "norm_label": "the workbench site bar",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L600"
+      "source_location": "L599"
     },
     {
       "id": "docs_design_two_column_workbench_layout",
@@ -27259,7 +27259,7 @@
       "node_kind": "heading",
       "norm_label": "two-column workbench layout",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L614"
+      "source_location": "L613"
     },
     {
       "id": "docs_design_typeface",
@@ -71299,7 +71299,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L474",
+      "source_location": "L473",
       "weight": 1.0
     },
     {
@@ -71321,7 +71321,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L593",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -71332,7 +71332,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L681",
+      "source_location": "L680",
       "weight": 1.0
     },
     {
@@ -71343,7 +71343,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L726",
+      "source_location": "L725",
       "weight": 1.0
     },
     {
@@ -71354,7 +71354,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L744",
+      "source_location": "L743",
       "weight": 1.0
     },
     {
@@ -71365,7 +71365,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L789",
+      "source_location": "L788",
       "weight": 1.0
     },
     {
@@ -71376,7 +71376,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L820",
+      "source_location": "L819",
       "weight": 1.0
     },
     {
@@ -71497,7 +71497,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L467",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -71508,7 +71508,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L716",
+      "source_location": "L715",
       "weight": 1.0
     },
     {
@@ -71519,7 +71519,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L479",
+      "source_location": "L478",
       "weight": 1.0
     },
     {
@@ -71530,7 +71530,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L504",
+      "source_location": "L503",
       "weight": 1.0
     },
     {
@@ -71541,7 +71541,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L539",
+      "source_location": "L538",
       "weight": 1.0
     },
     {
@@ -71552,7 +71552,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L574",
+      "source_location": "L573",
       "weight": 1.0
     },
     {
@@ -71563,7 +71563,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L600",
+      "source_location": "L599",
       "weight": 1.0
     },
     {
@@ -71574,7 +71574,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L607",
+      "source_location": "L606",
       "weight": 1.0
     },
     {
@@ -71585,7 +71585,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L614",
+      "source_location": "L613",
       "weight": 1.0
     },
     {
@@ -71596,7 +71596,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/DESIGN.md",
-      "source_location": "L642",
+      "source_location": "L641",
       "weight": 1.0
     },
     {
@@ -106484,5 +106484,5 @@
       "_origin": "semantic"
     }
   ],
-  "built_at_commit": "3292023daeeb8b83d602e4e3d6ad2ac4b0a0ec03"
+  "built_at_commit": "80f20013e68f72e0be750a63f0bc5bf809717cd0"
 }
