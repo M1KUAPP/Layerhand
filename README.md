@@ -131,33 +131,11 @@ Four steps on the site, and you can step in on the third.
 
 One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 
-```mermaid
-flowchart LR
-  subgraph clients [Clients]
-    Browser[Landing and workbench]
-    Host[MCP host]
-  end
-  subgraph bun [Bun process]
-    Pages[pageRoutes]
-    App[application.fetch]
-    Routes[RunRoutes]
-    Registry[RunRegistry]
-  end
-  subgraph factory [Run factory]
-    Fake[fakeRun]
-    Scripted[ScriptedModel plus recorded editor]
-    Live[Browserbase Chrome, Photopea, GPT-6 Astra]
-  end
-  Browser --> Pages
-  Browser --> App
-  Host --> App
-  Pages -->|"/ /mcp /plugins/*"| Browser
-  App -->|"/health /photopea-host /api/*"| Routes
-  Routes --> Registry
-  Registry --> Fake
-  Registry --> Scripted
-  Registry --> Live
-```
+<img
+  src="docs/assets/architecture.svg"
+  alt="Layerhand architecture"
+  style="border-radius: 16px"
+/>
 
 - **Pages.** `/` is the single-page app (`src/web/index.html` → `src/web/app.ts`). `/mcp` is the setup page. Plugin artifacts are packed from `packages/layerhand-mcp`.
 - **Runs.** `POST /api/runs` starts a run; `GET /api/runs/:id/events` streams progress; `POST .../steer` and `POST .../cancel` apply during the run. Uploads go to `POST /api/uploads`.
