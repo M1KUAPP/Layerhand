@@ -346,8 +346,8 @@ The page runs in this order:
 
 `header.site-header` is sticky and 72px tall. The wordmark begins with a
 28px accent square carrying an L in Newsreader, followed by Layerhand.
-Its links are How it works, The layers, A real run, FAQ and Updates. Try it
-free opens the workbench. The section links hide below 1280px.
+Its links are How it works, MCP and Updates. Try it free opens the
+workbench. The section links hide below 1280px.
 
 The bar is transparent over the hero at the top of the landing and at the
 top of the workbench (`data-over`). Beyond 24px of scroll, `data-scrolled` on

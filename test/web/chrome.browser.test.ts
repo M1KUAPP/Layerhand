@@ -65,9 +65,6 @@ describeBrowser('landing page chrome in Chromium', () => {
             .evaluateAll((links) => links.map((link) => ({ name: link.textContent, href: link.getAttribute('href') })))
         ).toEqual([
           { name: 'How it works', href: '#how-it-works' },
-          { name: 'The layers', href: '#layers' },
-          { name: 'A real run', href: '#real-run' },
-          { name: 'FAQ', href: '#faq' },
           { name: 'MCP', href: '/mcp' },
           { name: 'Updates', href: '#updates' }
         ])
