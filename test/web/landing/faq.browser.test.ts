@@ -79,16 +79,18 @@ describeBrowser('landing faq section in Chromium', () => {
       expect(order!.faqIndex).toBe(order!.glassIndex + 1)
       expect(order!.waitlistIndex).toBe(order!.faqIndex + 1)
 
-      // 2. Nav holds a link named "FAQ" to #faq, then MCP, then Updates
+      // 2. The FAQ section stays on the page; the primary nav does not.
       const navLinks = await page
         .locator('.site-nav a')
         .evaluateAll((links) =>
           links.map((link) => ({ text: link.textContent?.trim(), href: link.getAttribute('href') }))
         )
-      const faqNavIndex = navLinks.findIndex((l) => l.text === 'FAQ' && l.href === '#faq')
-      expect(faqNavIndex).toBeGreaterThan(-1)
-      expect(navLinks[faqNavIndex + 1]).toEqual({ text: 'MCP', href: '/mcp' })
-      expect(navLinks[faqNavIndex + 2]).toEqual({ text: 'Updates', href: '#updates' })
+      expect(navLinks).toEqual([
+        { text: 'How it works', href: '#how-it-works' },
+        { text: 'MCP', href: '/mcp' },
+        { text: 'Updates', href: '#updates' }
+      ])
+      expect(navLinks.some((link) => link.text === 'FAQ')).toBe(false)
     } finally {
       await page.close()
     }

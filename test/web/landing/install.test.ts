@@ -17,13 +17,17 @@ test('the install section points at the dedicated MCP page instead of coming soo
   expect(install).not.toContain('Coming soon')
 })
 
-test('the landing nav keeps FAQ then MCP then Updates', async () => {
+test('the landing nav is How it works, MCP, Updates, and Try it free', async () => {
   const landing = await landingFile.text()
-  const faq = landing.indexOf("{ href: '#faq', label: 'FAQ' }")
+  const how = landing.indexOf("{ href: '#how-it-works', label: 'How it works' }")
   const mcp = landing.indexOf("{ href: '/mcp', label: 'MCP' }")
   const updates = landing.indexOf("{ href: '#updates', label: 'Updates' }")
 
-  expect(faq).toBeGreaterThan(-1)
-  expect(mcp).toBeGreaterThan(faq)
+  expect(how).toBeGreaterThan(-1)
+  expect(mcp).toBeGreaterThan(how)
   expect(updates).toBeGreaterThan(mcp)
+  expect(landing).not.toContain("{ href: '#layers'")
+  expect(landing).not.toContain("{ href: '#real-run'")
+  expect(landing).not.toContain("{ href: '#faq'")
+  expect(landing).toContain("'Try it free'")
 })

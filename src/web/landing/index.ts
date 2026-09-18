@@ -55,9 +55,6 @@ export function loadIconFont(): void {
 
 const NAV = [
   { href: '#how-it-works', label: 'How it works' },
-  { href: '#layers', label: 'The layers' },
-  { href: '#real-run', label: 'A real run' },
-  { href: '#faq', label: 'FAQ' },
   { href: '/mcp', label: 'MCP' },
   { href: '#updates', label: 'Updates' }
 ]
