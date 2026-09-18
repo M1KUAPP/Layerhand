@@ -25,10 +25,12 @@ async function inspectMcpPage(html: string): Promise<{
   prompt: string
   hasCopy: boolean
   platforms: { platform: string; open: boolean }[]
+  nav: { name: string; href: string }[]
 }> {
   let prompt = ''
   let hasCopy = false
   const platforms: { platform: string; open: boolean }[] = []
+  const nav: { name: string; href: string }[] = []
   await new HTMLRewriter()
     .on('#setup-prompt', {
       text(text) {
@@ -48,9 +50,21 @@ async function inspectMcpPage(html: string): Promise<{
         })
       }
     })
+    .on('nav[aria-label="Primary"] a', {
+      element(element) {
+        nav.push({
+          name: '',
+          href: element.getAttribute('href') ?? ''
+        })
+      },
+      text(text) {
+        const last = nav.at(-1)
+        if (last) last.name += text.text
+      }
+    })
     .transform(new Response(html))
     .text()
-  return { prompt, hasCopy, platforms }
+  return { prompt, hasCopy, platforms, nav: nav.map((item) => ({ ...item, name: item.name.trim() })) }
 }
 
 test('GET /mcp twice returns the setup prompt and collapsed Codex and Claude Code manuals', async () => {
@@ -85,6 +99,15 @@ test('GET /mcp twice returns the setup prompt and collapsed Codex and Claude Cod
     const claude = page.platforms.find((entry) => entry.platform === 'claude-code')
     expect(codex).toEqual({ platform: 'codex', open: false })
     expect(claude).toEqual({ platform: 'claude-code', open: false })
+
+    expect(html).toContain('class="site-header"')
+    expect(html).toContain('class="input-grid"')
+    expect(html).toContain('class="workbench-board"')
+    expect(html).toContain('class="workbench-card"')
+    expect(page.nav.map((item) => item.name)).toEqual(['How it works', 'MCP', 'Updates', 'Try it free'])
+    expect(page.nav.map((item) => item.name)).not.toContain('The layers')
+    expect(page.nav.map((item) => item.name)).not.toContain('A real run')
+    expect(page.nav.map((item) => item.name)).not.toContain('FAQ')
   }
 
   expect(bodies[0]).toBe(bodies[1])
