@@ -44,7 +44,7 @@ export function mcpPageHtml(origin: string): string {
         <a class="site-nav__cta" href="/">Try it free<i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i></a>
       </nav>
     </header>
-    <section class="input-grid" aria-labelledby="input-title">
+    <main class="input-grid" aria-labelledby="input-title">
       <div class="input-intro">
         <p class="eyebrow">From your agent</p>
         <h1 id="input-title">Run it from your agent</h1>
@@ -84,7 +84,7 @@ export function mcpPageHtml(origin: string): string {
           </section>
         </div>
       </div>
-    </section>
+    </main>
     <script src="/mcp.js"></script>
   </body>
 </html>
