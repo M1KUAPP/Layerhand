@@ -446,9 +446,8 @@ icon tiles:
 ### Common questions
 
 The questions section sits on paper after The Glass Object and before Launch
-updates, with `id="faq"` and a primary navigation link labelled FAQ before
-Updates. It is a 12-column bento grid at 1280 px and wider, collapsing to a
-single column below 1280 px:
+updates, with `id="faq"`. It is a 12-column bento grid at 1280 px and wider,
+collapsing to a single column below 1280 px:
 
 - Eyebrow "Questions" in UI / Eyebrow, title "Before your first run." in
   Display / Section.
