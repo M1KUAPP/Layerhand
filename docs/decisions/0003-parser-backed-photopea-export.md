@@ -290,6 +290,6 @@ Chrome integration, and `git diff --check`.
 - [ADR-0002: Upload images through an injected Photopea transport](0002-photopea-upload-transport.md)
 - [TRD: The editor adapter](/docs/TRD.md#the-editor-adapter)
 - [PRD: Output requirements](/docs/PRD.md#output)
-- [GitHub issue #16](https://github.com/M1KUAPP/astra/issues/16)
-- [GitHub issue #17](https://github.com/M1KUAPP/astra/issues/17)
+- [GitHub issue #16](https://github.com/M1KUAPP/Layerhand/issues/16)
+- [GitHub issue #17](https://github.com/M1KUAPP/Layerhand/issues/17)
 - [Photopea live messaging](https://www.photopea.com/api/live)

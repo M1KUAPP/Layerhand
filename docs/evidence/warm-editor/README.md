@@ -2,7 +2,7 @@
 
 Button to first frame on the deployed service, with and without an editor
 warmed while the instruction was typed
-([issue #70](https://github.com/M1KUAPP/astra/issues/70), NFR-3). It is the
+([issue #70](https://github.com/M1KUAPP/Layerhand/issues/70), NFR-3). It is the
 number [B2](/docs/TRD.md#decisions-deferred-to-spikes) asked for warming to
 move.
 
@@ -27,10 +27,10 @@ A warm first frame is inside NFR-3's five-second budget and a cold one is
 not, which is what the warm session was built for.
 
 **September 16, 2026**, against the deployed service at commit
-[`28470e5`](https://github.com/M1KUAPP/astra/commit/28470e55b403f286ac92dfe588d7be80a2cd30a7),
+[`28470e5`](https://github.com/M1KUAPP/Layerhand/commit/28470e55b403f286ac92dfe588d7be80a2cd30a7),
 same method, same B1 input. This run crosses the network allow-list
-([#111](https://github.com/M1KUAPP/astra/issues/111),
-[PR #147](https://github.com/M1KUAPP/astra/pull/147)); the September 15
+([#111](https://github.com/M1KUAPP/Layerhand/issues/111),
+[PR #147](https://github.com/M1KUAPP/Layerhand/pull/147)); the September 15
 pair above predates it.
 
 | Run                       | Button to first frame |

@@ -39,7 +39,7 @@ and nothing below reopens them.
 
 The third decision follows from a fact rather than a preference: Canvas
 UI's page effects need an html-in-canvas origin-trial token registered to
-a domain, and [#30](https://github.com/M1KUAPP/astra/issues/30) shows the
+a domain, and [#30](https://github.com/M1KUAPP/Layerhand/issues/30) shows the
 domain is not registered. Its Three.js object effects need no token and
 run everywhere, so those are the only Canvas UI components in scope.
 
@@ -726,7 +726,7 @@ while the drawer is open.
 
 - **Below 1280px.** [NFR-7](PRD.md#non-functional-requirements) puts only
   the workbench out of scope below 1280px.
-  [#128](https://github.com/M1KUAPP/astra/issues/128) settled, on
+  [#128](https://github.com/M1KUAPP/Layerhand/issues/128) settled, on
   September 16-17, that the landing page and waitlist render there: the
   hero holds together down to 390px.
 - **No WebGL.** The Glass Object section falls back to the flat SVG. The

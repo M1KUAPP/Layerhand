@@ -1,7 +1,7 @@
 # Driving mechanism
 
 The harness for spike A0
-([issue #2](https://github.com/M1KUAPP/astra/issues/2)): does GPT-6 Astra drive
+([issue #2](https://github.com/M1KUAPP/Layerhand/issues/2)): does GPT-6 Astra drive
 Photopea more reliably through the `computer` tool or through code execution? It
 is a throwaway like the
 [B1 probe](/docs/evidence/photopea-round-trip/README.md), not the production
@@ -104,7 +104,7 @@ locally, with a key you can revoke.
   The session allows five minutes per command and reuses one export for both
   the file and its layer list. Uploads already avoid this by sending base64.
   Fixed on September 15, 2026, by
-  [issue #50](https://github.com/M1KUAPP/astra/issues/50): exports now cross
+  [issue #50](https://github.com/M1KUAPP/Layerhand/issues/50): exports now cross
   the page as base64, and the editor's export test measured the same PSD at
   307 ms.
 - A dry run of the sample photo with the default 30-second command timeout

@@ -86,5 +86,5 @@ preview. Shot 3 has no recorded frame yet.
 
 ## Links
 
-- Repository: https://github.com/M1KUAPP/astra
+- Repository: https://github.com/M1KUAPP/Layerhand
 - Contest: https://www.producthunt.com/contests/gpt-6-astra-challenge
