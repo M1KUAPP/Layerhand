@@ -14,7 +14,7 @@ two GitHub issue bodies through the GitHub API.
 
 **Tech stack:** Markdown, GitHub Actions YAML, GitHub CLI, Bun, Prettier.
 
-**Spec:** [Issue #131](https://github.com/M1KUAPP/astra/issues/131)
+**Spec:** [Issue #131](https://github.com/M1KUAPP/Layerhand/issues/131)
 
 ## Global constraints
 

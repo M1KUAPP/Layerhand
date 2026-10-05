@@ -3,7 +3,7 @@
 A **feasibility hint** for spike A1 and the day-2 gate: can GPT-6 Astra get a
 layered three-edit retouch done in live Photopea by writing Playwright code?
 It ran on a ChatGPT Plus Codex subscription because no OpenAI API key was
-available ([issue #2](https://github.com/M1KUAPP/astra/issues/2)).
+available ([issue #2](https://github.com/M1KUAPP/Layerhand/issues/2)).
 
 **This is not spike A0 data.** Codex's own agent, prompt, and tool loop do
 the driving, not `ResponsesModel`. The `computer` tool is not exercised, and

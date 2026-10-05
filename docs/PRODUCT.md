@@ -248,7 +248,7 @@ Stated so that nobody builds them in the six build days available.
 - **No image generation.** We retouch what you upload.
 - **No batch pipeline.** One image at a time. The launch ships through the
   web app alone; after it, the agent bundle in
-  [#136](https://github.com/M1KUAPP/astra/issues/136) lets Codex and Claude
+  [#136](https://github.com/M1KUAPP/Layerhand/issues/136) lets Codex and Claude
   Code start the same runs, on the same server, with the user's own key.
 - **No accounts beyond what metering requires.** No teams, no sharing,
   no history, no projects.
@@ -378,7 +378,7 @@ Each is assigned and answered before it can block work.
     launch enters only if it is scheduled for the 18th and joined to the
     challenge, which is a separate choice when scheduling. Every source
     is quoted in
-    [the schedule change](https://github.com/M1KUAPP/astra/pull/69). The
+    [the schedule change](https://github.com/M1KUAPP/Layerhand/pull/69). The
     countdown read 1d 19h 5m on the evening of September 16, which lands
     on the same moment.
 
@@ -388,13 +388,13 @@ Each is assigned and answered before it can block work.
       mentions one. This repository is public in any case.
     - **An open-source licence is not required**; no contest document
       mentions one. Licensing the repository stays worthwhile and is
-      [#122](https://github.com/M1KUAPP/astra/issues/122), but it does
+      [#122](https://github.com/M1KUAPP/Layerhand/issues/122), but it does
       not gate the launch.
     - **A demo video is required** — "a quick demo video of the app doing
       its thing". No length is stated anywhere, and the binding
       constraint is hosting rather than duration: Product Hunt takes a
       YouTube link only, never an uploaded file. That is
-      [#137](https://github.com/M1KUAPP/astra/issues/137), and it has a
+      [#137](https://github.com/M1KUAPP/Layerhand/issues/137), and it has a
       lead time.
     - **There is no team-size limit on entry.** "Up to two team members"
       caps who receives ChatGPT Pro, not who may enter.
@@ -410,7 +410,7 @@ Each is assigned and answered before it can block work.
     Two of those findings changed work rather than closing a question.
     The featuring guidelines exclude "waitlisted products (unless
     immediate access is provided)", which constrains how
-    [#30](https://github.com/M1KUAPP/astra/issues/30) orders its landing
+    [#30](https://github.com/M1KUAPP/Layerhand/issues/30) orders its landing
     page, and the submission itself wants a 60-character tagline, a
     260-character description, two or more 1270x760 gallery images, three
     topics, and a maker comment.
