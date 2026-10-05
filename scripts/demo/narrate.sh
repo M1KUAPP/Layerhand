@@ -9,7 +9,6 @@ set -euo pipefail
 DIR="${DEMO_DIR:-${TMPDIR:-/tmp}/layerhand-demo}"
 SPEAK="${DEMO_SPEAK:-$(dirname "$0")/speak.py}"
 
-# Resolve the portable Kokoro runtime path. KOKORO_HOME can point elsewhere.
 KOKORO="${KOKORO_HOME:-$HOME/.local/share/layerhand-demo}"
 
 # speak.py re-execs itself into the Chatterbox venv when DEMO_TTS=chatterbox, so
@@ -17,17 +16,17 @@ KOKORO="${KOKORO_HOME:-$HOME/.local/share/layerhand-demo}"
 PY="${DEMO_PYTHON:-$KOKORO/.venv/bin/python}"
 [ -x "$PY" ] || PY="$(command -v python3)"
 SCRIPT="${DEMO_SCRIPT:-$(dirname "$0")/narration.txt}"
-FF="${DEMO_FFMPEG:-$(command -v ffmpeg || echo "$DIR/node_modules/ffmpeg-static/ffmpeg")}"
+FF="${DEMO_FFMPEG:-$(command -v ffmpeg || true)}"
 OUT="${DEMO_OUT:-$DIR/demo.mp4}"
 BGM="${DEMO_BGM:-}"
 BGM_GAIN_DB="${DEMO_BGM_GAIN_DB:--17}"
 MIN_DURATION="${DEMO_MIN_DURATION:-30}"
 MAX_DURATION="${DEMO_MAX_DURATION:-120}"
 
-# assemble.sh joins the capture to the pitch slides; when it has run, that is
-# the video to narrate over. Falls back to the raw capture for a plain demo.
 # Sampled from the app's own background so the pillarbox bars blend seamlessly.
 PAD="${DEMO_PAD:-#F3F0E8}"
+# assemble.sh joins the capture to the pitch slides; when it has run, that is
+# the video to narrate over. Falls back to the raw capture for a plain demo.
 SRC="${DEMO_SOURCE:-$DIR/capture-joined.mp4}"
 [ -f "$SRC" ] || SRC="$DIR/capture.webm"
 for f in "$SRC" "$DIR/beats.json" "$SCRIPT"; do

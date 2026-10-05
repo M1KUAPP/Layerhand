@@ -48,9 +48,7 @@ const mark = (name) => {
 }
 const beat = (page, ms) => page.waitForTimeout(ms)
 
-// Chromium is not installed for Playwright on every machine here, so this uses
-// `channel: 'chrome'` -- the system Chrome. Drop the channel to use Playwright's
-// own Chromium once `playwright install chromium` has been run.
+// System Chrome by default, since Playwright's own Chromium is not installed everywhere.
 const browser = await chromium.launch({ channel: process.env.DEMO_CHANNEL || 'chrome' })
 const { walk } = await import('./walk.mjs')
 if (process.env.DEMO_WARMUP !== '0') {

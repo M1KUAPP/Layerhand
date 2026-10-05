@@ -11,8 +11,5 @@ test/
 dist/
 artifacts/reliability/
 .env*
-packages/
-!packages/layerhand-mcp/
-!packages/layerhand-mcp/**
 packages/layerhand-mcp/node_modules
 packages/layerhand-mcp/dist
