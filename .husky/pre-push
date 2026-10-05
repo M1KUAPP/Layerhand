@@ -9,8 +9,7 @@ remote_name=$1
 [ "$remote_name" = "origin" ] || exit 0
 
 # Follow the remote's default branch instead of assuming it is called main,
-# so renaming it cannot silently switch this check off while the server-side
-# rules keep enforcing.
+# so renaming it cannot silently switch this check off.
 default_branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)
 default_branch=${default_branch#origin/}
 [ -n "$default_branch" ] || default_branch=main
