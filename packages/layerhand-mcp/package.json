@@ -22,7 +22,7 @@
   "scripts": {
     "build": "bun build src/index.ts --target=node --outfile dist/layerhand-mcp.js --banner '#!/usr/bin/env node'",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
