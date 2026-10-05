@@ -6,7 +6,7 @@
   padding: 136px 36px;
   background: var(--color-bg-band);
   /* In the dark scheme the band and the subtle ground are one tone, so the
-     band draws its own top edge. */
+    band draws its own top edge. */
   box-shadow: inset 0 1px 0 var(--color-border-on-chrome);
   color: var(--color-text-on-chrome);
 }
@@ -166,7 +166,7 @@
 }
 
 /* Adjustments change what is under them; with nothing under them they
-   show nothing. */
+  show nothing. */
 .switcher__stage[data-mode='psd'][data-original='off'] .switcher__photo,
 .switcher__stage[data-mode='psd'][data-original='off'] .switcher__warm {
   opacity: 0;
@@ -307,7 +307,7 @@
 }
 
 /* The demo marks the layer it is changing with an accent inset rule on
-   the row's left edge. */
+  the row's left edge. */
 .switcher__layer[data-demo='active'] {
   box-shadow: inset 3px 0 0 var(--accent);
 }
