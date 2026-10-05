@@ -24,7 +24,8 @@ are symlinks to it.
 ## References
 
 - @docs/references/git-workflow.md — how every change gets from a branch
-  to `main`, how commits and titles are named, and what enforces each step.
+  to `main`, how commits and titles are named, and which steps the local
+  hooks enforce.
 - @docs/references/markdown-style.md — the style every Markdown document
   here follows: 80-character lines, sentence-case ATX headings, and
   informative links.

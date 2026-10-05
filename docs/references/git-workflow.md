@@ -2,7 +2,7 @@
 
 Every change to this repository travels the same path: a branch, small
 commits, a pull request, a review, resolved conversations, a rebase merge,
-and a deleted branch. Nothing reaches `main` any other way.
+and a deleted branch. Nothing should reach `main` any other way.
 
 Names follow
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
@@ -29,7 +29,7 @@ Contents:
     refused by the pre-push hook.
 4.  **Open a pull request.** `gh pr create --fill-first`, then check the
     title. Not `--fill`: on a branch with more than one commit that takes
-    the title from the branch name, which the title check rejects.
+    the title from the branch name, which is not in the commit format.
     `--fill-first` takes it from the first commit, which may not describe
     the whole branch, so pass `--title` when it does not.
 5.  **Review.** One approval required. Review looks at the diff and at the
@@ -77,62 +77,37 @@ Both use the commit format. An issue describes the change you want as though
 you were committing it: `fix(auth): expired refresh tokens are accepted`.
 Neither becomes a commit subject: this repository rebase-merges, so the
 commits land exactly as written and the pull request title is discarded.
-The title is linted anyway, because it is what the pull request list, the
-notification, and the reviewer see first.
+The title follows the format anyway, because it is what the pull request
+list, the notification, and the reviewer see first.
 
 ## What enforces what
 
-| Where                                       | What it blocks                                                    |
-| ------------------------------------------- | ----------------------------------------------------------------- |
-| The `main` ruleset                          | A merge that skips a step of [the loop](#the-loop)                |
-| `.husky/commit-msg`                         | A commit whose message is not conventional                        |
-| `.husky/pre-push`                           | A push straight to the default branch                             |
-| `.github/workflows/test.yml`                | A failing test, or a type error                                   |
-| `.github/workflows/conventional-lint.yml`   | A bad pull request title, or a bad commit                         |
-| `.github/workflows/lint.yml`                | An unformatted tree                                               |
-| `.github/workflows/container.yml`           | An image that does not build or start                             |
-| `.github/workflows/deploy.yml`              | Nothing before merge; deploys `main` after environment approval   |
-| `.github/workflows/issue-title-lint.yml`    | A bad issue title — labels and explains it                        |
-| `.github/workflows/reliability.yml`         | Nothing; scheduled evidence rather than a pull-request merge gate |
-| `.github/workflows/browser-integration.yml` | Nothing; scheduled evidence rather than a pull-request merge gate |
-| `.github/pull_request_template.md`          | Nothing; it reminds you                                           |
-| `.github/ISSUE_TEMPLATE/`                   | Blank issues, and titles with no type                             |
+| Where               | What it blocks                             |
+| ------------------- | ------------------------------------------ |
+| `.husky/commit-msg` | A commit whose message is not conventional |
+| `.husky/pre-push`   | A push straight to the default branch      |
 
-The ruleset is what turns the workflows into merge gates. It is a
-repository setting rather than a file, it covers `main`, and nobody is on
-its bypass list, admins included. A pull request merges only with:
+Both are local hooks, so `--no-verify` skips them. The commit-msg hook reads
+its rules from `commitlint.config.mjs`. Nothing else is enforced: no workflow
+runs on GitHub and no repository rule guards `main`, so the rest of
+[the loop](#the-loop) is a convention, and nothing checks tests, formatting,
+or pull request and issue titles before a merge.
 
-- one approval, which cannot come from its author;
-- every review conversation resolved;
-- a rebase merge, the only method it allows, onto a linear history;
-- passing **Test and typecheck**, **Formatting**, **Container smoke
-  test**, **Pull request title**, and **Commit messages** checks.
-
-It also refuses a push straight to `main`, a force push, and deleting the
-branch. A scheduled workflow has no merge to block in the first place: a
-failing run shows in the Actions tab, and GitHub emails whoever last
-edited its `schedule` trigger.
-
-The local hooks and the workflows share one rule set, `commitlint.config.mjs`,
-so they cannot drift apart. The hooks are the fast feedback; the workflows are
-the part that cannot be skipped with `--no-verify`.
+A merge deploys nothing. Deploys are manual, as the
+[launch-day runbook](/docs/references/launch-day.md#the-freeze-and-the-no-deploy-rule)
+describes.
 
 ## Secrets
 
-Always store secrets as
-[GitHub secrets](https://docs.github.com/en/actions/concepts/security/secrets),
-never in the repository: not in a commit, a pull request, an issue, or a
-workflow file. `.env` stays untracked, and only `.env.example`, which holds
-placeholders, is committed. A workflow reads a secret as
-`${{ secrets.NAME }}`.
+Never put a secret in the repository: not in a commit, a pull request, an
+issue, or any file. `.env` stays untracked, and only `.env.example`, which
+holds placeholders, is committed.
 
-Team secrets live in this repository's GitHub secrets, and nowhere else is
-their source: `DATABASE_URL`, `SESSION_SECRET`, `S3_ACCESS_KEY_ID`,
-`S3_SECRET_ACCESS_KEY`, and `BROWSERBASE_API_KEY`. The deploy workflow
-copies each one into Google Secret Manager before it deploys, adding a
-version only when the value changed, so a secret is rotated by changing it
-in GitHub and deploying. `OPENAI_API_KEY` is the one exception to storing
-secrets in GitHub: it is a personal key, and it lives only in Secret Manager.
+The deployed service reads its secrets from Google Secret Manager, their
+only source: `DATABASE_URL`, `SESSION_SECRET`, `S3_ACCESS_KEY_ID`,
+`S3_SECRET_ACCESS_KEY`, `BROWSERBASE_API_KEY`, and `OPENAI_API_KEY`. The
+[launch-day runbook](/docs/references/launch-day.md#rotating-the-server-key)
+says how to rotate one.
 
 ## Setting it up
 
@@ -169,54 +144,3 @@ gh api -X PATCH 'repos/{owner}/{repo}' --silent \
   -F allow_squash_merge=false \
   -F allow_merge_commit=false
 ```
-
-The ruleset on `main` is created the same way, once. The integration id
-`15368` is GitHub Actions, the app that reports every required check:
-
-```sh
-gh api -X POST 'repos/{owner}/{repo}/rulesets' --silent --input - <<'EOF'
-{
-  "name": "main",
-  "target": "branch",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] }
-  },
-  "bypass_actors": [],
-  "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
-    { "type": "required_linear_history" },
-    {
-      "type": "pull_request",
-      "parameters": {
-        "required_approving_review_count": 1,
-        "dismiss_stale_reviews_on_push": false,
-        "require_code_owner_review": false,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": true,
-        "allowed_merge_methods": ["rebase"]
-      }
-    },
-    {
-      "type": "required_status_checks",
-      "parameters": {
-        "strict_required_status_checks_policy": false,
-        "required_status_checks": [
-          { "context": "Test and typecheck", "integration_id": 15368 },
-          { "context": "Formatting", "integration_id": 15368 },
-          { "context": "Container smoke test", "integration_id": 15368 },
-          { "context": "Pull request title", "integration_id": 15368 },
-          { "context": "Commit messages", "integration_id": 15368 }
-        ]
-      }
-    }
-  ]
-}
-EOF
-```
-
-To change it later, send the same body with `PUT` to
-`repos/{owner}/{repo}/rulesets/<id>`, taking the id from
-`gh api 'repos/{owner}/{repo}/rulesets'`, rather than creating a second
-one.
