@@ -1,0 +1,3 @@
+{
+  "Exclude": ["^src/web/mcp/prompt\\.ts$"]
+}

@@ -59,7 +59,7 @@ the last few minutes plus no traffic is the signal:
 ```sh
 psql "$DATABASE_URL" -c \
   "select count(*), max(completed_at) from run_log
-     where completed_at::timestamptz > now() - interval '15 minutes';"
+    where completed_at::timestamptz > now() - interval '15 minutes';"
 ```
 
 Fifteen minutes is the run ceiling, so nothing older than that is still
@@ -102,7 +102,7 @@ Three places, in the order worth trying:
     ```sh
     psql "$DATABASE_URL" -c \
       "select run_id, outcome, failure_code, steps, cost_usd, duration_ms
-         from run_log order by completed_at desc limit 20;"
+        from run_log order by completed_at desc limit 20;"
     ```
 
     `outcome` is how it ended: `complete`, `step_cap`, `spend_cap`,
@@ -121,7 +121,7 @@ Three places, in the order worth trying:
     psql "$DATABASE_URL" -c \
       "select run_id, transport, corrections_applied, corrections_replayed,
           corrections_indeterminate, safety_check_codes
-         from run_log order by completed_at desc limit 20;"
+        from run_log order by completed_at desc limit 20;"
     ```
 
     `transport` is `websocket` once the run's socket opened, `http`

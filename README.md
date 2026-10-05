@@ -125,21 +125,21 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 
 ### How It Works
 
-1. **Drop in a photograph.** JPEG or PNG, up to 20 MB and 6000 px on the long edge. Arrived without one? Start from the sample bottle.
+1.  **Drop in a photograph.** JPEG or PNG, up to 20 MB and 6000 px on the long edge. Arrived without one? Start from the sample bottle.
 
-   <img src="docs/readme/steps/1-drop-in-a-photograph.png" alt="Drop in a photograph" width="100%">
+    <img src="docs/readme/steps/1-drop-in-a-photograph.png" alt="Drop in a photograph" width="100%">
 
-2. **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colors, darken the corners. The workbench title is “Give the agent one clear direction.”
+2.  **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colors, darken the corners. The workbench title is “Give the agent one clear direction.”
 
-   <img src="docs/readme/steps/2-say-what-you-want.png" alt="Say what you want" width="100%">
+    <img src="docs/readme/steps/2-say-what-you-want.png" alt="Say what you want" width="100%">
 
-3. **Watch it work, and correct it.** GPT-6 Astra drives Photopea. Type a correction while it runs; the next steps bend, without starting over. It cannot undo a step already taken, but it can repair one.
+3.  **Watch it work, and correct it.** GPT-6 Astra drives Photopea. Type a correction while it runs; the next steps bend, without starting over. It cannot undo a step already taken, but it can repair one.
 
-   <img src="docs/readme/steps/3-watch-it-work.png" alt="Watch it work, and correct it" width="100%">
+    <img src="docs/readme/steps/3-watch-it-work.png" alt="Watch it work, and correct it" width="100%">
 
-4. **Download the layered PSD.** Every edit arrives on its own named layer, its mask and adjustment still editable. A flattened PNG comes with it to preview. Open the file in Photoshop, Affinity Photo, GIMP, or back in Photopea.
+4.  **Download the layered PSD.** Every edit arrives on its own named layer, its mask and adjustment still editable. A flattened PNG comes with it to preview. Open the file in Photoshop, Affinity Photo, GIMP, or back in Photopea.
 
-   <img src="docs/readme/steps/4-download-the-layered-psd.png" alt="Download the layered PSD" width="100%">
+    <img src="docs/readme/steps/4-download-the-layered-psd.png" alt="Download the layered PSD" width="100%">
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -205,42 +205,42 @@ Local development defaults to a fake session: no API keys, no Browserbase, in-me
 
 ### Installation
 
-1. **Install the dependencies.**
+1.  **Install the dependencies.**
 
-   ```sh
-   bun install --frozen-lockfile
-   ```
+    ```sh
+    bun install --frozen-lockfile
+    ```
 
-2. **Start the dev server.** `bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts`. It reloads the page on an edit under `src/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
+2.  **Start the dev server.** `bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts`. It reloads the page on an edit under `src/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
 
-   ```sh
-   bun run dev
-   ```
+    ```sh
+    bun run dev
+    ```
 
-   `RUN_MODE` is `fake` when unset. That path runs `fakeRun()`: a short product-retouch script on a one-second step timer, with steer and cancel still wired.
+    `RUN_MODE` is `fake` when unset. That path runs `fakeRun()`: a short product-retouch script on a one-second step timer, with steer and cancel still wired.
 
-3. **Open the workbench.** Open [http://localhost:3000](http://localhost:3000). The workbench still walks the four steps, so you can take screenshots against it. Readiness is `GET /health` and returns `{ "status": "ok", "database": "ready" }` when the in-memory database has migrated.
+3.  **Open the workbench.** Open [http://localhost:3000](http://localhost:3000). The workbench still walks the four steps, so you can take screenshots against it. Readiness is `GET /health` and returns `{ "status": "ok", "database": "ready" }` when the in-memory database has migrated.
 
-4. **Optionally, drive a real editor.** Copy `.env.example` to `.env` only when you want `RUN_MODE=agent` or other production-like values; fake mode does not need it. To drive a real editor instead, set:
+4.  **Optionally, drive a real editor.** Copy `.env.example` to `.env` only when you want `RUN_MODE=agent` or other production-like values; fake mode does not need it. To drive a real editor instead, set:
 
-   ```sh
-   RUN_MODE=agent
-   PUBLIC_URL=http://localhost:3000
-   BROWSERBASE_API_KEY=...
-   OPENAI_API_KEY=...
-   ```
+    ```sh
+    RUN_MODE=agent
+    PUBLIC_URL=http://localhost:3000
+    BROWSERBASE_API_KEY=...
+    OPENAI_API_KEY=...
+    ```
 
-   Agent mode refuses to start without `BROWSERBASE_API_KEY` and `PUBLIC_URL`. `scripted` runs the real agent loop against a recorded editor and a scripted model, still without a live browser.
+    Agent mode refuses to start without `BROWSERBASE_API_KEY` and `PUBLIC_URL`. `scripted` runs the real agent loop against a recorded editor and a scripted model, still without a live browser.
 
-5. **Try MCP locally.** With the dev server up, open [http://localhost:3000/mcp](http://localhost:3000/mcp). The setup prompt and the Codex / Claude Code / other manuals use that origin. The five tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
+5.  **Try MCP locally.** With the dev server up, open [http://localhost:3000/mcp](http://localhost:3000/mcp). The setup prompt and the Codex / Claude Code / other manuals use that origin. The five tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
 
-6. **Run the checks.** `bun run check` runs the lint, the typecheck and the tests, including the MCP package's and the demo recorder's Python tests. `bun run build` builds the production bundle separately.
+6.  **Run the checks.** `bun run check` runs the lint, the typecheck and the tests, including the MCP package's and the demo recorder's Python tests. `bun run build` builds the production bundle separately.
 
-   ```sh
-   bun run check
-   ```
+    ```sh
+    bun run check
+    ```
 
-   `RUN_BROWSER_TESTS=1` runs the fake-backed page tests in installed Google Chrome.
+    `RUN_BROWSER_TESTS=1` runs the fake-backed page tests in installed Google Chrome.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
