@@ -191,54 +191,58 @@ One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 
 ## Getting Started
 
-Local development defaults to a fake session: no API keys, no Browserbase, in-memory database. The workbench still walks the four steps, so you can take screenshots against `http://localhost:3000`.
+Local development defaults to a fake session: no API keys, no Browserbase, in-memory database.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
 ### Prerequisites
 
-- [Bun 1.4.2](https://bun.sh/) — pinned by the production image (`oven/bun:1.4.2-alpine`) and the lockfile (version 2). Use this version for anything that talks to a browser over CDP.
-- A desktop viewport at least 1280 px wide for the workbench. Narrower screens get the “Layerhand needs a wider canvas” gate.
-- Optional: copy `.env.example` to `.env` only when you want `RUN_MODE=agent` or other production-like values. Fake mode does not need it.
+- [Bun](https://bun.sh/) 1.4.2 — pinned by the production image (`oven/bun:1.4.2-alpine`) and the lockfile (version 2). Use this version for anything that talks to a browser over CDP.
+- [Google Chrome](https://www.google.com/chrome/) — or another desktop browser, with a viewport at least 1280 px wide for the workbench. Narrower screens get the “Layerhand needs a wider canvas” gate.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
 ### Installation
 
-```sh
-bun install --frozen-lockfile
-bun run dev
-```
+1. **Install the dependencies.**
 
-Open [http://localhost:3000](http://localhost:3000). Readiness is `GET /health` and returns `{ "status": "ok", "database": "ready" }` when the in-memory database has migrated.
+   ```sh
+   bun install --frozen-lockfile
+   ```
 
-`bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts`. It reloads the page on an edit under `src/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
+2. **Start the dev server.** `bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts`. It reloads the page on an edit under `src/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
 
-`RUN_MODE` is `fake` when unset. That path runs `fakeRun()`: a short product-retouch script on a one-second step timer, with steer and cancel still wired.
+   ```sh
+   bun run dev
+   ```
 
-To drive a real editor instead:
+   `RUN_MODE` is `fake` when unset. That path runs `fakeRun()`: a short product-retouch script on a one-second step timer, with steer and cancel still wired.
 
-```sh
-RUN_MODE=agent
-PUBLIC_URL=http://localhost:3000
-BROWSERBASE_API_KEY=...
-OPENAI_API_KEY=...
-```
+3. **Open the workbench.** Open [http://localhost:3000](http://localhost:3000). The workbench still walks the four steps, so you can take screenshots against it. Readiness is `GET /health` and returns `{ "status": "ok", "database": "ready" }` when the in-memory database has migrated.
 
-Agent mode refuses to start without `BROWSERBASE_API_KEY` and `PUBLIC_URL`. `scripted` runs the real agent loop against a recorded editor and a scripted model, still without a live browser.
+4. **Optionally, drive a real editor.** Copy `.env.example` to `.env` only when you want `RUN_MODE=agent` or other production-like values; fake mode does not need it. To drive a real editor instead, set:
 
-**MCP locally.** With the dev server up, open [http://localhost:3000/mcp](http://localhost:3000/mcp). The setup prompt and the Codex / Claude Code / other manuals use that origin. The five tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
+   ```sh
+   RUN_MODE=agent
+   PUBLIC_URL=http://localhost:3000
+   BROWSERBASE_API_KEY=...
+   OPENAI_API_KEY=...
+   ```
 
-**Checks.**
+   Agent mode refuses to start without `BROWSERBASE_API_KEY` and `PUBLIC_URL`. `scripted` runs the real agent loop against a recorded editor and a scripted model, still without a live browser.
 
-```sh
-bun test
-bun run typecheck
-bun run lint
-bun run build
-```
+5. **Try MCP locally.** With the dev server up, open [http://localhost:3000/mcp](http://localhost:3000/mcp). The setup prompt and the Codex / Claude Code / other manuals use that origin. The five tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
 
-`RUN_BROWSER_TESTS=1` runs the fake-backed page tests in installed Google Chrome.
+6. **Run the checks.**
+
+   ```sh
+   bun test
+   bun run typecheck
+   bun run lint
+   bun run build
+   ```
+
+   `RUN_BROWSER_TESTS=1` runs the fake-backed page tests in installed Google Chrome.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
