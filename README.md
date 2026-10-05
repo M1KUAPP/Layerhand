@@ -5,7 +5,10 @@
 <br />
 <div align="center">
   <a href="https://github.com/M1KUAPP/Layerhand">
-    <img src="src/web/assets/og-image.png" alt="Banner">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner-dark.png">
+      <img src="docs/readme/banner-light.png" alt="Layerhand banner">
+    </picture>
   </a>
 
   <h3>Layerhand</h3>
@@ -13,11 +16,11 @@
   <p>
     An AI retoucher that drives Photopea while you watch and returns a layered, editable PSD instead of a flat JPEG, on the web or through MCP.
     <br />
-    <a href="https://layerhand-732371853772.us-central1.run.app"><strong>Live Demo »</strong></a>
+    <a href="#getting-started"><strong>Run Locally »</strong></a>
     &middot;
-    <a href="https://layerhand-732371853772.us-central1.run.app/mcp">MCP</a>
+    <a href="#screenshots">Screenshots</a>
     &middot;
-    <a href="https://github.com/M1KUAPP/Layerhand">Source</a>
+    <a href="https://github.com/M1KUAPP/Layerhand/issues/new?labels=bug">Report a Bug</a>
     <br />
   </p>
 
