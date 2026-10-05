@@ -160,13 +160,14 @@ Four steps on the site, and you can step in on the third.
 
 ### Architecture
 
-One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/architecture-dark.svg">
+  <img src="docs/readme/architecture-light.svg" alt="Layerhand architecture">
+</picture>
 
-<img
-  src="docs/readme/architecture-light.svg"
-  alt="Layerhand architecture"
-  style="border-radius: 16px"
-/>
+The diagram is drawn with [archify](https://github.com/tt-a1i/archify) from [`architecture.json`](docs/readme/architecture.json).
+
+One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 
 - **Pages.** `/` is the single-page app (`src/web/index.html` → `src/web/app.ts`). `/mcp` is the setup page. Plugin artifacts are packed from `packages/layerhand-mcp`.
 - **Runs.** `POST /api/runs` starts a run; `GET /api/runs/:id/events` streams progress; `POST .../steer` and `POST .../cancel` apply during the run. Uploads go to `POST /api/uploads`.
