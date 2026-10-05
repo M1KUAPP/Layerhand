@@ -4,16 +4,17 @@
 
 # General
 .DS_Store
+.localized
 __MACOSX/
 .AppleDouble
 .LSOverride
 Icon[
 ]
 
-# Thumbnails
+# Resource forks
 ._*
 
-# Files that might appear in the root of a volume
+# Files and directories that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
 .Spotlight-V100
@@ -21,6 +22,16 @@ Icon[
 .Trashes
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
+.com.apple.timemachine.supported
+.PKInstallSandboxManager
+.PKInstallSandboxManager-SystemSoftware
+.hotfiles.btree
+.vol
+.file
+.disk_label*
+lost+found
+.HFS+ Private Directory Data[
+]
 
 # Directories potentially created on remote AFP share
 .AppleDB
@@ -29,8 +40,31 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Mac OS 6 to 9
+Desktop DB
+Desktop DF
+TheFindByContentFolder
+TheVolumeSettingsFolder
+.FBCIndex
+.FBCSemaphoreFile
+.FBCLockFolder
+
+# Quota system
+.quota.group
+.quota.user
+.quota.ops.group
+.quota.ops.user
+
+# TimeMachine
+Backups.backupdb
+.MobileBackups
+.MobileBackups.trash
+MobileBackups.trash
+tmbootpicker.efi
+
 # IDE
 
+# Visual Studio Code
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -45,25 +79,32 @@ Temporary Items
 # Custom
 
 # Development
-.worktrees/
-.playwright-cli/
-.superpowers/
-dist/
 node_modules/
-artifacts/reliability/
-docs/evidence/**/output/
+.worktrees/
 
 # Environment
 .env*
 !.env.example
 
 # Graphify
-# The star is required: a bare graphify-out/ excludes the directory, and a
-# negation cannot re-include a file whose parent directory is excluded.
 graphify-out/*
-!graphify-out/GRAPH_REPORT.md
-!graphify-out/graph.html
 !graphify-out/graph.json
 
-# Python bytecode from the demo recorder tests
+# Repo-specific
+
+# Development
+.playwright-cli/
+.superpowers/
+artifacts/reliability/
+docs/evidence/**/output/
+.rtk/
+
+# Build and test output
+dist/
+coverage/
+.next/
+
+# Python, for the demo recorder's scripts and tests
+.venv/
 __pycache__/
+.pytest_cache/
