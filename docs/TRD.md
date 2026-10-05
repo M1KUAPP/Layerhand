@@ -1260,9 +1260,9 @@ again, and a run whose retries run out stops with its partial file, as
   asynchronously, so an object can still outlive that day by up to
   another one. The rule is a setting on the bucket, and applying it is
   manual. Its last committed copy is
-  [`gcs-lifecycle.json` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/gcs-lifecycle.json),
+  [`gcs-lifecycle.json` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/gcs-lifecycle.json),
   and the workflow that applied it,
-  [`gcs-lifecycle.yml` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/gcs-lifecycle.yml),
+  [`gcs-lifecycle.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/gcs-lifecycle.yml),
   records the `gcloud storage buckets update` and `describe` commands.
   Applying the rule needs `storage.buckets.update` on the bucket, and
   reading it needs `storage.buckets.get`.
@@ -1393,7 +1393,7 @@ and its limits.
 Deploys are manual: no workflow runs on a push to `main`, so a merge
 deploys nothing until someone deploys it by hand. The workflow that used to
 deploy,
-[`deploy.yml` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
+[`deploy.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
 records the image build and every `gcloud run deploy` flag, including
 `--memory` and `--min-instances 1`, which from the September 17 freeze
 through the launch window traded an idle instance for the eight seconds a
@@ -1479,7 +1479,7 @@ revision, and the gap between the two cold figures was not chased. The
 [warm editor evidence](/docs/research/evidence/warm-editor/README.md) has the method, the
 summary, and what the pair does not show.
 
-**Re-measured September 16** against commit `28470e5`, the first pair run
+**Re-measured September 16** against commit `f2ab463`, the first pair run
 through the network allow-list (#111, #147) rather than before it: warm
 reached the page in **2.3 seconds** and cold in **8.9 seconds**, the same
 pattern as September 15 and still inside NFR-3's budget only when warm.

@@ -22,8 +22,8 @@ masks, and a masked vignette.
 
 | Export                         | Source commit | Agent result         | Photoshop result                                     |
 | ------------------------------ | ------------- | -------------------- | ---------------------------------------------------- |
-| September 16 acceptance export | `54ba352`     | Complete in 30 steps | Opened without warning; adjustment and mask editable |
-| Frozen deployed build          | `e419b7d`     | Complete in 32 steps | Opened without warning; adjustment and mask editable |
+| September 16 acceptance export | `f858f35`     | Complete in 30 steps | Opened without warning; adjustment and mask editable |
+| Frozen deployed build          | `53e10ce`     | Complete in 32 steps | Opened without warning; adjustment and mask editable |
 
 In both files, changing the brightness adjustment from `6` to `40` visibly
 brightened the image. Translating the `Soft corner vignette` pixel mask to the
@@ -32,7 +32,7 @@ were discarded when each disposable copy closed.
 
 The frozen export came from
 [workflow run 35244658116](https://github.com/M1KUAPP/Layerhand/actions/runs/35244658116),
-which exercised the deployed service at commit `e419b7d`. Its acceptance
+which exercised the deployed service at commit `53e10ce`. Its acceptance
 profile passed with a complete outcome, 32 steps, and a 94.49% prompt-cache hit
 rate.
 

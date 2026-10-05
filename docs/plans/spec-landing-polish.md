@@ -19,7 +19,7 @@ Contents:
 
 ## Scope
 
-- One branch, `feat/landing-polish`, off `main` at `9dcbdd3`, and one pull
+- One branch, `feat/landing-polish`, off `main` at `accc643`, and one pull
   request. It does not plan around #208: whichever merges second resolves
   the overlap in `app.ts`, `styles.css` and `landing/index.ts`.
 - Corners stay square everywhere. The workbench softens through layout,
