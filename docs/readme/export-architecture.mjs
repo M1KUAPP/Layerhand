@@ -132,7 +132,10 @@ try {
     // The export is dual-theme; svg[data-theme] pins one theme regardless of the host.
     const locked = svg.replace(/<svg\b/, `<svg data-theme="${scheme}"`)
     if (locked === svg) throw new Error('no <svg> root')
-    fs.writeFileSync(path.join(out, `architecture-${scheme}.svg`), locked)
+    fs.writeFileSync(
+      path.join(out, `architecture-${scheme}.svg`),
+      locked.replace(/[ \t]+$/gm, '').replace(/\n*$/, '\n')
+    )
     console.log(`wrote architecture-${scheme}.svg (${Math.round(locked.length / 1024)} KB)`)
   }
 } finally {

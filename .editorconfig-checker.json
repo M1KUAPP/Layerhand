@@ -1,3 +1,4 @@
 {
-  "Exclude": ["^src/web/mcp/prompt\\.ts$"]
+  "Exclude": ["^src/web/mcp/prompt\\.ts$"],
+  "IgnoreDefaults": true
 }
