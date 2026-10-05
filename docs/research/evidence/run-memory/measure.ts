@@ -6,7 +6,7 @@
 // does. Every run is followed over its event stream as the page follows it,
 // and each page reloads once halfway through.
 //
-//   bun run docs/evidence/run-memory/measure.ts [--label after] [--runs 20] [--step-ms 12000] [--frame-bytes 840000]
+//   bun run docs/research/evidence/run-memory/measure.ts [--label after] [--runs 20] [--step-ms 12000] [--frame-bytes 840000]
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
@@ -31,9 +31,9 @@ else await measure()
 
 /** The server, in its own process, so the clients' memory is not counted. */
 async function serve(): Promise<void> {
-  const { FakeEditorSession } = await import('../../../src/editor/fake-editor-session')
-  const { MAX_RUN_REQUEST_BODY_BYTES } = await import('../../../src/server/run-routes')
-  const { createLaunchRuntime } = await import('../../../src/server/runtime')
+  const { FakeEditorSession } = await import('../../../../src/editor/fake-editor-session')
+  const { MAX_RUN_REQUEST_BODY_BYTES } = await import('../../../../src/server/run-routes')
+  const { createLaunchRuntime } = await import('../../../../src/server/runtime')
 
   // A new frame at every look, as a moving editor gives, so none is skipped.
   // Its bytes are random, because a PNG is compressed and macOS would
@@ -151,7 +151,7 @@ async function measure(): Promise<void> {
         peakHeapBytes: number
       }
 
-    const image = await Bun.file(new URL('../../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
+    const image = await Bun.file(new URL('../../../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
     const idle = await memory('?gc&reset')
     const runLengthMs = 5 * stepMs
 

@@ -3,7 +3,7 @@
 // this process, which is acceptable for a local spike and not for production.
 import type { Page } from 'playwright-core'
 
-import type { CodeResult, CodeRunner } from '../../../src/agent/responses-model'
+import type { CodeResult, CodeRunner } from '../../../../src/agent/responses-model'
 
 const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor as new (
   ...parameters: string[]

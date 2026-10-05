@@ -4,7 +4,7 @@
 // does not carry: wall clock, silent steps, safety checks, and whether the
 // exported PSD shows the three edits.
 //
-//   bun run docs/evidence/driving-mechanism/harness.ts [--mechanism computer|code|both] [--step-cap 40] [--dry-run] [image ...]
+//   bun run docs/research/evidence/driving-mechanism/harness.ts [--mechanism computer|code|both] [--step-cap 40] [--dry-run] [image ...]
 //
 // --dry-run swaps GPT-6 Astra for the scripted model, to check the harness
 // against live Photopea without an API key. It measures nothing.
@@ -15,22 +15,22 @@ import { parseArgs } from 'node:util'
 
 import { chromium } from 'playwright-core'
 
-import type { RunRequest } from '../../../src/agent/contract'
-import type { AgentModel } from '../../../src/agent/model'
+import type { RunRequest } from '../../../../src/agent/contract'
+import type { AgentModel } from '../../../../src/agent/model'
 import {
   ResponsesApiError,
   ResponsesModel,
   type CodeRunner,
   type DrivingMechanism
-} from '../../../src/agent/responses-model'
-import { ScriptedModel } from '../../../src/agent/scripted-model'
-import { isScriptedTyping } from '../../../src/agent/scripting-guard'
-import { createPhotopeaEditorSession } from '../../../src/editor/photopea-editor-session'
-import { createPhotopeaHostHtml } from '../../../src/editor/photopea-host'
-import type { LayerInfo } from '../../../src/editor/session'
-import { managedAgentRun } from '../../../src/server/agent-run'
-import { RunRegistry } from '../../../src/server/run-registry'
-import { createRunLogger, type RunLogLine } from '../../../src/server/run-log'
+} from '../../../../src/agent/responses-model'
+import { ScriptedModel } from '../../../../src/agent/scripted-model'
+import { isScriptedTyping } from '../../../../src/agent/scripting-guard'
+import { createPhotopeaEditorSession } from '../../../../src/editor/photopea-editor-session'
+import { createPhotopeaHostHtml } from '../../../../src/editor/photopea-host'
+import type { LayerInfo } from '../../../../src/editor/session'
+import { managedAgentRun } from '../../../../src/server/agent-run'
+import { RunRegistry } from '../../../../src/server/run-registry'
+import { createRunLogger, type RunLogLine } from '../../../../src/server/run-log'
 import { pageCodeRunner } from './code-runner'
 
 export const INSTRUCTION = [
@@ -45,9 +45,9 @@ export const INSTRUCTION = [
 const SCRIPTING_PATTERN = /postMessage|__layerhand|echoToOE/
 
 const DEFAULT_IMAGES = [
-  '../../../src/web/assets/sample-photo.png',
+  '../../../../src/web/assets/sample-photo.png',
   '../photopea-round-trip/results/input.jpg',
-  '../../../src/editor/fixtures/document-preview.png'
+  '../../../../src/editor/fixtures/document-preview.png'
 ].map((path) => new URL(path, import.meta.url).pathname)
 
 const { values, positionals } = parseArgs({

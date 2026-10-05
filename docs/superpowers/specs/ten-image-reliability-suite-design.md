@@ -52,7 +52,7 @@ Two alternatives were rejected:
 - Driving the deployed HTTP API includes useful end-to-end coverage, but makes
   this reliability measure depend on deployment authentication, persistence,
   and public artifact URLs that issue #10 does not assess.
-- Extending the one-off script in `docs/evidence/agent-run/` would be quicker,
+- Extending the one-off script in `docs/research/evidence/agent-run/` would be quicker,
   but would keep case validation, execution, and reporting in an evidence
   script without deterministic tests.
 

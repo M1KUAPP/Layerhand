@@ -95,4 +95,4 @@ provider-specific concept.
 
 - [TRD: Contract 1](/docs/TRD.md#contract-1-editor-session)
 - [GitHub issue #14](https://github.com/M1KUAPP/Layerhand/issues/14)
-- [Photopea round-trip evidence](/docs/evidence/photopea-round-trip/README.md)
+- [Photopea round-trip evidence](/docs/research/evidence/photopea-round-trip/README.md)

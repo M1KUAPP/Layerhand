@@ -4,20 +4,20 @@
 // same code runner as the spike harness and returns the logs and a
 // screenshot path. A feasibility hint, not spike A0 data.
 //
-//   bun run docs/evidence/codex-proxy/helper.ts <image> <output directory> [port]
+//   bun run docs/research/evidence/codex-proxy/helper.ts <image> <output directory> [port]
 import { appendFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 
 import { chromium } from 'playwright-core'
 
-import { createPhotopeaHostHtml } from '../../../src/editor/photopea-host'
+import { createPhotopeaHostHtml } from '../../../../src/editor/photopea-host'
 import { pageCodeRunner } from '../driving-mechanism/code-runner'
 import { PhotopeaPageSession } from './photopea-page-session'
 
 const [imagePath, outputArgument, portArgument] = Bun.argv.slice(2)
 if (!imagePath || !outputArgument)
-  throw new Error('Usage: bun run docs/evidence/codex-proxy/helper.ts <image> <output directory> [port]')
+  throw new Error('Usage: bun run docs/research/evidence/codex-proxy/helper.ts <image> <output directory> [port]')
 const output = resolve(outputArgument)
 const port = Number(portArgument ?? 4173)
 const MAX_RUNS = 60

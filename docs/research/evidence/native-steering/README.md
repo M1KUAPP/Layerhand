@@ -83,14 +83,14 @@ Playwright's CDP connection. The script needs `OPENAI_API_KEY` and
 
 ```sh
 bun install --frozen-lockfile
-bun --env-file=.env run docs/evidence/native-steering/live-steer.ts \
+bun --env-file=.env run docs/research/evidence/native-steering/live-steer.ts \
   https://layerhand-732371853772.us-central1.run.app --steer-after 3
 ```
 
 It composes the same pieces as `liveAgentRun`, holding the model itself so
 that it can report what the ledger settled. Output goes to
 `output/<timestamp>/`, which Git ignores. The recorded run's files are kept
-in [`results/`](/docs/evidence/native-steering/results/):
+in [`results/`](/docs/research/evidence/native-steering/results/):
 
 - `summary.json`;
 - `steering.ndjson`, one line per event the socket saw;

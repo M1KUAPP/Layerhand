@@ -64,7 +64,7 @@ key: production pays for the runs with its own. From the repository root:
 
 ```sh
 bun install --frozen-lockfile
-bun run docs/evidence/warm-editor/measure.ts \
+bun run docs/research/evidence/warm-editor/measure.ts \
   https://layerhand-732371853772.us-central1.run.app
 ```
 
@@ -76,7 +76,7 @@ no warm session. Each run is cancelled as soon as its first frame arrives,
 so the measurement costs a model call or two rather than a whole retouch.
 Output is `output/<timestamp>/summary.json`, which Git ignores. The
 recorded pairs are in
-[`results/summary.json`](/docs/evidence/warm-editor/results/summary.json)
+[`results/summary.json`](/docs/research/evidence/warm-editor/results/summary.json)
 (September 15) and
-[`results/summary-2026-09-16.json`](/docs/evidence/warm-editor/results/summary-2026-09-16.json)
+[`results/summary-2026-09-16.json`](/docs/research/evidence/warm-editor/results/summary-2026-09-16.json)
 (September 16, through the allow-list).

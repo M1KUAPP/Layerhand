@@ -133,5 +133,5 @@ need formats that bounded header validation cannot safely identify.
 - [TRD: The editor adapter](/docs/TRD.md#the-editor-adapter)
 - [GitHub issue #13](https://github.com/M1KUAPP/Layerhand/issues/13)
 - [GitHub issue #15](https://github.com/M1KUAPP/Layerhand/issues/15)
-- [Photopea round-trip evidence](/docs/evidence/photopea-round-trip/README.md)
+- [Photopea round-trip evidence](/docs/research/evidence/photopea-round-trip/README.md)
 - [Photopea live messaging](https://www.photopea.com/api/live)

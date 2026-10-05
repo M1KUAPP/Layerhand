@@ -23,8 +23,8 @@ Run on September 15, 2026, with Codex CLI 0.154.0 on `gpt-6-astra` at low
 reasoning effort, one image at a time. All three runs completed, as
 [How it runs](#how-it-runs) defines completion. Each run's `summary.json`,
 `code.ndjson`, final message, and last editor screenshot are in
-[`results/`](/docs/evidence/codex-proxy/results/). The identical prompt is in
-[`results/prompt.txt`](/docs/evidence/codex-proxy/results/prompt.txt).
+[`results/`](/docs/research/evidence/codex-proxy/results/). The identical prompt is in
+[`results/prompt.txt`](/docs/research/evidence/codex-proxy/results/prompt.txt).
 
 | Image                               | Minutes | `/run` calls | Layers exported | Credits at list rates | Completed |
 | ----------------------------------- | ------- | ------------ | --------------- | --------------------- | --------- |
@@ -72,7 +72,7 @@ API key.
 - **Run 1's live usage count read nothing.** `codex exec --json` carries no
   usage, so the 150-credit stop was not active during that run. Its figures
   come from the Codex session log instead, and are kept in
-  [`usage-recovered.json`](/docs/evidence/codex-proxy/results/1-input-jpg/usage-recovered.json).
+  [`usage-recovered.json`](/docs/research/evidence/codex-proxy/results/1-input-jpg/usage-recovered.json).
   Runs 2 and 3 read that log live, so their stop was active.
 
 ## How it runs
@@ -81,7 +81,7 @@ API key.
   Chromium, using [`PhotopeaPageSession`](photopea-page-session.ts). It
   exposes three endpoints on `127.0.0.1`:
   - `POST /run` takes a JavaScript body. It runs through `pageCodeRunner`,
-    from the [A0 harness](/docs/evidence/driving-mechanism/code-runner.ts),
+    from the [A0 harness](/docs/research/evidence/driving-mechanism/code-runner.ts),
     which refuses page calls once a step ends, and returns the logs and a
     screenshot path.
   - `GET /screenshot` saves the current view and returns its path.
@@ -118,7 +118,7 @@ installed, from the repository root:
 
 ```sh
 bun install --frozen-lockfile
-bun run docs/evidence/codex-proxy/run.ts [image] \
+bun run docs/research/evidence/codex-proxy/run.ts [image] \
   --cap 150 --minutes 20 --effort low
 ```
 

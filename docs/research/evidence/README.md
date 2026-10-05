@@ -6,25 +6,25 @@ its README gives the result, how to run it again, and any known limits.
 
 ## Folders
 
-- [Photopea round-trip](/docs/evidence/photopea-round-trip/README.md) — spike
+- [Photopea round-trip](/docs/research/evidence/photopea-round-trip/README.md) — spike
   B1: an image posted into Photopea comes back out as a layered PSD.
-- [Photopea production export](/docs/evidence/photopea-production-export/README.md)
+- [Photopea production export](/docs/research/evidence/photopea-production-export/README.md)
   — the PSD the production export path made, which the default test suite
   parses.
-- [Photoshop agent export](/docs/evidence/photoshop-agent-export/README.md) —
+- [Photoshop agent export](/docs/research/evidence/photoshop-agent-export/README.md) —
   issue #98: real agent exports opened and edited in Photoshop before and
   after the launch freeze.
-- [Driving mechanism](/docs/evidence/driving-mechanism/README.md) — spike A0:
+- [Driving mechanism](/docs/research/evidence/driving-mechanism/README.md) — spike A0:
   the `computer` tool against code execution, on three images.
-- [Codex proxy run](/docs/evidence/codex-proxy/README.md) — a feasibility hint
+- [Codex proxy run](/docs/research/evidence/codex-proxy/README.md) — a feasibility hint
   for spike A1, with Codex driving Photopea.
-- [Agent run](/docs/evidence/agent-run/README.md) — spike B2: one live run of
+- [Agent run](/docs/research/evidence/agent-run/README.md) — spike B2: one live run of
   the real agent in a Browserbase browser.
-- [Native steering](/docs/evidence/native-steering/README.md) — spike A3: a
+- [Native steering](/docs/research/evidence/native-steering/README.md) — spike A3: a
   correction steered into a live response.
-- [Warm editor session](/docs/evidence/warm-editor/README.md) — NFR-3: button
+- [Warm editor session](/docs/research/evidence/warm-editor/README.md) — NFR-3: button
   to first frame, with and without a warmed editor.
-- [Run memory](/docs/evidence/run-memory/README.md) — NFR-4: the server's peak
+- [Run memory](/docs/research/evidence/run-memory/README.md) — NFR-4: the server's peak
   memory with twenty runs at once, before and after frames left its history.
 
 ## Layout

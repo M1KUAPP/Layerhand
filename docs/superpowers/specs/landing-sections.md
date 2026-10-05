@@ -285,7 +285,7 @@ Motion:
 | 4   | Very subtle corner vignette | Raster layer     | `hgi-image-01`           |           |
 
 - **Every row** is from the PSD of the
-  [A3 native-steering run](/docs/evidence/native-steering/README.md) on
+  [A3 native-steering run](/docs/research/evidence/native-steering/README.md) on
   September 15, in the order its `summary.json` lists them, which is the
   bottom of the stack first. The step count, the duration and the
   correction in the copy come from the same run, and the instruction is
@@ -540,7 +540,7 @@ up."
 
 - [DESIGN.md](/docs/DESIGN.md) — the tokens, type, motion and techniques
   this sheet applies.
-- [Native steering evidence](/docs/evidence/native-steering/README.md) —
+- [Native steering evidence](/docs/research/evidence/native-steering/README.md) —
   the A3 run the drawer shows.
 - [Product requirements](/docs/PRD.md#launch-surface) — FR-30 to FR-33.
 - [Design research](/docs/research/design/README.md) — the sources behind

@@ -2,15 +2,15 @@
 // deployment owns its model and browser credentials; this harness receives
 // only DATABASE_URL so it can read the persisted cache metric for this run.
 //
-//   DATABASE_URL=... PUBLIC_URL=... bun run docs/evidence/agent-run/deployed-run.ts [public URL] [image] [--profile cache-acceptance]
+//   DATABASE_URL=... PUBLIC_URL=... bun run docs/research/evidence/agent-run/deployed-run.ts [public URL] [image] [--profile cache-acceptance]
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, extname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
 import { SQL } from 'bun'
 
-import type { RunSnapshot } from '../../../src/server/run-registry'
-import { decodeRunSnapshot } from '../../../src/web/api'
+import type { RunSnapshot } from '../../../../src/server/run-registry'
+import { decodeRunSnapshot } from '../../../../src/web/api'
 import {
   agentRunProfile,
   evaluateAgentRunAcceptance,

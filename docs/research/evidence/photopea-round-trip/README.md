@@ -69,7 +69,7 @@ Layers panel showed `Retouched copy` above `Original photograph`.
 The check used the exact PSD whose SHA-256 is listed under
 [Digests](#digests). Computer control closed the document without a save
 prompt after the observation. The structured record is in
-[`results/photoshop-verification.json`](/docs/evidence/photopea-round-trip/results/photoshop-verification.json).
+[`results/photoshop-verification.json`](/docs/research/evidence/photopea-round-trip/results/photoshop-verification.json).
 
 ## Limits
 
@@ -83,9 +83,9 @@ From the repository root, with Bun and Google Chrome installed:
 
 ```sh
 bun install --frozen-lockfile
-bun test docs/evidence/photopea-round-trip
-bun run docs/evidence/photopea-round-trip/probe.ts
-bun run docs/evidence/photopea-round-trip/trap-probe.ts
+bun test docs/research/evidence/photopea-round-trip
+bun run docs/research/evidence/photopea-round-trip/probe.ts
+bun run docs/research/evidence/photopea-round-trip/trap-probe.ts
 ```
 
 The scripts use live Photopea and the Picsum URL recorded in `probe.ts`. A
@@ -115,16 +115,16 @@ file promoted from `output/` into `results/`.
   checks the retained round-trip timing.
 - [`trap-probe.ts`](trap-probe.ts) contains the six trap probes. The captured
   values are in
-  [`results/trap-results.json`](/docs/evidence/photopea-round-trip/results/trap-results.json).
-- [`results/result.json`](/docs/evidence/photopea-round-trip/results/result.json)
+  [`results/trap-results.json`](/docs/research/evidence/photopea-round-trip/results/trap-results.json).
+- [`results/result.json`](/docs/research/evidence/photopea-round-trip/results/result.json)
   is the retained round-trip output.
-  [`results/input.jpg`](/docs/evidence/photopea-round-trip/results/input.jpg)
+  [`results/input.jpg`](/docs/research/evidence/photopea-round-trip/results/input.jpg)
   is the exact JPEG used by that run.
-  [`results/photopea-round-trip.psd`](/docs/evidence/photopea-round-trip/results/photopea-round-trip.psd)
+  [`results/photopea-round-trip.psd`](/docs/research/evidence/photopea-round-trip/results/photopea-round-trip.psd)
   is the PSD selected from that message stream.
-- [`results/photoshop-verification.json`](/docs/evidence/photopea-round-trip/results/photoshop-verification.json)
+- [`results/photoshop-verification.json`](/docs/research/evidence/photopea-round-trip/results/photoshop-verification.json)
   records the manual compatibility observation against the PSD digest.
-- [`results/photopea-final.png`](/docs/evidence/photopea-round-trip/results/photopea-final.png)
+- [`results/photopea-final.png`](/docs/research/evidence/photopea-round-trip/results/photopea-final.png)
   is the final Photopea frame. It shows the opened photograph, but not the
   Layers panel and therefore is not used as layer-structure evidence.
 - The run used `ag-psd` 30.2.0, Playwright 1.63.0, and Sharp 0.35.4, the

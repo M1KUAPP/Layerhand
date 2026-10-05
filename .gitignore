@@ -96,7 +96,7 @@ graphify-out/*
 .playwright-cli/
 .superpowers/
 artifacts/reliability/
-docs/evidence/**/output/
+docs/research/evidence/**/output/
 .rtk/
 
 # Build and test output

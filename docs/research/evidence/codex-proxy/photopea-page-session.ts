@@ -4,8 +4,8 @@
 import { readPsd, type Layer } from 'ag-psd'
 import type { Page } from 'playwright-core'
 
-import { PhotopeaBridge, PhotopeaDocumentLoader, PlaywrightPhotopeaTransport } from '../../../src/editor'
-import type { ComputerAction, EditorSession, LayerInfo, Viewport } from '../../../src/editor/session'
+import { PhotopeaBridge, PhotopeaDocumentLoader, PlaywrightPhotopeaTransport } from '../../../../src/editor'
+import type { ComputerAction, EditorSession, LayerInfo, Viewport } from '../../../../src/editor/session'
 
 const PSD_SIGNATURE = [0x38, 0x42, 0x50, 0x53]
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47]

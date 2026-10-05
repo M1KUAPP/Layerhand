@@ -325,11 +325,11 @@ layer and a warming adjustment layer named in plain words, and a vignette
 layer. No run had a silent step, a model error, or a disqualification. Two
 of the three images show the same scene. The records, code logs, and final
 frames are in the
-[A0 results](/docs/evidence/driving-mechanism/results/records.json).
+[A0 results](/docs/research/evidence/driving-mechanism/results/records.json).
 To repeat the measurement:
 
 ```sh
-OPENAI_API_KEY=... bun run docs/evidence/driving-mechanism/harness.ts
+OPENAI_API_KEY=... bun run docs/research/evidence/driving-mechanism/harness.ts
 ```
 
 The two candidates:
@@ -607,7 +607,7 @@ the correction as applied, and nothing was replayed at the step boundary.
 The adjustment made before the correction was still in the exported file,
 next to the two layers made after it, and the run finished complete in 16
 steps and 192.7 s for $0.50. The
-[A3 evidence bundle](/docs/evidence/native-steering/README.md) retains the event
+[A3 evidence bundle](/docs/research/evidence/native-steering/README.md) retains the event
 sequence, the narrations either side of the correction, the layers, and
 what the run cost. Native steering is therefore model leverage the launch
 copy can claim: the previous generation has no equivalent.
@@ -708,7 +708,7 @@ The upload, transport, and sentinel choices are explained in
 
 Spike B1 retested each warning locally on September 15, 2026. The scripts,
 captured outputs, and exact limitations are retained in the
-[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md).
+[B1 evidence bundle](/docs/research/evidence/photopea-round-trip/README.md).
 
 The test used Google Chrome 153.0.8010.36. Its result is deliberately scoped
 to the calls named below; an untested Photopea DOM operation still needs
@@ -1387,7 +1387,7 @@ sample photograph the runs sent. Nor does it cover a viewer on a slow
 connection: the event stream does not wait for one, but a slow viewer now
 holds at most one unsent frame in this process rather than every frame
 behind it (#101). The
-[run memory evidence](/docs/evidence/run-memory/README.md) has the method
+[run memory evidence](/docs/research/evidence/run-memory/README.md) has the method
 and its limits.
 
 Deploys are manual: no workflow runs on a push to `main`, so a merge
@@ -1444,12 +1444,12 @@ the same day, not extended.
 A0 is answered in
 [How the editor is actually driven](#how-the-editor-is-actually-driven):
 the `computer` tool, measured on September 15. The
-[Codex proxy run](/docs/evidence/codex-proxy/README.md) is a
+[Codex proxy run](/docs/research/evidence/codex-proxy/README.md) is a
 day-2 feasibility hint for A1, not A0 data.
 
 **B2 result, September 15:** it was measured in a live run of the real agent,
 not in a separate probe. The run is in the
-[agent run evidence](/docs/evidence/agent-run/README.md).
+[agent run evidence](/docs/research/evidence/agent-run/README.md).
 
 - **Session.** Browserbase created one in 0.8 seconds.
 - **First frame.** The first frame of the opened image reached the page 21.3
@@ -1476,7 +1476,7 @@ button, and without one **7.4 seconds** — 5.4 seconds saved, and the
 difference between meeting NFR-3's five-second budget and missing it.
 Neither is the 21.3 seconds above, measured in an earlier run on an earlier
 revision, and the gap between the two cold figures was not chased. The
-[warm editor evidence](/docs/evidence/warm-editor/README.md) has the method, the
+[warm editor evidence](/docs/research/evidence/warm-editor/README.md) has the method, the
 summary, and what the pair does not show.
 
 **Re-measured September 16** against commit `28470e5`, the first pair run
@@ -1609,7 +1609,7 @@ the PSD bytes, the unique sentinel, and the real completion `"done"`; the host
 logic and tests show why only the exact sentinel completes the wait. Adobe
 Photoshop 2026 version 27.10.0 opened the same PSD without a warning dialog and
 displayed both named layers. The
-[B1 evidence bundle](/docs/evidence/photopea-round-trip/README.md) retains the
+[B1 evidence bundle](/docs/research/evidence/photopea-round-trip/README.md) retains the
 exact input, scripts, outputs, hashes, trap results, timing definitions, and the
 structured Photoshop observation.
 
@@ -1619,6 +1619,6 @@ structured Photoshop observation.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
 - [Architecture decisions](/docs/adr/README.md) — why durable boundaries
   were chosen.
-- [Evidence](/docs/evidence/README.md) — the measurements and live runs
+- [Evidence](/docs/research/evidence/README.md) — the measurements and live runs
   behind the spikes.
 - [Git workflow](/docs/references/git-workflow.md) — how changes land.

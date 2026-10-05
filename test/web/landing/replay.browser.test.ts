@@ -8,7 +8,7 @@ const describeBrowser = enabled ? describe : describe.skip
 const VIEWPORT = { width: 1440, height: 900 }
 
 // The instruction the September 15 computer-tool run received, verbatim
-// from docs/evidence/driving-mechanism/harness.ts.
+// from docs/research/evidence/driving-mechanism/harness.ts.
 const INSTRUCTION = [
   'Make three edits to this photograph, each on its own layer with a name that says what it does:',
   '1. Brighten it with a Levels, Curves, or Brightness/Contrast adjustment layer.',

@@ -7,17 +7,17 @@
 // It composes the same pieces as liveAgentRun, holding the model itself so
 // that the run can report what the ledger settled.
 //
-//   bun --env-file=<path to .env> run docs/evidence/native-steering/live-steer.ts <public URL> [image] [--steer-after 3]
+//   bun --env-file=<path to .env> run docs/research/evidence/native-steering/live-steer.ts <public URL> [image] [--steer-after 3]
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import type { RunEvent } from '../../../src/agent/contract'
-import { ResponsesModel } from '../../../src/agent/responses-model'
-import type { SteeringEvent } from '../../../src/agent/responses-socket'
-import { managedAgentRun } from '../../../src/server/agent-run'
-import { BrowserbaseClient } from '../../../src/server/browserbase-client'
-import { browserbaseEditorSession } from '../../../src/server/browserbase-editor-session'
+import type { RunEvent } from '../../../../src/agent/contract'
+import { ResponsesModel } from '../../../../src/agent/responses-model'
+import type { SteeringEvent } from '../../../../src/agent/responses-socket'
+import { managedAgentRun } from '../../../../src/server/agent-run'
+import { BrowserbaseClient } from '../../../../src/server/browserbase-client'
+import { browserbaseEditorSession } from '../../../../src/server/browserbase-editor-session'
 
 // The three-edit instruction spike A0 measured.
 const INSTRUCTION = [

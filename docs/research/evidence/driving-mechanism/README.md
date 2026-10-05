@@ -4,7 +4,7 @@ The harness for spike A0
 ([issue #2](https://github.com/M1KUAPP/Layerhand/issues/2)): does GPT-6 Astra drive
 Photopea more reliably through the `computer` tool or through code execution? It
 is a throwaway like the
-[B1 probe](/docs/evidence/photopea-round-trip/README.md), not the production
+[B1 probe](/docs/research/evidence/photopea-round-trip/README.md), not the production
 editor adapter.
 
 Contents:
@@ -22,7 +22,7 @@ On September 15, 2026, both mechanisms completed all three images, as
 was chosen, for the reasons in
 [TRD § How the editor is actually driven](/docs/TRD.md#how-the-editor-is-actually-driven).
 The records, code logs, and final frames are in
-[`results/`](/docs/evidence/driving-mechanism/results/records.json), without
+[`results/`](/docs/research/evidence/driving-mechanism/results/records.json), without
 PSDs. The sweep, with its two smoke runs, spent $3.47.
 
 ## Limits
@@ -44,7 +44,7 @@ the `ResponsesModel` adapter, and the editor stream's
 `createPhotopeaEditorSession`, which opens live Photopea in local Chromium
 through `PlaywrightPhotopeaTransport`. The measured runs used that
 production session. The throwaway `PhotopeaPageSession` belongs to the
-[Codex proxy run](/docs/evidence/codex-proxy/README.md), the only thing that
+[Codex proxy run](/docs/research/evidence/codex-proxy/README.md), the only thing that
 uses it. The step cap is 40 and the spend cap $8.
 
 - **`computer`** sends `{ "type": "computer" }`. The loop carries out the
@@ -82,8 +82,8 @@ From the repository root, with a Playwright Chromium installed:
 
 ```sh
 bun install --frozen-lockfile
-OPENAI_API_KEY=... bun run docs/evidence/driving-mechanism/harness.ts
-bun run docs/evidence/driving-mechanism/harness.ts \
+OPENAI_API_KEY=... bun run docs/research/evidence/driving-mechanism/harness.ts
+bun run docs/research/evidence/driving-mechanism/harness.ts \
   --dry-run --mechanism computer
 ```
 

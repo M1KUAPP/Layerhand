@@ -64,14 +64,14 @@ It needs no key and spends nothing. From the repository root:
 
 ```sh
 bun install --frozen-lockfile
-bun run docs/evidence/run-memory/measure.ts --label after
+bun run docs/research/evidence/run-memory/measure.ts --label after
 ```
 
 The script starts the server in a process of its own, so the clients' memory
 is not counted, samples resident memory and heap every 50 ms, and writes
 `output/<timestamp>/<label>.json`, which Git ignores. `--runs`, `--step-ms`,
 and `--frame-bytes` change the load. The recorded pair is in
-[`results/before.json`](/docs/evidence/run-memory/results/before.json), run
+[`results/before.json`](/docs/research/evidence/run-memory/results/before.json), run
 from a checkout of e641c99, and
-[`results/after.json`](/docs/evidence/run-memory/results/after.json). Sizes in
+[`results/after.json`](/docs/research/evidence/run-memory/results/after.json). Sizes in
 them are in mebibytes.

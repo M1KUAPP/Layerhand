@@ -166,7 +166,7 @@ over the frame and invents nothing: the run recorded no narration and took
 no correction.
 
 - A glass overlay types the run's instruction, `INSTRUCTION` in
-  `docs/evidence/driving-mechanism/harness.ts`, then counts from "Step 1
+  `docs/research/evidence/driving-mechanism/harness.ts`, then counts from "Step 1
   of 13" to "Step 13 of 13" along a progress bar, then lists the four
   exported layers, bottom first: Original photograph, Brighten photograph,
   Warm colours, Darken corners softly. It is captioned "A 1 min 42 s run,

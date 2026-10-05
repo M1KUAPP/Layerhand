@@ -3,14 +3,14 @@
 // `computer` tool. Browserbase's browser loads the Photopea host page from a
 // deployed Layerhand, as PUBLIC_URL would give it.
 //
-//   bun --env-file=<path to .env> run docs/evidence/agent-run/live-run.ts <public URL> [image] [--profile three-edit] [--step-cap 40] [--budget 8]
+//   bun --env-file=<path to .env> run docs/research/evidence/agent-run/live-run.ts <public URL> [image] [--profile three-edit] [--step-cap 40] [--budget 8]
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import type { RunEvent } from '../../../src/agent/contract'
-import { liveAgentRun } from '../../../src/server/agent-run'
-import { BrowserbaseClient } from '../../../src/server/browserbase-client'
+import type { RunEvent } from '../../../../src/agent/contract'
+import { liveAgentRun } from '../../../../src/server/agent-run'
+import { BrowserbaseClient } from '../../../../src/server/browserbase-client'
 import { agentRunProfile, evaluateAgentRunAcceptance } from './profiles'
 
 // The run ceiling (docs/TRD.md § One ceiling: fifteen minutes).

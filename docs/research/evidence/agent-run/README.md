@@ -60,7 +60,7 @@ Use Bun 1.4.2, the version production runs. The script needs
 
 ```sh
 bun install --frozen-lockfile
-bun --env-file=.env run docs/evidence/agent-run/live-run.ts \
+bun --env-file=.env run docs/research/evidence/agent-run/live-run.ts \
   https://layerhand-732371853772.us-central1.run.app
 ```
 
@@ -69,7 +69,7 @@ its WebSocket to Browserbase. Under Bun 1.4.2 and under Node it connects in
 about two seconds.
 
 Output goes to `output/<timestamp>/`, which Git ignores. The recorded run's
-files are kept in [`results/`](/docs/evidence/agent-run/results/):
+files are kept in [`results/`](/docs/research/evidence/agent-run/results/):
 
 - `summary.json`;
 - `events.ndjson`, with each frame reduced to a counter;
@@ -85,7 +85,7 @@ the harness needs `DATABASE_URL` only:
 
 ```sh
 DATABASE_URL=... PUBLIC_URL=https://layerhand.example \
-  bun run docs/evidence/agent-run/deployed-run.ts \
+  bun run docs/research/evidence/agent-run/deployed-run.ts \
   --profile cache-acceptance
 ```
 
