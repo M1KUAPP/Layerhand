@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Layerhand",
+    "quality_profile": "showcase",
+    "viewBox": [1370, 556]
+  },
+  "components": [
+    { "id": "workbench", "type": "frontend", "label": "Workbench", "pos": [40, 210], "size": [160, 68] },
+    {
+      "id": "mcp",
+      "type": "external",
+      "label": "MCP host",
+      "sublabel": "stdio tools",
+      "pos": [40, 400],
+      "size": [160, 68]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Layerhand process",
+      "sublabel": "Bun.serve",
+      "pos": [320, 250],
+      "size": [170, 68]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "Run registry",
+      "sublabel": "queue",
+      "pos": [530, 250],
+      "size": [140, 68]
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Agent orchestrator",
+      "sublabel": "managedAgentRun",
+      "pos": [710, 250],
+      "size": [180, 68]
+    },
+    {
+      "id": "astra",
+      "type": "external",
+      "label": "GPT-6 Astra",
+      "sublabel": "Responses API",
+      "brand": "openai",
+      "pos": [710, 80],
+      "size": [180, 68]
+    },
+    {
+      "id": "editor",
+      "type": "backend",
+      "label": "Editor adapter",
+      "sublabel": "EditorSession",
+      "pos": [920, 250],
+      "size": [160, 68]
+    },
+    {
+      "id": "artifacts",
+      "type": "cloud",
+      "label": "Artifact store",
+      "sublabel": "PSD + PNG",
+      "pos": [920, 400],
+      "size": [160, 68]
+    },
+    {
+      "id": "chrome",
+      "type": "cloud",
+      "label": "Browserbase Chrome",
+      "sublabel": "hosted CDP",
+      "pos": [1120, 250],
+      "size": [180, 68]
+    },
+    {
+      "id": "photopea",
+      "type": "external",
+      "label": "Photopea",
+      "sublabel": "www.photopea.com",
+      "pos": [1120, 400],
+      "size": [180, 68]
+    }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Clients", "wraps": ["workbench", "mcp"] },
+    { "kind": "region", "label": "One Bun process", "wraps": ["server", "registry", "agent", "editor"] },
+    { "kind": "region", "label": "Hosted editor", "wraps": ["chrome", "photopea"] }
+  ],
+  "connections": [
+    {
+      "id": "workbench-server",
+      "from": "workbench",
+      "to": "server",
+      "label": "POST /api/runs + SSE",
+      "variant": "emphasis",
+      "labelAt": [270, 206]
+    },
+    { "id": "mcp-server", "from": "mcp", "to": "server", "label": "HTTP" },
+    { "id": "server-registry", "from": "server", "to": "registry" },
+    { "id": "registry-agent", "from": "registry", "to": "agent" },
+    { "id": "agent-astra", "from": "agent", "to": "astra", "label": "Responses API", "variant": "emphasis" },
+    { "id": "agent-editor", "from": "agent", "to": "editor" },
+    { "id": "editor-chrome", "from": "editor", "to": "chrome", "label": "CDP" },
+    { "id": "chrome-photopea", "from": "chrome", "to": "photopea" },
+    { "id": "editor-artifacts", "from": "editor", "to": "artifacts", "label": "PSD + PNG", "labelAt": [1000, 332] }
+  ]
+}
