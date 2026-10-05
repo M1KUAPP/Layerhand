@@ -1,0 +1,17 @@
+{
+  "name": "Layerhand",
+  "description": "An AI retoucher that drives Photopea while you watch and returns a layered, editable PSD instead of a flat JPEG, on the web or through MCP.",
+  "logo": {
+    "light": "../../src/web/assets/favicon.svg"
+  },
+  "screenshot": {
+    "light": "screenshots/workbench.png"
+  },
+  "colors": {
+    "paper": "#F3F0E8",
+    "ink": "#11110F",
+    "accent": "#C7FF4A"
+  },
+  "font": "../../src/web/assets/fonts/newsreader-v26-latin-500.woff2",
+  "out": "docs/readme"
+}
