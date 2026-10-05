@@ -11,7 +11,7 @@
   <h3>Layerhand</h3>
 
   <p>
-    AI retouching that returns a layered PSD, not a flat JPEG.
+    An AI retoucher that drives Photopea while you watch and returns a layered, editable PSD instead of a flat JPEG, on the web or through MCP.
     <br />
     <a href="https://layerhand-732371853772.us-central1.run.app"><strong>Live Demo »</strong></a>
     &middot;
@@ -64,7 +64,7 @@
 
 ## About The Project
 
-Layerhand retouches a photograph inside [Photopea](https://www.photopea.com/), a real image editor, while you watch. GPT-6 Astra operates the editor the way a retoucher would. You can type a correction mid-run. The download is a layered PSD — named layers, masks, and adjustments still editable — plus a flattened PNG preview. It is not a generated image and not a baked-in JPEG.
+AI retouching that returns a layered PSD, not a flat JPEG. Layerhand retouches a photograph inside [Photopea](https://www.photopea.com/), a real image editor, while you watch. GPT-6 Astra operates the editor the way a retoucher would. You can type a correction mid-run. The download is a layered PSD — named layers, masks, and adjustments still editable — plus a flattened PNG preview. It is not a generated image and not a baked-in JPEG.
 
 The product is a desktop workbench (1280 px and up) and an MCP server for Codex, Claude Code, and other hosts. Three free runs, no account. After that, paste your own OpenAI API key; it is used for that run only and never stored. Uploads are deleted within 24 hours.
 
