@@ -1,10 +1,7 @@
 /**
- * Conventional Commits rules for this repository.
- *
- * Single source of truth for three checks, so all three agree:
- *   - commit messages     (.husky/commit-msg)
- *   - pull request titles (.github/workflows/conventional-lint.yml)
- *   - issue titles        (.github/workflows/issue-title-lint.yml)
+ * Conventional Commits rules for this repository, checked on every commit
+ * by .husky/commit-msg. Pull request and issue titles follow the same
+ * format, but nothing checks them.
  *
  * Spec: https://www.conventionalcommits.org/en/v1.0.0/
  */

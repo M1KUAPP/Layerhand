@@ -32,37 +32,25 @@ sources are quoted in [PRODUCT § Open questions](/docs/PRODUCT.md#open-question
 
 ## The freeze, and the no-deploy rule
 
-**A merge to `main` that touches code deploys, but only once someone
-approves the deploy.** `deploy.yml` builds and deploys on every push to
-`main`, except a push that changes only documentation, `graphify-out/`,
-or evidence under `docs/evidence/`: `paths-ignore` stops that from
-triggering the workflow at all, so those merge safely at any time. Cloud
-Run runs **one instance** whose memory holds the state of every run in
-flight, so a deploy restarts it, ends the runs that are going on, and a
-visitor watching one sees it stop. The `deploy` job targets the
-`production` environment, and a required-reviewers rule on that
-environment holds the job until one of the three maintainers approves it;
-whoever merged may approve their own, and no admin can skip the approval.
-The rule is a repository setting, not part of the workflow, and it makes a
-build reaching Cloud Run a deliberate second step rather than a side effect
-of the merge.
+**A merge to `main` deploys nothing.** Deploys are manual: nothing builds
+or deploys the service unless someone does it by hand. The workflow that
+used to deploy,
+[`deploy.yml` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
+records the image build, the push to Artifact Registry, and the
+`gcloud run deploy` command with every flag, environment variable, and
+secret the service runs with. Cloud Run runs **one instance** whose memory
+holds the state of every run in flight, so a deploy restarts it, ends the
+runs that are going on, and a visitor watching one sees it stop.
 
 So, from the freeze onwards:
 
-1.  **Check for live runs before approving, not just before merging.** A
-    merge still starts the build immediately; approving is what deploys it.
-    Run the query below and wait for it to come back empty, with no new
-    traffic, before approving.
-2.  **Give the approval from the run's page.** Under the repository's
-    **Actions** tab, open the workflow run for the merge. It shows a
-    **Review deployments** button. Click it, select **production**, and
-    click **Approve and deploy** once the check above is clean — or leave
-    it pending until it is.
-3.  **If something must change, change it on the service, not in the
+1.  **Check for live runs before deploying.** Run the query below and wait
+    for it to come back empty, with no new traffic, before deploying.
+2.  **If something must change, change it on the service, not in the
     repository.** [Changing a limit in a hurry](#changing-a-limit-in-a-hurry)
-    does that without a new image, and the repository catches up afterwards.
-4.  **If a deploy is unavoidable**, announce it, wait for the run log to go
-    quiet, then approve.
+    does that without a new image.
+3.  **If a deploy is unavoidable**, announce it, wait for the run log to go
+    quiet, then deploy.
 
 To see whether runs are live, ask the database for runs that have not
 finished; a run writes its row only when it ends, so an empty answer over
@@ -98,12 +86,12 @@ the rollback the same way as a deploy, and open an issue the same day so
 the repository catches up, whether that means reverting the merge or
 fixing forward.
 
-**A rollback does not hold on its own.** The deploy step runs a plain
-`gcloud run deploy` with no `--no-traffic` flag, so it sends all traffic
-to its new revision. The next successful deploy overwrites this
+**A rollback does not hold on its own.** The recorded deploy command is a
+plain `gcloud run deploy` with no `--no-traffic` flag, so it sends all
+traffic to its new revision. The next successful deploy overwrites this
 rollback and brings the bad change back if `main` still contains it, so
-the bad commit must be reverted or fixed on `main` before any other
-deploy is approved during the freeze.
+the bad commit must be reverted or fixed on `main` before anyone deploys
+again during the freeze.
 
 ## Where to look when something is wrong
 
@@ -189,20 +177,20 @@ does. Two things to know before typing it:
 - **The ceiling cannot be set to zero.** The server refuses to start unless
   it is a positive number. To stop spending entirely, use
   [the providers section](#when-the-providers-misbehave).
-- **The repository must catch up.** `deploy.yml` holds the real values, and
-  the next deploy overwrites whatever was set by hand. Open the pull request
-  the same day, even if it merges after the freeze.
+- **The next deploy overwrites it.** The recorded deploy command passes
+  every value with `--set-env-vars`, which replaces whatever was set by
+  hand, so whoever deploys next must carry the new value over.
 
 `MAX_CONCURRENT_RUNS` covers free runs and runs on a visitor's own key
-alike. It is not in `deploy.yml`, so the service runs with the default of 20
-until it is set as above, and the server refuses to start with anything but
-a whole number above zero. A run past the cap waits in line, sees its place,
-and starts by itself. The line holds twice the cap: a run that would wait in
-a full line is turned away with a stated message, so raising the cap
-lengthens the line too, and every run waiting in it holds its upload in
-memory. Nothing is logged for a waiting run until it ends, and one that
-leaves the line is logged as `cancelled` with no steps. To see the value a
-revision runs with, where no entry for it means the default:
+alike. It is not in the recorded deploy command, so the service runs with
+the default of 20 until it is set as above, and the server refuses to start
+with anything but a whole number above zero. A run past the cap waits in
+line, sees its place, and starts by itself. The line holds twice the cap: a
+run that would wait in a full line is turned away with a stated message, so
+raising the cap lengthens the line too, and every run waiting in it holds
+its upload in memory. Nothing is logged for a waiting run until it ends, and
+one that leaves the line is logged as `cancelled` with no steps. To see the
+value a revision runs with, where no entry for it means the default:
 
 ```sh
 gcloud run services describe layerhand \
@@ -271,8 +259,8 @@ Changing it restarts the container the same way.
 
 ## Rotating the server key
 
-`OPENAI_API_KEY` is a personal key and lives only in Secret Manager; it is
-not a GitHub secret. To replace it:
+`OPENAI_API_KEY` is a personal key and lives only in Secret Manager. To
+replace it:
 
 ```sh
 printf '%s' "$NEW_KEY" | gcloud secrets versions add OPENAI_API_KEY \
@@ -287,9 +275,9 @@ and ends the runs in flight. Never paste a key into an issue, a pull
 request, or a commit.
 
 The team secrets — `DATABASE_URL`, `SESSION_SECRET`, the two S3 keys and
-`BROWSERBASE_API_KEY` — come from GitHub secrets, and the deploy copies each
-into Secret Manager when it changes. Rotating one of those is a repository
-change, so it waits for the freeze to lift unless it is an emergency.
+`BROWSERBASE_API_KEY` — live in Secret Manager too, and rotate the same way
+under their own names. Like any update, that restarts the container, so it
+waits for the freeze to lift unless it is an emergency.
 
 ## When the providers misbehave
 
