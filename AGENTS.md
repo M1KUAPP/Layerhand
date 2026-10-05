@@ -7,7 +7,6 @@
 @docs/references/project-conventions.md
 @docs/agents/project.md
 @docs/agents/rules.md
-@docs/agents/skills.md
 @docs/references/git-workflow.md
 @docs/PRODUCT.md
 @docs/PRD.md

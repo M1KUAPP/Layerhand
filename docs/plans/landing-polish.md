@@ -192,31 +192,31 @@ function contrast(a: number[], b: number[]): number {
 
 Cases, each with its assertions:
 
-1. Back is a button with a solid fill: `getByRole('button', { name: 'Back' })`
-   exists, its background alpha is 255, and its computed
-   `border-top-width` is at least `1px`.
-2. Start retouching stays readable while disabled: with nothing chosen,
-   the button is disabled, its computed `opacity` is `'1'`, and the
-   contrast of its `color` against its `background-color` is at least
-   4.5.
-3. Start retouching is readable when enabled: after clicking "Use the
-   sample photograph" and typing an instruction, the contrast is at least
-   4.5.
-4. The site bar is clear at the top and glass once scrolled: at
-   `scrollY` 0 its background alpha is 0; after
-   `window.scrollTo(0, 400)` and one animation frame, its computed
-   `backdrop-filter` contains `blur`.
-5. The board and card: `.workbench-board` computed `background-image`
-   contains `radial-gradient`; `.workbench-card` has background alpha 255
-   and a computed `box-shadow` other than `none`.
-6. The run guide follows the form: four `.run-guide__step` items reading,
-   in order, "Choose a photograph", "Say what you want", "Watch it work,
-   and correct it", "Download the layered PSD". At first the first step is
-   `current` and the rest `upcoming`. After clicking "Use the sample
-   photograph", step 1 is `done` and step 2 `current`. After typing an
-   instruction, step 2 is `done` and step 3 `current`.
-7. The facts: `.run-facts li` texts are exactly "Three free runs",
-   "Uploads deleted within 24 hours", "Your key is never stored".
+1.  Back is a button with a solid fill: `getByRole('button', { name: 'Back' })`
+    exists, its background alpha is 255, and its computed
+    `border-top-width` is at least `1px`.
+2.  Start retouching stays readable while disabled: with nothing chosen,
+    the button is disabled, its computed `opacity` is `'1'`, and the
+    contrast of its `color` against its `background-color` is at least
+    4.5.
+3.  Start retouching is readable when enabled: after clicking "Use the
+    sample photograph" and typing an instruction, the contrast is at least
+    4.5.
+4.  The site bar is clear at the top and glass once scrolled: at
+    `scrollY` 0 its background alpha is 0; after
+    `window.scrollTo(0, 400)` and one animation frame, its computed
+    `backdrop-filter` contains `blur`.
+5.  The board and card: `.workbench-board` computed `background-image`
+    contains `radial-gradient`; `.workbench-card` has background alpha 255
+    and a computed `box-shadow` other than `none`.
+6.  The run guide follows the form: four `.run-guide__step` items reading,
+    in order, "Choose a photograph", "Say what you want", "Watch it work,
+    and correct it", "Download the layered PSD". At first the first step is
+    `current` and the rest `upcoming`. After clicking "Use the sample
+    photograph", step 1 is `done` and step 2 `current`. After typing an
+    instruction, step 2 is `done` and step 3 `current`.
+7.  The facts: `.run-facts li` texts are exactly "Three free runs",
+    "Uploads deleted within 24 hours", "Your key is never stored".
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -289,12 +289,12 @@ Expected: all PASS.
 
 - [ ] **Step 7: Commit**
 
-1. `fix(web): keep disabled buttons readable` (the `button:disabled`
-   and `.button-accent` colours)
-2. `feat(web): turn the site bar to glass once the page scrolls`
-3. `feat(web): make Back a real button`
-4. `feat(web): lay the workbench form on a sketchboard` (layout, guide,
-   facts, board, card, fields, chips, test)
+1.  `fix(web): keep disabled buttons readable` (the `button:disabled`
+    and `.button-accent` colours)
+2.  `feat(web): turn the site bar to glass once the page scrolls`
+3.  `feat(web): make Back a real button`
+4.  `feat(web): lay the workbench form on a sketchboard` (layout, guide,
+    facts, board, card, fields, chips, test)
 
 ## Task 2: Stacked sections
 
@@ -322,23 +322,23 @@ Expected: all PASS.
 
 Create `test/web/landing/stack.browser.test.ts` at 1440x900:
 
-1. Two `.stack` wrappers exist; the first holds steps then switcher, the
-   second drawer then glass.
-2. The drawer's computed `position` is `sticky` at 1440x900 and is not
-   `sticky` at 1279x800.
-3. Glass rises over a pinned drawer: scroll so the glass section's top is
-   at half the viewport height, wait two animation frames, then the
-   drawer's bounding box bottom is within 2px of `innerHeight` (or its top
-   is within 2px of 0 when it is shorter than the viewport), and
-   `document.elementFromPoint(720, innerHeight * 0.75)` is inside the
-   glass section.
-4. The same for switcher rising over steps.
-5. Scrolling past the second pair releases the drawer: once the glass
-   section's bottom is above the viewport top, the drawer's bounding box
-   bottom is also above the viewport top.
-6. The open dialog is never covered: with glass at half the viewport,
-   click "Show the layers"; the element at the centre of `#drawer-sheet`'s
-   bounding box is inside `#drawer-sheet`.
+1.  Two `.stack` wrappers exist; the first holds steps then switcher, the
+    second drawer then glass.
+2.  The drawer's computed `position` is `sticky` at 1440x900 and is not
+    `sticky` at 1279x800.
+3.  Glass rises over a pinned drawer: scroll so the glass section's top is
+    at half the viewport height, wait two animation frames, then the
+    drawer's bounding box bottom is within 2px of `innerHeight` (or its top
+    is within 2px of 0 when it is shorter than the viewport), and
+    `document.elementFromPoint(720, innerHeight * 0.75)` is inside the
+    glass section.
+4.  The same for switcher rising over steps.
+5.  Scrolling past the second pair releases the drawer: once the glass
+    section's bottom is above the viewport top, the drawer's bounding box
+    bottom is also above the viewport top.
+6.  The open dialog is never covered: with glass at half the viewport,
+    click "Show the layers"; the element at the centre of `#drawer-sheet`'s
+    bounding box is inside `#drawer-sheet`.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -371,7 +371,7 @@ pin.style.setProperty('--stack-top', `${Math.min(0, window.innerHeight - pin.off
   }
 
   /* The layer sheet is a dialog inside the pinned drawer; while it is
-     open the drawer paints above the section laid over it. */
+    open the drawer paints above the section laid over it. */
   .drawer.is-open[data-stack='pin'] {
     z-index: 2;
   }
@@ -395,7 +395,7 @@ Expected: all PASS.
 
 - [ ] **Step 5: Commit**
 
-1. `feat(web): stack the grey sections over the ones above`
+1.  `feat(web): stack the grey sections over the ones above`
 
 ## Task 3: Hero replay
 
@@ -421,20 +421,20 @@ Expected: all PASS.
 Create `test/web/landing/replay.browser.test.ts` at 1440x900, with the
 clock installed before navigation:
 
-1. After `runFor(2000)`, `.hero__replay-prompt .hero__replay-text` is a
-   non-empty prefix of the instruction below.
-2. After `runFor(6000)` more, `.hero__replay-step` matches
-   `/^Step (\d+) of 13$/`, and the number rises across two later reads.
-3. After a full loop (`runFor(12000)` from the start), four
-   `.hero__replay-layers li` exist whose texts, top to bottom, are
-   "Darken corners softly", "Warm colours", "Brighten photograph",
-   "Original photograph".
-4. The toggle pauses: click `button.hero__replay-toggle`; its
-   `aria-label` becomes "Play the replay"; the step text is unchanged
-   after `runFor(3000)`. Click again; it is "Pause the replay".
-5. Under reduced motion: at once, the step reads "Step 13 of 13", four
-   layers show, the full instruction shows, and the toggle is hidden.
-6. Each replay panel's computed `backdrop-filter` contains `blur`.
+1.  After `runFor(2000)`, `.hero__replay-prompt .hero__replay-text` is a
+    non-empty prefix of the instruction below.
+2.  After `runFor(6000)` more, `.hero__replay-step` matches
+    `/^Step (\d+) of 13$/`, and the number rises across two later reads.
+3.  After a full loop (`runFor(12000)` from the start), four
+    `.hero__replay-layers li` exist whose texts, top to bottom, are
+    "Darken corners softly", "Warm colours", "Brighten photograph",
+    "Original photograph".
+4.  The toggle pauses: click `button.hero__replay-toggle`; its
+    `aria-label` becomes "Play the replay"; the step text is unchanged
+    after `runFor(3000)`. Click again; it is "Pause the replay".
+5.  Under reduced motion: at once, the step reads "Step 13 of 13", four
+    layers show, the full instruction shows, and the toggle is hidden.
+6.  Each replay panel's computed `backdrop-filter` contains `blur`.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -486,7 +486,7 @@ and audit tests. Expected: all PASS.
 
 - [ ] **Step 5: Commit**
 
-1. `feat(web): replay the sample run in the hero window`
+1.  `feat(web): replay the sample run in the hero window`
 
 ## Task 4: Run log playback and switcher demo
 
@@ -515,30 +515,30 @@ and audit tests. Expected: all PASS.
 Create `test/web/landing/playback.browser.test.ts` at 1440x900 with the
 clock installed:
 
-1. The log waits for the reader: before scrolling, every `.drawer__step`
-   has computed `opacity` `0`. Scroll `.drawer__log` into view,
-   `runFor(4500)`: every row has `opacity` `1`, and the stat values read
-   "16", "3 min 13 s", "194 ms" and "4".
-2. Assistive technology gets the whole log from the start: before
-   scrolling, `.drawer__log`'s `innerText`-independent accessible text,
-   read with `page.locator('.drawer__log').ariaSnapshot()`, contains the
-   correction sentence and all seven step sentences.
-3. Under reduced motion the rows show and the stats read their values at
-   once.
-4. The switcher demonstrates itself: scroll `.switcher` into view;
-   after `runFor(2400)` the `corners` row has `data-hidden="true"`; after
-   another `runFor(2400)` it is `false`; after another the `warm` row is
-   hidden.
-5. The demo never announces: the text of `.switcher__hint` is the same
-   before the demo and at every step through a full cycle, including the
-   Flat JPEG step.
-6. The toggle pauses: click `button.switcher__demo-toggle`; after
-   `runFor(7200)` no row's `data-hidden` changes.
-7. Touching the switcher ends the demo: click the eye button named "Show
-   Warm colours"; the toggle is gone, the `warm` row is hidden, every other
-   row is visible, the mode is Layered PSD, and after `runFor(7200)`
-   nothing changes.
-8. Under reduced motion there is no toggle and no row changes.
+1.  The log waits for the reader: before scrolling, every `.drawer__step`
+    has computed `opacity` `0`. Scroll `.drawer__log` into view,
+    `runFor(4500)`: every row has `opacity` `1`, and the stat values read
+    "16", "3 min 13 s", "194 ms" and "4".
+2.  Assistive technology gets the whole log from the start: before
+    scrolling, `.drawer__log`'s `innerText`-independent accessible text,
+    read with `page.locator('.drawer__log').ariaSnapshot()`, contains the
+    correction sentence and all seven step sentences.
+3.  Under reduced motion the rows show and the stats read their values at
+    once.
+4.  The switcher demonstrates itself: scroll `.switcher` into view;
+    after `runFor(2400)` the `corners` row has `data-hidden="true"`; after
+    another `runFor(2400)` it is `false`; after another the `warm` row is
+    hidden.
+5.  The demo never announces: the text of `.switcher__hint` is the same
+    before the demo and at every step through a full cycle, including the
+    Flat JPEG step.
+6.  The toggle pauses: click `button.switcher__demo-toggle`; after
+    `runFor(7200)` no row's `data-hidden` changes.
+7.  Touching the switcher ends the demo: click the eye button named "Show
+    Warm colours"; the toggle is gone, the `warm` row is hidden, every other
+    row is visible, the mode is Layered PSD, and after `runFor(7200)`
+    nothing changes.
+8.  Under reduced motion there is no toggle and no row changes.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -593,9 +593,9 @@ Expected: all PASS.
 
 - [ ] **Step 6: Commit**
 
-1. `feat(web): play the run log as it scrolls into view`
-2. `feat(web): demonstrate the layer switcher until it is used`
-3. `style(web): give the switcher and drawer controls solid fills`
+1.  `feat(web): play the run log as it scrolls into view`
+2.  `feat(web): demonstrate the layer switcher until it is used`
+3.  `style(web): give the switcher and drawer controls solid fills`
 
 ## Task 5: Questions section
 
@@ -621,19 +621,19 @@ Expected: all PASS.
 
 Create `test/web/landing/faq.browser.test.ts` at 1440x900 and 390x844:
 
-1. Order: the FAQ section follows the glass section and precedes the
-   waitlist section in the DOM.
-2. The nav holds a link named "FAQ" to `#faq`, directly before "Updates".
-3. The eyebrow is "Questions" and the title "Before your first run."
-4. Ten tiles, whose questions are exactly the ten in the spec, in order.
-5. Questions 1 and 4 are open at load and the others closed; clicking a
-   closed question opens it.
-6. At 1440x900, the rendered widths follow the spans 6, 3, 3, 6, 3, 3,
-   4, 4, 4 and 12 of a 12-column grid, within 2px of
-   `(gridWidth - 11 * gap) / 12 * span + (span - 1) * gap`.
-7. At 390x844, every tile has the grid's full width.
-8. Each tile's background is solid: its computed `background-color` has
-   no alpha below 1.
+1.  Order: the FAQ section follows the glass section and precedes the
+    waitlist section in the DOM.
+2.  The nav holds a link named "FAQ" to `#faq`, directly before "Updates".
+3.  The eyebrow is "Questions" and the title "Before your first run."
+4.  Ten tiles, whose questions are exactly the ten in the spec, in order.
+5.  Questions 1 and 4 are open at load and the others closed; clicking a
+    closed question opens it.
+6.  At 1440x900, the rendered widths follow the spans 6, 3, 3, 6, 3, 3,
+    4, 4, 4 and 12 of a 12-column grid, within 2px of
+    `(gridWidth - 11 * gap) / 12 * span + (span - 1) * gap`.
+7.  At 390x844, every tile has the grid's full width.
+8.  Each tile's background is solid: its computed `background-color` has
+    no alpha below 1.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -727,7 +727,7 @@ unit and audit tests. Expected: all PASS.
 
 - [ ] **Step 5: Commit**
 
-1. `feat(web): answer common questions on the landing`
+1.  `feat(web): answer common questions on the landing`
 
 ## Task 6: Scroll reveals and pointer response
 
@@ -754,20 +754,20 @@ unit and audit tests. Expected: all PASS.
 
 Create `test/web/landing/motion.browser.test.ts` at 1440x900:
 
-1. A target below the fold waits: `.glass__title` has
-   `data-reveal="pending"` and computed `opacity` `0`. After
-   `scrollIntoViewIfNeeded()` and 1500ms it has opacity `1` and
-   `data-reveal="shown"`.
-2. Under reduced motion, no element has `data-reveal="pending"` and
-   `.glass__title` has opacity `1` at once.
-3. The spotlight follows the pointer: `page.mouse.move(400, 400)`; after
-   one animation frame `.hero-shell` has `data-spot="on"` and its
-   `--spot-x` reads `400px`. Moving the mouse to the ticker area and out
-   of the shell removes `data-spot`.
-4. A card lifts under the pointer: scroll a `.steps__card` into view,
-   wait for it to show, hover it, wait 300ms; its computed `translate` is
-   `0px -4px`.
-5. Under reduced motion, hovering the card leaves `translate` at `none`.
+1.  A target below the fold waits: `.glass__title` has
+    `data-reveal="pending"` and computed `opacity` `0`. After
+    `scrollIntoViewIfNeeded()` and 1500ms it has opacity `1` and
+    `data-reveal="shown"`.
+2.  Under reduced motion, no element has `data-reveal="pending"` and
+    `.glass__title` has opacity `1` at once.
+3.  The spotlight follows the pointer: `page.mouse.move(400, 400)`; after
+    one animation frame `.hero-shell` has `data-spot="on"` and its
+    `--spot-x` reads `400px`. Moving the mouse to the ticker area and out
+    of the shell removes `data-spot`.
+4.  A card lifts under the pointer: scroll a `.steps__card` into view,
+    wait for it to show, hover it, wait 300ms; its computed `translate` is
+    `0px -4px`.
+5.  Under reduced motion, hovering the card leaves `translate` at `none`.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -887,8 +887,8 @@ Expected: all PASS.
 
 - [ ] **Step 6: Commit**
 
-1. `feat(web): reveal landing content as it scrolls into view`
-2. `feat(web): respond to the pointer on the landing`
+1.  `feat(web): reveal landing content as it scrolls into view`
+2.  `feat(web): respond to the pointer on the landing`
 
 ## Task 7: Solid-surface sweep
 
@@ -954,8 +954,8 @@ test, and the unit and audit tests. Expected: all PASS.
 
 - [ ] **Step 5: Commit**
 
-1. `style(web): give every remaining surface a solid or glass fill`
-2. `test(web): check every surface is solid or glass`
+1.  `style(web): give every remaining surface a solid or glass fill`
+2.  `test(web): check every surface is solid or glass`
 
 ## Task 8: DESIGN.md
 
@@ -994,7 +994,7 @@ Run: `bunx prettier --check docs/DESIGN.md`, and check line lengths with
 Expected: prettier passes, and the awk command prints only lines that
 were already long before your change.
 
-1. `docs(design): describe the landing polish`
+1.  `docs(design): describe the landing polish`
 
 ## Task 9: Integration
 

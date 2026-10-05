@@ -61,7 +61,7 @@
 }
 
 /* The two wide tiles lead with a display question, open or closed, so a
-   tile keeps its size when it is toggled. */
+  tile keeps its size when it is toggled. */
 .faq__tile[data-span='6'] .faq__question {
   font: var(--text-display-h2);
   letter-spacing: -0.045em;

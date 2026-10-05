@@ -63,7 +63,7 @@
   --text-ui-lede-large: 400 18px / 28px var(--font-ui);
 
   /* A banded section takes the chrome ground in either mode, so the text
-     on it never flips, for the same reason chrome does not. */
+    on it never flips, for the same reason chrome does not. */
   --color-bg-band: #11110f;
   --color-bg-band-panel: #1c1c19;
   --color-text-on-chrome: #f3f0e8;
@@ -71,13 +71,13 @@
   --color-border-on-chrome: #3d3c38;
 
   /* Illustration only: the warm cast and the checkerboard of the layer
-     switcher. Never text. */
+    switcher. Never text. */
   --color-illustration-warm: #ff9a3d;
   --color-illustration-checker: #d9d6cd;
 
   /* Surfaces are solid. Only one floating over a photograph, a pattern or
-     moving content may be glass, and glass always pairs a fill with the
-     blur. Never a see-through fill on its own. */
+    moving content may be glass, and glass always pairs a fill with the
+    blur. Never a see-through fill on its own. */
   --glass-fill: color-mix(in oklab, var(--paper) 76%, transparent);
   --glass-fill-chrome: color-mix(in oklab, var(--color-bg-band) 74%, transparent);
   --glass-blur: blur(20px) saturate(1.4);
@@ -87,7 +87,7 @@
   --color-pattern-dot: #bfbbb0;
 
   /* Depth: a card resting on the board, a card lifted under the pointer,
-     and a section laid over the one before it. */
+    and a section laid over the one before it. */
   --shadow-card: 0 1px 2px rgb(17 17 15 / 0.06), 0 24px 48px -24px rgb(17 17 15 / 0.24);
   --shadow-lift: 0 18px 36px -18px rgb(17 17 15 / 0.32);
   --shadow-sheet: 0 -28px 56px -20px rgb(17 17 15 / 0.35);

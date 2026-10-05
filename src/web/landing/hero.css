@@ -1,7 +1,7 @@
 /* The hero and its ticker are one screen, pinned at z-index 0, and the
-   landing body after them is opaque at z-index 1, so the rest of the page
-   slides up over the pair like a sheet laid on top. The shell pulls itself
-   up under the bar, which is clear until the page moves. */
+  landing body after them is opaque at z-index 1, so the rest of the page
+  slides up over the pair like a sheet laid on top. The shell pulls itself
+  up under the bar, which is clear until the page moves. */
 .hero-shell {
   position: sticky;
   top: 0;
@@ -10,7 +10,7 @@
   height: 100vh;
   height: 100dvh;
   /* Taller only when the content cannot fit one screen; clipping the
-     headline to hold the height would be worse. */
+    headline to hold the height would be worse. */
   min-height: fit-content;
   flex-direction: column;
   margin-top: -72px;
@@ -184,7 +184,7 @@
 }
 
 /* The plate drifts as the body slides over the hero, and the two chips
-   above it drift faster, so the window reads as one layer among three. */
+  above it drift faster, so the window reads as one layer among three. */
 .hero__plate {
   position: relative;
   margin: 0;
@@ -321,10 +321,10 @@
 }
 
 /* The replay: glass panels over the lower part of the still frame, so the
-   photograph's centre stays clear while the run plays again. */
+  photograph's centre stays clear while the run plays again. */
 /* The replay fills the window below the pause toggle. The instruction and
-   the progress run along the bottom; the layer list sits top right, clear
-   of the chip that overlaps the window's lower corner. */
+  the progress run along the bottom; the layer list sits top right, clear
+  of the chip that overlaps the window's lower corner. */
 .hero__replay {
   position: absolute;
   top: 56px;
@@ -350,7 +350,7 @@
 }
 
 /* The instruction types upward like a transcript; the panel is capped so a
-   narrow window clips the oldest lines instead of covering the frame. */
+  narrow window clips the oldest lines instead of covering the frame. */
 .hero__replay-prompt {
   display: flex;
   max-height: 132px;
@@ -363,7 +363,7 @@
 }
 
 /* Whole lines only, bottom-aligned, so the clip falls between two lines and
-   never through one. */
+  never through one. */
 .hero__replay-text {
   display: flex;
   max-height: 8lh;
