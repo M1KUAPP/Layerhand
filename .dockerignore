@@ -1,7 +1,6 @@
 .agents/
 .claude/
 .git/
-.github/
 .husky/
 docs/
 graphify-out/
