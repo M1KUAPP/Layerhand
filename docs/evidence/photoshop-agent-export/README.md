@@ -1,6 +1,6 @@
 # Photoshop agent export
 
-Issue [#98](https://github.com/M1KUAPP/astra/issues/98) asks whether a real
+Issue [#98](https://github.com/M1KUAPP/Layerhand/issues/98) asks whether a real
 Layerhand export opens without warning and retains editable masks and
 adjustments in a desktop editor. This folder records the Photoshop-only check
 requested for launch.
@@ -31,7 +31,7 @@ right visibly moved the mask and changed the rendered vignette. The test edits
 were discarded when each disposable copy closed.
 
 The frozen export came from
-[workflow run 35244658116](https://github.com/M1KUAPP/astra/actions/runs/35244658116),
+[workflow run 35244658116](https://github.com/M1KUAPP/Layerhand/actions/runs/35244658116),
 which exercised the deployed service at commit `e419b7d`. Its acceptance
 profile passed with a complete outcome, 32 steps, and a 94.49% prompt-cache hit
 rate.

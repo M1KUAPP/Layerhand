@@ -1,7 +1,7 @@
 # Native steering
 
 One live run with native mid-turn steering
-([issue #9](https://github.com/M1KUAPP/astra/issues/9), spike A3). GPT-6
+([issue #9](https://github.com/M1KUAPP/Layerhand/issues/9), spike A3). GPT-6
 Astra drove Photopea through a Responses API WebSocket, in a Browserbase
 browser that loaded `/photopea-host` from the deployed service, and a
 correction was sent into the response being generated.
@@ -47,7 +47,7 @@ being generated, and the page was told 1 ms later (FR-21).
 
 The ledger settled it as **applied: 1, indeterminate: 0**, so the correction
 was delivered natively and never replayed at the step boundary. That is the
-[acceptance condition](https://github.com/M1KUAPP/astra/issues/9#issuecomment-5676547870)
+[acceptance condition](https://github.com/M1KUAPP/Layerhand/issues/9#issuecomment-5676547870)
 for the implementation, on a real connection.
 
 ### Completed work survived the correction

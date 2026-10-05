@@ -60,7 +60,7 @@ Read from the top, the page makes one case in five steps:
   square corners.
 - **Layout** at 1280px and wider is a 12-column grid with 36px side
   padding and 24px gutters. Whether the page shows below 1280px at all is
-  [#128](https://github.com/M1KUAPP/astra/issues/128). If it does, every
+  [#128](https://github.com/M1KUAPP/Layerhand/issues/128). If it does, every
   section is one column with 16px side padding, and the hero has to hold
   together at 390px.
 
@@ -143,7 +143,7 @@ section.hero                         data-section="hero", aria-labelledby="hero-
 The two plate states:
 
 - **Poster state.** `hero.ts` holds one constant for the loop's URL, empty
-  until [#20](https://github.com/M1KUAPP/astra/issues/20) delivers the
+  until [#20](https://github.com/M1KUAPP/Layerhand/issues/20) delivers the
   recording. While it is empty, the plate is an `<img>` with the caption
   and no toggle.
 - **Loop state.** Once the constant is set, the plate is a `<video>` with
@@ -450,7 +450,7 @@ Credit link        "GPT-6 Astra Challenge" goes to https://www.producthunt.com/c
 Photopea note      Layerhand drives Photopea, a web image editor, and is not affiliated with it.
 Photopea link      "Photopea" goes to https://www.photopea.com/
 Source link        Source on GitHub
-Source target      https://github.com/M1KUAPP/astra
+Source target      https://github.com/M1KUAPP/Layerhand
 ```
 
 ### Waitlist DOM outline
