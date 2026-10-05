@@ -20,7 +20,7 @@ the PSD, preview, and layer tree for a document generation.
 **Tech Stack:** Bun, TypeScript, `playwright-core`, Photopea live messaging,
 Chrome DevTools Protocol, `ag-psd` 30.2.0, Sharp, Bun tests.
 
-**Spec:** `docs/decisions/0003-parser-backed-photopea-export.md`
+**Spec:** `docs/adr/0003-parser-backed-photopea-export.md`
 
 Contents:
 

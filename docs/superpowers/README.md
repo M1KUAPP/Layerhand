@@ -10,7 +10,7 @@ one engineer or one agent can work through in order.
 - [Layered PSD export](/docs/superpowers/plans/layered-psd-export.md) — issue
   #16: a Photopea session that exports a layered PSD, a PNG preview, and the
   file's own layer tree. Its spec is
-  [ADR-0003](/docs/decisions/0003-parser-backed-photopea-export.md).
+  [ADR-0003](/docs/adr/0003-parser-backed-photopea-export.md).
 - [Ten-image reliability suite](/docs/superpowers/plans/ten-image-reliability-suite.md)
   — issue #10 and NFR-1: ten photographs through the production agent, and one
   command reporting how many produced a valid layered PSD.
@@ -26,4 +26,4 @@ one engineer or one agent can work through in order.
 
 A plan states the spec it implements at the top. Where a decision outlived the
 change that prompted it, the spec is an
-[architecture decision record](/docs/decisions/README.md) instead.
+[architecture decision record](/docs/adr/README.md) instead.

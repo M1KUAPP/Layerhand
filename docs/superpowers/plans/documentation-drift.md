@@ -66,7 +66,7 @@ two GitHub issue bodies through the GitHub API.
 - [x] **Step 4: Complete workflow and layout inventories**
 
   Add `deploy.yml` to the Git workflow enforcement table and add
-  `docs/decisions/` plus `docs/evidence/` to the project layout table.
+  `docs/adr/` plus `docs/evidence/` to the project layout table.
 
 - [x] **Step 5: Correct the TRD evidence and status statements**
 

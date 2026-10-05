@@ -111,7 +111,7 @@ interface LayerInfo {
 ```
 
 The boundary and its fixture-backed fake are explained in
-[ADR-0001](/docs/decisions/0001-editor-session-contract.md).
+[ADR-0001](/docs/adr/0001-editor-session-contract.md).
 
 ### Contract 2: Run orchestration
 
@@ -702,7 +702,7 @@ its startup script, and never emitted the ready message; the same frame
 under `http://127.0.0.1` started normally.
 
 The upload, transport, and sentinel choices are explained in
-[ADR-0002](/docs/decisions/0002-photopea-upload-transport.md).
+[ADR-0002](/docs/adr/0002-photopea-upload-transport.md).
 
 ### Known traps
 
@@ -1617,7 +1617,7 @@ structured Photoshop observation.
 
 - [Product brief](PRODUCT.md) — why this, and when we stop.
 - [Product requirements](PRD.md) — the `FR` and `NFR` numbers cited here.
-- [Architecture decisions](/docs/decisions/README.md) — why durable boundaries
+- [Architecture decisions](/docs/adr/README.md) — why durable boundaries
   were chosen.
 - [Evidence](/docs/evidence/README.md) — the measurements and live runs
   behind the spikes.
