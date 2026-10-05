@@ -85,31 +85,31 @@ Built on GPT-6 Astra for the [GPT-6 Astra Challenge](https://www.producthunt.com
 <table>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/assets/landing.png" alt="Landing" width="100%">
+      <img src="docs/readme/screenshots/landing.png" alt="Landing" width="100%">
       <br />
       <strong>Landing</strong> · The home page pitches a layered PSD, not a flat JPEG, with three free runs.
     </td>
     <td width="50%" valign="top" align="left">
-      <img src="docs/assets/workbench.png" alt="Workbench" width="100%">
+      <img src="docs/readme/screenshots/workbench.png" alt="Workbench" width="100%">
       <br />
       <strong>Workbench</strong> · Drop in a photograph, say what you want, and optionally add an OpenAI key.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/assets/live-run.png" alt="Live run" width="100%">
+      <img src="docs/readme/screenshots/live-run.png" alt="Live run" width="100%">
       <br />
       <strong>Live run</strong> · GPT-6 Astra drives Photopea while you type a correction without restarting the run.
     </td>
     <td width="50%" valign="top" align="left">
-      <img src="docs/assets/layered-result.png" alt="Layered result" width="100%">
+      <img src="docs/readme/screenshots/layered-result.png" alt="Layered result" width="100%">
       <br />
       <strong>Layered result</strong> · Download the layered PSD and a flattened PNG preview, with every named layer listed.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/assets/mcp.png" alt="MCP" width="100%">
+      <img src="docs/readme/screenshots/mcp.png" alt="MCP" width="100%">
       <br />
       <strong>MCP</strong> · Paste the setup prompt into Codex, Claude Code, or any MCP host.
     </td>
@@ -126,19 +126,19 @@ Four steps on the site, and you can step in on the third.
 
 1. **Drop in a photograph.** JPEG or PNG, up to 20 MB and 6000 px on the long edge. Arrived without one? Start from the sample bottle.
 
-   ![Drop in a photograph](docs/assets/drop-in-a-photograph.png)
+   ![Drop in a photograph](docs/readme/steps/1-drop-in-a-photograph.png)
 
 2. **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colours, darken the corners. The workbench title is “Give the agent one clear direction.”
 
-   ![Say what you want](docs/assets/say-what-you-want.png)
+   ![Say what you want](docs/readme/steps/2-say-what-you-want.png)
 
 3. **Watch it work, and correct it.** GPT-6 Astra drives Photopea. Type a correction while it runs; the next steps bend, without starting over. It cannot undo a step already taken, but it can repair one.
 
-   ![Watch it work, and correct it](docs/assets/watch-it-work.png)
+   ![Watch it work, and correct it](docs/readme/steps/3-watch-it-work.png)
 
 4. **Download the layered PSD.** Every edit arrives on its own named layer, its mask and adjustment still editable. A flattened PNG comes with it to preview. Open the file in Photoshop, Affinity Photo, GIMP, or back in Photopea.
 
-   ![Download the layered PSD](docs/assets/download-the-layered-psd.png)
+   ![Download the layered PSD](docs/readme/steps/4-download-the-layered-psd.png)
 
 **From your agent.** Paste the setup prompt on [`/mcp`](https://layerhand-732371853772.us-central1.run.app/mcp) into Codex, Claude Code, or any MCP host. Bring your own OpenAI key. The run still happens on Layerhand.
 
@@ -163,7 +163,7 @@ Four steps on the site, and you can step in on the third.
 One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 
 <img
-  src="docs/assets/architecture.svg"
+  src="docs/readme/architecture-light.svg"
   alt="Layerhand architecture"
   style="border-radius: 16px"
 />
