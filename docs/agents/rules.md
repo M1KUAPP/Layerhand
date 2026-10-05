@@ -37,10 +37,10 @@ not get wrong:
 ## Writing
 
 Markdown follows the [Markdown style guide](/docs/references/markdown-style.md).
-In practice that means an 80-character line limit, with links, tables,
-headings, and code blocks exempt; ATX headings in sentence case; one H1 per
-document, matching the filename; a short introduction under it; and link
-titles that say where the link goes.
+In practice that means no hard wraps, with each paragraph and list item on
+one line; ATX headings in sentence case; one H1 per document, matching the
+filename; a short introduction under it; and link titles that say where the
+link goes.
 
 A plan or a spec is named for what it holds, in lower case with hyphens, and
 carries no date: the history records when it was written, and the document
@@ -54,8 +54,7 @@ decision records their numbers.
 - **Prettier** owns syntax, not prose. `bun run lint` checks the whole
   tree and `lint-staged` fixes staged files on commit, so do not
   hand-format around it. But `printWidth` applies to code, and `proseWrap`
-  is left at `preserve`, so Prettier never rewraps a Markdown paragraph:
-  the 80-character limit is yours to keep and nothing checks it.
+  is left at `preserve`, so Prettier never rewraps a Markdown paragraph.
 - **Shell commands run as normal**, and their output comes back condensed.
   Re-run one as `rtk proxy <cmd>` only when its result is unusable. See
   [RTK](rtk.md).
