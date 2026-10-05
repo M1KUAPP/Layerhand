@@ -79,7 +79,7 @@ AI retouching that returns a layered PSD, not a flat JPEG. Layerhand retouches a
 
 The product is a desktop workbench (1280 px and up) and an MCP server for Codex, Claude Code, and other hosts. Three free runs, no account. After that, paste your own OpenAI API key; it is used for that run only and never stored. Uploads are deleted within 24 hours.
 
-Built on GPT-6 Astra for the [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge).
+Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge), where it placed in the Top 100.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -279,10 +279,11 @@ See [LICENSE](LICENSE) for more information.
 
 ## Acknowledgments
 
-- [Photopea](https://www.photopea.com/) — the editor Layerhand drives; Layerhand is not affiliated with it
-- [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge) — OpenAI × Product Hunt
-- [Hugeicons](https://hugeicons.com/) — icon font on the landing and workbench
+- [Photopea](https://www.photopea.com/) — the editor Layerhand drives; Layerhand is not affiliated with it.
+- [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge) — OpenAI × Product Hunt.
+- [Hugeicons](https://hugeicons.com/) — icon font on the landing and workbench.
 - [Canvas UI](https://canvasui.dev/) — glass object on “Still yours to edit.”
+- [archify](https://github.com/tt-a1i/archify) — architecture diagrams.
 - [Shields.io](https://shields.io)
 - [contrib.rocks](https://contrib.rocks)
 
