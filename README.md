@@ -102,12 +102,12 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
     <td width="50%" valign="top" align="left">
       <img src="docs/readme/screenshots/live-run.png" alt="Live run" width="100%">
       <br />
-      <strong>Live run</strong> · GPT-6 Astra drives Photopea while you type a correction without restarting the run.
+      <strong>Live Run</strong> · GPT-6 Astra drives Photopea while you type a correction without restarting the run.
     </td>
     <td width="50%" valign="top" align="left">
       <img src="docs/readme/screenshots/layered-result.png" alt="Layered result" width="100%">
       <br />
-      <strong>Layered result</strong> · Download the layered PSD and a flattened PNG preview, with every named layer listed.
+      <strong>Layered Result</strong> · Download the layered PSD and a flattened PNG preview, with every named layer listed.
     </td>
   </tr>
   <tr>
@@ -125,39 +125,35 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 
 ### How It Works
 
-Four steps on the site, and you can step in on the third.
-
 1. **Drop in a photograph.** JPEG or PNG, up to 20 MB and 6000 px on the long edge. Arrived without one? Start from the sample bottle.
 
-   ![Drop in a photograph](docs/readme/steps/1-drop-in-a-photograph.png)
+   <img src="docs/readme/steps/1-drop-in-a-photograph.png" alt="Drop in a photograph" width="100%">
 
-2. **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colours, darken the corners. The workbench title is “Give the agent one clear direction.”
+2. **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colors, darken the corners. The workbench title is “Give the agent one clear direction.”
 
-   ![Say what you want](docs/readme/steps/2-say-what-you-want.png)
+   <img src="docs/readme/steps/2-say-what-you-want.png" alt="Say what you want" width="100%">
 
 3. **Watch it work, and correct it.** GPT-6 Astra drives Photopea. Type a correction while it runs; the next steps bend, without starting over. It cannot undo a step already taken, but it can repair one.
 
-   ![Watch it work, and correct it](docs/readme/steps/3-watch-it-work.png)
+   <img src="docs/readme/steps/3-watch-it-work.png" alt="Watch it work, and correct it" width="100%">
 
 4. **Download the layered PSD.** Every edit arrives on its own named layer, its mask and adjustment still editable. A flattened PNG comes with it to preview. Open the file in Photoshop, Affinity Photo, GIMP, or back in Photopea.
 
-   ![Download the layered PSD](docs/readme/steps/4-download-the-layered-psd.png)
-
-**From your agent.** Paste the setup prompt on [`/mcp`](https://layerhand-732371853772.us-central1.run.app/mcp) into Codex, Claude Code, or any MCP host. Bring your own OpenAI key. The run still happens on Layerhand.
+   <img src="docs/readme/steps/4-download-the-layered-psd.png" alt="Download the layered PSD" width="100%">
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
 ### Features
 
-- Layered PSD output, not a flat JPEG — named layers, editable masks, adjustment layers
-- GPT-6 Astra drives Photopea; you watch the live editor
-- Mid-run corrections, acknowledged on the page, without restarting
-- Partial layered file if a run hits its cap, is cancelled, or stops early
-- Three free runs, no account; optional OpenAI key after the allowance
-- JPEG or PNG uploads, 20 MB / 6000 px; sample photograph on the workbench
-- Uploads deleted within 24 hours; download links expire after one hour
-- MCP tools: `start_run`, `wait_run`, `steer_run`, `cancel_run`, `get_result`
-- Hosted install files at `/plugins/layerhand-mcp.tgz`, `/plugins/layerhand.zip`, `/plugins/marketplace.json`, `/plugins/layerhand-mcp.js`
+- **Layered PSD output.** Not a flat JPEG: named layers, editable masks, and adjustment layers.
+- **Live editor.** GPT-6 Astra drives Photopea while you watch the live editor.
+- **Mid-run corrections.** Corrections are acknowledged on the page, without restarting.
+- **Partial results.** A run that hits its cap, is canceled, or stops early still returns a partial layered file.
+- **Free runs.** Three free runs, no account; an optional OpenAI key after the allowance.
+- **Uploads.** JPEG or PNG uploads, 20 MB / 6000 px, with a sample photograph on the workbench.
+- **Short retention.** Uploads are deleted within 24 hours; download links expire after one hour.
+- **From your agent.** Paste the setup prompt on [`/mcp`](https://layerhand-732371853772.us-central1.run.app/mcp) into Codex, Claude Code, or any MCP host, and bring your own OpenAI key; the run still happens on Layerhand. The MCP tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
+- **Hosted install files.** Served at `/plugins/layerhand-mcp.tgz`, `/plugins/layerhand.zip`, `/plugins/marketplace.json`, and `/plugins/layerhand-mcp.js`.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -181,14 +177,13 @@ One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 
 ### Tech Stack
 
-- [Bun](https://bun.sh/) 1.4.2 — runtime, bundler, tests, and `bun --hot` for `bun run dev`
-- TypeScript — server, agent, editor, and page
-- Vanilla page — `src/web/app.ts` plus landing modules; no React
-- [Photopea](https://www.photopea.com/) — the image editor the agent drives
-- [Playwright](https://playwright.dev/) (`playwright-core`) — Chrome over CDP in agent mode
-- [three.js](https://threejs.org/) — the landing “Still yours to edit.” glass object
-- [ag-psd](https://github.com/Agamnentzar/ag-psd) — Photoshop document support
-- [Model Context Protocol](https://modelcontextprotocol.io/) — `packages/layerhand-mcp`
+- **Languages:** TypeScript for the server, agent, editor, and page.
+- **Frontend:** a vanilla page (`src/web/app.ts` plus landing modules; no React), and [three.js](https://threejs.org/) for the landing “Still yours to edit.” glass object.
+- **Backend:** [Bun](https://bun.sh/) 1.4.2 as the runtime and bundler, with `bun --hot` for `bun run dev`; [Playwright](https://playwright.dev/) (`playwright-core`) for Chrome over CDP in agent mode; [ag-psd](https://github.com/Agamnentzar/ag-psd) for Photoshop document support; and a [Model Context Protocol](https://modelcontextprotocol.io/) server in `packages/layerhand-mcp`.
+- **Data:** [PostgreSQL](https://www.postgresql.org/) and [Google Cloud Storage](https://cloud.google.com/storage).
+- **AI and services:** [OpenAI](https://openai.com/) GPT-6 Astra through the Responses API, [Photopea](https://www.photopea.com/) as the image editor the agent drives, and [Browserbase](https://www.browserbase.com/) for hosted Chrome.
+- **Infrastructure:** [Docker](https://www.docker.com/) (`oven/bun:1.4.2-alpine`) and [Cloud Run](https://cloud.google.com/run).
+- **Tooling:** Bun's test runner for tests, and [Prettier](https://prettier.io/).
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
