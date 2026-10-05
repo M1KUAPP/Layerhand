@@ -3,6 +3,8 @@
   "scripts": {
     "browserbase:probe": "bun src/server/browserbase-probe.ts",
     "build": "bun build --target=bun src/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts",
+    "check": "bun run lint && bun run typecheck && bun run test && bun run check:mcp && bun run test:demo",
+    "check:mcp": "cd packages/layerhand-mcp && bun install --frozen-lockfile && bun run typecheck && bun run test",
     "dev": "LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts",
     "graph": "graphify update . && prettier --write --log-level=warn graphify-out",
     "lint": "prettier --check .",
@@ -11,6 +13,7 @@
     "reliability": "bun scripts/run-reliability.ts",
     "start": "cd dist && bun index.js",
     "test": "bun test",
+    "test:demo": "python3 -m unittest discover -s scripts/demo/tests -p 'test_*.py'",
     "typecheck": "tsc --noEmit",
     "waitlist:export": "bun src/server/waitlist-export.ts"
   },
