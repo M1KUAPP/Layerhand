@@ -2,7 +2,7 @@
 
 Peak resident memory of the server with twenty runs at once, before and after
 live-view frames were kept out of its run history
-([issue #101](https://github.com/M1KUAPP/astra/issues/101), NFR-4). It is the
+([issue #101](https://github.com/M1KUAPP/Layerhand/issues/101), NFR-4). It is the
 figure the service's `--memory` in `.github/workflows/deploy.yml` is set from.
 
 Contents:

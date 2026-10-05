@@ -1,7 +1,7 @@
 # Agent run
 
 One live run of the real agent behind `RUN_MODE=agent`
-([issue #66](https://github.com/M1KUAPP/astra/issues/66)). It runs
+([issue #66](https://github.com/M1KUAPP/Layerhand/issues/66)). It runs
 `liveAgentRun`, unchanged, with the real Browserbase client and GPT-6 Astra on
 the `computer` tool. Browserbase's browser loaded `/photopea-host` from the
 deployed service, as `PUBLIC_URL` gives it.
