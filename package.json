@@ -14,7 +14,7 @@
     "start": "cd dist && bun index.js",
     "test": "bun test",
     "test:demo": "python3 -m unittest discover -s scripts/demo/tests -p 'test_*.py'",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "waitlist:export": "bun src/server/waitlist-export.ts"
   },
   "lint-staged": {

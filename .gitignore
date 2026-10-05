@@ -102,9 +102,7 @@ docs/research/evidence/**/output/
 # Build and test output
 dist/
 coverage/
-.next/
 
 # Python, for the demo recorder's scripts and tests
 .venv/
 __pycache__/
-.pytest_cache/

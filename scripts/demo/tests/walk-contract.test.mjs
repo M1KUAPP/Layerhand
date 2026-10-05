@@ -70,9 +70,8 @@ test('no trace of the donor product survives in the walk', () => {
 })
 
 test('beat pacing waits out the remainder of a line, never a fixed pause', () => {
-  // The intervals are estimates from line length until the first narration
-  // synthesis lands; what the contract pins is the arithmetic and that every
-  // beat with a following line has one.
+  // The intervals are estimates; the contract pins the arithmetic and that
+  // every beat with a following line has one.
   assert.deepEqual(Object.keys(walk.MIN_BEAT_INTERVAL_MS), REQUIRED_BEATS.slice(0, -1))
   assert.equal(walk.remainingBeatDelay('landing', 4_000), 2_600)
   assert.equal(walk.remainingBeatDelay('landing', 6_600), 0)
