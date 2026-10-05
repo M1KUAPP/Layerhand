@@ -27,7 +27,7 @@ A warm first frame is inside NFR-3's five-second budget and a cold one is
 not, which is what the warm session was built for.
 
 **September 16, 2026**, against the deployed service at commit
-[`f2ab463`](https://github.com/M1KUAPP/Layerhand/commit/28470e55b403f286ac92dfe588d7be80a2cd30a7),
+[`f2ab463`](https://github.com/M1KUAPP/Layerhand/commit/f2ab4637bbaa6e4ec1cd28bea29c7b6e891c0901),
 same method, same B1 input. This run crosses the network allow-list
 ([#111](https://github.com/M1KUAPP/Layerhand/issues/111),
 [PR #147](https://github.com/M1KUAPP/Layerhand/pull/147)); the September 15

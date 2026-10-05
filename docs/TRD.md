@@ -1260,9 +1260,9 @@ again, and a run whose retries run out stops with its partial file, as
   asynchronously, so an object can still outlive that day by up to
   another one. The rule is a setting on the bucket, and applying it is
   manual. Its last committed copy is
-  [`gcs-lifecycle.json` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/gcs-lifecycle.json),
+  [`gcs-lifecycle.json` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/85021e4ec772fb596c8101377b7a0c5e7aba2cb2/.github/gcs-lifecycle.json),
   and the workflow that applied it,
-  [`gcs-lifecycle.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/gcs-lifecycle.yml),
+  [`gcs-lifecycle.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/85021e4ec772fb596c8101377b7a0c5e7aba2cb2/.github/workflows/gcs-lifecycle.yml),
   records the `gcloud storage buckets update` and `describe` commands.
   Applying the rule needs `storage.buckets.update` on the bucket, and
   reading it needs `storage.buckets.get`.
@@ -1393,7 +1393,7 @@ and its limits.
 Deploys are manual: no workflow runs on a push to `main`, so a merge
 deploys nothing until someone deploys it by hand. The workflow that used to
 deploy,
-[`deploy.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
+[`deploy.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/85021e4ec772fb596c8101377b7a0c5e7aba2cb2/.github/workflows/deploy.yml),
 records the image build and every `gcloud run deploy` flag, including
 `--memory` and `--min-instances 1`, which from the September 17 freeze
 through the launch window traded an idle instance for the eight seconds a
