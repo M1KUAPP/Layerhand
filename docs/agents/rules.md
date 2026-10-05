@@ -70,7 +70,6 @@ decision records their numbers.
 | `docs/references/`  | Style guides and workflows, for humans and agents             |
 | `docs/superpowers/` | Plans and specs, in `plans/` and `specs/`                     |
 | `.agents/skills/`   | Skills, installed and local; `.claude/skills/` symlinks to it |
-| `.github/`          | Workflows and templates                                       |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.

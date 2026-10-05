@@ -1258,13 +1258,14 @@ again, and a run whose retries run out stops with its partial file, as
   deletes every object — uploads, results, and previews alike — once
   it is a day old, not uploads only. Cloud Storage applies the rule
   asynchronously, so an object can still outlive that day by up to
-  another one. The rule is committed as `.github/gcs-lifecycle.json`,
-  and the manual `.github/workflows/gcs-lifecycle.yml` — triggered only
-  by `workflow_dispatch`, never by push, and held for the same approval
-  as a deploy — applies it on request and always prints the bucket's live
-  rule. It runs as the deployer service account, which needs
-  `storage.buckets.get` and `storage.buckets.update` on the bucket to do
-  either.
+  another one. The rule is a setting on the bucket, and applying it is
+  manual. Its last committed copy is
+  [`gcs-lifecycle.json` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/gcs-lifecycle.json),
+  and the workflow that applied it,
+  [`gcs-lifecycle.yml` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/gcs-lifecycle.yml),
+  records the `gcloud storage buckets update` and `describe` commands.
+  Applying the rule needs `storage.buckets.update` on the bucket, and
+  reading it needs `storage.buckets.get`.
 - Two tighter guarantees sit in front of that day-old backstop: an
   upload is deleted from the bucket as soon as its run ends, and every
   download link — the PSD's and the preview's — expires after one hour
@@ -1335,8 +1336,8 @@ Proportionate to six days, and concentrated where being wrong is
 expensive.
 
 1.  **The ten-image set** (NFR-1). Ten real photographs with a written
-    instruction and a written expectation each. The guarded nightly
-    schedule has not produced a result. Issue #96 owns a run at the
+    instruction and a written expectation each. `bun run reliability`
+    runs it by hand; nothing runs it on a schedule. Issue #96 owns a run at the
     deployed caps and another on the frozen build before the launch
     decision. This is the number that decision is made on, and it is the
     only test that can stop the launch. The day-2 go/no-go was a separate,
@@ -1358,9 +1359,9 @@ pretending otherwise wastes days we do not have.
 A single container on a platform that runs long-lived processes with
 persistent connections. Serverless is ruled out by the shape of a run.
 
-- One environment, deployed continuously from `main` from day 0. There
-  is no staging; there is not time, and a staging environment nobody
-  looks at is worse than none.
+- One environment, deployed from `main` from day 0. There is no
+  staging; there is not time, and a staging environment nobody looks at
+  is worse than none.
 - Object storage for uploads and results.
 - One small relational store for metering counters and waitlist emails.
 - Secrets from the platform's own store, never in the repository.
@@ -1371,11 +1372,11 @@ Deploying from day 0 is deliberate: the first deployment is the one
 most likely to eat an afternoon, and finding that out on day 5 is how
 launches get missed.
 
-The service has **4 GiB** of memory, set by `--memory` in
-`.github/workflows/deploy.yml`, and its one instance holds every run. On
-September 17, twenty runs at once against a local server in scripted mode,
-the recorded editor and a scripted model, with an 840 KB frame every second
-and every page reloading once, peaked at **679 MiB** resident. Before only
+The service has **4 GiB** of memory, set by `--memory` in the deploy
+command, and its one instance holds every run. On September 17, twenty runs
+at once against a local server in scripted mode, the recorded editor and a
+scripted model, with an 840 KB frame every second and every page
+reloading once, peaked at **679 MiB** resident. Before only
 the latest frame was kept, the same load peaked at 1,863 MiB. The memory
 is several times the peak, because the figure leaves out what only real
 runs do in this process, above all a large export, which alone takes about
@@ -1389,15 +1390,16 @@ behind it (#101). The
 [run memory evidence](/docs/evidence/run-memory/README.md) has the method
 and its limits.
 
-From the September 17 freeze through the launch window, `deploy.yml` holds
-still in three more ways (#112): `--min-instances 1` trades an idle instance
-for the eight seconds a cold `/health` cost against well under two warm; a
-push that changes only documentation, `graphify-out/`, or evidence never
-triggers the workflow at all (`paths-ignore`); and the deploy step waits
-for an approval from a required reviewer on the `production`
-environment, a repository setting the workflow does not itself apply. The
+Deploys are manual: no workflow runs on a push to `main`, so a merge
+deploys nothing until someone deploys it by hand. The workflow that used to
+deploy,
+[`deploy.yml` at `052d9f3`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
+records the image build and every `gcloud run deploy` flag, including
+`--memory` and `--min-instances 1`, which from the September 17 freeze
+through the launch window traded an idle instance for the eight seconds a
+cold `/health` cost against well under two warm (#112). The
 [launch-day runbook](/docs/references/launch-day.md#the-freeze-and-the-no-deploy-rule)
-has the approval and rollback steps.
+has the freeze and rollback steps.
 
 ## Repository layout
 
