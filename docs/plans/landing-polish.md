@@ -8,7 +8,7 @@
 > worktree; the coordinator reviews and integrates their commits.
 
 **Goal:** Ship the five refinements in the
-[landing polish spec](/docs/superpowers/specs/landing-polish.md) as one
+[landing polish spec](/docs/plans/spec-landing-polish.md) as one
 pull request of atomic commits.
 
 **Architecture:** Plain TypeScript DOM modules under `src/web/landing/`,
@@ -22,13 +22,13 @@ with Bun.
 Chromium), Hugeicons font, CSS custom properties from
 `src/web/landing/tokens.css`.
 
-**Spec:** `docs/superpowers/specs/landing-polish.md`
+**Spec:** `docs/plans/spec-landing-polish.md`
 
 ## Global constraints
 
 Every task's requirements include these. Read them before starting.
 
-- Read `docs/superpowers/specs/landing-polish.md` for your part, and
+- Read `docs/plans/spec-landing-polish.md` for your part, and
   `docs/DESIGN.md` for the design system it extends.
 - Change only the files your task names, and nothing else. Leave no
   scratch files. Never run `bun install`, never push, never switch or

@@ -30,7 +30,7 @@ two GitHub issue bodies through the GitHub API.
 **Files:**
 
 - Modify: `README.md`
-- Modify: `docs/superpowers/specs/ten-image-reliability-suite-design.md`
+- Modify: `docs/plans/ten-image-reliability-suite-design.md`
 - Modify: `docs/references/git-workflow.md`
 - Modify: `docs/TRD.md`
 - Modify: `docs/agents/rules.md`
@@ -90,8 +90,8 @@ two GitHub issue bodies through the GitHub API.
 
   ```sh
   git add README.md docs/agents/rules.md docs/references/git-workflow.md \
-    docs/superpowers/specs/ten-image-reliability-suite-design.md \
-    docs/TRD.md docs/superpowers/plans/documentation-drift.md
+    docs/plans/ten-image-reliability-suite-design.md \
+    docs/TRD.md docs/plans/documentation-drift.md
   git commit -m "docs: correct operational documentation drift"
   ```
 

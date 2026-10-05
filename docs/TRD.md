@@ -278,7 +278,7 @@ button. The watched run is not written to `sessionStorage`. When the run ends,
 the result view and downloads appear as usual.
 
 `layerhand-mcp` in `packages/layerhand-mcp/` is the client, specified in
-[the agent bundle spec](/docs/superpowers/specs/agent-bundle.md).
+[the agent bundle spec](/docs/plans/agent-bundle.md).
 
 ## Fakes first
 
