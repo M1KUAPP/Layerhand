@@ -9,7 +9,6 @@
 @docs/agents/rules.md
 @docs/agents/skills.md
 @docs/references/git-workflow.md
-@docs/references/markdown-style.md
 @docs/PRODUCT.md
 @docs/PRD.md
 @docs/TRD.md
