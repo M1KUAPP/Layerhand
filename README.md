@@ -21,11 +21,19 @@
     <br />
   </p>
 
-[![Bun][Bun]][Bun-url]
-[![TypeScript][TypeScript]][TypeScript-url]
-[![Playwright][Playwright]][Playwright-url]
-[![Three.js][Three.js]][Three-url]
-[![MCP][MCP]][MCP-url]
+[![TypeScript][typescript-badge]][typescript-url]
+[![Three.js][threejs-badge]][threejs-url]
+[![Bun][bun-badge]][bun-url]
+[![Playwright][playwright-badge]][playwright-url]
+[![PostgreSQL][postgresql-badge]][postgresql-url]
+[![Google Cloud Storage][googlecloudstorage-badge]][googlecloudstorage-url]
+[![OpenAI][openai-badge]][openai-url]
+[![Model Context Protocol][modelcontextprotocol-badge]][modelcontextprotocol-url]
+[![Photopea][photopea-badge]][photopea-url]
+[![Browserbase][browserbase-badge]][browserbase-url]
+[![Docker][docker-badge]][docker-url]
+[![Cloud Run][cloudrun-badge]][cloudrun-url]
+[![Prettier][prettier-badge]][prettier-url]
 
 </div>
 
@@ -74,17 +82,41 @@ Built on GPT-6 Astra for the [GPT-6 Astra Challenge](https://www.producthunt.com
 
 ### Screenshots
 
-|               Landing               |                Workbench                |
-| :---------------------------------: | :-------------------------------------: |
-| ![Landing](docs/assets/landing.png) | ![Workbench](docs/assets/workbench.png) |
-
-|               Live run                |                  Layered result                   |
-| :-----------------------------------: | :-----------------------------------------------: |
-| ![Live run](docs/assets/live-run.png) | ![Layered result](docs/assets/layered-result.png) |
-
-|             MCP             |
-| :-------------------------: |
-| ![MCP](docs/assets/mcp.png) |
+<table>
+  <tr>
+    <td width="50%" valign="top" align="left">
+      <img src="docs/assets/landing.png" alt="Landing" width="100%">
+      <br />
+      <strong>Landing</strong> · The home page pitches a layered PSD, not a flat JPEG, with three free runs.
+    </td>
+    <td width="50%" valign="top" align="left">
+      <img src="docs/assets/workbench.png" alt="Workbench" width="100%">
+      <br />
+      <strong>Workbench</strong> · Drop in a photograph, say what you want, and optionally add an OpenAI key.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top" align="left">
+      <img src="docs/assets/live-run.png" alt="Live run" width="100%">
+      <br />
+      <strong>Live run</strong> · GPT-6 Astra drives Photopea while you type a correction without restarting the run.
+    </td>
+    <td width="50%" valign="top" align="left">
+      <img src="docs/assets/layered-result.png" alt="Layered result" width="100%">
+      <br />
+      <strong>Layered result</strong> · Download the layered PSD and a flattened PNG preview, with every named layer listed.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top" align="left">
+      <img src="docs/assets/mcp.png" alt="MCP" width="100%">
+      <br />
+      <strong>MCP</strong> · Paste the setup prompt into Codex, Claude Code, or any MCP host.
+    </td>
+    <td width="50%" valign="top" align="left">
+    </td>
+  </tr>
+</table>
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -254,13 +286,29 @@ See [LICENSE](LICENSE) for more information.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
-[Bun]: https://img.shields.io/badge/Bun-1.4.2-000000?style=for-the-badge&logo=bun&logoColor=f9f1e1
-[Bun-url]: https://bun.sh/
-[TypeScript]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
-[TypeScript-url]: https://www.typescriptlang.org/
-[Playwright]: https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white
-[Playwright-url]: https://playwright.dev/
-[Three.js]: https://img.shields.io/badge/three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white
-[Three-url]: https://threejs.org/
-[MCP]: https://img.shields.io/badge/MCP-555555?style=for-the-badge
-[MCP-url]: https://modelcontextprotocol.io/
+[typescript-badge]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
+[typescript-url]: https://www.typescriptlang.org/
+[threejs-badge]: https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white
+[threejs-url]: https://threejs.org/
+[bun-badge]: https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white
+[bun-url]: https://bun.sh/
+[playwright-badge]: https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge
+[playwright-url]: https://playwright.dev/
+[postgresql-badge]: https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[postgresql-url]: https://www.postgresql.org/
+[googlecloudstorage-badge]: https://img.shields.io/badge/Google_Cloud_Storage-AECBFA?style=for-the-badge&logo=googlecloudstorage&logoColor=black
+[googlecloudstorage-url]: https://cloud.google.com/storage
+[openai-badge]: https://img.shields.io/badge/OpenAI-412991?style=for-the-badge
+[openai-url]: https://openai.com/
+[modelcontextprotocol-badge]: https://img.shields.io/badge/Model_Context_Protocol-000000?style=for-the-badge&logo=modelcontextprotocol&logoColor=white
+[modelcontextprotocol-url]: https://modelcontextprotocol.io/
+[photopea-badge]: https://img.shields.io/badge/Photopea-18A497?style=for-the-badge&logo=photopea&logoColor=white
+[photopea-url]: https://www.photopea.com/
+[browserbase-badge]: https://img.shields.io/badge/Browserbase-FF4500?style=for-the-badge
+[browserbase-url]: https://www.browserbase.com/
+[docker-badge]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[docker-url]: https://www.docker.com/
+[cloudrun-badge]: https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
+[cloudrun-url]: https://cloud.google.com/run
+[prettier-badge]: https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black
+[prettier-url]: https://prettier.io/
