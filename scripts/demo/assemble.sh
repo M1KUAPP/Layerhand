@@ -23,7 +23,6 @@ PAD="${DEMO_PAD:-#F3F0E8}"
 # "name:seconds", in the order they appear after the capture. Optional.
 DEMO_SLIDES="${DEMO_SLIDES:-}"
 
-# Normal path: no slides required. Normalize capture to 1920x1080 deliverable canvas.
 if [ -z "${DEMO_SLIDES// /}" ]; then
   echo "No DEMO_SLIDES specified; normalizing capture to 1920x1080 canvas without slides."
   "$FF" -y -loglevel error -i "$DIR/capture.webm" \
@@ -33,7 +32,6 @@ if [ -z "${DEMO_SLIDES// /}" ]; then
   exit 0
 fi
 
-# Optional slide path: verify every required slide PNG exists.
 for pair in $DEMO_SLIDES; do
   name="${pair%%:*}"
   f="$DIR/slide-$name.png"

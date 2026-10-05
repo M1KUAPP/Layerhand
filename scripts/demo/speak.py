@@ -27,7 +27,6 @@ def _resolve_kokoro_home() -> Path:
 HERE = _resolve_kokoro_home()
 VOICE = os.environ.get('DEMO_VOICE', 'jf_nezumi')
 
-# Chatterbox cloned voice configuration
 CB_HOME = Path(os.environ.get('CHATTERBOX_HOME', Path.home() / '.local/share/layerhand-demo/chatterbox'))
 CB_REF = Path(os.environ.get('CHATTERBOX_REF', CB_HOME / 'reference.wav'))
 CB_VARIANT = os.environ.get('CHATTERBOX_VARIANT', 'nano')

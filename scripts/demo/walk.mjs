@@ -6,15 +6,13 @@
 import { smoothScrollTo } from './motion.mjs'
 import { verifyCorrectionApplied, verifyLayeredResult } from './proof.mjs'
 
-// The two lines the camera watches being typed.
 export const INSTRUCTION = 'Remove the background, warm the highlights, clean the reflections.'
 export const CORRECTION = 'Keep the shadow.'
 
-// Estimated from line length and not yet measured against a voice; re-measure
-// every value once the first narration synthesis exists. Slow navigation
-// naturally contributes to the interval; a run that finishes a beat early is
-// fine because mark() waits out only the remainder before the next mark --
-// it never pauses the run to hit the estimate.
+// Estimated from line length. Slow navigation naturally contributes to the
+// interval; a run that finishes a beat early is fine because mark() waits out
+// only the remainder before the next mark -- it never pauses the run to hit
+// the estimate.
 export const MIN_BEAT_INTERVAL_MS = Object.freeze({
   landing: 6_600,
   input: 5_400,
