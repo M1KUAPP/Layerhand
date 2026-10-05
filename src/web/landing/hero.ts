@@ -15,7 +15,7 @@ const TITLE_LINES = [
 const FACTS = ['Three free runs', 'No account needed', 'Uploads deleted within 24 hours']
 
 // The September 15 computer-tool run on the sample photograph, whose last
-// frame the window shows (docs/evidence/driving-mechanism): the
+// frame the window shows (docs/research/evidence/driving-mechanism): the
 // instruction harness.ts sent, its step count and its exported layers,
 // bottom of the stack first. The run recorded no narration and took no
 // correction, so the replay shows neither.

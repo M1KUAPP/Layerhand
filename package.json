@@ -1,7 +1,10 @@
 {
+  "packageManager": "bun@1.4.2",
   "scripts": {
     "browserbase:probe": "bun src/server/browserbase-probe.ts",
     "build": "bun build --target=bun src/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts",
+    "check": "bun run lint && bun run typecheck && bun run test && bun run check:mcp && bun run test:demo",
+    "check:mcp": "cd packages/layerhand-mcp && bun install --frozen-lockfile && bun run typecheck && bun run test",
     "dev": "LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts",
     "graph": "graphify update . && prettier --write --log-level=warn graphify-out",
     "lint": "prettier --check .",
@@ -10,6 +13,7 @@
     "reliability": "bun scripts/run-reliability.ts",
     "start": "cd dist && bun index.js",
     "test": "bun test",
+    "test:demo": "python3 -m unittest discover -s scripts/demo/tests -p 'test_*.py'",
     "typecheck": "tsc --noEmit",
     "waitlist:export": "bun src/server/waitlist-export.ts"
   },
@@ -17,14 +21,14 @@
     "*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.2",
-    "@commitlint/config-conventional": "^21.2.2",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@types/bun": "^1.4.2",
     "@types/node": "^26.5.1",
     "@types/three": "^0.186.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.1",
-    "prettier": "^3.9.6",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
     "sharp": "^0.35.4",
     "typescript": "^7.0.2"
   },

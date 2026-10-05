@@ -24,22 +24,23 @@ not get wrong:
   [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):**
   `<type>[optional scope]: <description>`. The type is one of `build`,
   `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`,
-  `style`, or `test`.
+  `style`, or `test`, and the header is at most 50 characters.
 - **Commits are atomic.** One reason to change per commit, and each one
   builds on its own. If the subject needs the word "and", it is two
   commits.
 - **The only route into `main`** is push branch → pull request → review →
-  resolve conversations → rebase merge → delete branch.
-- **Rebase, never squash.** Squashing would discard the atomic commits the
-  workflow asks for.
+  resolve conversations → squash merge → delete branch.
+- **Squash, never rebase.** Squash is the only merge method: the pull
+  request title becomes the commit title and its body the message, so the
+  title follows the commit format too. Auto-merge is on.
 
 ## Writing
 
 Markdown follows the [Markdown style guide](/docs/references/markdown-style.md).
-In practice that means an 80-character line limit, with links, tables,
-headings, and code blocks exempt; ATX headings in sentence case; one H1 per
-document, matching the filename; a short introduction under it; and link
-titles that say where the link goes.
+In practice that means no hard wraps, with each paragraph and list item on
+one line; ATX headings in sentence case; one H1 per document, matching the
+filename; a short introduction under it; and link titles that say where the
+link goes.
 
 A plan or a spec is named for what it holds, in lower case with hyphens, and
 carries no date: the history records when it was written, and the document
@@ -53,23 +54,22 @@ decision records their numbers.
 - **Prettier** owns syntax, not prose. `bun run lint` checks the whole
   tree and `lint-staged` fixes staged files on commit, so do not
   hand-format around it. But `printWidth` applies to code, and `proseWrap`
-  is left at `preserve`, so Prettier never rewraps a Markdown paragraph:
-  the 80-character limit is yours to keep and nothing checks it.
+  is left at `preserve`, so Prettier never rewraps a Markdown paragraph.
 - **Shell commands run as normal**, and their output comes back condensed.
   Re-run one as `rtk proxy <cmd>` only when its result is unusable. See
   [RTK](rtk.md).
 
 ## Layout
 
-| Path                | Holds                                                         |
-| ------------------- | ------------------------------------------------------------- |
-| `AGENTS.md`         | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md`     |
-| `docs/agents/`      | Instructions addressed to agents                              |
-| `docs/decisions/`   | Architecture decision records                                 |
-| `docs/evidence/`    | Retained measurements, probes, and acceptance evidence        |
-| `docs/references/`  | Style guides and workflows, for humans and agents             |
-| `docs/superpowers/` | Plans and specs, in `plans/` and `specs/`                     |
-| `.agents/skills/`   | Skills, installed and local; `.claude/skills/` symlinks to it |
+| Path                      | Holds                                                                      |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `AGENTS.md`               | The entry point, symlinked as `CLAUDE.md` and `GEMINI.md`                  |
+| `docs/agents/`            | Instructions addressed to agents                                           |
+| `docs/adr/`               | Architecture decision records                                              |
+| `docs/research/evidence/` | Retained measurements, probes, and acceptance evidence                     |
+| `docs/references/`        | Style guides and workflows, for humans and agents                          |
+| `docs/plans/`             | Plans and specs, together; a spec named like a plan takes a `spec-` prefix |
+| `.agents/skills/`         | Skills, installed and local; `.claude/skills/` symlinks to it              |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.
