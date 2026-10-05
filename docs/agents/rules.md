@@ -24,14 +24,15 @@ not get wrong:
   [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):**
   `<type>[optional scope]: <description>`. The type is one of `build`,
   `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`,
-  `style`, or `test`.
+  `style`, or `test`, and the header is at most 50 characters.
 - **Commits are atomic.** One reason to change per commit, and each one
   builds on its own. If the subject needs the word "and", it is two
   commits.
 - **The only route into `main`** is push branch → pull request → review →
-  resolve conversations → rebase merge → delete branch.
-- **Rebase, never squash.** Squashing would discard the atomic commits the
-  workflow asks for.
+  resolve conversations → squash merge → delete branch.
+- **Squash, never rebase.** Squash is the only merge method: the pull
+  request title becomes the commit title and its body the message, so the
+  title follows the commit format too. Auto-merge is on.
 
 ## Writing
 
