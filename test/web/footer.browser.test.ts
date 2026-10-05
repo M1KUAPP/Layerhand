@@ -88,7 +88,7 @@ describeBrowser('sitewide footer in Chromium', () => {
         'https://www.photopea.com/'
       )
       await expect(footer.getByRole('link', { name: 'Source on GitHub' }).getAttribute('href')).resolves.toBe(
-        'https://github.com/M1KUAPP/astra'
+        'https://github.com/M1KUAPP/Layerhand'
       )
       // The landing no longer renders a footer of its own.
       await expect(page.locator('footer').count()).resolves.toBe(1)
