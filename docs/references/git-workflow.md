@@ -1,7 +1,7 @@
 # Git workflow
 
 Every change to this repository travels the same path: a branch, small
-commits, a pull request, a review, resolved conversations, a rebase merge,
+commits, a pull request, a review, resolved conversations, a squash merge,
 and a deleted branch. Nothing should reach `main` any other way.
 
 Names follow
@@ -25,18 +25,20 @@ Contents:
 2.  **Commit small.** One reason to change per commit, and every commit builds
     on its own. A commit that needs the word "and" in its subject is two
     commits.
-3.  **Push the branch.** `git push -u origin HEAD`. Pushing to `main` is
-    refused by the pre-push hook.
+3.  **Push the branch.** `git push -u origin HEAD`. Never push to `main`:
+    no hook refuses it, so the rule is yours to keep.
 4.  **Open a pull request.** `gh pr create --fill-first`, then check the
     title. Not `--fill`: on a branch with more than one commit that takes
     the title from the branch name, which is not in the commit format.
     `--fill-first` takes it from the first commit, which may not describe
-    the whole branch, so pass `--title` when it does not.
+    the whole branch, so pass `--title` when it does not. The title and body
+    become the commit that lands, so the title fits in 50 characters.
 5.  **Review.** One approval required. Review looks at the diff and at the
-    commit history, because the history is what lands.
+    pull request title and body, because they are what lands.
 6.  **Resolve.** Every review conversation must be marked resolved before
     merging.
-7.  **Merge and delete.** Rebase merge, then the branch deletes itself.
+7.  **Merge and delete.** Squash merge, or queue the merge with
+    `gh pr merge --auto --squash`, then the branch deletes itself.
 
 ## Naming
 
@@ -54,6 +56,7 @@ The type is one of `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`,
 `refactor`, `revert`, `style`, or `test`. The scope is an optional noun
 naming the part of the codebase you touched, in parentheses. The description
 is a short summary in the imperative, lower case, with no trailing period.
+The whole header, type and scope included, is at most 50 characters.
 
 A breaking change takes a `!` before the colon, and explains itself in the
 body or in a `BREAKING CHANGE:` footer:
@@ -75,20 +78,21 @@ machine-checked; it is a courtesy to whoever reads the branch list.
 
 Both use the commit format. An issue describes the change you want as though
 you were committing it: `fix(auth): expired refresh tokens are accepted`.
-Neither becomes a commit subject: this repository rebase-merges, so the
-commits land exactly as written and the pull request title is discarded.
-The title follows the format anyway, because it is what the pull request
-list, the notification, and the reviewer see first.
+The pull request title becomes the commit subject: this repository
+squash-merges, with the title as the commit title and the body as its
+message, so a branch's commits land as one. The title follows the format
+and the 50-character limit, and it is also what the pull request list, the
+notification, and the reviewer see first.
 
 ## What enforces what
 
 | Where               | What it blocks                             |
 | ------------------- | ------------------------------------------ |
 | `.husky/commit-msg` | A commit whose message is not conventional |
-| `.husky/pre-push`   | A push straight to the default branch      |
 
-Both are local hooks, so `--no-verify` skips them. The commit-msg hook reads
-its rules from `commitlint.config.mjs`. Nothing else is enforced: no workflow
+It is a local hook, so `--no-verify` skips it. It reads its rules from
+`commitlint.config.mjs`: Conventional Commits, with a header of at most 50
+characters. Nothing else is enforced: no workflow
 runs on GitHub and no repository rule guards `main`, so the rest of
 [the loop](#the-loop) is a convention, and nothing checks tests, formatting,
 or pull request and issue titles before a merge.
@@ -133,14 +137,18 @@ uv tool install graphifyy
 ```
 
 The merge settings are applied once, by someone with admin on the
-repository. They make rebase the only merge method and delete branches
-after merge:
+repository. They make squash the only merge method, with the pull request
+title and body as the commit, turn on auto-merge and branch updates, and
+delete branches after merge:
 
 ```sh
 gh api -X PATCH 'repos/{owner}/{repo}' --silent \
   -F delete_branch_on_merge=true \
   -F allow_auto_merge=true \
-  -F allow_rebase_merge=true \
-  -F allow_squash_merge=false \
-  -F allow_merge_commit=false
+  -F allow_update_branch=true \
+  -F allow_squash_merge=true \
+  -F allow_rebase_merge=false \
+  -F allow_merge_commit=false \
+  -f squash_merge_commit_title=PR_TITLE \
+  -f squash_merge_commit_message=PR_BODY
 ```

@@ -199,6 +199,7 @@ Local development defaults to a fake session: no API keys, no Browserbase, in-me
 
 - [Bun](https://bun.sh/) 1.4.2 — pinned by the production image (`oven/bun:1.4.2-alpine`) and the lockfile (version 2). Use this version for anything that talks to a browser over CDP.
 - [Google Chrome](https://www.google.com/chrome/) — or another desktop browser, with a viewport at least 1280 px wide for the workbench. Narrower screens get the “Layerhand needs a wider canvas” gate.
+- [Python](https://www.python.org/) 3 — runs the demo recorder's tests in `bun run check`, with the standard library only.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -233,13 +234,10 @@ Local development defaults to a fake session: no API keys, no Browserbase, in-me
 
 5. **Try MCP locally.** With the dev server up, open [http://localhost:3000/mcp](http://localhost:3000/mcp). The setup prompt and the Codex / Claude Code / other manuals use that origin. The five tools are `start_run`, `wait_run`, `steer_run`, `cancel_run`, and `get_result`.
 
-6. **Run the checks.**
+6. **Run the checks.** `bun run check` runs the lint, the typecheck and the tests, including the MCP package's and the demo recorder's Python tests. `bun run build` builds the production bundle separately.
 
    ```sh
-   bun test
-   bun run typecheck
-   bun run lint
-   bun run build
+   bun run check
    ```
 
    `RUN_BROWSER_TESTS=1` runs the fake-backed page tests in installed Google Chrome.

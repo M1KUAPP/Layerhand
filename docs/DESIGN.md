@@ -374,7 +374,7 @@ updates by email is outlined. The three facts below are Three free runs,
 No account needed and Uploads deleted within 24 hours.
 
 The editor window shows the 97 KB `editor-frame.jpg`, derived from the
-[final frame of the sample-photo run](/docs/evidence/driving-mechanism/results/computer-1-sample-photo.png/final-frame.png).
+[final frame of the sample-photo run](/docs/research/evidence/driving-mechanism/results/computer-1-sample-photo.png/final-frame.png).
 An offset accent sheet sits behind the window. Two chips read "4 named layers
 in 13 steps" and "Correct it while it works". Over the lower part of the
 window, a glass overlay plays the recorded facts of that run, with a Pause
