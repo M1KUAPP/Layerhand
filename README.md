@@ -26,7 +26,6 @@
 [![Playwright][Playwright]][Playwright-url]
 [![Three.js][Three.js]][Three-url]
 [![MCP][MCP]][MCP-url]
-[![MIT][MIT]][MIT-url]
 
 </div>
 
@@ -236,7 +235,7 @@ Made with [contrib.rocks](https://contrib.rocks).
 
 ## License
 
-Released under the [MIT License](LICENSE).
+See [LICENSE](LICENSE) for more information.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -265,5 +264,3 @@ Released under the [MIT License](LICENSE).
 [Three-url]: https://threejs.org/
 [MCP]: https://img.shields.io/badge/MCP-555555?style=for-the-badge
 [MCP-url]: https://modelcontextprotocol.io/
-[MIT]: https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge
-[MIT-url]: LICENSE
