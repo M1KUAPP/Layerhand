@@ -35,7 +35,7 @@ sources are quoted in [PRODUCT § Open questions](/docs/PRODUCT.md#open-question
 **A merge to `main` deploys nothing.** Deploys are manual: nothing builds
 or deploys the service unless someone does it by hand. The workflow that
 used to deploy,
-[`deploy.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/052d9f3f7c5bde6d7d24daee32c113487f364901/.github/workflows/deploy.yml),
+[`deploy.yml` at `85021e4`](https://github.com/M1KUAPP/Layerhand/blob/85021e4ec772fb596c8101377b7a0c5e7aba2cb2/.github/workflows/deploy.yml),
 records the image build, the push to Artifact Registry, and the
 `gcloud run deploy` command with every flag, environment variable, and
 secret the service runs with. Cloud Run runs **one instance** whose memory
