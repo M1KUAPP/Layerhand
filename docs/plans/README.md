@@ -1,9 +1,8 @@
 # Plans
 
-The plans and specs written while planning a change, by the
-[superpowers skills](/docs/agents/skills.md) or by hand. A spec settles what a
-change should do and why; a plan cuts it into tasks, each with its test, that
-one engineer or one agent can work through in order.
+The plans and specs written while planning a change, by an agent or by hand.
+A spec settles what a change should do and why; a plan cuts it into tasks,
+each with its test, that one engineer or one agent can work through in order.
 
 ## Plans
 

@@ -44,9 +44,8 @@ link goes.
 
 A plan or a spec is named for what it holds, in lower case with hyphens, and
 carries no date: the history records when it was written, and the document
-outlives the day it was drafted. This overrides the superpowers skills, which
-name them `YYYY-MM-DD-<topic>`. The project briefs keep their capitals and the
-decision records their numbers.
+outlives the day it was drafted. The project briefs keep their capitals and
+the decision records their numbers.
 
 ## Tooling
 
@@ -69,7 +68,6 @@ decision records their numbers.
 | `docs/research/evidence/` | Retained measurements, probes, and acceptance evidence                     |
 | `docs/references/`        | Style guides and workflows, for humans and agents                          |
 | `docs/plans/`             | Plans and specs, together; a spec named like a plan takes a `spec-` prefix |
-| `.agents/skills/`         | Skills, installed and local; `.claude/skills/` symlinks to it              |
 
 Edit `AGENTS.md` itself, never `CLAUDE.md` or `GEMINI.md` — both are
 symlinks to it.
@@ -78,4 +76,3 @@ symlinks to it.
 
 - [Git workflow](/docs/references/git-workflow.md)
 - [Markdown style guide](/docs/references/markdown-style.md)
-- [Skills](skills.md)
