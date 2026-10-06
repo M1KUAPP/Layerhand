@@ -300,7 +300,7 @@ describe('runReliabilityCommand', () => {
     expect(sessionPassed).toEqual({ clientInstanceId: 'single-client' })
   })
 
-  test('loads manifest from test/images/manifest.json', async () => {
+  test('loads manifest from tests/images/manifest.json', async () => {
     let loadedManifestUrl: URL | undefined
 
     const dependencies: ReliabilityCommandDependencies = {
@@ -324,7 +324,7 @@ describe('runReliabilityCommand', () => {
 
     await runReliabilityCommand(config, dependencies)
     expect(loadedManifestUrl).toBeDefined()
-    expect(loadedManifestUrl?.pathname.endsWith('/test/images/manifest.json')).toBe(true)
+    expect(loadedManifestUrl?.pathname.endsWith('/tests/images/manifest.json')).toBe(true)
   })
 
   test('writes report beneath timestamped directory without colons', async () => {

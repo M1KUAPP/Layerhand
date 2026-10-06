@@ -882,7 +882,7 @@ animated outline of a held selection still sends most frames. Plan capacity
 on the worked row, at which a run lasting the whole fifteen-minute ceiling
 sends each viewer about 440 MB. Sending every capture, even an idle editor
 would cost 840 KB a second. The numbers come from
-`test/browser/frame-bandwidth.integration.test.ts` on a local browser; a
+`tests/browser/frame-bandwidth.integration.test.ts` on a local browser; a
 hosted session shows the same pixels, but its capture time and upload path
 are unmeasured.
 
@@ -1216,7 +1216,7 @@ and one full wave would need 20 × $3 = $60.
 **Proposed: $230 a day**, for kymil4 to confirm on day 4 from A2's
 measurement. It is not yet agreed. The reservation always equals the spend
 cap, because reserving less would undercount a run heading for it.
-`test/server/limits.test.ts` pins the arithmetic at the $3 and the $8
+`tests/server/limits.test.ts` pins the arithmetic at the $3 and the $8
 reservation: nineteen reservations hold the twentieth concurrent free run in
 line, and twenty admit a full wave.
 
@@ -1410,7 +1410,7 @@ apps/
   browser/    session provider and the live frame pump
   server/     HTTP surface, metering, storage
   web/        the single page and the landing page
-test/
+tests/
   images/     the ten-image set and its expectations
 docs/         PRODUCT.md, PRD.md, TRD.md, references/
 ```
@@ -1568,7 +1568,7 @@ into the file, and the bridge's wait grows by a second for each MiB of file
 a command receives.
 
 Issue #100 export result (2026-09-17, Google Chrome 153.0.8010.48): the
-opt-in `test/editor/photopea-large-export.integration.test.ts` reaches
+opt-in `tests/editor/photopea-large-export.integration.test.ts` reaches
 installed Chrome over `connectOverCDP`, as a hosted session is reached. It
 opened a generated 6000x6000 JPEG, the largest image FR-1 allows, added one
 full-size layer over the original, as a retouch leaves, and exported it

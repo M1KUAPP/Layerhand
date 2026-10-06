@@ -154,7 +154,7 @@ export async function runReliabilityCommand(
   const createBrowserbase = dependencies?.createBrowserbaseClient ?? ((apiKey: string) => new BrowserbaseClient(apiKey))
   const liveRun = dependencies?.liveRun ?? liveAgentRun
 
-  const manifestUrl = new URL('../test/images/manifest.json', import.meta.url)
+  const manifestUrl = new URL('../tests/images/manifest.json', import.meta.url)
   const cases = await loadCorpus(manifestUrl)
 
   const browserbaseClient = createBrowserbase(config.browserbaseApiKey)

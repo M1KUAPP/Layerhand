@@ -121,11 +121,11 @@ need formats that bounded header validation cannot safely identify.
   readiness, serialization, sentinels, and timeout behavior.
 - [`apps/editor/photopea-document-loader.ts`](/apps/editor/photopea-document-loader.ts)
   performs upload and document read-back.
-- [`test/editor/image-upload-exif.test.ts`](/test/editor/image-upload-exif.test.ts)
+- [`tests/editor/image-upload-exif.test.ts`](/tests/editor/image-upload-exif.test.ts)
   verifies orientation-aware displayed dimensions.
-- [`test/editor/photopea-document-loader-concurrency.test.ts`](/test/editor/photopea-document-loader-concurrency.test.ts)
+- [`tests/editor/photopea-document-loader-concurrency.test.ts`](/tests/editor/photopea-document-loader-concurrency.test.ts)
   verifies whole-workflow serialization and queue recovery.
-- Tests under [`test/editor/`](/test/editor/) cover validation, protocol,
+- Tests under [`tests/editor/`](/tests/editor/) cover validation, protocol,
   concurrency, browser transport, and live Chrome integration.
 
 ## References
