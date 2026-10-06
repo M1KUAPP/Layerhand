@@ -5,11 +5,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
-import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../../src/server/artifact-store'
-import { createArtifactKey } from '../../../src/server/artifact-store'
+import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../../apps/server/artifact-store'
+import { createArtifactKey } from '../../../apps/server/artifact-store'
 
 const packageDir = fileURLToPath(new URL('..', import.meta.url))
-const samplePhoto = fileURLToPath(new URL('../../../src/web/assets/sample-photo.png', import.meta.url))
+const samplePhoto = fileURLToPath(new URL('../../../apps/web/assets/sample-photo.png', import.meta.url))
 
 interface LaunchRuntime {
   application: { fetch(request: Request): Promise<Response> }
@@ -88,9 +88,9 @@ beforeAll(async () => {
   const build = Bun.spawnSync({ cmd: ['bun', 'run', 'build'], cwd: packageDir })
   if (build.exitCode !== 0) throw new Error(`bun run build exited ${build.exitCode}: ${build.stderr}`)
 
-  const { createLaunchRuntime } = await serverModule<RuntimeModule>('../../../src/server/runtime.ts')
+  const { createLaunchRuntime } = await serverModule<RuntimeModule>('../../../apps/server/runtime.ts')
   const { MAX_RUN_REQUEST_BODY_BYTES } = await serverModule<{ MAX_RUN_REQUEST_BODY_BYTES: number }>(
-    '../../../src/server/run-routes.ts'
+    '../../../apps/server/run-routes.ts'
   )
 
   runtime = await createLaunchRuntime({
