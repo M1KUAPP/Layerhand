@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import type { Page } from 'playwright-core'
-import { PHOTOPEA_CONFIGURATION, PlaywrightPhotopeaTransport, decodePhotopeaWireMessage } from '../../src/editor'
-import { FILE_SLICE_BYTES } from '../../src/editor/playwright-photopea-transport'
+import { PHOTOPEA_CONFIGURATION, PlaywrightPhotopeaTransport, decodePhotopeaWireMessage } from '../../apps/editor'
+import { FILE_SLICE_BYTES } from '../../apps/editor/playwright-photopea-transport'
 
 interface PageFakeState {
   readonly navigations: string[]

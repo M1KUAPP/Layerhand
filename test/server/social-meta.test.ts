@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { withSocialMeta } from '../../src/server/social-meta'
+import { withSocialMeta } from '../../apps/server/social-meta'
 
 const PAGE =
   '<!doctype html><html lang="en"><head><title>Layerhand</title></head><body><main id="app"></main></body></html>'

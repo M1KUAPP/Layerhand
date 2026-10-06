@@ -4,8 +4,8 @@ import {
   type PhotopeaConfiguration,
   type PhotopeaMessage,
   type PhotopeaTransport
-} from '../../src/editor'
-import { FILE_TRANSFER_MS_PER_MIB } from '../../src/editor/photopea-bridge'
+} from '../../apps/editor'
+import { FILE_TRANSFER_MS_PER_MIB } from '../../apps/editor/photopea-bridge'
 
 class MemoryTransport implements PhotopeaTransport {
   readonly viewport = { width: 1440, height: 900 }

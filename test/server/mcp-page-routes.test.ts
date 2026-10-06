@@ -1,8 +1,8 @@
 import { afterEach, expect, test } from 'bun:test'
 import { gunzipSync } from 'node:zlib'
 
-import web from '../../src/web/index.html'
-import { pageRoutes } from '../../src/server/page-routes'
+import web from '../../apps/web/index.html'
+import { pageRoutes } from '../../apps/server/page-routes'
 
 const servers: ReturnType<typeof Bun.serve>[] = []
 

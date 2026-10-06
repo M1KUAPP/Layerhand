@@ -1,7 +1,7 @@
-import web from '../../../src/web/index.html'
-import { pageRoutes } from '../../../src/server/page-routes'
-import { MAX_RUN_REQUEST_BODY_BYTES } from '../../../src/server/run-routes'
-import { createLaunchRuntime } from '../../../src/server/runtime'
+import web from '../../../apps/web/index.html'
+import { pageRoutes } from '../../../apps/server/page-routes'
+import { MAX_RUN_REQUEST_BODY_BYTES } from '../../../apps/server/run-routes'
+import { createLaunchRuntime } from '../../../apps/server/runtime'
 
 export interface TestApplicationOptions {
   fakeRunIntervalMs?: number

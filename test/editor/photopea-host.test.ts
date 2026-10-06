@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
-import { PHOTOPEA_CONFIGURATION, PHOTOPEA_ORIGIN, createPhotopeaHostHtml } from '../../src/editor'
+import { PHOTOPEA_CONFIGURATION, PHOTOPEA_ORIGIN, createPhotopeaHostHtml } from '../../apps/editor'
 
 describe('Photopea outer host', () => {
   test('uses the fixed editor environment', () => {

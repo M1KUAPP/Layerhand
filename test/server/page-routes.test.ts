@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import web from '../../src/web/index.html'
-import { pageRoutes } from '../../src/server/page-routes'
+import web from '../../apps/web/index.html'
+import { pageRoutes } from '../../apps/server/page-routes'
 
 const servers: ReturnType<typeof Bun.serve>[] = []
 
@@ -183,7 +183,7 @@ describe('page routes', () => {
     ] as const) {
       const response = await fetch(new URL(path, server.url))
       const bytes = new Uint8Array(await response.arrayBuffer())
-      const expected = Bun.file(new URL(`../../src/web/assets/${file}`, import.meta.url))
+      const expected = Bun.file(new URL(`../../apps/web/assets/${file}`, import.meta.url))
 
       expect(response.status).toBe(200)
       expect(response.headers.get('content-type')).toStartWith('image/png')

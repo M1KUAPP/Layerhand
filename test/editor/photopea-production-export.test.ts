@@ -7,9 +7,9 @@ import {
   parsePsdMetadata,
   toLayerInfoTree,
   type LayerInfo
-} from '../../src/editor'
+} from '../../apps/editor'
 
-const fixture = new URL('../../src/editor/fixtures/photopea-production-export.psd', import.meta.url)
+const fixture = new URL('../../apps/editor/fixtures/photopea-production-export.psd', import.meta.url)
 
 const expectedLayers: LayerInfo[] = [
   {

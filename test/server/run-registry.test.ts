@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 
-import { fakeRun } from '../../src/agent/fake-run'
-import type { RunEvent, RunHandle, RunResult } from '../../src/agent/contract'
-import type { LayerInfo } from '../../src/editor/session'
-import type { ManagedRun } from '../../src/server/managed-run'
-import { RunRegistry, RunRegistryError, type RunEventEnvelope } from '../../src/server/run-registry'
+import { fakeRun } from '../../apps/agent/fake-run'
+import type { RunEvent, RunHandle, RunResult } from '../../apps/agent/contract'
+import type { LayerInfo } from '../../apps/editor/session'
+import type { ManagedRun } from '../../apps/server/managed-run'
+import { RunRegistry, RunRegistryError, type RunEventEnvelope } from '../../apps/server/run-registry'
 
 const RESULT: RunResult = {
   psdUrl: 'https://artifacts.example/result.psd',

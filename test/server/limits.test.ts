@@ -3,9 +3,9 @@
 // HTTP surface of the launch runtime and its real SqlMeterStore.
 import { afterEach, describe, expect, test } from 'bun:test'
 
-import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
+import { createLaunchRuntime, type LaunchRuntime } from '../../apps/server/runtime'
 
-const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
 const opened: { runtime: LaunchRuntime; runIds: string[] }[] = []
 
 afterEach(async () => {

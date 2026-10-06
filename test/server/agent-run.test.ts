@@ -1,20 +1,20 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import type { BrowserContext, Page } from 'playwright-core'
 
-import type { RunEvent, RunRequest } from '../../src/agent/contract'
-import { testRunContract } from '../../src/agent/contract-tests'
-import { ScriptedModel } from '../../src/agent/scripted-model'
-import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
-import { ModelUnavailableError, type AgentModel } from '../../src/agent/model'
-import { ResponsesModel } from '../../src/agent/responses-model'
-import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../src/server/agent-run'
-import { DEFAULT_RUN_LIMITS } from '../../src/server/config'
-import type { ManagedRun } from '../../src/server/managed-run'
-import type { RunStreamEvent } from '../../src/server/run-registry'
-import { createLaunchRuntime, type LaunchRuntime } from '../../src/server/runtime'
+import type { RunEvent, RunRequest } from '../../apps/agent/contract'
+import { testRunContract } from '../../apps/agent/contract-tests'
+import { ScriptedModel } from '../../apps/agent/scripted-model'
+import { createRecordedFakeEditorSession } from '../../apps/editor/fake-editor-session'
+import type { ComputerAction, EditorSession, LayerInfo } from '../../apps/editor/session'
+import { ModelUnavailableError, type AgentModel } from '../../apps/agent/model'
+import { ResponsesModel } from '../../apps/agent/responses-model'
+import { liveAgentRun, managedAgentRun, type LiveAgentDependencies } from '../../apps/server/agent-run'
+import { DEFAULT_RUN_LIMITS } from '../../apps/server/config'
+import type { ManagedRun } from '../../apps/server/managed-run'
+import type { RunStreamEvent } from '../../apps/server/run-registry'
+import { createLaunchRuntime, type LaunchRuntime } from '../../apps/server/runtime'
 
-const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
 const MODEL_DELAY_MS = 40
 const runtimes: LaunchRuntime[] = []
 

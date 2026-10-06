@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
-import { MemoryArtifactStore, type ArtifactPutRequest } from '../../src/server/artifact-store'
-import { S3ArtifactStore, type S3Bucket } from '../../src/server/s3-artifact-store'
+import { MemoryArtifactStore, type ArtifactPutRequest } from '../../apps/server/artifact-store'
+import { S3ArtifactStore, type S3Bucket } from '../../apps/server/s3-artifact-store'
 
 const UPLOAD: ArtifactPutRequest = {
   kind: 'upload',

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { RunSnapshot } from '../../../../src/server/run-registry'
+import type { RunSnapshot } from '../../../../apps/server/run-registry'
 import { runDeployedAgentAcceptance } from './deployed-run'
 import { agentRunProfile } from './profiles'
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 
-const cssFile = Bun.file(new URL('../../../src/web/landing/glass.css', import.meta.url))
-const glassFile = Bun.file(new URL('../../../src/web/landing/glass.ts', import.meta.url))
+const cssFile = Bun.file(new URL('../../../apps/web/landing/glass.css', import.meta.url))
+const glassFile = Bun.file(new URL('../../../apps/web/landing/glass.ts', import.meta.url))
 
 test('the three glass facts share one equal 40px icon column with centered glyphs', async () => {
   const css = await cssFile.text()

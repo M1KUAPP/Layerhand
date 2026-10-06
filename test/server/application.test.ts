@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { createApplication } from '../../src/server/application'
+import { createApplication } from '../../apps/server/application'
 
 function request(path: string): Request {
   return new Request(`https://layerhand.test${path}`)

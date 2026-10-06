@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { FakeEditorSession, type EditorRecording } from '../../src/editor/fake-editor-session'
-import type { ComputerAction, LayerInfo } from '../../src/editor/session'
+import { FakeEditorSession, type EditorRecording } from '../../apps/editor/fake-editor-session'
+import type { ComputerAction, LayerInfo } from '../../apps/editor/session'
 
 const frameA = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 1)
 const frameB = Uint8Array.of(0x89, 0x50, 0x4e, 0x47, 2)

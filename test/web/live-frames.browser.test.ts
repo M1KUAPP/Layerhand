@@ -2,18 +2,18 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser, type Page } from 'playwright-core'
 import sharp from 'sharp'
 
-import web from '../../src/web/index.html'
-import { runAgent } from '../../src/agent/loop'
-import type { AgentModel, ModelTurn } from '../../src/agent/model'
-import { FakeEditorSession } from '../../src/editor/fake-editor-session'
-import { createApplication } from '../../src/server/application'
-import { MemoryArtifactStore } from '../../src/server/artifact-store'
-import { createDatabase, databaseReady } from '../../src/server/database'
-import { SqlMeterStore, usdToMicroUsd } from '../../src/server/meter-store'
-import { applyMigrations } from '../../src/server/migrations'
-import { RunRegistry } from '../../src/server/run-registry'
-import { MAX_RUN_REQUEST_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
-import { SqlWaitlistStore } from '../../src/server/waitlist-store'
+import web from '../../apps/web/index.html'
+import { runAgent } from '../../apps/agent/loop'
+import type { AgentModel, ModelTurn } from '../../apps/agent/model'
+import { FakeEditorSession } from '../../apps/editor/fake-editor-session'
+import { createApplication } from '../../apps/server/application'
+import { MemoryArtifactStore } from '../../apps/server/artifact-store'
+import { createDatabase, databaseReady } from '../../apps/server/database'
+import { SqlMeterStore, usdToMicroUsd } from '../../apps/server/meter-store'
+import { applyMigrations } from '../../apps/server/migrations'
+import { RunRegistry } from '../../apps/server/run-registry'
+import { MAX_RUN_REQUEST_BODY_BYTES, RunRoutes } from '../../apps/server/run-routes'
+import { SqlWaitlistStore } from '../../apps/server/waitlist-store'
 
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
@@ -74,8 +74,8 @@ async function startApplication() {
     )
   )
   const [psd, preview] = await Promise.all([
-    Bun.file(new URL('../../src/editor/fixtures/layered-output.psd', import.meta.url)).bytes(),
-    Bun.file(new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)).bytes()
+    Bun.file(new URL('../../apps/editor/fixtures/layered-output.psd', import.meta.url)).bytes(),
+    Bun.file(new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)).bytes()
   ])
   const published = new Map<string, Uint8Array<ArrayBuffer>>()
   const capturedAt = new WeakMap<Uint8Array, number>()

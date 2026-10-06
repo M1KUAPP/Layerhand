@@ -4,9 +4,9 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { createLaunchRuntime } from '../../src/server/runtime'
+import { createLaunchRuntime } from '../../apps/server/runtime'
 
-const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
 
 function runRequest(apiKey?: string): Request {
   const form = new FormData()

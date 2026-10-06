@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { createRunToken, verifyRunToken } from '../../src/server/run-token'
+import { createRunToken, verifyRunToken } from '../../apps/server/run-token'
 
 describe('run token', () => {
   test('verifies a token made for its own run id', async () => {

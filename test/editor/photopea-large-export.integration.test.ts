@@ -16,8 +16,8 @@ import {
   createPhotopeaHostHtml,
   createPlaywrightAuxiliaryMouse,
   type PhotopeaMessage
-} from '../../src/editor'
-import { connectOverCdp, type RemoteBrowser } from '../../src/server/browserbase-editor-session'
+} from '../../apps/editor'
+import { connectOverCdp, type RemoteBrowser } from '../../apps/server/browserbase-editor-session'
 
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip

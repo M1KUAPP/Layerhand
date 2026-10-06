@@ -229,7 +229,7 @@ gcloud logging read \
 Swap `429` for `403` or `413` to find the other two, and the response
 body's `code` field tells the checks apart without opening a payload.
 The origin check and the JSON body cap are not configurable; each is a
-constant in `src/server/run-routes.ts`, so lowering either is a code
+constant in `apps/server/run-routes.ts`, so lowering either is a code
 change and a deploy. The two rate limits are:
 
 | Variable                          | Now | What it bounds                        |

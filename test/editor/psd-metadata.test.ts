@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import type { AdjustmentLayer, Psd } from 'ag-psd'
-import { PhotopeaExportError, parsePsdMetadata, toLayerInfoTree, type AdjustmentType } from '../../src/editor'
+import { PhotopeaExportError, parsePsdMetadata, toLayerInfoTree, type AdjustmentType } from '../../apps/editor'
 import { psdBytes, rgba } from './support/psd-fixtures'
 
 function psd(children: NonNullable<Psd['children']>): Psd {

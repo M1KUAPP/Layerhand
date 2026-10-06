@@ -6,7 +6,7 @@ import {
   PhotopeaDocumentLoader,
   PlaywrightPhotopeaTransport,
   createPhotopeaHostHtml
-} from '../../src/editor'
+} from '../../apps/editor'
 import { createLiveBoundaryImages } from './support/live-image-fixtures'
 
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'

@@ -4,13 +4,13 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
-import type { ReliabilityCaseResult, ReliabilitySummary } from '../../src/reliability/suite'
+import type { ReliabilityCaseResult, ReliabilitySummary } from '../../apps/reliability/suite'
 import {
   formatReliabilityMarkdown,
   formatReliabilityTerminal,
   serializableReliabilitySummary,
   writeReliabilityReport
-} from '../../src/reliability/report'
+} from '../../apps/reliability/report'
 
 function createSampleSummary(overrides?: Partial<ReliabilitySummary>): ReliabilitySummary {
   const passingResult: ReliabilityCaseResult = {

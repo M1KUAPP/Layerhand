@@ -1,6 +1,6 @@
 // The one wording for "a cancel or a cap stranded these acknowledged
 // corrections", built by refuseCorrections() (loop.ts) and read back by
-// correctionStatuses() (src/web/state.ts), so the two cannot drift apart
+// correctionStatuses() (apps/web/state.ts), so the two cannot drift apart
 // (#124). Corrections are numbered in acknowledgement order, 1-based, which
 // is the order the page lists them in and the order loop.ts assigns them:
 // in agent mode the loop alone emits `correction_ack`, so a correction's

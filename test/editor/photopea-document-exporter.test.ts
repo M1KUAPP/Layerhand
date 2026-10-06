@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import type { Psd } from 'ag-psd'
-import { PhotopeaDocumentExporter } from '../../src/editor/photopea-document-exporter'
-import type { PhotopeaDocumentBridge } from '../../src/editor/photopea-document-loader'
-import type { PhotopeaMessage } from '../../src/editor/photopea-transport'
+import { PhotopeaDocumentExporter } from '../../apps/editor/photopea-document-exporter'
+import type { PhotopeaDocumentBridge } from '../../apps/editor/photopea-document-loader'
+import type { PhotopeaMessage } from '../../apps/editor/photopea-transport'
 import { exportPng } from './support/export-png'
 import { psdBytes, rgba } from './support/psd-fixtures'
 

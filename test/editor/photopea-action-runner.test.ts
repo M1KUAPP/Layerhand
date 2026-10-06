@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import type { AuxiliaryMouse, PhotopeaActionPage } from '../../src/editor/photopea-action-runner'
-import { PhotopeaActionRunner } from '../../src/editor/photopea-action-runner'
+import type { AuxiliaryMouse, PhotopeaActionPage } from '../../apps/editor/photopea-action-runner'
+import { PhotopeaActionRunner } from '../../apps/editor/photopea-action-runner'
 
 interface RecordingPage extends PhotopeaActionPage {
   readonly calls: string[]

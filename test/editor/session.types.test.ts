@@ -9,13 +9,13 @@ import type {
   LayerMaskKind,
   Pt,
   Viewport
-} from '../../src/editor'
+} from '../../apps/editor'
 import type {
   LayerInfo as ContractLayerInfo,
   LayerKind as ContractLayerKind,
   LayerMaskInfo as ContractLayerMaskInfo,
   LayerMaskKind as ContractLayerMaskKind
-} from '../../src/editor/contract'
+} from '../../apps/editor/contract'
 
 type IsExact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
-import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import { describeFailure, FailureRecorder } from '../../src/server/run-failure'
+import { createRecordedFakeEditorSession } from '../../apps/editor/fake-editor-session'
+import { describeFailure, FailureRecorder } from '../../apps/server/run-failure'
 
 const KEY = 'sk-proj-abcdefghijklmnopqrstuvwxyz0123456789'
 

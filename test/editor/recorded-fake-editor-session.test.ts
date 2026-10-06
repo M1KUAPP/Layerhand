@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import { createRecordedFakeEditorSession } from '../../src/editor'
+import { createRecordedFakeEditorSession } from '../../apps/editor'
 
 test('exposes the two named raster layers in the recorded PSD', async () => {
   const session = await createRecordedFakeEditorSession()

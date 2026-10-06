@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { checkOpenAiKey } from '../../src/server/openai-key'
+import { checkOpenAiKey } from '../../apps/server/openai-key'
 
 describe('checkOpenAiKey', () => {
   test('lists models with the key, and accepts a key OpenAI answers for', async () => {

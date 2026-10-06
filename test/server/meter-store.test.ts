@@ -4,9 +4,14 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { RUN_CEILING_MS } from '../../src/server/agent-run'
-import { SqlMeterStore, usdToMicroUsd, type AdmissionResult, type MeterReservation } from '../../src/server/meter-store'
-import { applyMigrations } from '../../src/server/migrations'
+import { RUN_CEILING_MS } from '../../apps/server/agent-run'
+import {
+  SqlMeterStore,
+  usdToMicroUsd,
+  type AdmissionResult,
+  type MeterReservation
+} from '../../apps/server/meter-store'
+import { applyMigrations } from '../../apps/server/migrations'
 
 const databases: SQL[] = []
 const NOW = new Date('2026-09-15T12:00:00.000Z')

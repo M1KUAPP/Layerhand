@@ -1,5 +1,5 @@
 import sharp from 'sharp'
-import { MAX_IMAGE_BYTES } from '../../../src/editor'
+import { MAX_IMAGE_BYTES } from '../../../apps/editor'
 
 const WIDTH = 6000
 

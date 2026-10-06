@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
 import sharp from 'sharp'
-import { PhotopeaBridge, PhotopeaDocumentLoader, type PhotopeaMessage, type PhotopeaTransport } from '../../src/editor'
+import { PhotopeaBridge, PhotopeaDocumentLoader, type PhotopeaMessage, type PhotopeaTransport } from '../../apps/editor'
 
 class ImageTransport implements PhotopeaTransport {
   readonly viewport = { width: 1440, height: 900 }

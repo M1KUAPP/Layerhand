@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 
-const installFile = Bun.file(new URL('../../../src/web/landing/install.ts', import.meta.url))
-const landingFile = Bun.file(new URL('../../../src/web/landing/index.ts', import.meta.url))
+const installFile = Bun.file(new URL('../../../apps/web/landing/install.ts', import.meta.url))
+const landingFile = Bun.file(new URL('../../../apps/web/landing/index.ts', import.meta.url))
 
 test('the landing still has an agent install section after the waitlist', async () => {
   const landing = await landingFile.text()

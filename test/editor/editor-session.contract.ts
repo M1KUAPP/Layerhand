@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { readFile } from 'node:fs/promises'
-import type { EditorSession, LayerInfo } from '../../src/editor/session'
+import type { EditorSession, LayerInfo } from '../../apps/editor/session'
 
 type EditorSessionFactory = () => Promise<EditorSession>
 
@@ -30,7 +30,7 @@ export function defineEditorSessionContract(name: string, createSession: EditorS
         expect(session.viewport.width).toBeGreaterThan(0)
         expect(session.viewport.height).toBeGreaterThan(0)
 
-        const image = await readFile(new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url))
+        const image = await readFile(new URL('../../apps/editor/fixtures/photopea-frame.png', import.meta.url))
         await session.open(image, 'photopea-frame.png')
         const frame = await session.screenshot()
         expect(Array.from(frame.slice(0, 8))).toEqual(pngSignature)
@@ -59,7 +59,7 @@ export function defineEditorSessionContract(name: string, createSession: EditorS
     test('takes a screenshot while an action and another screenshot are in progress', async () => {
       const session = await createSession()
       try {
-        const image = await readFile(new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url))
+        const image = await readFile(new URL('../../apps/editor/fixtures/photopea-frame.png', import.meta.url))
         await session.open(image, 'photopea-frame.png')
 
         const [frame, , overlapping] = await Promise.all([

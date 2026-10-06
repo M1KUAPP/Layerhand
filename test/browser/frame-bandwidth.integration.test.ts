@@ -1,13 +1,13 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser, type Page } from 'playwright-core'
 
-import { startFramePump } from '../../src/browser/frame-pump'
+import { startFramePump } from '../../apps/browser/frame-pump'
 import {
   PhotopeaBridge,
   PhotopeaDocumentLoader,
   PlaywrightPhotopeaTransport,
   createPhotopeaHostHtml
-} from '../../src/editor'
+} from '../../apps/editor'
 
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip
@@ -120,7 +120,7 @@ describeLive('live view bandwidth against Photopea in Google Chrome', () => {
       const bridge = new PhotopeaBridge(
         new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
       )
-      const sample = await Bun.file(new URL('../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
+      const sample = await Bun.file(new URL('../../apps/web/assets/sample-photo.png', import.meta.url)).bytes()
       await new PhotopeaDocumentLoader(bridge).open(sample, 'layerhand-sample.png')
       await Bun.sleep(2_000)
 

@@ -3,8 +3,8 @@
 // claims it.
 import { describe, expect, test } from 'bun:test'
 
-import type { LayerInfo } from '../../src/editor/session'
-import { imageDigest, WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
+import type { LayerInfo } from '../../apps/editor/session'
+import { imageDigest, WarmSessionPool, type WarmEditorSession } from '../../apps/server/warm-session-pool'
 
 const IMAGE = Uint8Array.of(0x89, 0x50, 0x4e, 0x47)
 const OTHER_IMAGE = Uint8Array.of(0xff, 0xd8, 0xff, 0xe0)

@@ -4,7 +4,7 @@ import {
   createReadOnlyLiveView,
   runBrowserbaseProbe,
   type BrowserbaseProbeClient
-} from '../../src/server/browserbase-probe'
+} from '../../apps/server/browserbase-probe'
 
 function clientThat(records: string[]): BrowserbaseProbeClient {
   return {

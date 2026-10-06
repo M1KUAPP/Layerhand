@@ -2,9 +2,9 @@
 // and start by themselves, first in, first out.
 import { describe, expect, test } from 'bun:test'
 
-import type { RunEvent, RunStopReason } from '../../src/agent/contract'
-import type { ManagedRun } from '../../src/server/managed-run'
-import { RunRegistry, RunStartRefused, type RunStreamEvent, type TerminalRun } from '../../src/server/run-registry'
+import type { RunEvent, RunStopReason } from '../../apps/agent/contract'
+import type { ManagedRun } from '../../apps/server/managed-run'
+import { RunRegistry, RunStartRefused, type RunStreamEvent, type TerminalRun } from '../../apps/server/run-registry'
 
 const STARTED: RunEvent = { type: 'started', runId: 'inner', viewport: { width: 1440, height: 900 } }
 const DONE: RunEvent = {

@@ -4,11 +4,11 @@ import {
   PhotopeaEditorSession,
   createPhotopeaEditorSession,
   type PhotopeaEditorSessionDependencies
-} from '../../src/editor/photopea-editor-session'
-import { PhotopeaExportError } from '../../src/editor/photopea-export-error'
-import { PhotopeaSessionWork } from '../../src/editor/photopea-session-work'
-import type { PhotopeaExportSnapshot } from '../../src/editor/photopea-document-exporter'
-import type { ComputerAction, EditorSession, LayerInfo } from '../../src/editor/session'
+} from '../../apps/editor/photopea-editor-session'
+import { PhotopeaExportError } from '../../apps/editor/photopea-export-error'
+import { PhotopeaSessionWork } from '../../apps/editor/photopea-session-work'
+import type { PhotopeaExportSnapshot } from '../../apps/editor/photopea-document-exporter'
+import type { ComputerAction, EditorSession, LayerInfo } from '../../apps/editor/session'
 import type { Page } from 'playwright-core'
 import { png } from './support/image-headers'
 

@@ -7,14 +7,14 @@ const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
 const EXAMPLE = 'Clean the reflections without changing the label.'
 // FR-2 allows up to 500 characters, and the progress rail renders the whole
-// instruction (src/web/app.ts, progressRail). Long enough to force wrapping
+// instruction (apps/web/app.ts, progressRail). Long enough to force wrapping
 // well past the rail's available height in a 260px-wide column.
 const LONG_INSTRUCTION =
   'Remove the background, clean the reflections, and warm the highlights without changing the label. '
     .repeat(5)
     .slice(0, 450)
-const REAL_FRAME_URL = new URL('../../src/editor/fixtures/photopea-frame.png', import.meta.url)
-const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
+const REAL_FRAME_URL = new URL('../../apps/editor/fixtures/photopea-frame.png', import.meta.url)
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
 
 // A click on the sticky hero while it still enters is retried with a forced
 // scroll, which slides the landing over the button for good, so a test that

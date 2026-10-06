@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { ConfigurationError, readConfig, readRunLimits, readRunsPaused, readSteering } from '../../src/server/config'
+import { ConfigurationError, readConfig, readRunLimits, readRunsPaused, readSteering } from '../../apps/server/config'
 
 const VALID_ENV = {
   DATABASE_URL: 'postgres://layerhand:password@database.internal/layerhand',

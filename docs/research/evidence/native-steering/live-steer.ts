@@ -12,12 +12,12 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import type { RunEvent } from '../../../../src/agent/contract'
-import { ResponsesModel } from '../../../../src/agent/responses-model'
-import type { SteeringEvent } from '../../../../src/agent/responses-socket'
-import { managedAgentRun } from '../../../../src/server/agent-run'
-import { BrowserbaseClient } from '../../../../src/server/browserbase-client'
-import { browserbaseEditorSession } from '../../../../src/server/browserbase-editor-session'
+import type { RunEvent } from '../../../../apps/agent/contract'
+import { ResponsesModel } from '../../../../apps/agent/responses-model'
+import type { SteeringEvent } from '../../../../apps/agent/responses-socket'
+import { managedAgentRun } from '../../../../apps/server/agent-run'
+import { BrowserbaseClient } from '../../../../apps/server/browserbase-client'
+import { browserbaseEditorSession } from '../../../../apps/server/browserbase-editor-session'
 
 // The three-edit instruction spike A0 measured.
 const INSTRUCTION = [

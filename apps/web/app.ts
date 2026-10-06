@@ -184,7 +184,7 @@ const landingContext: LandingContext = {
   brandHeader: () => brandHeader()
 }
 
-// The wording matches the server's in src/editor/image-upload.ts, so a file
+// The wording matches the server's in apps/editor/image-upload.ts, so a file
 // refused here reads the same as one refused there.
 function validateFile(file: File): string | undefined {
   const lowerName = file.name.toLowerCase()

@@ -1,21 +1,21 @@
 import { describe, expect, test } from 'bun:test'
 import { writePsd } from 'ag-psd'
 
-import type { RunEvent, RunHandle } from '../../src/agent/contract'
-import type { ManagedRun, RunStopReason } from '../../src/server/managed-run'
-import type { ReliabilityCase } from '../../src/reliability/corpus'
+import type { RunEvent, RunHandle } from '../../apps/agent/contract'
+import type { ManagedRun, RunStopReason } from '../../apps/server/managed-run'
+import type { ReliabilityCase } from '../../apps/reliability/corpus'
 import {
   runReliabilitySuite,
   type ReliabilityPublish,
   type ReliabilitySuiteOptions,
   type StartReliabilityRun,
   type StartReliabilityRunInput
-} from '../../src/reliability/suite'
+} from '../../apps/reliability/suite'
 
 const sampleImageUrl = new URL('../images/product-eye-shadow.jpg', import.meta.url)
 const sampleSha256 = 'dfb9b7f6983b5a89f0aa75daa794a8134e473adc9fc7c88fffd4d02db0ba6791'
 
-const passingPsdUrl = new URL('../../src/editor/fixtures/photopea-production-export.psd', import.meta.url)
+const passingPsdUrl = new URL('../../apps/editor/fixtures/photopea-production-export.psd', import.meta.url)
 
 function createTestCase(id: string, category: 'product' | 'interior' = 'product'): ReliabilityCase {
   return {

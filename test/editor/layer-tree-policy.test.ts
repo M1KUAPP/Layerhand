@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { assertCompleteLayerTree, LayerCompletionError, PhotopeaExportError, type LayerInfo } from '../../src/editor'
+import { assertCompleteLayerTree, LayerCompletionError, PhotopeaExportError, type LayerInfo } from '../../apps/editor'
 
 function layer(
   name: string,

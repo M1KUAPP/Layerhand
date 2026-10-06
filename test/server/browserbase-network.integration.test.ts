@@ -2,9 +2,9 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright-core'
 import sharp from 'sharp'
 
-import { createPhotopeaHostHtml } from '../../src/editor'
-import type { EditorSession } from '../../src/editor/session'
-import { browserbaseEditorSession } from '../../src/server/browserbase-editor-session'
+import { createPhotopeaHostHtml } from '../../apps/editor'
+import type { EditorSession } from '../../apps/editor/session'
+import { browserbaseEditorSession } from '../../apps/server/browserbase-editor-session'
 
 const localChrome = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeChrome = localChrome ? describe : describe.skip

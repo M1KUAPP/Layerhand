@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { startFramePump, type FramePumpOptions } from '../../src/browser/frame-pump'
+import { startFramePump, type FramePumpOptions } from '../../apps/browser/frame-pump'
 
 // A clock the test moves by hand. A pump waiting on it wakes when the test
 // advances past the time it asked for, or when the pump is stopped.

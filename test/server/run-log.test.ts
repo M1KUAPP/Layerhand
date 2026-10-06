@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { SQL } from 'bun'
 
-import type { RunHandle, RunResult } from '../../src/agent/contract'
-import { EventLog } from '../../src/agent/event-log'
-import type { ManagedRun, RunStopReason } from '../../src/server/managed-run'
-import { applyMigrations } from '../../src/server/migrations'
-import { RunRegistry, type TerminalRun } from '../../src/server/run-registry'
-import { createRunLogger, runLogLine, SqlRunLogStore, type RunLogLine } from '../../src/server/run-log'
+import type { RunHandle, RunResult } from '../../apps/agent/contract'
+import { EventLog } from '../../apps/agent/event-log'
+import type { ManagedRun, RunStopReason } from '../../apps/server/managed-run'
+import { applyMigrations } from '../../apps/server/migrations'
+import { RunRegistry, type TerminalRun } from '../../apps/server/run-registry'
+import { createRunLogger, runLogLine, SqlRunLogStore, type RunLogLine } from '../../apps/server/run-log'
 
 const RESULT: RunResult = {
   psdUrl: 'https://artifacts.example/result.psd',

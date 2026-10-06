@@ -11,7 +11,7 @@ import { basename, resolve } from 'node:path'
 
 import { chromium } from 'playwright-core'
 
-import { createPhotopeaHostHtml } from '../../../../src/editor/photopea-host'
+import { createPhotopeaHostHtml } from '../../../../apps/editor/photopea-host'
 import { pageCodeRunner } from '../driving-mechanism/code-runner'
 import { PhotopeaPageSession } from './photopea-page-session'
 

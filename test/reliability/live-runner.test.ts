@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 import { fileURLToPath } from 'node:url'
 
-import type { RunHandle } from '../../src/agent/contract'
-import type { ManagedRun, RunStopReason } from '../../src/server/managed-run'
-import type { ReliabilityCase } from '../../src/reliability/corpus'
-import type { ReliabilityFailureCode, ReliabilitySummary } from '../../src/reliability/suite'
+import type { RunHandle } from '../../apps/agent/contract'
+import type { ManagedRun, RunStopReason } from '../../apps/server/managed-run'
+import type { ReliabilityCase } from '../../apps/reliability/corpus'
+import type { ReliabilityFailureCode, ReliabilitySummary } from '../../apps/reliability/suite'
 import {
   readReliabilityCommandConfig,
   runReliabilityCommand,

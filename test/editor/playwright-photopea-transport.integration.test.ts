@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser } from 'playwright-core'
-import { PHOTOPEA_CONFIGURATION, PhotopeaBridge, PlaywrightPhotopeaTransport } from '../../src/editor'
+import { PHOTOPEA_CONFIGURATION, PhotopeaBridge, PlaywrightPhotopeaTransport } from '../../apps/editor'
 
 const localChrome = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeChrome = localChrome ? describe : describe.skip

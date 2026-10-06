@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { selectPngExport, selectPsdExport } from '../../src/editor/export-binary'
-import type { PhotopeaMessage } from '../../src/editor/photopea-transport'
+import { selectPngExport, selectPsdExport } from '../../apps/editor/export-binary'
+import type { PhotopeaMessage } from '../../apps/editor/photopea-transport'
 import { exportPng } from './support/export-png'
 
 const marker: PhotopeaMessage = { type: 'text', value: 'begin:one' }

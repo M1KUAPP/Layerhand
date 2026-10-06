@@ -6,7 +6,7 @@ import { describe, expect, test } from 'bun:test'
 
 type FileText = { path: string; text: string }
 
-/** List every file under src/web/landing/ with the given extensions. */
+/** List every file under apps/web/landing/ with the given extensions. */
 async function collectLandingFiles(patterns: { ext: '.css' | '.ts'; baseDir: string }[]): Promise<FileText[]> {
   const { ext, baseDir } = patterns[0]!
   const { ext: ext2, baseDir: baseDir2 } = patterns[1] ?? patterns[0]!
@@ -23,9 +23,9 @@ async function collectLandingFiles(patterns: { ext: '.css' | '.ts'; baseDir: str
   return Promise.all(all.map(make))
 }
 
-const cssFiles = () => collectLandingFiles([{ ext: '.css', baseDir: 'src/web/landing' }])
+const cssFiles = () => collectLandingFiles([{ ext: '.css', baseDir: 'apps/web/landing' }])
 
-const tsFiles = () => collectLandingFiles([{ ext: '.ts', baseDir: 'src/web/landing' }])
+const tsFiles = () => collectLandingFiles([{ ext: '.ts', baseDir: 'apps/web/landing' }])
 
 // -------------------------------------------------------------------------- //
 // Rule 1: no muted text colour

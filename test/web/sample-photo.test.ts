@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 
-import { validateImageUpload } from '../../src/editor/image-upload'
+import { validateImageUpload } from '../../apps/editor/image-upload'
 
-const SAMPLE_PATH = new URL('../../src/web/assets/sample-photo.png', import.meta.url)
+const SAMPLE_PATH = new URL('../../apps/web/assets/sample-photo.png', import.meta.url)
 
 describe('bundled sample photo', () => {
   test('is a valid, lightweight source image for the demo', async () => {

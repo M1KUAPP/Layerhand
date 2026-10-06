@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { SQL } from 'bun'
 
-import { databaseReady } from '../../src/server/database'
-import { applyMigrations } from '../../src/server/migrations'
+import { databaseReady } from '../../apps/server/database'
+import { applyMigrations } from '../../apps/server/migrations'
 
 const databases: SQL[] = []
 

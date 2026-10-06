@@ -277,7 +277,7 @@ export async function pageRoutes(
 
   if (process.env.LAYERHAND_PAGE_RELOAD) {
     // Bun's own route for an HTML import rebundles the page on every
-    // request under `bun --hot`, so an edit under src/web shows up without a
+    // request under `bun --hot`, so an edit under apps/web shows up without a
     // restart. It cannot carry a header, so only `bun run dev` sets this
     // flag; `bun run start` and every test leave it unset and stay secured.
     return {

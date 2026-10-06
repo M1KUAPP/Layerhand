@@ -1,7 +1,7 @@
 // Exports the README architecture diagram in the Layerhand design system.
 //
 // Archify (https://github.com/tt-a1i/archify) renders docs/readme/architecture.json into a standalone
-// HTML viewer. This script restyles that viewer with the src/web/landing/tokens.css colours and the
+// HTML viewer. This script restyles that viewer with the apps/web/landing/tokens.css colours and the
 // bundled fonts, then saves the viewer's own SVG export once per colour scheme.
 //
 // Re-run from the repository root (archify 2.17; deliver needs meta.output, so pass a temp copy):
@@ -17,10 +17,10 @@ import path from 'node:path'
 const [input, repo] = process.argv.slice(2)
 const require = createRequire(path.join(repo, 'package.json'))
 const { chromium } = require('playwright-core')
-const fonts = path.join(repo, 'src/web/assets/fonts')
+const fonts = path.join(repo, 'apps/web/assets/fonts')
 const b64 = (f) => fs.readFileSync(path.join(fonts, f)).toString('base64')
 
-// src/web/landing/tokens.css, light (:root) and dark (prefers-color-scheme: dark).
+// apps/web/landing/tokens.css, light (:root) and dark (prefers-color-scheme: dark).
 const THEMES = {
   light: {
     '--bg': '#F3F0E8', // --paper

@@ -262,7 +262,7 @@ export interface CorrectionStatus {
 }
 
 // The recoverable error naming which acknowledged corrections (1-based,
-// src/agent/stranded-corrections.ts) never reached the agent — a cancel or a
+// apps/agent/stranded-corrections.ts) never reached the agent — a cancel or a
 // cap can strand one. Matched by exact number, not by trailing position:
 // native steering can leave an earlier correction still queued while a
 // later one has already been applied, so "the last N" is not always the

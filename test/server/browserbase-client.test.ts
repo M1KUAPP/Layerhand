@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { BrowserbaseClient, BrowserbaseError } from '../../src/server/browserbase-client'
+import { BrowserbaseClient, BrowserbaseError } from '../../apps/server/browserbase-client'
 
 interface RecordedRequest {
   url: string

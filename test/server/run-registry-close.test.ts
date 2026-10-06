@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { RunEvent, RunHandle } from '../../src/agent/contract'
-import type { ManagedRun } from '../../src/server/managed-run'
-import { RunRegistry, RunRegistryError, type TerminalRun } from '../../src/server/run-registry'
-import { createLaunchRuntime } from '../../src/server/runtime'
-import { WarmSessionPool } from '../../src/server/warm-session-pool'
+import type { RunEvent, RunHandle } from '../../apps/agent/contract'
+import type { ManagedRun } from '../../apps/server/managed-run'
+import { RunRegistry, RunRegistryError, type TerminalRun } from '../../apps/server/run-registry'
+import { createLaunchRuntime } from '../../apps/server/runtime'
+import { WarmSessionPool } from '../../apps/server/warm-session-pool'
 
-const samplePath = new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
 
 const STARTED: RunEvent = { type: 'started', runId: 'inner', viewport: { width: 1440, height: 900 } }
 const CANCELLED: RunEvent = {

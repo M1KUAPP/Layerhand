@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { SQL } from 'bun'
 
-import { applyMigrations } from '../../src/server/migrations'
-import { formatWaitlistCsv } from '../../src/server/waitlist-export'
-import { SqlWaitlistStore, WaitlistEmailError, normalizeWaitlistEmail } from '../../src/server/waitlist-store'
+import { applyMigrations } from '../../apps/server/migrations'
+import { formatWaitlistCsv } from '../../apps/server/waitlist-export'
+import { SqlWaitlistStore, WaitlistEmailError, normalizeWaitlistEmail } from '../../apps/server/waitlist-store'
 
 const databases: SQL[] = []
 

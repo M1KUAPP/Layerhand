@@ -1,19 +1,19 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { chromium, type Browser } from 'playwright-core'
 
-import web from '../../src/web/index.html'
-import { ScriptedModel } from '../../src/agent/scripted-model'
-import { FakeEditorSession } from '../../src/editor/fake-editor-session'
-import { artifactPublisher, managedAgentRun } from '../../src/server/agent-run'
-import { createApplication } from '../../src/server/application'
-import { MemoryArtifactStore } from '../../src/server/artifact-store'
-import { createDatabase, databaseReady } from '../../src/server/database'
-import { SqlMeterStore, usdToMicroUsd } from '../../src/server/meter-store'
-import { applyMigrations } from '../../src/server/migrations'
-import { pageRoutes } from '../../src/server/page-routes'
-import { RunRegistry } from '../../src/server/run-registry'
-import { MAX_RUN_REQUEST_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
-import { SqlWaitlistStore } from '../../src/server/waitlist-store'
+import web from '../../apps/web/index.html'
+import { ScriptedModel } from '../../apps/agent/scripted-model'
+import { FakeEditorSession } from '../../apps/editor/fake-editor-session'
+import { artifactPublisher, managedAgentRun } from '../../apps/server/agent-run'
+import { createApplication } from '../../apps/server/application'
+import { MemoryArtifactStore } from '../../apps/server/artifact-store'
+import { createDatabase, databaseReady } from '../../apps/server/database'
+import { SqlMeterStore, usdToMicroUsd } from '../../apps/server/meter-store'
+import { applyMigrations } from '../../apps/server/migrations'
+import { pageRoutes } from '../../apps/server/page-routes'
+import { RunRegistry } from '../../apps/server/run-registry'
+import { MAX_RUN_REQUEST_BODY_BYTES, RunRoutes } from '../../apps/server/run-routes'
+import { SqlWaitlistStore } from '../../apps/server/waitlist-store'
 
 const enabled = process.env.RUN_BROWSER_TESTS === '1'
 const describeBrowser = enabled ? describe : describe.skip
@@ -36,7 +36,7 @@ interface PageRecord {
 async function startApplication() {
   const database = createDatabase(':memory:')
   await applyMigrations(database)
-  const fixture = (name: string) => Bun.file(new URL(`../../src/editor/fixtures/${name}`, import.meta.url)).bytes()
+  const fixture = (name: string) => Bun.file(new URL(`../../apps/editor/fixtures/${name}`, import.meta.url)).bytes()
   const [frame, psd, preview] = await Promise.all([
     fixture('photopea-frame.png'),
     fixture('layered-output.psd'),

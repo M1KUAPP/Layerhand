@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import type { Page } from 'playwright-core'
-import { PlaywrightAuxiliaryMouse } from '../../src/editor/playwright-auxiliary-mouse'
+import { PlaywrightAuxiliaryMouse } from '../../apps/editor/playwright-auxiliary-mouse'
 
 interface CdpEvent {
   readonly method: string

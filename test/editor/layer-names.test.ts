@@ -7,7 +7,7 @@ import {
   type AdjustmentType,
   type LayerInfo,
   type ParsedLayerInfo
-} from '../../src/editor'
+} from '../../apps/editor'
 
 function layer(
   name: string,

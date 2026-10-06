@@ -7,8 +7,8 @@ import {
   PlaywrightPhotopeaTransport,
   createPhotopeaHostHtml,
   type PhotopeaMessage
-} from '../../src/editor'
-import { PhotopeaDocumentExporter } from '../../src/editor/photopea-document-exporter'
+} from '../../apps/editor'
+import { PhotopeaDocumentExporter } from '../../apps/editor/photopea-document-exporter'
 
 const live = process.env.LAYERHAND_CHROME_INTEGRATION === '1'
 const describeLive = live ? describe : describe.skip
@@ -52,7 +52,7 @@ describeLive('Photopea export in Google Chrome', () => {
       const bridge = new PhotopeaBridge(
         new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
       )
-      const sample = await Bun.file(new URL('../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
+      const sample = await Bun.file(new URL('../../apps/web/assets/sample-photo.png', import.meta.url)).bytes()
       await new PhotopeaDocumentLoader(bridge).open(sample, 'layerhand-sample.png')
 
       // Hashes each file as the page receives it from Photopea, before the transport touches it.
@@ -118,7 +118,7 @@ describeLive('Photopea export in Google Chrome', () => {
       const bridge = new PhotopeaBridge(
         new PlaywrightPhotopeaTransport(page, { hostUrl: new URL('/', server.url).toString() })
       )
-      const sample = await Bun.file(new URL('../../src/web/assets/sample-photo.png', import.meta.url)).bytes()
+      const sample = await Bun.file(new URL('../../apps/web/assets/sample-photo.png', import.meta.url)).bytes()
       await new PhotopeaDocumentLoader(bridge).open(sample, 'layerhand-sample.png')
 
       const exporter = new PhotopeaDocumentExporter(bridge)

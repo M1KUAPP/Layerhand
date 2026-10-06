@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { ImageUploadError, MAX_IMAGE_BYTES, validateImageUpload } from '../../src/editor/image-upload'
+import { ImageUploadError, MAX_IMAGE_BYTES, validateImageUpload } from '../../apps/editor/image-upload'
 import { jpeg, png } from './support/image-headers'
 
 function expectUploadError(operation: () => unknown, code: ImageUploadError['code'], message: string): void {

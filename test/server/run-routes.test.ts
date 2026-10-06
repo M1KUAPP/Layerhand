@@ -1,23 +1,23 @@
 import { beforeAll, describe, expect, test } from 'bun:test'
 
-import { fakeRun } from '../../src/agent/fake-run'
-import type { RunEvent, RunRequest } from '../../src/agent/contract'
-import { createApplication } from '../../src/server/application'
-import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../src/server/artifact-store'
-import type { ManagedRun } from '../../src/server/managed-run'
-import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../src/server/meter-store'
-import { usdToMicroUsd } from '../../src/server/meter-store'
-import { RunRegistry } from '../../src/server/run-registry'
-import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../src/server/run-routes'
-import { createRunToken, verifyRunToken } from '../../src/server/run-token'
-import type { OpenAiKeyCheck } from '../../src/server/openai-key'
-import { MemoryWaitlistStore } from '../../src/server/waitlist-store'
-import { WarmSessionPool, type WarmEditorSession } from '../../src/server/warm-session-pool'
+import { fakeRun } from '../../apps/agent/fake-run'
+import type { RunEvent, RunRequest } from '../../apps/agent/contract'
+import { createApplication } from '../../apps/server/application'
+import type { ArtifactPutRequest, ArtifactStore, StoredArtifact } from '../../apps/server/artifact-store'
+import type { ManagedRun } from '../../apps/server/managed-run'
+import type { AdmissionRequest, AdmissionResult, MeterReservation, MeterStore } from '../../apps/server/meter-store'
+import { usdToMicroUsd } from '../../apps/server/meter-store'
+import { RunRegistry } from '../../apps/server/run-registry'
+import { MAX_JSON_BODY_BYTES, RunRoutes } from '../../apps/server/run-routes'
+import { createRunToken, verifyRunToken } from '../../apps/server/run-token'
+import type { OpenAiKeyCheck } from '../../apps/server/openai-key'
+import { MemoryWaitlistStore } from '../../apps/server/waitlist-store'
+import { WarmSessionPool, type WarmEditorSession } from '../../apps/server/warm-session-pool'
 
 let png: Uint8Array
 
 beforeAll(async () => {
-  png = await Bun.file(new URL('../../src/editor/fixtures/document-preview.png', import.meta.url)).bytes()
+  png = await Bun.file(new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)).bytes()
 })
 
 class RecordingMeter implements MeterStore {
@@ -832,7 +832,7 @@ describe('event stream keep-alive', () => {
     const app = createApplication({ databaseReady: async () => true, routes })
     // A real Bun.serve, not the in-process app.fetch the other tests use:
     // only a live connection is subject to Bun's idle timeout, and none is
-    // set here, matching src/server/index.ts.
+    // set here, matching apps/server/index.ts.
     const server = Bun.serve({ hostname: '127.0.0.1', port: 0, fetch: app.fetch })
 
     try {

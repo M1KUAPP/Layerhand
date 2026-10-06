@@ -4,15 +4,15 @@ import packageJson from '../../package.json'
 
 describe('application scaffold', () => {
   test('defines one Bun development, build, and start surface', () => {
-    expect(packageJson.scripts.dev).toBe('LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts')
+    expect(packageJson.scripts.dev).toBe('LAYERHAND_PAGE_RELOAD=1 bun --hot apps/server/index.ts')
     expect(packageJson.scripts.build).toBe(
-      'bun build --target=bun src/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts'
+      'bun build --target=bun apps/server/index.ts --outdir dist --external playwright-core && bun scripts/pack-layerhand-mcp.ts'
     )
     expect(packageJson.scripts.start).toBe('cd dist && bun index.js')
   })
 
   test('ships one accessible HTML entry', async () => {
-    const file = Bun.file(new URL('../../src/web/index.html', import.meta.url))
+    const file = Bun.file(new URL('../../apps/web/index.html', import.meta.url))
 
     expect(await file.exists()).toBe(true)
     const html = await file.text()
@@ -23,7 +23,7 @@ describe('application scaffold', () => {
   })
 
   test('boots the composed runtime with an HTTP body ceiling and clean shutdown', async () => {
-    const index = await Bun.file(new URL('../../src/server/index.ts', import.meta.url)).text()
+    const index = await Bun.file(new URL('../../apps/server/index.ts', import.meta.url)).text()
     const smoke = await Bun.file(new URL('./container-smoke.sh', import.meta.url)).text()
 
     expect(index).toContain('await createLaunchRuntime')

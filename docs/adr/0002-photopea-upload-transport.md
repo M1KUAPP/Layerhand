@@ -111,15 +111,15 @@ need formats that bounded header validation cannot safely identify.
 
 ## Verification
 
-- [`src/editor/image-upload.ts`](/src/editor/image-upload.ts) validates the
+- [`apps/editor/image-upload.ts`](/apps/editor/image-upload.ts) validates the
   byte and dimension boundaries.
-- [`src/editor/photopea-transport.ts`](/src/editor/photopea-transport.ts)
+- [`apps/editor/photopea-transport.ts`](/apps/editor/photopea-transport.ts)
   defines the provider-neutral message surface.
-- [`src/editor/playwright-photopea-transport.ts`](/src/editor/playwright-photopea-transport.ts)
+- [`apps/editor/playwright-photopea-transport.ts`](/apps/editor/playwright-photopea-transport.ts)
   implements the injected-page transport.
-- [`src/editor/photopea-bridge.ts`](/src/editor/photopea-bridge.ts) owns
+- [`apps/editor/photopea-bridge.ts`](/apps/editor/photopea-bridge.ts) owns
   readiness, serialization, sentinels, and timeout behavior.
-- [`src/editor/photopea-document-loader.ts`](/src/editor/photopea-document-loader.ts)
+- [`apps/editor/photopea-document-loader.ts`](/apps/editor/photopea-document-loader.ts)
   performs upload and document read-back.
 - [`test/editor/image-upload-exif.test.ts`](/test/editor/image-upload-exif.test.ts)
   verifies orientation-aware displayed dimensions.

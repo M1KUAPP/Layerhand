@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 
-import { RunApi, RunApiError, decodeRunEvent, decodeRunSnapshot } from '../../src/web/api'
-import type { LayerInfo } from '../../src/editor'
-import type { RunSnapshot } from '../../src/server/run-registry'
+import { RunApi, RunApiError, decodeRunEvent, decodeRunSnapshot } from '../../apps/web/api'
+import type { LayerInfo } from '../../apps/editor'
+import type { RunSnapshot } from '../../apps/server/run-registry'
 
 const snapshot = {
   runId: 'run-1',

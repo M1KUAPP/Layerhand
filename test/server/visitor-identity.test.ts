@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { VisitorIdentityError, establishVisitorIdentity } from '../../src/server/visitor-identity'
+import { VisitorIdentityError, establishVisitorIdentity } from '../../apps/server/visitor-identity'
 
 const SECRET = 'test-session-secret'
 const FIRST_ID = 'visitor_identifier_0001'

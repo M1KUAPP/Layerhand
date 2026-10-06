@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
-const htmlFile = Bun.file(new URL('../../src/web/index.html', import.meta.url))
-const cssFile = Bun.file(new URL('../../src/web/styles.css', import.meta.url))
+const htmlFile = Bun.file(new URL('../../apps/web/index.html', import.meta.url))
+const cssFile = Bun.file(new URL('../../apps/web/styles.css', import.meta.url))
 const cssSource = async () =>
   (
     await Promise.all(
@@ -19,7 +19,7 @@ const cssSource = async () =>
         'landing/reveal.css',
         'landing/pointer.css',
         'landing/stack.css'
-      ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
+      ].map((name) => Bun.file(new URL(`../../apps/web/${name}`, import.meta.url)).text())
     )
   ).join('\n')
 const appSource = async () =>
@@ -38,10 +38,10 @@ const appSource = async () =>
         'landing/reveal.ts',
         'landing/pointer.ts',
         'landing/stack.ts'
-      ].map((name) => Bun.file(new URL(`../../src/web/${name}`, import.meta.url)).text())
+      ].map((name) => Bun.file(new URL(`../../apps/web/${name}`, import.meta.url)).text())
     )
   ).join('\n')
-const landingFile = (name: string) => Bun.file(new URL(`../../src/web/landing/${name}`, import.meta.url))
+const landingFile = (name: string) => Bun.file(new URL(`../../apps/web/landing/${name}`, import.meta.url))
 
 describe('Layerhand workbench markup', () => {
   test('keeps the application root outside live regions and a desktop boundary', async () => {
@@ -116,8 +116,8 @@ describe('Layerhand workbench markup', () => {
   })
 
   test('states the 24-hour upload deletion beside the drop zone and on the landing page', async () => {
-    const app = await Bun.file(new URL('../../src/web/app.ts', import.meta.url)).text()
-    const hero = await Bun.file(new URL('../../src/web/landing/hero.ts', import.meta.url)).text()
+    const app = await Bun.file(new URL('../../apps/web/app.ts', import.meta.url)).text()
+    const hero = await Bun.file(new URL('../../apps/web/landing/hero.ts', import.meta.url)).text()
 
     // The hero states it among its three facts, which renderHero lists.
     expect(hero).toContain("'Uploads deleted within 24 hours'")

@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 import { runInNewContext } from 'node:vm'
-import { PhotopeaDocumentLoader, type PhotopeaDocumentBridge } from '../../src/editor/photopea-document-loader'
-import type { PhotopeaMessage } from '../../src/editor/photopea-transport'
+import { PhotopeaDocumentLoader, type PhotopeaDocumentBridge } from '../../apps/editor/photopea-document-loader'
+import type { PhotopeaMessage } from '../../apps/editor/photopea-transport'
 import { jpeg, png } from './support/image-headers'
 
 class RecordingBridge implements PhotopeaDocumentBridge {

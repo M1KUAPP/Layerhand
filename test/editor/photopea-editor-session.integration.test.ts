@@ -11,7 +11,7 @@ import {
   assertCompleteLayerTree,
   createPhotopeaHostHtml,
   createPlaywrightAuxiliaryMouse
-} from '../../src/editor'
+} from '../../apps/editor'
 import { assertLayerTree } from './editor-session.contract'
 import { maskedSubjectPsd } from './support/psd-fixtures'
 

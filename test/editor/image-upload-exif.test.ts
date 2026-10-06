@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { validateImageUpload } from '../../src/editor/image-upload'
+import { validateImageUpload } from '../../apps/editor/image-upload'
 import { jpeg } from './support/image-headers'
 
 function exif(orientation: number, littleEndian = true): Uint8Array {

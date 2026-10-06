@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { RunHandle, RunRequest, RunStopReason } from '../../src/agent/contract'
-import { collect } from '../../src/agent/contract-tests'
-import { runAgent } from '../../src/agent/loop'
-import type { AgentModel } from '../../src/agent/model'
-import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import type { RunSnapshot } from '../../src/server/run-registry'
+import type { RunHandle, RunRequest, RunStopReason } from '../../apps/agent/contract'
+import { collect } from '../../apps/agent/contract-tests'
+import { runAgent } from '../../apps/agent/loop'
+import type { AgentModel } from '../../apps/agent/model'
+import { createRecordedFakeEditorSession } from '../../apps/editor/fake-editor-session'
+import type { RunSnapshot } from '../../apps/server/run-registry'
 import {
   initialClientState,
   reduceClientState,
@@ -13,7 +13,7 @@ import {
   formatCredits,
   resultOutcomeText,
   isCurrentRun
-} from '../../src/web/state'
+} from '../../apps/web/state'
 
 const result = {
   psdUrl: '/result.psd',

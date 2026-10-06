@@ -3,7 +3,7 @@
 // shared store.
 import { describe, expect, test } from 'bun:test'
 
-import { RateLimiter } from '../../src/server/rate-limiter'
+import { RateLimiter } from '../../apps/server/rate-limiter'
 
 describe('RateLimiter', () => {
   test('allows up to the limit inside one window, then refuses', () => {

@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test'
 import type { BrowserContext, Page, Route, WebSocketRoute } from 'playwright-core'
 
-import type { CreatePhotopeaEditorSessionOptions } from '../../src/editor/photopea-editor-session'
-import { createRecordedFakeEditorSession } from '../../src/editor/fake-editor-session'
-import { PHOTOPEA_ASSET_ORIGIN, PHOTOPEA_ORIGIN } from '../../src/editor/photopea-transport'
+import type { CreatePhotopeaEditorSessionOptions } from '../../apps/editor/photopea-editor-session'
+import { createRecordedFakeEditorSession } from '../../apps/editor/fake-editor-session'
+import { PHOTOPEA_ASSET_ORIGIN, PHOTOPEA_ORIGIN } from '../../apps/editor/photopea-transport'
 import {
   browserbaseEditorSession,
   type BrowserbaseEditorSession,
   type BrowserbaseSessions
-} from '../../src/server/browserbase-editor-session'
+} from '../../apps/server/browserbase-editor-session'
 
 const CONNECT_URL = 'wss://connect.browserbase.test/?signingKey=secret-signing-key'
 const HOST_URL = 'https://layerhand.test/photopea-host'

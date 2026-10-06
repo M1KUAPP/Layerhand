@@ -6,12 +6,12 @@ import { pathToFileURL } from 'node:url'
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 
-import { validateImageUpload as baseValidateImageUpload } from '../../src/editor/image-upload'
+import { validateImageUpload as baseValidateImageUpload } from '../../apps/editor/image-upload'
 import {
   loadReliabilityCorpus,
   ReliabilityCorpusError,
   type ReliabilityCorpusErrorCode
-} from '../../src/reliability/corpus'
+} from '../../apps/reliability/corpus'
 import { jpeg } from '../editor/support/image-headers'
 
 const validateImageUpload = (bytes: Uint8Array, filename = 'image.jpg') => baseValidateImageUpload(bytes, filename)

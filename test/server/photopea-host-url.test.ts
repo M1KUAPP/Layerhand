@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { photopeaHostUrl } from '../../src/server/runtime'
+import { photopeaHostUrl } from '../../apps/server/runtime'
 
 describe('Photopea host URL', () => {
   test('is the host page under PUBLIC_URL', () => {
