@@ -34,12 +34,12 @@ walk.mjs ──► record.mjs ──► capture.webm ──► assemble.sh ─�
 
 Adapted from the recorder in `TolongLabs/codenection-dev`, which was itself
 carried over from `TolongLabs/MakanLah`. It is team tooling, never imported by
-`src/`, and nothing in it ships in the container.
+`apps/`, and nothing in it ships in the container.
 
 | Dimension        | Role                                                                                                  |
 | ---------------- | ----------------------------------------------------------------------------------------------------- |
 | What it is       | Build and recording automation harness -- a camera and dubber, not an application feature             |
-| Where it runs    | Standalone in `scripts/demo/`, never imported by `src/`                                               |
+| Where it runs    | Standalone in `scripts/demo/`, never imported by `apps/`                                              |
 | Whose it is      | Carried over from team tooling in `TolongLabs/codenection-dev` (originating in `TolongLabs/MakanLah`) |
 | What it produces | `demo.mp4` video deliverable; nothing in it ships in the container                                    |
 

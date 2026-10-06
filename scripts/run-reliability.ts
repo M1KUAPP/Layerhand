@@ -2,13 +2,13 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 
-import { loadReliabilityCorpus } from '../src/reliability/corpus'
-import { formatReliabilityTerminal, writeReliabilityReport } from '../src/reliability/report'
-import { runReliabilitySuite, type ReliabilitySummary, type StartReliabilityRun } from '../src/reliability/suite'
-import { liveAgentRun } from '../src/server/agent-run'
-import { BrowserbaseClient } from '../src/server/browserbase-client'
-import { ConfigurationError } from '../src/server/config'
-import { photopeaHostUrl } from '../src/server/runtime'
+import { loadReliabilityCorpus } from '../apps/reliability/corpus'
+import { formatReliabilityTerminal, writeReliabilityReport } from '../apps/reliability/report'
+import { runReliabilitySuite, type ReliabilitySummary, type StartReliabilityRun } from '../apps/reliability/suite'
+import { liveAgentRun } from '../apps/server/agent-run'
+import { BrowserbaseClient } from '../apps/server/browserbase-client'
+import { ConfigurationError } from '../apps/server/config'
+import { photopeaHostUrl } from '../apps/server/runtime'
 
 export interface ReliabilityCommandConfig {
   openAiApiKey: string
@@ -154,7 +154,7 @@ export async function runReliabilityCommand(
   const createBrowserbase = dependencies?.createBrowserbaseClient ?? ((apiKey: string) => new BrowserbaseClient(apiKey))
   const liveRun = dependencies?.liveRun ?? liveAgentRun
 
-  const manifestUrl = new URL('../test/images/manifest.json', import.meta.url)
+  const manifestUrl = new URL('../tests/images/manifest.json', import.meta.url)
   const cases = await loadCorpus(manifestUrl)
 
   const browserbaseClient = createBrowserbase(config.browserbaseApiKey)

@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { packFromSource } from '../src/server/mcp-artifacts'
+import { packFromSource } from '../apps/server/mcp-artifacts'
 
 const outdir = join(import.meta.dir, '../dist/mcp-files')
 const artifacts = await packFromSource()

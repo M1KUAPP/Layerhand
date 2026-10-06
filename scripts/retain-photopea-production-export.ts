@@ -14,10 +14,10 @@ import {
   assertLayerNames,
   createPhotopeaHostHtml,
   createPlaywrightAuxiliaryMouse
-} from '../src/editor'
+} from '../apps/editor'
 
-const fixturePath = resolve(import.meta.dir, '../src/editor/fixtures/photopea-production-export.psd')
-const samplePath = resolve(import.meta.dir, '../src/web/assets/sample-photo.png')
+const fixturePath = resolve(import.meta.dir, '../apps/editor/fixtures/photopea-production-export.psd')
+const samplePath = resolve(import.meta.dir, '../apps/web/assets/sample-photo.png')
 const viewport = { width: 1440, height: 900 }
 
 const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
