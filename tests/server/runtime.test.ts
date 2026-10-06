@@ -1,0 +1,196 @@
+import { describe, expect, test } from 'bun:test'
+import { SQL } from 'bun'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+import { createLaunchRuntime } from '../../apps/server/runtime'
+
+const samplePath = new URL('../../apps/editor/fixtures/document-preview.png', import.meta.url)
+
+function runRequest(apiKey?: string): Request {
+  const form = new FormData()
+  form.set('image', new File([Bun.file(samplePath)], 'source.png', { type: 'image/png' }), 'source.png')
+  form.set('filename', 'source.png')
+  form.set('instruction', 'Remove the background')
+  if (apiKey) form.set('apiKey', apiKey)
+  return new Request('http://layerhand.test/api/runs', { method: 'POST', body: form })
+}
+
+describe('launch runtime', () => {
+  test('composes a ready development API with the scripted run', async () => {
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development' },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      writeRunLog: () => undefined
+    })
+
+    try {
+      const health = await runtime.application.fetch(new Request('http://layerhand.test/health'))
+      expect(await health.json()).toEqual({ status: 'ok', database: 'ready' })
+
+      const response = await runtime.application.fetch(runRequest())
+      expect(response.status).toBe(201)
+      const { runId } = (await response.json()) as { runId: string }
+      expect(runId).toMatch(/^[0-9a-f-]{36}$/)
+
+      await runtime.registry.waitForTerminal(runId)
+      const snapshot = await runtime.application.fetch(new Request(`http://layerhand.test/api/runs/${runId}`))
+      expect(await snapshot.json()).toMatchObject({
+        runId,
+        status: 'complete',
+        steps: 5,
+        result: { complete: true }
+      })
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test('records one line per finished run to the log and the database', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'layerhand-run-log-'))
+    const databaseUrl = `sqlite://${join(directory, 'layerhand.db')}`
+    const records: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', DATABASE_URL: databaseUrl },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      writeRunLog: (record) => records.push(record)
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      const { runId } = (await response.json()) as { runId: string }
+      await runtime.registry.waitForTerminal(runId)
+
+      expect(records).toHaveLength(1)
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, steps: 5, outcome: 'complete', capHit: false })
+      const database = new SQL(databaseUrl)
+      try {
+        const rows = await database`SELECT run_id, outcome FROM run_log`
+        expect(rows).toEqual([{ run_id: runId, outcome: 'complete' }])
+      } finally {
+        await database.close()
+      }
+    } finally {
+      await runtime.close()
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  test('logs a run the step cap stopped as capped', async () => {
+    const records: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development' },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      stepCap: 2,
+      writeRunLog: (record) => records.push(record)
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      const { runId } = (await response.json()) as { runId: string }
+      await runtime.registry.waitForTerminal(runId)
+
+      expect(records).toHaveLength(1)
+      expect(JSON.parse(records[0]!)).toMatchObject({ runId, steps: 2, capHit: true, outcome: 'step_cap' })
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test('refuses new runs when RUNS_PAUSED is set, and never reaches the run factory (#118)', async () => {
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', RUNS_PAUSED: '1' },
+      clientAddress: () => '203.0.113.20',
+      fakeRunIntervalMs: 1,
+      writeRunLog: () => undefined
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest())
+      expect(response.status).toBe(503)
+      expect(await response.json()).toEqual({
+        code: 'runs_paused',
+        message: 'New runs are paused right now. Try again shortly.'
+      })
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test('queues a run past MAX_CONCURRENT_RUNS, and starts it once a slot frees', async () => {
+    const runtime = await createLaunchRuntime({
+      env: { NODE_ENV: 'development', MAX_CONCURRENT_RUNS: '1' },
+      clientAddress: () => '203.0.113.20',
+      // Slow enough that the first run is still going when the second arrives.
+      fakeRunIntervalMs: 60_000,
+      writeRunLog: () => undefined
+    })
+    const snapshot = async (runId: string) =>
+      (await runtime.application.fetch(new Request(`http://layerhand.test/api/runs/${runId}`))).json()
+
+    try {
+      const first = (await (await runtime.application.fetch(runRequest())).json()) as {
+        runId: string
+        runToken: string
+      }
+      const second = (await (await runtime.application.fetch(runRequest())).json()) as { runId: string }
+      expect(await snapshot(first.runId)).toMatchObject({ status: 'running' })
+      expect(await snapshot(second.runId)).toMatchObject({ status: 'queued', queuePosition: 1 })
+
+      await runtime.application.fetch(
+        new Request(`http://layerhand.test/api/runs/${first.runId}/cancel`, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${first.runToken}` }
+        })
+      )
+      for await (const { event } of runtime.registry.events(second.runId)) if (event.type === 'started') break
+
+      const started = await snapshot(second.runId)
+      expect(started).toMatchObject({ status: 'running' })
+      expect(started.queuePosition).toBeUndefined()
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test("checks a user's own key with OpenAI in agent mode before a browser is opened for it", async () => {
+    const requested: string[] = []
+    const runtime = await createLaunchRuntime({
+      env: {
+        NODE_ENV: 'development',
+        RUN_MODE: 'agent',
+        BROWSERBASE_API_KEY: 'browserbase-test-key',
+        PUBLIC_URL: 'http://layerhand.test'
+      },
+      clientAddress: () => '203.0.113.20',
+      openAiFetch: async (input) => {
+        requested.push(String(input))
+        return Response.json({ error: { message: 'Incorrect API key provided' } }, { status: 401 })
+      },
+      writeRunLog: () => undefined
+    })
+
+    try {
+      const response = await runtime.application.fetch(runRequest('sk-mistyped-key-000000'))
+
+      expect(response.status).toBe(400)
+      expect(((await response.json()) as { code: string }).code).toBe('invalid_api_key')
+      expect(requested).toEqual(['https://api.openai.com/v1/models'])
+    } finally {
+      await runtime.close()
+    }
+  })
+
+  test('fails closed when production configuration is absent', async () => {
+    await expect(
+      createLaunchRuntime({
+        env: { NODE_ENV: 'production' },
+        clientAddress: () => '203.0.113.20'
+      })
+    ).rejects.toThrow('Missing required environment variables')
+  })
+})

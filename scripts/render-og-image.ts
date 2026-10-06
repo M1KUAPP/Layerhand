@@ -9,8 +9,8 @@ import { chromium } from 'playwright-core'
 
 const ROOT = resolve(import.meta.dir, '..')
 const OUTPUTS = [
-  { colorScheme: 'light', file: 'src/web/assets/og-image.png' },
-  { colorScheme: 'dark', file: 'src/web/assets/og-image-dark.png' }
+  { colorScheme: 'light', file: 'apps/web/assets/og-image.png' },
+  { colorScheme: 'dark', file: 'apps/web/assets/og-image-dark.png' }
 ] as const
 
 // A file:// page cannot load its fonts, so the repository is served locally.

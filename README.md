@@ -166,9 +166,9 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 
 The diagram is drawn with [archify](https://github.com/tt-a1i/archify) from [`architecture.json`](docs/readme/architecture.json).
 
-One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
+One long-lived Bun process (`apps/server/index.ts`) serves the page and the API.
 
-- **Pages.** `/` is the single-page app (`src/web/index.html` → `src/web/app.ts`). `/mcp` is the setup page. Plugin artifacts are packed from `packages/layerhand-mcp`.
+- **Pages.** `/` is the single-page app (`apps/web/index.html` → `apps/web/app.ts`). `/mcp` is the setup page. Plugin artifacts are packed from `packages/layerhand-mcp`.
 - **Runs.** `POST /api/runs` starts a run; `GET /api/runs/:id/events` streams progress; `POST .../steer` and `POST .../cancel` apply during the run. Uploads go to `POST /api/uploads`.
 - **Modes.** `RUN_MODE` is `fake` (default), `scripted`, or `agent`. Fake is a timed script so the workbench can be built without a key or a browser. Agent mode needs `BROWSERBASE_API_KEY` and `PUBLIC_URL` so Browserbase can load `/photopea-host`.
 - **MCP.** `packages/layerhand-mcp` is a stdio MCP server. It reads `OPENAI_API_KEY` from the environment (never from a tool argument) and calls the same HTTP API. `LAYERHAND_URL` defaults to the public service.
@@ -178,7 +178,7 @@ One long-lived Bun process (`src/server/index.ts`) serves the page and the API.
 ### Tech Stack
 
 - **Languages:** TypeScript for the server, agent, editor, and page.
-- **Frontend:** a vanilla page (`src/web/app.ts` plus landing modules; no React), and [three.js](https://threejs.org/) for the landing “Still yours to edit.” glass object.
+- **Frontend:** a vanilla page (`apps/web/app.ts` plus landing modules; no React), and [three.js](https://threejs.org/) for the landing “Still yours to edit.” glass object.
 - **Backend:** [Bun](https://bun.sh/) 1.4.2 as the runtime and bundler, with `bun --hot` for `bun run dev`; [Playwright](https://playwright.dev/) (`playwright-core`) for Chrome over CDP in agent mode; [ag-psd](https://github.com/Agamnentzar/ag-psd) for Photoshop document support; and a [Model Context Protocol](https://modelcontextprotocol.io/) server in `packages/layerhand-mcp`.
 - **Data:** [PostgreSQL](https://www.postgresql.org/) and [Google Cloud Storage](https://cloud.google.com/storage).
 - **AI and services:** [OpenAI](https://openai.com/) GPT-6 Astra through the Responses API, [Photopea](https://www.photopea.com/) as the image editor the agent drives, and [Browserbase](https://www.browserbase.com/) for hosted Chrome.
@@ -211,7 +211,7 @@ Local development defaults to a fake session: no API keys, no Browserbase, in-me
     bun install --frozen-lockfile
     ```
 
-2.  **Start the dev server.** `bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot src/server/index.ts`. It reloads the page on an edit under `src/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
+2.  **Start the dev server.** `bun run dev` is `LAYERHAND_PAGE_RELOAD=1 bun --hot apps/server/index.ts`. It reloads the page on an edit under `apps/web` and serves it without the production security headers. The port is `3000` unless `PORT` is set.
 
     ```sh
     bun run dev

@@ -2,9 +2,8 @@
 .git/
 .husky/
 docs/
-graphify-out/
 node_modules/
-test/
+tests/
 .worktrees/
 .playwright-cli/
 .superpowers/

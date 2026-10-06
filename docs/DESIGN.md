@@ -191,7 +191,7 @@ set on the site bar.
 
 Corners stay square everywhere. There is no `border-radius` anywhere.
 Decorative gradients are restricted: gradient functions appear only in
-`src/web/landing/switcher.css` (the vignette) and in rules for `.hero-shell`
+`apps/web/landing/switcher.css` (the vignette) and in rules for `.hero-shell`
 (pointer spotlight and grid) or `.workbench-board` (sketchboard dots).
 Surfaces stay flat except where depth is applied through the three shadow
 tokens.

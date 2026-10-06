@@ -15,22 +15,22 @@ import { parseArgs } from 'node:util'
 
 import { chromium } from 'playwright-core'
 
-import type { RunRequest } from '../../../../src/agent/contract'
-import type { AgentModel } from '../../../../src/agent/model'
+import type { RunRequest } from '../../../../apps/agent/contract'
+import type { AgentModel } from '../../../../apps/agent/model'
 import {
   ResponsesApiError,
   ResponsesModel,
   type CodeRunner,
   type DrivingMechanism
-} from '../../../../src/agent/responses-model'
-import { ScriptedModel } from '../../../../src/agent/scripted-model'
-import { isScriptedTyping } from '../../../../src/agent/scripting-guard'
-import { createPhotopeaEditorSession } from '../../../../src/editor/photopea-editor-session'
-import { createPhotopeaHostHtml } from '../../../../src/editor/photopea-host'
-import type { LayerInfo } from '../../../../src/editor/session'
-import { managedAgentRun } from '../../../../src/server/agent-run'
-import { RunRegistry } from '../../../../src/server/run-registry'
-import { createRunLogger, type RunLogLine } from '../../../../src/server/run-log'
+} from '../../../../apps/agent/responses-model'
+import { ScriptedModel } from '../../../../apps/agent/scripted-model'
+import { isScriptedTyping } from '../../../../apps/agent/scripting-guard'
+import { createPhotopeaEditorSession } from '../../../../apps/editor/photopea-editor-session'
+import { createPhotopeaHostHtml } from '../../../../apps/editor/photopea-host'
+import type { LayerInfo } from '../../../../apps/editor/session'
+import { managedAgentRun } from '../../../../apps/server/agent-run'
+import { RunRegistry } from '../../../../apps/server/run-registry'
+import { createRunLogger, type RunLogLine } from '../../../../apps/server/run-log'
 import { pageCodeRunner } from './code-runner'
 
 export const INSTRUCTION = [
@@ -45,9 +45,9 @@ export const INSTRUCTION = [
 const SCRIPTING_PATTERN = /postMessage|__layerhand|echoToOE/
 
 const DEFAULT_IMAGES = [
-  '../../../../src/web/assets/sample-photo.png',
+  '../../../../apps/web/assets/sample-photo.png',
   '../photopea-round-trip/results/input.jpg',
-  '../../../../src/editor/fixtures/document-preview.png'
+  '../../../../apps/editor/fixtures/document-preview.png'
 ].map((path) => new URL(path, import.meta.url).pathname)
 
 const { values, positionals } = parseArgs({

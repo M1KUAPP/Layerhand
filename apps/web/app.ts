@@ -1,0 +1,1083 @@
+import samplePhotoUrl from './assets/sample-photo.png'
+import type { LayerInfo } from '../editor/contract'
+import { RunApi, RunApiError } from './api'
+import './footer'
+import './scroll'
+import { renderLanding, type LandingContext } from './landing/index'
+import {
+  correctionStatuses,
+  formatCredits,
+  initialClientState,
+  isCurrentRun,
+  reduceClientState,
+  resultOutcomeText,
+  type ClientAction,
+  type ClientState,
+  type RunProgress
+} from './state'
+
+const RUN_STORAGE_KEY = 'layerhand.runId'
+const RUN_TOKEN_STORAGE_KEY = 'layerhand.runToken'
+const INSTRUCTION_STORAGE_KEY = 'layerhand.instruction'
+// Leaving mid-run does not cancel it (that is what Cancel is for); this is
+// only a guard against leaving by accident while it is still spending (#126).
+const LEAVE_RUN_CONFIRMATION = 'Leave this run? It keeps going, and a reload is the only way back to it.'
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024
+const IMAGE_UPLOAD_ERROR_CODES = new Set([
+  'unsupported_image_format',
+  'image_too_large',
+  'malformed_image',
+  'image_dimensions_too_large',
+  'request_too_large',
+  'image_required'
+])
+const EXAMPLES = [
+  'Remove the background and keep the product shadow.',
+  'Clean the reflections without changing the label.',
+  'Warm the highlights and keep the background neutral.'
+]
+const RUN_GUIDE_STEPS = [
+  'Choose a photograph',
+  'Say what you want',
+  'Watch it work, and correct it',
+  'Download the layered PSD'
+]
+const RUN_FACTS = ['Three free runs', 'Uploads deleted within 24 hours', 'Your key is never stored']
+const VIEW_FOCUS_TARGETS: Record<ClientState['view'], string> = {
+  landing: '#hero-title',
+  input: '#input-title',
+  restoring: '#restoring-title',
+  running: '#correction',
+  result: '#result-title',
+  error: '#error-title'
+}
+
+const applicationRoot = document.querySelector<HTMLElement>('#app')
+if (!applicationRoot) throw new Error('Layerhand application root is missing')
+const root: HTMLElement = applicationRoot
+
+const api = new RunApi()
+let state = initialClientState()
+let workbenchHistoryPushed = false
+let selectedFile: File | undefined
+let selectedPreviewUrl: string | undefined
+let fileError: string | undefined
+let instructionError: string | undefined
+let keyError: string | undefined
+let formError: string | undefined
+let draftInstruction = ''
+let draftApiKey = ''
+let stream: { close(): void } | undefined
+let reconnecting = false
+
+function node<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  className?: string,
+  text?: string
+): HTMLElementTagNameMap[K] {
+  const result = document.createElement(tag)
+  if (className) result.className = className
+  if (text !== undefined) result.textContent = text
+  return result
+}
+
+function button(text: string, className = 'button'): HTMLButtonElement {
+  const result = node('button', className, text)
+  result.type = 'button'
+  return result
+}
+
+function icon(name: string): HTMLElement {
+  const result = node('i', `hgi-stroke ${name}`)
+  result.setAttribute('aria-hidden', 'true')
+  return result
+}
+
+function fieldNumber(text: string): HTMLElement {
+  const result = node('span', 'field-number', text)
+  result.setAttribute('aria-hidden', 'true')
+  return result
+}
+
+function brandHeader(trailingAction?: HTMLButtonElement): HTMLElement {
+  const header = node('header', 'site-header')
+  const brand = node('button', 'wordmark')
+  brand.type = 'button'
+  brand.setAttribute('aria-label', 'Return to Layerhand')
+  const mark = node('span', 'wordmark__mark', 'L')
+  mark.setAttribute('aria-hidden', 'true')
+  brand.append(mark, 'Layerhand')
+  brand.addEventListener('click', () => {
+    // A live or queued run keeps going once its view is left (#126), so
+    // leaving it by accident is confirmed first.
+    if (state.view === 'running' && !window.confirm(LEAVE_RUN_CONFIRMATION)) return
+    dispatch({ type: 'reset' })
+  })
+  header.append(brand)
+  if (trailingAction) header.append(trailingAction)
+  return header
+}
+
+function dispatch(action: ClientAction): void {
+  const nextState = reduceClientState(state, action)
+  if (state.view === 'landing' && nextState.view !== 'landing') {
+    history.pushState({ view: nextState.view }, '')
+    workbenchHistoryPushed = true
+  } else if (nextState.view === 'landing' && workbenchHistoryPushed) {
+    history.replaceState({ view: 'landing' }, '')
+    workbenchHistoryPushed = false
+  }
+  state = nextState
+  render()
+  if (state.view !== 'running') {
+    stream?.close()
+    stream = undefined
+  }
+}
+
+window.addEventListener('popstate', (event) => {
+  if (event.state === null || event.state.view === 'landing') {
+    workbenchHistoryPushed = false
+    dispatch({ type: 'reset' })
+  }
+})
+
+document.querySelector('#desktop-required-back')?.addEventListener('click', () => {
+  if (workbenchHistoryPushed) history.back()
+  else dispatch({ type: 'reset' })
+})
+
+document.querySelector('#desktop-required-updates')?.addEventListener('click', () => {
+  dispatch({ type: 'reset' })
+})
+
+// The stored run must not be replayed once it can no longer help: after a
+// failure, once its result was collected for another retouch, or once
+// fetching it has failed outright (#126). Clearing by id keeps a watched
+// run, which is never stored, from wiping another run's stored id and token.
+function clearStoredRun(runId: string): void {
+  if (sessionStorage.getItem(RUN_STORAGE_KEY) !== runId) return
+  sessionStorage.removeItem(RUN_STORAGE_KEY)
+  sessionStorage.removeItem(RUN_TOKEN_STORAGE_KEY)
+  sessionStorage.removeItem(INSTRUCTION_STORAGE_KEY)
+}
+
+// The token the run's start answer carried, kept next to the stored run id
+// and sent with every steer and cancel. Only an owned run's controls ask
+// for it, so a missing one cannot be reached here.
+function runToken(): string {
+  return sessionStorage.getItem(RUN_TOKEN_STORAGE_KEY) ?? ''
+}
+
+function description(text: string): HTMLParagraphElement {
+  return node('p', 'lede', text)
+}
+
+function eyebrow(text: string): HTMLParagraphElement {
+  return node('p', 'eyebrow', text)
+}
+
+const landingContext: LandingContext = {
+  startRun: () => dispatch({ type: 'edit' }),
+  joinWaitlist: (email) => api.joinWaitlist(email),
+  publicMessage,
+  brandHeader: () => brandHeader()
+}
+
+// The wording matches the server's in apps/editor/image-upload.ts, so a file
+// refused here reads the same as one refused there.
+function validateFile(file: File): string | undefined {
+  const lowerName = file.name.toLowerCase()
+  const supportedName = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png')
+  const supportedType = file.type === 'image/jpeg' || file.type === 'image/png'
+  if (!supportedName || !supportedType) return 'Only JPEG and PNG images are supported.'
+  if (file.size > MAX_IMAGE_BYTES) return 'Image exceeds the 20 MB limit.'
+  return undefined
+}
+
+// The editor is warmed as soon as a file passes the checks here, so the run
+// starts with the image already open (#70). Non-validation warming failures
+// stay silent, and the run starts cold as it always did.
+let warmUploadId: string | undefined
+
+function warmEditor(file: File): void {
+  warmUploadId = undefined
+  const body = new FormData()
+  body.set('image', file, file.name)
+  body.set('filename', file.name)
+  void api
+    .warmUpload(body)
+    .then(({ uploadId }) => {
+      // A file chosen since this upload started owns the warm session now.
+      if (selectedFile === file) warmUploadId = uploadId ?? undefined
+    })
+    .catch((error) => {
+      if (isImageUploadError(error)) rejectSelectedFile(file, error.message)
+    })
+}
+
+function isImageUploadError(error: unknown): error is RunApiError {
+  return error instanceof RunApiError && IMAGE_UPLOAD_ERROR_CODES.has(error.code)
+}
+
+function rejectSelectedFile(file: File, message: string): boolean {
+  // An older upload response must not clear a file chosen in the meantime.
+  if (selectedFile !== file) return false
+  selectedFile = undefined
+  warmUploadId = undefined
+  releaseSelectedPreview()
+  fileError = message
+  render('#source-image')
+  return true
+}
+
+function chooseFile(file: File, focusTarget = '#source-image'): void {
+  fileError = validateFile(file)
+  if (fileError) {
+    selectedFile = undefined
+    warmUploadId = undefined
+    releaseSelectedPreview()
+  } else {
+    selectedFile = file
+    releaseSelectedPreview()
+    selectedPreviewUrl = URL.createObjectURL(file)
+    warmEditor(file)
+  }
+  render(focusTarget)
+}
+
+function releaseSelectedPreview(): void {
+  if (selectedPreviewUrl) URL.revokeObjectURL(selectedPreviewUrl)
+  selectedPreviewUrl = undefined
+}
+
+async function chooseSample(): Promise<void> {
+  const response = await fetch(samplePhotoUrl)
+  if (!response.ok) throw new Error('The sample photograph could not be loaded.')
+  const blob = await response.blob()
+  chooseFile(new File([blob], 'layerhand-sample.png', { type: 'image/png' }), '[data-action="sample"]')
+}
+
+type RunGuideState = 'done' | 'current' | 'upcoming'
+
+// Steps one and two tick off as the photograph and the instruction are
+// filled in; the last two can only finish once the run has started.
+function runGuideStates(): RunGuideState[] {
+  const done = [selectedFile !== undefined, draftInstruction.trim().length > 0, false, false]
+  const firstOpen = done.indexOf(false)
+  return done.map((isDone, index) => (isDone ? 'done' : index === firstOpen ? 'current' : 'upcoming'))
+}
+
+// Typing must not re-render the form, so the guide tracks the draft
+// through the DOM instead.
+function updateInputProgress(): void {
+  const states = runGuideStates()
+  root.querySelectorAll<HTMLElement>('.run-guide__step').forEach((step, index) => {
+    step.dataset.state = states[index] ?? 'upcoming'
+  })
+}
+
+function renderRunGuide(): HTMLElement {
+  const guide = node('ol', 'run-guide')
+  const states = runGuideStates()
+  for (const [index, label] of RUN_GUIDE_STEPS.entries()) {
+    const step = node('li', 'run-guide__step')
+    step.dataset.state = states[index] ?? 'upcoming'
+    const mark = node('span', 'run-guide__mark')
+    mark.setAttribute('aria-hidden', 'true')
+    mark.append(icon('hgi-tick-02'))
+    step.append(mark, node('span', 'run-guide__label', label))
+    guide.append(step)
+  }
+  return guide
+}
+
+function renderRunFacts(): HTMLElement {
+  const facts = node('ul', 'run-facts')
+  for (const fact of RUN_FACTS) {
+    const item = node('li')
+    item.append(icon('hgi-tick-02'), fact)
+    facts.append(item)
+  }
+  return facts
+}
+
+function renderInput(): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  const back = button('Back', 'button back-button')
+  back.prepend(icon('hgi-arrow-left-01'))
+  back.addEventListener('click', () => dispatch({ type: 'reset' }))
+  const header = brandHeader(back)
+  header.dataset.over = 'page'
+  fragment.append(header)
+
+  const section = node('section', 'input-grid')
+  section.setAttribute('aria-labelledby', 'input-title')
+  const intro = node('div', 'input-intro')
+  intro.append(eyebrow('New layered retouch'))
+  const title = node('h1', undefined, 'Give the agent one clear direction.')
+  title.id = 'input-title'
+  title.tabIndex = -1
+  intro.append(title, description('The result remains editable.'), renderRunGuide(), renderRunFacts())
+
+  const form = node('form', 'run-form')
+  form.noValidate = true
+  const fileField = node('fieldset', 'file-field')
+  const legend = node('legend', undefined, 'Source photograph')
+  legend.prepend(fieldNumber('01'))
+  const dropZone = node('label', 'drop-zone')
+  dropZone.htmlFor = 'source-image'
+  const input = node('input', 'file-input')
+  input.id = 'source-image'
+  input.name = 'image'
+  input.type = 'file'
+  input.accept = 'image/jpeg,image/png,.jpg,.jpeg,.png'
+  input.required = true
+  dropZone.append(input)
+  if (selectedPreviewUrl) {
+    const preview = node('img', 'selected-preview')
+    preview.src = selectedPreviewUrl
+    preview.alt = `Selected source: ${selectedFile?.name ?? 'photograph'}`
+    dropZone.append(preview)
+  } else {
+    dropZone.append(icon('hgi-upload-01'))
+  }
+  const prompt = node(
+    'span',
+    'drop-prompt',
+    selectedFile ? selectedFile.name : 'Drop a photograph here, or choose a file'
+  )
+  dropZone.append(prompt)
+  dropZone.addEventListener('dragover', (event) => {
+    event.preventDefault()
+    dropZone.dataset.dragging = 'true'
+  })
+  dropZone.addEventListener('dragleave', () => delete dropZone.dataset.dragging)
+  dropZone.addEventListener('drop', (event) => {
+    event.preventDefault()
+    delete dropZone.dataset.dragging
+    const file = event.dataTransfer?.files[0]
+    if (file) chooseFile(file)
+  })
+  input.addEventListener('change', () => {
+    const file = input.files?.[0]
+    if (file) chooseFile(file)
+  })
+  const fileStatus = node('p', 'field-error', fileError)
+  fileStatus.id = 'source-image-error'
+  const fileHint = node('span', 'drop-note', 'JPEG or PNG, up to 20 MB and 6000 px on the long edge.')
+  fileHint.id = 'source-image-hint'
+  const retentionNotice = node('span', 'drop-note', 'Uploads are deleted within 24 hours.')
+  retentionNotice.id = 'source-image-retention'
+  // The notes sit inside the drop zone, where the whole box opens the file
+  // picker, but stay out of the input's name: they reach it as its
+  // description instead.
+  const dropNotes = node('span', 'drop-notes')
+  dropNotes.setAttribute('aria-hidden', 'true')
+  dropNotes.append(fileHint, retentionNotice)
+  dropZone.append(dropNotes)
+  input.setAttribute('aria-describedby', `${fileHint.id} ${retentionNotice.id} ${fileStatus.id}`)
+  if (fileError) input.setAttribute('aria-invalid', 'true')
+
+  const sample = button('Use the sample photograph', 'sample-button')
+  const sampleThumb = node('img', 'sample-thumb')
+  sampleThumb.src = samplePhotoUrl
+  sampleThumb.alt = ''
+  sample.prepend(sampleThumb)
+  sample.dataset.action = 'sample'
+  sample.setAttribute('aria-describedby', fileStatus.id)
+  sample.addEventListener('click', async () => {
+    sample.disabled = true
+    try {
+      await chooseSample()
+    } catch (error) {
+      fileError = publicMessage(error)
+      render('[data-action="sample"]')
+    }
+  })
+  // The sample button follows the drop zone, so the file input comes first
+  // from the keyboard, and is drawn in the legend's row.
+  fileField.append(legend, dropZone, sample, fileStatus)
+
+  const instructionLabel = node('label', 'field-label', 'Retouching instruction')
+  instructionLabel.htmlFor = 'instruction'
+  instructionLabel.prepend(fieldNumber('02'))
+  const instruction = node('textarea')
+  instruction.id = 'instruction'
+  instruction.name = 'instruction'
+  instruction.maxLength = 500
+  instruction.rows = 2
+  instruction.required = true
+  instruction.placeholder = 'Describe the finished photograph and what must stay unchanged.'
+  instruction.value = draftInstruction
+  const instructionCount = node('p', 'field-hint instruction-count', `${draftInstruction.length} / 500`)
+  instructionCount.id = 'instruction-count'
+  instruction.addEventListener('input', () => {
+    draftInstruction = instruction.value
+    instructionCount.textContent = `${instruction.value.length} / 500`
+    updateInputProgress()
+    if (instructionError) {
+      instructionError = undefined
+      instruction.removeAttribute('aria-invalid')
+      const status = root.querySelector<HTMLElement>('#instruction-error')
+      if (status) status.textContent = ''
+    }
+  })
+  const instructionHead = node('div', 'field-head')
+  instructionHead.append(instructionLabel, instructionCount)
+  const instructionHint = node('p', 'field-hint', 'Try a precise direction')
+  instructionHint.id = 'instruction-hint'
+  const instructionStatus = node('p', 'field-error', instructionError)
+  instructionStatus.id = 'instruction-error'
+  instruction.setAttribute('aria-describedby', `${instructionHint.id} ${instructionCount.id} ${instructionStatus.id}`)
+  if (instructionError) instruction.setAttribute('aria-invalid', 'true')
+  const examples = node('div', 'examples')
+  examples.append(instructionHint)
+  for (const example of EXAMPLES) {
+    const exampleButton = button(example, 'example-button')
+    exampleButton.addEventListener('click', () => {
+      instruction.value = example
+      draftInstruction = example
+      instructionCount.textContent = `${example.length} / 500`
+      instructionError = undefined
+      instruction.removeAttribute('aria-invalid')
+      instructionStatus.textContent = ''
+      updateInputProgress()
+      instruction.focus()
+    })
+    examples.append(exampleButton)
+  }
+
+  const keyLabel = node('label', 'field-label', 'OpenAI API key (optional)')
+  keyLabel.htmlFor = 'api-key'
+  keyLabel.prepend(fieldNumber('03'))
+  const keyInput = node('input')
+  keyInput.id = 'api-key'
+  keyInput.name = 'apiKey'
+  keyInput.type = 'password'
+  keyInput.autocomplete = 'off'
+  keyInput.spellcheck = false
+  keyInput.placeholder = 'Use your own key after the free allowance'
+  keyInput.value = draftApiKey
+  keyInput.addEventListener('input', () => {
+    draftApiKey = keyInput.value
+  })
+  // FR-36: the key pays for this run and is released with it.
+  const keyHint = node('p', 'field-hint', 'Used for this run only and never stored.')
+  keyHint.id = 'api-key-hint'
+  const keyStatus = node('p', 'field-error', keyError)
+  keyStatus.id = 'api-key-error'
+  keyInput.setAttribute('aria-describedby', `${keyHint.id} ${keyStatus.id}`)
+  const keyHead = node('div', 'field-head')
+  keyHead.append(keyLabel, keyHint)
+
+  const error = node('p', 'form-error', formError)
+  error.id = 'run-form-error'
+  const submit = button('Start retouching', 'button button-accent')
+  submit.id = 'start-run'
+  submit.type = 'submit'
+  submit.append(icon('hgi-arrow-right-01'))
+  submit.setAttribute('aria-describedby', error.id)
+  // Three groups and a footer, each ruled off from the one before it.
+  const instructionGroup = node('div', 'form-group')
+  instructionGroup.append(instructionHead, instruction, instructionStatus, examples)
+  const keyGroup = node('div', 'form-group')
+  keyGroup.append(keyHead, keyInput, keyStatus)
+  const footer = node('div', 'form-footer')
+  footer.append(error, submit)
+  form.append(fileField, instructionGroup, keyGroup, footer)
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    formError = undefined
+    keyError = undefined
+    instructionError = undefined
+    if (!selectedFile) {
+      fileError = 'Choose a JPEG or PNG image.'
+      render('#source-image')
+      return
+    }
+    const submittedInstruction = instruction.value.trim()
+    if (!submittedInstruction) {
+      instructionError = 'Enter a retouching instruction.'
+      render('#instruction')
+      return
+    }
+    submit.disabled = true
+    submit.textContent = 'Starting…'
+    root.ariaBusy = 'true'
+    const submittedFile = selectedFile
+    try {
+      const body = new FormData()
+      body.set('image', submittedFile, submittedFile.name)
+      body.set('filename', submittedFile.name)
+      body.set('instruction', submittedInstruction)
+      if (keyInput.value) body.set('apiKey', keyInput.value)
+      // The editor warmed while the instruction was typed, if it is still ours.
+      if (warmUploadId) body.set('uploadId', warmUploadId)
+      const started = await api.start(body)
+      keyInput.value = ''
+      draftInstruction = ''
+      draftApiKey = ''
+      warmUploadId = undefined
+      selectedFile = undefined
+      releaseSelectedPreview()
+      sessionStorage.setItem(RUN_STORAGE_KEY, started.runId)
+      sessionStorage.setItem(RUN_TOKEN_STORAGE_KEY, started.runToken)
+      sessionStorage.setItem(INSTRUCTION_STORAGE_KEY, submittedInstruction)
+      dispatch({ type: 'started', runId: started.runId, instruction: submittedInstruction })
+      followRun(started.runId)
+    } catch (error) {
+      if (isImageUploadError(error)) {
+        rejectSelectedFile(submittedFile, error.message)
+        return
+      }
+      formError = publicMessage(error)
+      // A free-run refusal is answered by the key field, and a key OpenAI
+      // turns away is corrected there, so either is pointed out there and
+      // focus moves to it.
+      keyError = keyFieldError(error)
+      render(keyError ? '#api-key' : '#start-run')
+    } finally {
+      root.ariaBusy = 'false'
+    }
+  })
+  const board = node('div', 'workbench-board')
+  const card = node('div', 'workbench-card')
+  card.append(form)
+  board.append(card)
+  section.append(intro, board)
+  fragment.append(section)
+  return fragment
+}
+
+function keyFieldError(error: unknown): string | undefined {
+  if (!(error instanceof RunApiError)) return undefined
+  if (error.code === 'free_limit_reached' || error.code === 'daily_budget_reached') {
+    return 'Add your OpenAI API key in this field to continue.'
+  }
+  return error.code === 'invalid_api_key' ? 'Check the OpenAI API key in this field.' : undefined
+}
+
+// A run past the cap on concurrent runs waits in line with its place shown,
+// and starts by itself; until then it has no editor to show or correct (NFR-4).
+function actionText(progress: RunProgress): string {
+  return progress.queuePosition === null ? (progress.narration ?? 'Opening the editor') : 'Waiting to start'
+}
+
+function placeholderText(progress: RunProgress): string {
+  return progress.queuePosition === null
+    ? 'Preparing the editor…'
+    : `Number ${progress.queuePosition} in line. The run starts on its own.`
+}
+
+function cancelText(progress: RunProgress): string {
+  if (progress.cancelRequested) return 'Cancelling…'
+  return progress.queuePosition === null ? 'Cancel and keep work' : 'Leave the queue'
+}
+
+function progressRail(progress: Extract<ClientState, { view: 'running' }>['progress']): HTMLElement {
+  const rail = node('aside', 'progress-rail')
+  rail.setAttribute('aria-live', 'polite')
+  const title = node('p', 'rail-title', 'Run status')
+  title.id = 'run-status-title'
+  title.tabIndex = -1
+  const metrics = node('dl')
+  const entries: [id: string, term: string, detail: string][] = []
+  if (progress.instruction) entries.push(['instruction', 'Instruction', progress.instruction])
+  entries.push(
+    ['step', 'Step', `Step ${progress.steps} of ${progress.cap ?? '?'}`],
+    ['credits', 'Spend', formatCredits(progress.costUsd)],
+    ['action', 'Action', actionText(progress)]
+  )
+  for (const [id, term, detail] of entries) {
+    const value = node('dd', undefined, detail)
+    value.id = `run-${id}`
+    metrics.append(node('dt', undefined, term), value)
+  }
+  rail.append(title, metrics)
+  return rail
+}
+
+function replaceNotices(container: HTMLElement, progress: Extract<ClientState, { view: 'running' }>['progress']): void {
+  const previousCount = container.childElementCount
+  container.replaceChildren()
+  for (const message of progress.recoverableErrors) container.append(node('p', 'notice', message))
+  for (const message of progress.corrections) {
+    container.append(node('p', 'correction-ack', `Correction received: ${message}`))
+  }
+  // The container has a bounded height (styles.css); keep the newest
+  // acknowledgement in view rather than the oldest, but only when the list
+  // actually grew. Every progress tick calls this, and pulling a visitor
+  // back to the bottom on ticks that add nothing would undo a manual
+  // scroll to reread an earlier one.
+  if (container.childElementCount > previousCount) container.scrollTop = container.scrollHeight
+}
+
+function announceNewCorrections(
+  announcer: HTMLElement,
+  corrections: Extract<ClientState, { view: 'running' }>['progress']['corrections']
+): void {
+  const announcedCount = Number(announcer.dataset.announcedCount ?? 0)
+  if (corrections.length > announcedCount) {
+    announcer.textContent = corrections
+      .slice(announcedCount)
+      .map((message) => `Correction received: ${message}`)
+      .join(' ')
+  }
+  announcer.dataset.announcedCount = String(corrections.length)
+}
+
+function renderRunning(current: Extract<ClientState, { view: 'running' }>): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  // A watched run shows no controls: the agent that started it steers and
+  // cancels, and a stored run left by an older page has no token to send.
+  const viewOnly = current.progress.viewOnly
+  let cancel: HTMLButtonElement | undefined
+  if (!viewOnly) {
+    cancel = button(cancelText(current.progress), 'text-button')
+    cancel.id = 'cancel-run'
+    cancel.disabled = current.progress.cancelRequested
+    cancel.addEventListener('click', async () => {
+      // A run that leaves the queue has nothing to come back to after a reload.
+      const leavingQueue = state.view === 'running' && state.progress.queuePosition !== null
+      dispatch({ type: 'cancel_requested' })
+      try {
+        await api.cancel(current.progress.runId, runToken())
+        if (leavingQueue) clearStoredRun(current.progress.runId)
+      } catch (error) {
+        // A refused cancel does not end the run: the running view or the
+        // result stays on screen, with the refusal shown as a notice (#123).
+        // A request that never reached the server at all (a `RunApiError` is
+        // only thrown for a server's stated refusal) is a real connection
+        // loss, which the run's own "connection lost" error view handles.
+        // A slow request that settles once the view has moved to a different
+        // run must not be attributed to that run either.
+        if (!isCurrentRun(state, current.progress.runId)) return
+        dispatch(
+          error instanceof RunApiError
+            ? { type: 'action_refused', message: publicMessage(error) }
+            : { type: 'connection_failed', message: publicMessage(error) }
+        )
+      }
+    })
+  }
+  fragment.append(brandHeader(cancel))
+
+  const layout = node('section', 'running-layout')
+  layout.setAttribute('aria-label', 'Retouching in progress')
+  const frame = node('figure', 'live-frame')
+  frame.id = 'live-frame'
+  if (current.progress.frameUrl) {
+    const image = node('img')
+    image.src = current.progress.frameUrl
+    image.alt = 'Current editor frame'
+    frame.append(image)
+  } else {
+    frame.append(node('p', 'frame-placeholder', placeholderText(current.progress)))
+  }
+  layout.append(frame, progressRail(current.progress))
+
+  const correction = viewOnly
+    ? node('p', 'watching-note', 'You are watching this run. Corrections come from the agent that started it.')
+    : correctionForm(current)
+
+  const notices = node('div', 'run-notices')
+  notices.id = 'run-notices'
+  replaceNotices(notices, current.progress)
+  const correctionAnnouncer = node('p', 'sr-only')
+  correctionAnnouncer.id = 'correction-announcer'
+  correctionAnnouncer.setAttribute('aria-live', 'polite')
+  correctionAnnouncer.setAttribute('aria-atomic', 'true')
+  correctionAnnouncer.dataset.announcedCount = String(current.progress.corrections.length)
+
+  // A grid row sized only by min-height grows to fit an oversized child (a
+  // real frame, not fakeRun's tiny placeholder), pushing the form and the
+  // notices below it off screen. A fixed-height flex shell keeps the three
+  // parts within the viewport instead: running-layout is the only part that
+  // flexes.
+  const shell = node('div', 'running-shell')
+  shell.append(layout, correction, notices, correctionAnnouncer)
+  fragment.append(shell)
+  return fragment
+}
+
+function correctionForm(current: Extract<ClientState, { view: 'running' }>): HTMLFormElement {
+  const correction = node('form', 'correction-form')
+  correction.dataset.form = 'correction'
+  const label = node('label', 'field-label', 'Correct the next action')
+  label.htmlFor = 'correction'
+  const field = node('input')
+  field.id = 'correction'
+  field.name = 'correction'
+  field.maxLength = 500
+  field.placeholder = 'For example: keep the label unchanged'
+  // Corrections are refused for the whole finishing window (#123), so the
+  // field is disabled as soon as a cancel is requested rather than left to
+  // fail server-side, and while the run is still queued and cannot be
+  // corrected yet (#102).
+  field.disabled = current.progress.cancelRequested || current.progress.queuePosition !== null
+  const send = button('Send correction', 'button button-dark')
+  send.id = 'send-correction'
+  send.type = 'submit'
+  send.disabled = field.disabled
+  const correctionHint = node('p', 'field-hint', 'A correction steers the next action. It does not restart the run.')
+  correctionHint.id = 'correction-hint'
+  field.setAttribute('aria-describedby', correctionHint.id)
+  correction.append(label, field, send, correctionHint)
+  correction.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const text = field.value.trim()
+    if (!text) return
+    send.disabled = true
+    try {
+      await api.steer(current.progress.runId, runToken(), text)
+      field.value = ''
+    } catch (error) {
+      // A refused correction does not end the run: the running view or the
+      // result stays on screen, with the refusal shown as a notice (#123).
+      // A request that never reached the server at all (a `RunApiError` is
+      // only thrown for a server's stated refusal) is a real connection
+      // loss, which the run's own "connection lost" error view handles.
+      // A slow request that settles once the view has moved to a different
+      // run must not be attributed to that run either.
+      if (isCurrentRun(state, current.progress.runId)) {
+        dispatch(
+          error instanceof RunApiError
+            ? { type: 'action_refused', message: publicMessage(error) }
+            : { type: 'connection_failed', message: publicMessage(error) }
+        )
+      }
+    } finally {
+      // A cancel requested while this was in flight must stay disabled;
+      // read the live state rather than the render this closure captured.
+      send.disabled = state.view === 'running' && state.progress.cancelRequested
+    }
+  })
+  return correction
+}
+
+function updateRunning(current: Extract<ClientState, { view: 'running' }>): void {
+  const step = root.querySelector<HTMLElement>('#run-step')
+  const credits = root.querySelector<HTMLElement>('#run-credits')
+  const action = root.querySelector<HTMLElement>('#run-action')
+  const cancel = root.querySelector<HTMLButtonElement>('#cancel-run')
+  const field = root.querySelector<HTMLInputElement>('#correction')
+  const send = root.querySelector<HTMLButtonElement>('#send-correction')
+  const frame = root.querySelector<HTMLElement>('#live-frame')
+  const notices = root.querySelector<HTMLElement>('#run-notices')
+  const correctionAnnouncer = root.querySelector<HTMLElement>('#correction-announcer')
+  if (!step || !credits || !action || !frame || !notices || !correctionAnnouncer) {
+    return
+  }
+
+  step.textContent = `Step ${current.progress.steps} of ${current.progress.cap ?? '?'}`
+  credits.textContent = formatCredits(current.progress.costUsd)
+  action.textContent = actionText(current.progress)
+  // A watched run renders no cancel or correction controls to update.
+  if (cancel) {
+    cancel.textContent = cancelText(current.progress)
+    cancel.disabled = current.progress.cancelRequested
+  }
+  if (field && send) {
+    // Only when the run leaves the queue, so a correction being sent keeps its button disabled.
+    const queued = current.progress.queuePosition !== null
+    if (field.disabled !== queued) {
+      field.disabled = queued
+      send.disabled = queued
+    }
+    // Only latches on: a correction already in flight manages send.disabled
+    // itself, and must not be re-enabled here once cancelling has started.
+    // Applied after the queue toggle above so a cancel always wins, even for
+    // a run that was still queued when cancelled (#123).
+    if (current.progress.cancelRequested) {
+      field.disabled = true
+      send.disabled = true
+    }
+  }
+
+  if (current.progress.frameUrl) {
+    let image = frame.querySelector('img')
+    if (!image) {
+      image = node('img')
+      image.alt = 'Current editor frame'
+      frame.replaceChildren(image)
+    }
+    if (image.src !== current.progress.frameUrl) image.src = current.progress.frameUrl
+  } else {
+    const placeholder = frame.querySelector('.frame-placeholder')
+    if (placeholder) placeholder.textContent = placeholderText(current.progress)
+  }
+  announceNewCorrections(correctionAnnouncer, current.progress.corrections)
+  replaceNotices(notices, current.progress)
+}
+
+function renderResult(current: Extract<ClientState, { view: 'result' }>): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  const another = button('Retouch another', 'text-button')
+  another.addEventListener('click', () => {
+    // Otherwise a reload before the next run starts restores this one (#126).
+    clearStoredRun(current.progress.runId)
+    dispatch({ type: 'edit' })
+  })
+  fragment.append(brandHeader(another))
+
+  const section = node('section', 'result-layout')
+  section.setAttribute('aria-labelledby', 'result-title')
+  const copy = node('div', 'result-copy')
+  const titleText =
+    current.outcome === 'complete' ? 'Your layered file is ready.' : 'Your partial layered file is ready.'
+  const title = node('h1', undefined, titleText)
+  title.id = 'result-title'
+  title.tabIndex = -1
+  copy.append(eyebrow('Retouch result'), title, description(resultOutcomeText(current.outcome)))
+  // A correction or cancel refused after the run ended lands here rather
+  // than replacing the result (#123).
+  for (const message of current.progress.recoverableErrors) copy.append(node('p', 'notice', message))
+
+  const recap = node('dl', 'result-recap')
+  if (current.progress.instruction) {
+    recap.append(node('dt', undefined, 'Instruction'), node('dd', undefined, current.progress.instruction))
+  }
+  recap.append(node('dt', undefined, 'Corrections'))
+  const correctionDetail = node('dd')
+  if (current.progress.corrections.length > 0) {
+    const list = node('ul')
+    for (const correction of correctionStatuses(current.progress)) {
+      const item = node('li', undefined, correction.text)
+      // A cancel or a cap can strand an acknowledged correction (#124); say
+      // so here rather than leave the visitor believing it was applied.
+      if (!correction.delivered) item.append(node('span', 'correction-undelivered', 'Never reached the agent'))
+      list.append(item)
+    }
+    correctionDetail.append(list)
+  } else {
+    correctionDetail.textContent = 'None'
+  }
+  recap.append(correctionDetail)
+  copy.append(recap)
+
+  const image = node('img')
+  image.className = 'result-preview'
+  image.src = current.result.previewUrl
+  image.alt = 'Flattened preview of the retouched photograph'
+
+  const layers = node('section')
+  layers.className = 'layer-list'
+  const layersTitle = node('h2', undefined, 'Layers in the PSD')
+  layers.append(layersTitle, renderLayerTree(current.result.layers))
+
+  const downloads = node('div', 'result-actions')
+  const download = node('a', 'button button-accent', 'Download layered PSD')
+  download.href = current.result.psdUrl
+  download.download = 'layerhand-result.psd'
+  const preview = node('a', 'button', 'Download flattened PNG')
+  preview.href = current.result.previewUrl
+  preview.download = 'layerhand-preview.png'
+  downloads.append(download, preview)
+  copy.append(downloads, node('p', 'result-expiry', 'Download links expire after one hour.'))
+  section.append(image, copy, layers)
+  fragment.append(section)
+  return fragment
+}
+
+// The contract lists layers bottom to top; editors show the top layer first.
+function renderLayerTree(layers: readonly LayerInfo[]): HTMLOListElement {
+  const list = node('ol')
+  for (const layer of [...layers].reverse()) list.append(renderLayer(layer))
+  return list
+}
+
+function renderLayer(layer: LayerInfo): HTMLLIElement {
+  const item = node('li', 'layer-row')
+  const summary = node('div', 'layer-summary')
+  const tags = node('span', 'layer-tags')
+  tags.append(node('span', undefined, layer.kind))
+  if (!layer.visible) tags.append(node('span', 'layer-hidden', 'hidden'))
+  for (const mask of layer.masks) {
+    tags.append(node('span', 'layer-mask', `${mask.enabled ? '' : 'disabled '}${mask.kind} mask`))
+  }
+  summary.append(node('strong', undefined, layer.name), tags)
+  item.append(summary)
+  if (layer.children.length > 0) item.append(renderLayerTree(layer.children))
+  return item
+}
+
+function renderRestoring(): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  fragment.append(brandHeader())
+  const section = node('section', 'restoring-state')
+  const title = node('h1', undefined, 'Reconnecting to your run…')
+  title.id = 'restoring-title'
+  title.tabIndex = -1
+  section.append(eyebrow('Run in progress'), title, description('The live view resumes in a moment.'))
+  fragment.append(section)
+  return fragment
+}
+
+function renderError(current: Extract<ClientState, { view: 'error' }>): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  fragment.append(brandHeader())
+  const section = node('section', 'error-state')
+  const title = node('h1', undefined, 'The retouching run stopped.')
+  title.id = 'error-title'
+  title.tabIndex = -1
+  section.append(eyebrow('Run interrupted'), title, description(withFullStop(current.message)))
+  // Reconnecting only helps a connection dropped out from under a run that
+  // may still be going; a run the server ended for good would just return
+  // the same failure again (#126).
+  const reconnectId = current.reconnectable ? current.runId : undefined
+  const action = button(reconnectId ? 'Reconnect to run' : 'Start a new retouch', 'button button-accent')
+  action.addEventListener('click', () => {
+    if (reconnectId) void restoreRun(reconnectId)
+    else {
+      if (current.runId) clearStoredRun(current.runId)
+      dispatch({ type: 'edit' })
+    }
+  })
+  section.append(action)
+  fragment.append(section)
+  return fragment
+}
+
+function render(focusTarget?: string): void {
+  if (root.dataset.view === 'running' && state.view === 'running') {
+    updateRunning(state)
+    return
+  }
+  const viewChanged = root.dataset.view !== undefined && root.dataset.view !== state.view
+  root.replaceChildren()
+  root.dataset.view = state.view
+  switch (state.view) {
+    case 'landing':
+      root.append(renderLanding(landingContext))
+      break
+    case 'input':
+      root.append(renderInput())
+      break
+    case 'restoring':
+      root.append(renderRestoring())
+      break
+    case 'running':
+      root.append(renderRunning(state))
+      break
+    case 'result':
+      root.append(renderResult(state))
+      break
+    case 'error':
+      root.append(renderError(state))
+      break
+  }
+  if (focusTarget) {
+    root.querySelector<HTMLElement>(focusTarget)?.focus()
+  } else if (viewChanged) {
+    const target = root.querySelector<HTMLElement>(VIEW_FOCUS_TARGETS[state.view])
+    if (target instanceof HTMLInputElement && target.disabled) {
+      root.querySelector<HTMLElement>('#run-status-title')?.focus()
+    } else {
+      target?.focus()
+    }
+  }
+}
+
+function followRun(runId: string): void {
+  stream?.close()
+  stream = api.subscribe(
+    runId,
+    (id, event) => {
+      dispatch({ type: 'event', id, event })
+    },
+    () => void reconnectRun(runId)
+  )
+}
+
+// One dropped stream is often a blip, so the snapshot that restores the view
+// is retried before the run is declared unreachable.
+const RECONNECT_ATTEMPTS = 3
+
+async function reconnectRun(runId: string): Promise<void> {
+  if (reconnecting || state.view !== 'running') return
+  reconnecting = true
+  try {
+    for (let attempt = 1; attempt <= RECONNECT_ATTEMPTS; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 160 * attempt))
+      if (state.view !== 'running') return
+      try {
+        const snapshot = await api.snapshot(runId)
+        dispatch({ type: 'snapshot', snapshot })
+        return
+      } catch {
+        // Try again; the run keeps going whether or not the page is watching.
+      }
+    }
+    dispatch({ type: 'connection_failed', message: 'The live connection could not be restored.' })
+  } finally {
+    reconnecting = false
+  }
+}
+
+function stillRestoring(runId: string): boolean {
+  return state.view === 'restoring' && state.runId === runId
+}
+
+async function restoreRun(runId: string): Promise<void> {
+  // A `?watch=` link always watches, and so does a stored run an older page
+  // left without its token: either way the controls stay out, and a watched
+  // run is never written to sessionStorage.
+  const watched = new URLSearchParams(location.search).get('watch') === runId
+  const stored = sessionStorage.getItem(RUN_STORAGE_KEY) === runId
+  const viewOnly = watched || !stored || sessionStorage.getItem(RUN_TOKEN_STORAGE_KEY) === null
+  dispatch({ type: 'restoring', runId })
+  root.ariaBusy = 'true'
+  try {
+    const snapshot = await api.snapshot(runId)
+    if (stillRestoring(runId)) {
+      dispatch({
+        type: 'snapshot',
+        snapshot,
+        instruction: stored ? sessionStorage.getItem(INSTRUCTION_STORAGE_KEY) : null,
+        viewOnly
+      })
+      if (snapshot.status === 'running' || snapshot.status === 'queued') followRun(runId)
+    }
+  } catch (error) {
+    if (stillRestoring(runId)) {
+      // A `RunApiError` is a stated server answer (the run has aged out of
+      // the registry, for one), not a dropped connection, so it ends in a
+      // non-reconnectable view and the stored id is cleared at once rather
+      // than left to offer a reconnect that would just repeat the same
+      // refusal. Anything else never reached the server, so the id
+      // survives for a later reload to retry (#126).
+      if (error instanceof RunApiError) {
+        clearStoredRun(runId)
+        dispatch({ type: 'run_unavailable', message: publicMessage(error) })
+      } else {
+        dispatch({ type: 'connection_failed', message: publicMessage(error) })
+      }
+    }
+  } finally {
+    root.ariaBusy = 'false'
+  }
+}
+
+function publicMessage(error: unknown): string {
+  if (error instanceof RunApiError) return error.message
+  // fetch reports a refused or unreachable request as a bare TypeError.
+  if (error instanceof TypeError) {
+    return 'The server could not be reached. Check your connection and try again.'
+  }
+  if (error instanceof Error && !error.message.toLowerCase().includes('secret')) return error.message
+  return 'The request could not be completed.'
+}
+
+function withFullStop(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`
+}
+
+document.documentElement.dataset.application = 'layerhand'
+render()
+// A `?watch=` link opens that run's live view straight away, ahead of any
+// stored run.
+const watchRun = new URLSearchParams(location.search).get('watch')
+const storedRun = sessionStorage.getItem(RUN_STORAGE_KEY)
+if (watchRun) void restoreRun(watchRun)
+else if (storedRun) void restoreRun(storedRun)

@@ -156,7 +156,7 @@ interface RunHandle {
 ```
 
 The types leave some behaviour open. The contract tests in
-`src/agent/contract-tests.ts` pin it, for the fake and the real loop
+`apps/agent/contract-tests.ts` pin it, for the fake and the real loop
 alike:
 
 - A run carries on whether or not anyone reads `events`. Each iteration
@@ -347,7 +347,7 @@ The two candidates:
     computer-tool example in it is pinned to the previous-generation
     model rather than to Astra.
 
-`ResponsesModel` in `src/agent/responses-model.ts` implements both, and
+`ResponsesModel` in `apps/agent/responses-model.ts` implements both, and
 one option selects the mechanism. Neither weakens the premise: the editor
 still has no usable API, and the competence being exercised is still
 holding a long GUI task together. Both mechanisms' prompts forbid
@@ -356,7 +356,7 @@ that scripts it is disqualified, whether its code reaches the interface
 or, in computer mode, it types `app.`, `echoToOE`, or `saveToOE`.
 
 **Production refuses such an action outright**, rather than merely
-disqualifying it after the fact. `src/agent/scripting-guard.ts` holds the
+disqualifying it after the fact. `apps/agent/scripting-guard.ts` holds the
 one detector for that pattern, shared by the agent loop and the spike
 harness so the two cannot drift apart. The loop drops a matching `type`
 action before it reaches `session.act`: the model sees the editor
@@ -404,7 +404,7 @@ Four things around it that are not optional:
   disturbing the cached prefix. Adjacent `configuration_update` items
   are rejected, and it cannot be combined with automatic truncation.
 
-`runAgent()` in `src/agent/loop.ts` is this loop. It reaches the model
+`runAgent()` in `apps/agent/loop.ts` is this loop. It reaches the model
 through an `AgentModel` port, one call per step. Each call takes the
 latest screenshot and any corrections sent since the previous call, and
 returns narration, actions, token usage, and whether the edit is done. A
@@ -856,7 +856,7 @@ These are _not_ the frames sent to the model. The model gets 1440x900
 captures on its own cadence; the user gets whatever bandwidth allows.
 Conflating the two couples the demo's smoothness to the token bill.
 
-`startFramePump()` in `src/browser/frame-pump.ts` keeps that cadence. The
+`startFramePump()` in `apps/browser/frame-pump.ts` keeps that cadence. The
 agent loop starts it once the upload is open, and stops it before the
 export, waiting up to a second for a frame in progress, so no frame
 follows the end of a run. It captures the editor once a second, timed from
@@ -882,7 +882,7 @@ animated outline of a held selection still sends most frames. Plan capacity
 on the worked row, at which a run lasting the whole fifteen-minute ceiling
 sends each viewer about 440 MB. Sending every capture, even an idle editor
 would cost 840 KB a second. The numbers come from
-`test/browser/frame-bandwidth.integration.test.ts` on a local browser; a
+`tests/browser/frame-bandwidth.integration.test.ts` on a local browser; a
 hosted session shows the same pixels, but its capture time and upload path
 are unmeasured.
 
@@ -973,7 +973,7 @@ no account.
   for an HTML import cannot add a header, so `pageRoutes()` serves the
   bundle's files itself (#114). Under `LAYERHAND_PAGE_RELOAD`, which
   `bun run dev` sets, it serves the page through that native Bun route
-  instead, so an edit under `src/web` shows up without a restart, at the
+  instead, so an edit under `apps/web` shows up without a restart, at the
   cost of the headers above; `bun run start` and every test leave the
   flag unset and stay secured.
 - Run state lives server-side, keyed by `runId`, and the page holds
@@ -1054,8 +1054,8 @@ Four more checks sit in front of `POST /api/uploads`, `/api/runs`, and
     multipart body, well above what a steer or an email address needs
     and well below anything worth buffering.
 
-`src/server/rate-limiter.ts` is the in-memory limiter; `RunRoutes` in
-`src/server/run-routes.ts` wires it, the origin check, and the body cap
+`apps/server/rate-limiter.ts` is the in-memory limiter; `RunRoutes` in
+`apps/server/run-routes.ts` wires it, the origin check, and the body cap
 in front of the three endpoints.
 
 ### Resolution: Two different things
@@ -1216,7 +1216,7 @@ and one full wave would need 20 × $3 = $60.
 **Proposed: $230 a day**, for kymil4 to confirm on day 4 from A2's
 measurement. It is not yet agreed. The reservation always equals the spend
 cap, because reserving less would undercount a run heading for it.
-`test/server/limits.test.ts` pins the arithmetic at the $3 and the $8
+`tests/server/limits.test.ts` pins the arithmetic at the $3 and the $8
 reservation: nineteen reservations hold the twentieth concurrent free run in
 line, and twenty admit a full wave.
 
@@ -1316,7 +1316,7 @@ every question worth asking on launch day.
 
 Frames are not logged. Instructions are, truncated; keys never.
 
-`createRunLogger()` in `src/server/run-log.ts` writes that line. The
+`createRunLogger()` in `apps/server/run-log.ts` writes that line. The
 launch runtime prints it to standard output as one NDJSON record, and
 stores the same fields, with the cache hit rate added, in the `run_log`
 table, one row per run. A launch-day question is then one SQL statement:
@@ -1404,20 +1404,20 @@ has the freeze and rollback steps.
 ## Repository layout
 
 ```text
-src/
+apps/
   agent/      the Astra loop, steering, budgets, narration
   editor/     the editor adapter and its fake
   browser/    session provider and the live frame pump
   server/     HTTP surface, metering, storage
   web/        the single page and the landing page
-test/
+tests/
   images/     the ten-image set and its expectations
 docs/         PRODUCT.md, PRD.md, TRD.md, references/
 ```
 
 One directory per stream, so that day-to-day work rarely collides.
-`src/agent` and `src/editor` meet only at Contract 1; `src/server` and
-`src/agent` meet only at Contract 2.
+`apps/agent` and `apps/editor` meet only at Contract 1; `apps/server` and
+`apps/agent` meet only at Contract 2.
 
 Conventions are the repository's existing ones: Bun, Prettier, atomic
 commits, Conventional Commits, and the
@@ -1568,7 +1568,7 @@ into the file, and the bridge's wait grows by a second for each MiB of file
 a command receives.
 
 Issue #100 export result (2026-09-17, Google Chrome 153.0.8010.48): the
-opt-in `test/editor/photopea-large-export.integration.test.ts` reaches
+opt-in `tests/editor/photopea-large-export.integration.test.ts` reaches
 installed Chrome over `connectOverCDP`, as a hosted session is reached. It
 opened a generated 6000x6000 JPEG, the largest image FR-1 allows, added one
 full-size layer over the original, as a retouch leaves, and exported it

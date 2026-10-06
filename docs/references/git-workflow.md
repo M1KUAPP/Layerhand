@@ -121,21 +121,6 @@ Local hooks install themselves:
 bun install
 ```
 
-The knowledge graph in `graphify-out/` is refreshed deliberately rather
-than on every commit:
-
-```sh
-bun run graph
-```
-
-Committing no longer needs
-[graphify](https://github.com/graphify-labs/graphify), but querying the
-graph does, and `bun install` does not provide it. Install it once:
-
-```sh
-uv tool install graphifyy
-```
-
 The merge settings are applied once, by someone with admin on the
 repository. They make squash the only merge method, with the pull request
 title and body as the commit, turn on auto-merge and branch updates, and
