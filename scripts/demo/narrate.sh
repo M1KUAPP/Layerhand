@@ -25,8 +25,8 @@ MAX_DURATION="${DEMO_MAX_DURATION:-120}"
 
 # Sampled from the app's own background so the pillarbox bars blend seamlessly.
 PAD="${DEMO_PAD:-#F3F0E8}"
-# assemble.sh joins the capture to the pitch slides; when it has run, that is
-# the video to narrate over. Falls back to the raw capture for a plain demo.
+# assemble.sh normalizes the capture to 1920x1080; when it has run, that is the
+# video to narrate over. Falls back to the raw capture otherwise.
 SRC="${DEMO_SOURCE:-$DIR/capture-joined.mp4}"
 [ -f "$SRC" ] || SRC="$DIR/capture.webm"
 for f in "$SRC" "$DIR/beats.json" "$SCRIPT"; do
@@ -96,7 +96,7 @@ total=$(awk -v p="$pad" -v v="$vid" 'BEGIN{printf "%.3f", v+p}')
 subs="subtitles='$DIR/narration.srt':force_style='FontName=Geist,FontSize=10.5,PrimaryColour=&H00FFFFFF,OutlineColour=&H70101310,BorderStyle=3,Outline=0.75,Shadow=0,Alignment=2,MarginV=10,Spacing=0.2'"
 
 # The raw capture is 1440x900 and needs scaling into a 1920x1080 frame. The
-# joined pitch cut is ALREADY 1920x1080, and re-applying that scale would shrink
+# assembled capture is ALREADY 1920x1080, and re-applying that scale would shrink
 # the picture inside a second set of bars -- silently, since ffmpeg is happy to
 # letterbox something that already fits. Ask the file rather than assume.
 src_w=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$SRC" | head -1)
