@@ -64,8 +64,8 @@ inputs=(); filters=""; labels=""
 for i in $(seq 0 $((n - 1))); do
   ms=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))[int(sys.argv[2])]['ms'])" "$DIR/lines.json" "$i")
   inputs+=(-i "$DIR/seg/$i.wav")
-  filters="$filters[$i:a]adelay=$ms|$ms[a$i];"
-  labels="$labels[a$i]"
+  filters="${filters}[$i:a]adelay=$ms|${ms}[a$i];"
+  labels="${labels}[a$i]"
 done
 "$FF" -y "${inputs[@]}" \
   -filter_complex "${filters}${labels}amix=inputs=$n:normalize=0,loudnorm=I=-18:TP=-2:LRA=7[out]" \
@@ -108,7 +108,7 @@ if [ -n "$BGM" ]; then
   fade_out=$(awk -v t="$total" 'BEGIN{printf "%.3f", (t<12)? t/3 : 4}')
   fade_start=$(awk -v t="$total" -v d="$fade_out" 'BEGIN{printf "%.3f", t-d}')
   "$FF" -y -i "$SRC" -i "$DIR/narration.wav" -stream_loop -1 -i "$BGM" \
-    -filter_complex "[0:v]${tpad}${fit}${subs}[v];[1:a]pan=stereo|c0=c0|c1=c0,asplit=2[voice][side-source];[side-source]apad=whole_dur=$total[side];[2:a]atrim=start=0:end=$total,asetpts=PTS-STARTPTS,aformat=sample_rates=44100:channel_layouts=stereo,volume=${BGM_GAIN_DB}dB,afade=t=in:st=0:d=$fade_in,afade=t=out:st=$fade_start:d=$fade_out[music];[music][side]sidechaincompress=threshold=0.03:ratio=6:attack=30:release=500:knee=2.8[ducked];[voice][ducked]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,alimiter=limit=0.95:attack=5:release=50:level=false:latency=true[a]" \
+    -filter_complex "[0:v]${tpad}${fit}${subs}[v];[1:a]pan=stereo|c0=c0|c1=c0,asplit=2[voice][side-source];[side-source]apad=whole_dur=${total}[side];[2:a]atrim=start=0:end=$total,asetpts=PTS-STARTPTS,aformat=sample_rates=44100:channel_layouts=stereo,volume=${BGM_GAIN_DB}dB,afade=t=in:st=0:d=$fade_in,afade=t=out:st=$fade_start:d=${fade_out}[music];[music][side]sidechaincompress=threshold=0.03:ratio=6:attack=30:release=500:knee=2.8[ducked];[voice][ducked]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,alimiter=limit=0.95:attack=5:release=50:level=false:latency=true[a]" \
     -map "[v]" -map "[a]" -t "$total" -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p \
     -c:a aac -b:a 192k -ar 44100 -ac 2 -movflags +faststart "$OUT" >/dev/null 2>&1
 else
