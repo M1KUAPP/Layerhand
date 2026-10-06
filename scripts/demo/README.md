@@ -17,11 +17,10 @@ Contents:
 1.  [See also](#see-also)
 
 ```text
-narration.txt ──► speak.py ──► seg/*.wav ──► schedule.py ───┐
-                                        └──► subtitles.py ──┤
-                                                            ├──► ffmpeg ──► demo.mp4
-walk.mjs ──► record.mjs ──► capture.webm ──► assemble.sh ───┘
-                        └─► beats.json ────────┘
+narration.txt ─┬─► manifest.py ──► speak.py ──► seg/*.wav ──► schedule.py ────┐
+beats.json ────┘                                         └──► subtitles.py ───┤
+                                                                              ├──► ffmpeg ──► demo.mp4
+walk.mjs ──► record.mjs ──► capture.webm ──► assemble.sh ─────────────────────┘
 ```
 
 - Single source of truth in `lines.json`: narration audio and subtitle
