@@ -74,7 +74,7 @@ committed `bun.lock` uses lockfile version 2, which Bun 1.3 cannot read.
 Install and container builds use `bun install --frozen-lockfile`; they must
 fail rather than regenerate an unreadable lockfile.
 
-`src/server/index.ts` imports `src/web/index.html` and serves it with
+`apps/server/index.ts` imports `apps/web/index.html` and serves it with
 `Bun.serve`. Bun bundles the HTML, TypeScript, CSS, fonts, and image assets for
 production with one `bun build --target=bun` command. No router, CSS framework,
 or second development server is added. React is confined to the landing page,

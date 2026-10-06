@@ -9,8 +9,8 @@ import { parseArgs } from 'node:util'
 
 import { SQL } from 'bun'
 
-import type { RunSnapshot } from '../../../../src/server/run-registry'
-import { decodeRunSnapshot } from '../../../../src/web/api'
+import type { RunSnapshot } from '../../../../apps/server/run-registry'
+import { decodeRunSnapshot } from '../../../../apps/web/api'
 import {
   agentRunProfile,
   evaluateAgentRunAcceptance,

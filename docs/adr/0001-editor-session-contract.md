@@ -82,13 +82,13 @@ provider-specific concept.
 
 ## Verification
 
-- [`src/editor/session.ts`](/src/editor/session.ts) defines the public
+- [`apps/editor/session.ts`](/apps/editor/session.ts) defines the public
   interface and action types.
-- [`src/editor/fake-editor-session.ts`](/src/editor/fake-editor-session.ts)
+- [`apps/editor/fake-editor-session.ts`](/apps/editor/fake-editor-session.ts)
   implements the deterministic fake.
-- [`test/editor/editor-session.contract.ts`](/test/editor/editor-session.contract.ts)
+- [`tests/editor/editor-session.contract.ts`](/tests/editor/editor-session.contract.ts)
   contains the reusable contract suite.
-- [`test/editor/fake-editor-session.test.ts`](/test/editor/fake-editor-session.test.ts)
+- [`tests/editor/fake-editor-session.test.ts`](/tests/editor/fake-editor-session.test.ts)
   verifies fake-specific lifecycle and defensive-copy behavior.
 
 ## References

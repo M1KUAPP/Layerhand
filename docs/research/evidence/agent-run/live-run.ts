@@ -8,9 +8,9 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import type { RunEvent } from '../../../../src/agent/contract'
-import { liveAgentRun } from '../../../../src/server/agent-run'
-import { BrowserbaseClient } from '../../../../src/server/browserbase-client'
+import type { RunEvent } from '../../../../apps/agent/contract'
+import { liveAgentRun } from '../../../../apps/server/agent-run'
+import { BrowserbaseClient } from '../../../../apps/server/browserbase-client'
 import { agentRunProfile, evaluateAgentRunAcceptance } from './profiles'
 
 // The run ceiling (docs/TRD.md § One ceiling: fifteen minutes).
