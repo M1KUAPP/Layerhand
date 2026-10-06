@@ -2,7 +2,6 @@
 .git/
 .husky/
 docs/
-graphify-out/
 node_modules/
 tests/
 .worktrees/

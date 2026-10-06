@@ -6,7 +6,6 @@
     "check": "bun run lint && bun run typecheck && bun run test && bun run check:mcp && bun run test:demo",
     "check:mcp": "cd packages/layerhand-mcp && bun install --frozen-lockfile && bun run typecheck && bun run test",
     "dev": "LAYERHAND_PAGE_RELOAD=1 bun --hot apps/server/index.ts",
-    "graph": "graphify update . && prettier --write --log-level=warn graphify-out && EC_VERSION=v4.0.2 editorconfig-checker -fix graphify-out/graph.json",
     "lint": "EC_VERSION=v4.0.2 editorconfig-checker && EC_VERSION=v4.0.2 editorconfig-checker -config .editorconfig-checker.exceptions.json -disable-indent-size apps/web/mcp/prompt.ts && prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky",

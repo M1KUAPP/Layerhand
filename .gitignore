@@ -86,10 +86,6 @@ node_modules/
 .env*
 !.env.example
 
-# Graphify
-graphify-out/*
-!graphify-out/graph.json
-
 # Repo-specific
 
 # Development
