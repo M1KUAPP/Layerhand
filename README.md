@@ -6,8 +6,8 @@
 <div align="center">
   <a href="https://github.com/M1KUAPP/Layerhand">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner-dark.png">
-      <img src="docs/readme/banner-light.png" alt="Layerhand banner">
+      <source media="(prefers-color-scheme: dark)" srcset="/docs/readme/banner-dark.png">
+      <img src="/docs/readme/banner-light.png" alt="Layerhand banner">
     </picture>
   </a>
 
@@ -88,31 +88,31 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 <table>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/readme/screenshots/landing.png" alt="Landing" width="100%">
+      <img src="/docs/readme/screenshots/landing.png" alt="Landing" width="100%">
       <br />
       <strong>Landing</strong> · The home page pitches a layered PSD, not a flat JPEG, with three free runs.
     </td>
     <td width="50%" valign="top" align="left">
-      <img src="docs/readme/screenshots/workbench.png" alt="Workbench" width="100%">
+      <img src="/docs/readme/screenshots/workbench.png" alt="Workbench" width="100%">
       <br />
       <strong>Workbench</strong> · Drop in a photograph, say what you want, and optionally add an OpenAI key.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/readme/screenshots/live-run.png" alt="Live run" width="100%">
+      <img src="/docs/readme/screenshots/live-run.png" alt="Live run" width="100%">
       <br />
       <strong>Live Run</strong> · GPT-6 Astra drives Photopea while you type a correction without restarting the run.
     </td>
     <td width="50%" valign="top" align="left">
-      <img src="docs/readme/screenshots/layered-result.png" alt="Layered result" width="100%">
+      <img src="/docs/readme/screenshots/layered-result.png" alt="Layered result" width="100%">
       <br />
       <strong>Layered Result</strong> · Download the layered PSD and a flattened PNG preview, with every named layer listed.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top" align="left">
-      <img src="docs/readme/screenshots/mcp.png" alt="MCP" width="100%">
+      <img src="/docs/readme/screenshots/mcp.png" alt="MCP" width="100%">
       <br />
       <strong>MCP</strong> · Paste the setup prompt into Codex, Claude Code, or any MCP host.
     </td>
@@ -127,19 +127,19 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 
 1.  **Drop in a photograph.** JPEG or PNG, up to 20 MB and 6000 px on the long edge. Arrived without one? Start from the sample bottle.
 
-    <img src="docs/readme/steps/1-drop-in-a-photograph.png" alt="Drop in a photograph" width="100%">
+    <img src="/docs/readme/steps/1-drop-in-a-photograph.png" alt="Drop in a photograph" width="100%">
 
 2.  **Say what you want.** Plain words, up to 500 characters: brighten it, warm the colors, darken the corners. The workbench title is “Give the agent one clear direction.”
 
-    <img src="docs/readme/steps/2-say-what-you-want.png" alt="Say what you want" width="100%">
+    <img src="/docs/readme/steps/2-say-what-you-want.png" alt="Say what you want" width="100%">
 
 3.  **Watch it work, and correct it.** GPT-6 Astra drives Photopea. Type a correction while it runs; the next steps bend, without starting over. It cannot undo a step already taken, but it can repair one.
 
-    <img src="docs/readme/steps/3-watch-it-work.png" alt="Watch it work, and correct it" width="100%">
+    <img src="/docs/readme/steps/3-watch-it-work.png" alt="Watch it work, and correct it" width="100%">
 
 4.  **Download the layered PSD.** Every edit arrives on its own named layer, its mask and adjustment still editable. A flattened PNG comes with it to preview. Open the file in Photoshop, Affinity Photo, GIMP, or back in Photopea.
 
-    <img src="docs/readme/steps/4-download-the-layered-psd.png" alt="Download the layered PSD" width="100%">
+    <img src="/docs/readme/steps/4-download-the-layered-psd.png" alt="Download the layered PSD" width="100%">
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -160,18 +160,11 @@ Built for [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-ast
 ### Architecture
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/architecture-dark.svg">
-  <img src="docs/readme/architecture-light.svg" alt="Layerhand architecture">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/readme/architecture-dark.svg">
+  <img src="/docs/readme/architecture-light.svg" alt="Layerhand architecture">
 </picture>
 
-The diagram is drawn with [archify](https://github.com/tt-a1i/archify) from [`architecture.json`](docs/readme/architecture.json).
-
-One long-lived Bun process (`apps/server/index.ts`) serves the page and the API.
-
-- **Pages.** `/` is the single-page app (`apps/web/index.html` → `apps/web/app.ts`). `/mcp` is the setup page. Plugin artifacts are packed from `packages/layerhand-mcp`.
-- **Runs.** `POST /api/runs` starts a run; `GET /api/runs/:id/events` streams progress; `POST .../steer` and `POST .../cancel` apply during the run. Uploads go to `POST /api/uploads`.
-- **Modes.** `RUN_MODE` is `fake` (default), `scripted`, or `agent`. Fake is a timed script so the workbench can be built without a key or a browser. Agent mode needs `BROWSERBASE_API_KEY` and `PUBLIC_URL` so Browserbase can load `/photopea-host`.
-- **MCP.** `packages/layerhand-mcp` is a stdio MCP server. It reads `OPENAI_API_KEY` from the environment (never from a tool argument) and calls the same HTTP API. `LAYERHAND_URL` defaults to the public service.
+Made with [Archify](https://github.com/tt-a1i/archify) from [`architecture.json`](/docs/readme/architecture.json).
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -257,7 +250,7 @@ See [open issues](https://github.com/M1KUAPP/Layerhand/issues) for a full list o
 ## Team
 
 <a href="https://github.com/M1KUAPP/Layerhand/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=M1KUAPP/Layerhand" alt="Team" />
+  <img src="https://contrib.rocks/image?repo=M1KUAPP/Layerhand" alt="Layerhand team" />
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
@@ -268,7 +261,7 @@ Made with [contrib.rocks](https://contrib.rocks).
 
 ## License
 
-See [LICENSE](LICENSE) for more information.
+See [LICENSE](/LICENSE) for more information.
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
@@ -280,9 +273,9 @@ See [LICENSE](LICENSE) for more information.
 - [GPT-6 Astra Challenge](https://www.producthunt.com/contests/gpt-6-astra-challenge) — OpenAI × Product Hunt.
 - [Hugeicons](https://hugeicons.com/) — icon font on the landing and workbench.
 - [Canvas UI](https://canvasui.dev/) — glass object on “Still yours to edit.”
-- [archify](https://github.com/tt-a1i/archify) — architecture diagrams.
-- [Shields.io](https://shields.io)
+- [Archify](https://github.com/tt-a1i/archify)
 - [contrib.rocks](https://contrib.rocks)
+- [Shields.io](https://shields.io)
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
